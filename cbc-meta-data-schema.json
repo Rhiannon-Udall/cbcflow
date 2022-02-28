@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/product.schema.json",
+  "title": "CBC-meta-data",
+  "description": "The meta-data for a single CBC trigger",
+  "type": "object",
+  "properties": {
+    "publications": {
+      "description": "The publications meta-data",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      }
+    },
+  },
+}
