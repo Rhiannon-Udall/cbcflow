@@ -14,9 +14,9 @@
           "type": "array",
           "items": {
             "type": "string"
-           },
-        },
-      },
+           }
+        }
+      }
     },
     "parameter_estimation": {
       "description": "The parameter estimation meta-data",
@@ -24,13 +24,12 @@
       "properties": {
         "analysts": {
           "description": "The names of all analysts involved",
-          "type": "array"
+          "type": "array",
           "items": {
             "type": "string"
-           },
+           }
         }
-
       }
     }
-  },
+  }
 }
