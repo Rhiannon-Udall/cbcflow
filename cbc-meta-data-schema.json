@@ -7,11 +7,30 @@
   "properties": {
     "publications": {
       "description": "The publications meta-data",
-      "type": "array",
-      "items": {
-        "type": "string"
+      "type": "object",
+      "properties": {
+        "papers": {
+          "description": "The papers this trigger appears in",
+          "type": "array",
+          "items": {
+            "type": "string"
+           },
+        },
       },
-      }
     },
+    "parameter_estimation": {
+      "description": "The parameter estimation meta-data",
+      "type": "object",
+      "properties": {
+        "analysts": {
+          "description": "The names of all analysts involved",
+          "type": "array"
+          "items": {
+            "type": "string"
+           },
+        }
+
+      }
+    }
   },
 }
