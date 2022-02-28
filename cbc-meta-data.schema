@@ -20,6 +20,7 @@
     },
     "parameter_estimation": {
       "description": "The parameter estimation meta-data",
+      "additionalProperties": false,
       "type": "object",
       "properties": {
         "analysts": {
@@ -28,7 +29,63 @@
           "items": {
             "type": "string"
            }
+        },
+        "reviewers": {
+          "description": "The names of all reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+           }
+        },
+        "status": {
+          "description": "The status of ongoing parameter estimation",
+          "type": "string"
+        },
+        "results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/peresult"}
         }
+      }
+    }
+  },
+  "$defs": {
+    "peresult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "name", "config_file" ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the analysis"
+        },
+        "config_file": {
+          "type": "string",
+          "description": "The configuration file of the analysis"
+        },
+        "result_file": {
+          "type": "string",
+          "description": "The path to the raw result file"
+        },
+        "pesummary_result_file": {
+          "type": "string",
+          "description": "The path to the pesummary meta-data file"
+        },
+        "review_status": {
+          "type": "string",
+          "enum": ["pass", "fail", "ongoing"],
+          "description": "Status of the review"
+        },
+        "run_status": {
+          "type": "string",
+          "enum": ["complete", "running", "stuck"],
+          "description": "Status of the run"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Arbitrary comment string"
+        }
+
       }
     }
   }
