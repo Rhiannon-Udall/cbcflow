@@ -89,14 +89,12 @@ def process_property(key, value, arg, parser, default_data):
     elif value["type"] == "array":
         if value["items"].get("type") == "string":
             parser.add_argument(
-                "--" + arg + "-add",
-                action="store",
-                help=f"Append to the {arg}"
+                "--" + arg + "-add", action="store", help=f"Append to the {arg}"
             )
             parser.add_argument(
                 "--" + arg + "-remove",
                 action="store",
-                help=f"Remove from {arg}: note this must be an exact match"
+                help=f"Remove from {arg}: note this must be an exact match",
             )
             default_data[key] = []
         elif "$ref" in value["items"]:
@@ -142,13 +140,15 @@ def process_arg(arg, val, meta_data, group):
         try:
             dict_to_update[subkey].remove(val)
         except ValueError:
-            raise ValueError(f"Request to remove {val} from {group}/{subkey} failed: no match")
+            raise ValueError(
+                f"Request to remove {val} from {group}/{subkey} failed: no match"
+            )
 
 
 special_keys = []
 
 
-def get_special_keys(schema, prekey=''):
+def get_special_keys(schema, prekey=""):
     properties = schema["properties"]
     for key in properties:
         if properties[key]["type"] == "object":
@@ -162,8 +162,8 @@ get_special_keys(schema)
 args = parser.parse_args()
 arg_groups = {}
 for group in parser._action_groups:
-    group_dict={a.dest: getattr(args, a.dest, None) for a in group._group_actions}
-    arg_groups[group.title]=argparse.Namespace(**group_dict)
+    group_dict = {a.dest: getattr(args, a.dest, None) for a in group._group_actions}
+    arg_groups[group.title] = argparse.Namespace(**group_dict)
 
 meta_data = MetaData(args.sname, args.library, init_data=data)
 for group, args in arg_groups.items():
