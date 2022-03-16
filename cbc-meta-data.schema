@@ -6,6 +6,24 @@
   "additionalProperties": false,
   "type": "object",
   "properties": {
+    "info": {
+      "description": "General information about the trigger",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "sname": {
+          "description": "The GraceDB defined sname",
+          "type": "string"
+        },
+        "labels": {
+          "description": "Any labels the trigger has",
+          "type": "array",
+          "items": {
+            "type": "string"
+           }
+        }
+      }
+    },
     "publications": {
       "description": "The publications meta-data",
       "additionalProperties": false,
@@ -41,7 +59,8 @@
         },
         "status": {
           "description": "The status of ongoing parameter estimation",
-          "type": "string"
+          "type": "string",
+          "default": "init"
         },
         "results": {
           "description": "A list of results",
@@ -55,9 +74,9 @@
     "peresult": {
       "type": "object",
       "additionalProperties": false,
-      "required": [ "name", "config_file" ],
+      "required": [ "UID" ],
       "properties": {
-        "name": {
+        "UID": {
           "type": "string",
           "description": "The name of the analysis"
         },
