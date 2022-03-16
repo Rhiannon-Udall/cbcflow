@@ -8,7 +8,7 @@
         "status": "complete",
         "results": [
           {
-            "name": "ProdF1",
+            "UID": "ProdF1",
             "config_file": "CIT:/home/albert.einstein/O4/ProdF1_config.ini",
             "result_file": "CIT:/home/albert.einstein/O4/ProdF1_results.h5",
             "review_status": "pass",
@@ -16,7 +16,7 @@
             "comment": "Here is a comment"
           },
           {
-            "name": "ProdF2",
+            "UID": "ProdF2",
             "config_file": "CIT:/home/albert.einstein/O4/ProdF2_config.ini",
             "result_file": "CIT:/home/albert.einstein/O4/ProdF2_results.h5",
             "review_status": "fail",
