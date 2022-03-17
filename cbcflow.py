@@ -1,8 +1,14 @@
+#!/usr/bin/env python
+# PYTHON_ARGCOMPLETE_OK
+
 import argparse
+import copy
 import json
 import os
 
+import argcomplete
 import jsonschema
+import jsondiff
 
 
 group_shorthands = dict(
@@ -17,6 +23,12 @@ with open(SCHEMA, "r") as file:
 IGNORE_ARGS = ["info-sname"]
 
 
+def standardize_list(inlist):
+    inlist = list(set(inlist))
+    inlist = sorted(inlist)
+    return inlist
+
+
 def get_subkey(arg, group, suffix):
     for key, val in group_shorthands.items():
         group = group.replace(val, key)
@@ -29,10 +41,13 @@ class MetaData(object):
     def __init__(self, sname, library, init_data=None):
         self.sname = sname
         self.library = library
+        self._loaded_data = None
+
         if os.path.exists(self.library_file):
             print("Found existing library file: loading")
             self.load_from_library()
         else:
+            print("No library file: creating defaults")
             if init_data is None:
                 self.data = {}
             else:
@@ -49,12 +64,25 @@ class MetaData(object):
 
         self.validate(data)
         self.data = data
-        self._loaded_data = data.copy()
+        self._loaded_data = copy.deepcopy(data)
 
     def write_to_library(self):
         self.validate(self.data)
+        self.print_diff()
         with open(self.library_file, "w") as file:
             json.dump(self.data, file, indent=2)
+
+    def print_diff(self):
+        if self._loaded_data is None:
+            return
+
+        diff = jsondiff.diff(self._loaded_data, self.data)
+        if diff:
+            print("Changes between loaded and current data:")
+            print(diff)
+
+    def pretty_print(self, data):
+        print(json.dumps(data, indent=4))
 
     def validate(self, data):
         jsonschema.validate(data, schema)
@@ -108,6 +136,7 @@ def process_property(key, value, arg, parser, default_data):
 parser = argparse.ArgumentParser(allow_abbrev=False)
 parser.add_argument("sname", help="The superevent SNAME")
 parser.add_argument("--library", default=".", help="The library")
+parser.add_argument("--print", action="store_true")
 
 
 data = {}
@@ -134,7 +163,7 @@ def process_arg(arg, val, meta_data, group):
     elif "_add" in arg:
         subkey = get_subkey(arg, group, "add")
         dict_to_update[subkey].append(val)
-        dict_to_update[subkey] = list(set(dict_to_update[subkey]))
+        dict_to_update[subkey] = standardize_list(dict_to_update[subkey])
     elif "_remove" in arg:
         subkey = get_subkey(arg, group, "remove")
         try:
@@ -159,13 +188,14 @@ def get_special_keys(schema, prekey=""):
 
 get_special_keys(schema)
 
-args = parser.parse_args()
+argcomplete.autocomplete(parser)
+main_args = parser.parse_args()
 arg_groups = {}
 for group in parser._action_groups:
-    group_dict = {a.dest: getattr(args, a.dest, None) for a in group._group_actions}
+    group_dict = {a.dest: getattr(main_args, a.dest, None) for a in group._group_actions}
     arg_groups[group.title] = argparse.Namespace(**group_dict)
 
-meta_data = MetaData(args.sname, args.library, init_data=data)
+meta_data = MetaData(main_args.sname, main_args.library, init_data=data)
 for group, args in arg_groups.items():
     for arg, val in args.__dict__.items():
         process_arg(arg, val, meta_data, group)
@@ -194,6 +224,7 @@ for key in special_keys:
             if new_run:
                 meta_data.data[group][subkey].append(special_key_set)
 
-print(json.dumps(meta_data.data, indent=4))
 meta_data.validate(meta_data.data)
 meta_data.write_to_library()
+if main_args.print:
+    meta_data.pretty_print(meta_data.data)
