@@ -170,7 +170,7 @@ class MetaData(object):
             pass
 
 
-def get_schema_path(version="v1"):
+def get_schema_path(version):
     ddir = importlib_resources.files("cbcflow") / "schema"
     files = ddir.glob("*schema")
     matches = []
@@ -180,15 +180,19 @@ def get_schema_path(version="v1"):
     if len(matches) == 1:
         return matches[0]
     elif len(matches) == 0:
-        ValueError("No schema file found")
+        raise ValueError(f"No schema file for version {version} found")
     elif len(matches) > 1:
-        ValueError("Too many matching schema files found")
+        raise ValueError("Too many matching schema files found")
+
+
+def get_schema_from_version(version):
+    with get_schema_path(version).open("r") as file:
+        schema = json.load(file)
+    return schema
 
 
 def main():
-    SCHEMA = get_schema_path()
-    with open(SCHEMA, "r") as file:
-        schema = json.load(file)
+    schema = get_schema_from_version("v1")
 
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("sname", help="The superevent SNAME")
