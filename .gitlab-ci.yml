@@ -2,5 +2,5 @@ test:
   image: containers.ligo.org/lscsoft/bilby/v2-bilby-python39
   script:
     - pip install jsonschema
-    - jsonschema -i cbc-meta-data-example.json cbc-meta-data.schema
+    - jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data-v1.schema
 
