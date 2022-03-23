@@ -24,6 +24,7 @@ repos:
     hooks:
     -   id: isort # sort imports alphabetically and separates import into sections
         args: [-w=88, -m=3, -tc, -sp=setup.cfg ]
+    rev: 5.10.1
 -   repo: local
     hooks:
     -   id: flynt
