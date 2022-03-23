@@ -6,6 +6,8 @@ import copy
 import importlib.resources as importlib_resources
 import json
 import os
+import sys
+from pathlib import Path
 
 import argcomplete
 import jsondiff
@@ -185,19 +187,37 @@ def get_schema_path(version):
         raise ValueError("Too many matching schema files found")
 
 
-def get_schema_from_version(version):
-    with get_schema_path(version).open("r") as file:
+def get_schema():
+    args = sys.argv
+    VERSION = "v1"
+
+    # Bootstrap the schema file if requested
+    fileflag = "--schema-file"
+    versionflag = "--schema-version"
+    if fileflag in args:
+        schema_file = Path(args[args.index(fileflag) + 1])
+    elif versionflag in args:
+        version = args[args.index(versionflag) + 1]
+        schema_file = get_schema_path(version)
+    else:
+        schema_file = get_schema_path(VERSION)
+
+    print(f"Using schema file {schema_file}")
+    with schema_file.open("r") as file:
         schema = json.load(file)
+
     return schema
 
 
 def main():
-    schema = get_schema_from_version("v1")
+    schema = get_schema()
 
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("sname", help="The superevent SNAME")
     parser.add_argument("--library", default="library", help="The library")
     parser.add_argument("--print", action="store_true")
+    parser.add_argument("--schema-file", help="TESTING ONLY: A path to a schema file")
+    parser.add_argument("--schema-version", help="The schema version to use")
 
     data = {}
     for group, subschema in schema["properties"].items():
