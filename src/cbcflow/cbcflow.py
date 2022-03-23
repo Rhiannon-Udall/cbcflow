@@ -3,6 +3,7 @@
 
 import argparse
 import copy
+import importlib.resources as importlib_resources
 import json
 import os
 
@@ -169,8 +170,23 @@ class MetaData(object):
             pass
 
 
+def get_schema_path(version="v1"):
+    ddir = importlib_resources.files("cbcflow") / "schema"
+    files = ddir.glob("*schema")
+    matches = []
+    for file in files:
+        if version in str(file):
+            matches.append(file)
+    if len(matches) == 1:
+        return matches[0]
+    elif len(matches) == 0:
+        ValueError("No schema file found")
+    elif len(matches) > 1:
+        ValueError("Too many matching schema files found")
+
+
 def main():
-    SCHEMA = "cbc-meta-data.schema"
+    SCHEMA = get_schema_path()
     with open(SCHEMA, "r") as file:
         schema = json.load(file)
 
