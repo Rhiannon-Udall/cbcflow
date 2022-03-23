@@ -9,4 +9,3 @@ $ pip install jsonschema
 $ jsonschema jsonschema -i cbc-meta-data-example.json cbc-meta-data.schema
 ```
 * For help with the json schema, see https://json-schema.org/learn/getting-started-step-by-step.html
-

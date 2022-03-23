@@ -1,6 +1,21 @@
+include:
+  - project: computing/gitlab-ci-templates
+    file:
+      - python.yml
+
+stages:
+  - precommit
+  - test
+
+precommit:
+  extends:
+      - .python:pytest
+  script:
+    - pip install pre-commit
+    - pre-commit run --all-files --verbose --show-diff-on-failure
+
 test:
   image: containers.ligo.org/lscsoft/bilby/v2-bilby-python39
   script:
     - pip install jsonschema
     - jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data-v1.schema
-

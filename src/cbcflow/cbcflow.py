@@ -7,9 +7,8 @@ import json
 import os
 
 import argcomplete
-import jsonschema
 import jsondiff
-
+import jsonschema
 
 group_shorthands = dict(
     parameter_estimation="parameter_estimation",
@@ -42,7 +41,7 @@ def get_special_keys(schema, prekey=""):
     return special_keys
 
 
-def process_arg(arg, val, meta_data, group):
+def process_arg(arg, val, meta_data, group, special_keys):
     if val is None or group in ["positional arguments", "optional arguments"]:
         return
 
@@ -182,7 +181,9 @@ def main():
 
     data = {}
     for group, subschema in schema["properties"].items():
-        arg_group = parser.add_argument_group(group, description=subschema["description"])
+        arg_group = parser.add_argument_group(
+            group, description=subschema["description"]
+        )
         arg = f"{group}"
         data[group] = {}
         for key, value in subschema["properties"].items():
@@ -194,13 +195,17 @@ def main():
     main_args = parser.parse_args()
     arg_groups = {}
     for group in parser._action_groups:
-        group_dict = {a.dest: getattr(main_args, a.dest, None) for a in group._group_actions}
+        group_dict = {
+            a.dest: getattr(main_args, a.dest, None) for a in group._group_actions
+        }
         arg_groups[group.title] = argparse.Namespace(**group_dict)
 
-    meta_data = MetaData(main_args.sname, main_args.library, init_data=data, schema=schema)
+    meta_data = MetaData(
+        main_args.sname, main_args.library, init_data=data, schema=schema
+    )
     for group, args in arg_groups.items():
         for arg, val in args.__dict__.items():
-            process_arg(arg, val, meta_data, group)
+            process_arg(arg, val, meta_data, group, special_keys)
 
     for key in special_keys:
         special_key_set = {}
@@ -215,7 +220,9 @@ def main():
             if len(special_key_set) > 0:
 
                 if "UID" not in special_key_set:
-                    raise ValueError(f"To set {key} properties, you must provide the UID")
+                    raise ValueError(
+                        f"To set {key} properties, you must provide the UID"
+                    )
 
                 new_run = True
                 for item in meta_data.data[group][subkey]:
