@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/product.schema.json",
+  "$id": "https://git.ligo.org/cbc/meta-data/-/raw/main/schema/cbc-meta-data-v1.schema",
   "title": "CBC-meta-data",
   "description": "The meta-data for a single CBC trigger",
   "additionalProperties": false,
