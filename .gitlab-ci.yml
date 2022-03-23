@@ -27,8 +27,7 @@ unit-test:
   stage: test
   extends:
     - .python:pytest
-  before_script:
+  script:
     - pip install -r requirements.txt
     - pip install .
-  script:
     - pytest --cov cbcflow --cov-report xml
