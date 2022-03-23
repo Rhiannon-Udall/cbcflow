@@ -4,17 +4,19 @@ include:
       - python.yml
 
 stages:
-  - precommit
+  - initial
   - test
 
 precommit:
+  stage: initial
   extends:
       - .python:pytest
   script:
     - pip install pre-commit
     - pre-commit run --all-files --verbose --show-diff-on-failure
 
-test:
+integration-test:
+  stage: test
   image: containers.ligo.org/lscsoft/bilby/v2-bilby-python39
   script:
     - pip install jsonschema
