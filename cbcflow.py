@@ -41,6 +41,9 @@ class MetaData(object):
     def __init__(self, sname, library, init_data=None):
         self.sname = sname
         self.library = library
+        if os.path.exists(library) is False:
+            os.mkdir(library)
+
         self._loaded_data = None
 
         if os.path.exists(self.library_file):
@@ -135,7 +138,7 @@ def process_property(key, value, arg, parser, default_data):
 
 parser = argparse.ArgumentParser(allow_abbrev=False)
 parser.add_argument("sname", help="The superevent SNAME")
-parser.add_argument("--library", default=".", help="The library")
+parser.add_argument("--library", default="library", help="The library")
 parser.add_argument("--print", action="store_true")
 
 
