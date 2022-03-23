@@ -29,5 +29,6 @@ unit-test:
     - .python:pytest
   before_script:
     - pip install -r requirements.txt
+    - pip install .
   script:
     - pytest --cov cbcflow --cov-report xml
