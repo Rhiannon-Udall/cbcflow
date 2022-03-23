@@ -28,4 +28,4 @@ unit-test:
   extends:
       - .python:pytest
   script:
-    - pytest
+    - pytest --cov cbcflow --cov-report xml
