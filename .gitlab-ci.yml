@@ -10,14 +10,15 @@ stages:
 precommit:
   stage: initial
   extends:
-      - .python:pytest
+      - .python:base
   script:
     - pip install pre-commit
     - pre-commit run --all-files --verbose --show-diff-on-failure
 
 integration-test:
   stage: test
-  image: containers.ligo.org/lscsoft/bilby/v2-bilby-python39
+  extends:
+      - .python:base
   script:
     - pip install jsonschema
     - jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data-v1.schema
