@@ -22,3 +22,10 @@ integration-test:
   script:
     - pip install jsonschema
     - jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data-v1.schema
+
+unit-test:
+  stage: test
+  extends:
+      - .python:pytest
+  script:
+    - pytest

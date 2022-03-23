@@ -19,8 +19,9 @@ def get_schema_path(version):
         raise ValueError("Too many matching schema files found")
 
 
-def get_schema():
-    args = sys.argv
+def get_schema(args=None):
+    if args is None:
+        args = sys.argv
     VERSION = "v1"
 
     # Bootstrap the schema file if requested
