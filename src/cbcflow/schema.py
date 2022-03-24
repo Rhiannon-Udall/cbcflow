@@ -40,3 +40,14 @@ def get_schema(args=None):
         schema = json.load(file)
 
     return schema
+
+
+def get_special_keys(schema, prekey=""):
+    special_keys = []
+    properties = schema["properties"]
+    for key in properties:
+        if properties[key]["type"] == "object":
+            get_special_keys(schema["properties"][key], prekey=key)
+        elif properties[key]["type"] == "array" and "$ref" in properties[key]["items"]:
+            special_keys.append(prekey + "_" + key)
+    return special_keys
