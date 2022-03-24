@@ -2,14 +2,10 @@
 # PYTHON_ARGCOMPLETE_OK
 
 import argparse
-import copy
-import json
-import os
 
 import argcomplete
-import jsondiff
-import jsonschema
 
+from .metadata import MetaData
 from .schema import get_schema
 
 group_shorthands = dict(
@@ -43,14 +39,14 @@ def get_special_keys(schema, prekey=""):
     return special_keys
 
 
-def process_arg(arg, val, meta_data, group, special_keys):
+def process_arg(arg, val, metadata, group, special_keys):
     if val is None or group in ["positional arguments", "optional arguments"]:
         return
 
     if any([sk in arg for sk in special_keys]):
         return
 
-    dict_to_update = meta_data.data[group]
+    dict_to_update = metadata.data[group]
 
     if "_set" in arg:
         subkey = get_subkey(arg, group, "set")
@@ -110,67 +106,6 @@ def process_property(key, value, arg, parser, default_data, schema):
                 process_property(k, v, arg, parser, {}, schema)
 
 
-class MetaData(object):
-    fname_suffix = "json"
-
-    def __init__(self, sname, library, init_data=None, schema=None):
-        self.sname = sname
-        self.library = library
-        if os.path.exists(library) is False:
-            os.mkdir(library)
-
-        self.schema = schema
-        self._loaded_data = None
-
-        if os.path.exists(self.library_file):
-            print("Found existing library file: loading")
-            self.load_from_library()
-        else:
-            print("No library file: creating defaults")
-            if init_data is None:
-                self.data = {}
-            else:
-                self.validate(init_data)
-                self.data = init_data
-
-    @property
-    def library_file(self):
-        return os.path.join(self.library, self.sname + "." + self.fname_suffix)
-
-    def load_from_library(self):
-        with open(self.library_file, "r") as file:
-            data = json.load(file)
-
-        self.validate(data)
-        self.data = data
-        self._loaded_data = copy.deepcopy(data)
-
-    def write_to_library(self):
-        self.validate(self.data)
-        self.print_diff()
-        with open(self.library_file, "w") as file:
-            json.dump(self.data, file, indent=2)
-
-    def print_diff(self):
-        if self._loaded_data is None:
-            return
-
-        diff = jsondiff.diff(self._loaded_data, self.data)
-        if diff:
-            print("Changes between loaded and current data:")
-            print(diff)
-
-    def pretty_print(self, data):
-        print(json.dumps(data, indent=4))
-
-    def validate(self, data):
-        jsonschema.validate(data, self.schema)
-
-    def construct(self):
-        for key, val in self.schema["properties"].items():
-            pass
-
-
 def main():
     schema = get_schema()
 
@@ -202,12 +137,12 @@ def main():
         }
         arg_groups[group.title] = argparse.Namespace(**group_dict)
 
-    meta_data = MetaData(
+    metadata = MetaData(
         main_args.sname, main_args.library, init_data=data, schema=schema
     )
     for group, args in arg_groups.items():
         for arg, val in args.__dict__.items():
-            process_arg(arg, val, meta_data, group, special_keys)
+            process_arg(arg, val, metadata, group, special_keys)
 
     for key in special_keys:
         special_key_set = {}
@@ -227,15 +162,15 @@ def main():
                     )
 
                 new_run = True
-                for item in meta_data.data[group][subkey]:
+                for item in metadata.data[group][subkey]:
                     if item["UID"] == special_key_set["UID"]:
                         item.update(special_key_set)
                         new_run = False
 
                 if new_run:
-                    meta_data.data[group][subkey].append(special_key_set)
+                    metadata.data[group][subkey].append(special_key_set)
 
-    meta_data.validate(meta_data.data)
-    meta_data.write_to_library()
+    metadata.validate(metadata.data)
+    metadata.write_to_library()
     if main_args.print:
-        meta_data.pretty_print(meta_data.data)
+        metadata.pretty_print(metadata.data)
