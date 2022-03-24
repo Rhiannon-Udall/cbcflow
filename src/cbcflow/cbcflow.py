@@ -116,15 +116,15 @@ def main():
     parser.add_argument("--schema-file", help="TESTING ONLY: A path to a schema file")
     parser.add_argument("--schema-version", help="The schema version to use")
 
-    data = {}
+    default_data = {}
     for group, subschema in schema["properties"].items():
         arg_group = parser.add_argument_group(
             group, description=subschema["description"]
         )
         arg = f"{group}"
-        data[group] = {}
+        default_data[group] = {}
         for key, value in subschema["properties"].items():
-            process_property(key, value, arg, arg_group, data[group], schema)
+            process_property(key, value, arg, arg_group, default_data[group], schema)
 
     special_keys = get_special_keys(schema)
 
@@ -138,7 +138,7 @@ def main():
         arg_groups[group.title] = argparse.Namespace(**group_dict)
 
     metadata = MetaData(
-        main_args.sname, main_args.library, init_data=data, schema=schema
+        main_args.sname, main_args.library, init_data=default_data, schema=schema
     )
     for group, args in arg_groups.items():
         for arg, val in args.__dict__.items():

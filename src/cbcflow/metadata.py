@@ -9,7 +9,7 @@ import jsonschema
 class MetaData(object):
     fname_suffix = "json"
 
-    def __init__(self, sname, library, init_data=None, schema=None):
+    def __init__(self, sname, library, default_data=None, schema=None):
         """A object to store and interact with a metadata object
 
         Parameters
@@ -18,7 +18,8 @@ class MetaData(object):
             The GraceDB assigned SNAME of the event
         library: str
             A directory to store cached copies of the metadata
-        init_data: dict
+        default_data: dict
+            A dictionary containing the defaults inferred from the schema
         schema: dict
             The loaded schema for validation
         """
@@ -33,11 +34,11 @@ class MetaData(object):
             self.load_from_library()
         else:
             print("No library file: creating defaults")
-            if init_data is None:
+            if default_data is None:
                 self.data = {}
             else:
-                self.validate(init_data)
-                self.data = init_data
+                self.validate(default_data)
+                self.data = default_data
 
     @property
     def library(self):
