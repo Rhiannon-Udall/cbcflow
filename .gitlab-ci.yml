@@ -1,6 +1,33 @@
-test:
-  image: containers.ligo.org/lscsoft/bilby/v2-bilby-python39
+include:
+  - project: computing/gitlab-ci-templates
+    file:
+      - python.yml
+
+stages:
+  - initial
+  - test
+
+precommit:
+  stage: initial
+  extends:
+    - .python:base
+  script:
+    - pip install pre-commit
+    - pre-commit run --all-files --verbose --show-diff-on-failure
+
+integration-test:
+  stage: test
+  extends:
+    - .python:base
   script:
     - pip install jsonschema
-    - jsonschema -i cbc-meta-data-example.json cbc-meta-data.schema
+    - jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data-v1.schema
 
+unit-test:
+  stage: test
+  extends:
+    - .python:pytest
+  script:
+    - pip install -r requirements.txt
+    - pip install .
+    - pytest --cov cbcflow --cov-report xml
