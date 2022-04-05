@@ -10,10 +10,12 @@
       "description": "General information about the trigger",
       "additionalProperties": false,
       "type": "object",
+      "required": [ "sname" ],
       "properties": {
         "sname": {
           "description": "The GraceDB defined sname",
-          "type": "string"
+          "type": "string",
+          "pattern": "^S[0-9]{6}[a-z]+"
         },
         "labels": {
           "description": "Any labels the trigger has",
