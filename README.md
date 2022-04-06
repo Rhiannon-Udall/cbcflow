@@ -12,6 +12,11 @@ $ jsonschema jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data
 ```
 * For help with the json schema, see https://json-schema.org/learn/getting-started-step-by-step.html
 
+### R&D group liaisons
+
+* Richard Udall (PE)
+* Wynn Ho (EM)
+
 ## cbcflow
 
 This repository contains the source code for `cbcflow` a tool to interact with the metadata.
