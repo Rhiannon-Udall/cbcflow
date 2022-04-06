@@ -11,6 +11,7 @@ def main():
     schema = get_schema()
     parser, default_data = get_parser_and_default_data(schema)
     args = parser.parse_args()
+    default_data["sname"] = args.sname
 
     metadata = MetaData(
         args.sname, args.library, default_data=default_data, schema=schema

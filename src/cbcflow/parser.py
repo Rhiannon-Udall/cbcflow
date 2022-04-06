@@ -52,8 +52,11 @@ def process_property(key, value, arg, parser, default_data, schema):
 
 
 def build_parser_from_schema(parser, schema):
-    default_data = {}
+    default_data = {"sname": None}
+    ignore_groups = ["sname"]
     for group, subschema in schema["properties"].items():
+        if group in ignore_groups:
+            continue
         arg_group = parser.add_argument_group(
             group, description=subschema["description"]
         )

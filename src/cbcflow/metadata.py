@@ -7,9 +7,7 @@ import jsonschema
 
 
 class MetaData(object):
-    fname_suffix = "json"
-
-    def __init__(self, sname, library, default_data=None, schema=None):
+    def __init__(self, sname, library, default_data, schema):
         """A object to store and interact with a metadata object
 
         Parameters
@@ -34,11 +32,8 @@ class MetaData(object):
             self.load_from_library()
         else:
             print("No library file: creating defaults")
-            if default_data is None:
-                self.data = {}
-            else:
-                self.validate(default_data)
-                self.data = default_data
+            self.validate(default_data)
+            self.data = default_data
 
     @property
     def library(self):
@@ -50,9 +45,15 @@ class MetaData(object):
             os.mkdir(library)
         self._library = library
 
+    @staticmethod
+    def get_filename(sname):
+        fname_suffix = "json"
+        return sname + "-cbc-metadata" + "." + fname_suffix
+
     @property
     def library_file(self):
-        return os.path.join(self.library, self.sname + "." + self.fname_suffix)
+        fname = self.get_filename(self.sname)
+        return os.path.join(self.library, fname)
 
     def load_from_library(self):
         with open(self.library_file, "r") as file:
