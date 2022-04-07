@@ -31,7 +31,7 @@ def main():
     )
 
     if args.pull_from_gracedb:
-        gdb = GraceDbDatabase()
+        gdb = GraceDbDatabase(service_url=args.gracedb_service_url)
         database_data = gdb.pull(args.sname)
         metadata.data.update(database_data)
         metadata.write_to_library()

@@ -10,12 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 class GraceDbDatabase(object):
-    def __init__(self, service_url="https://gracedb-test.ligo.org/api/"):
+    def __init__(self, service_url):
         self.service_url = service_url
 
     def pull(self, sname):
         fname = MetaData.get_filename(sname)
         try:
+            print(self.service_url)
             with GraceDb(service_url=self.service_url) as gdb:
                 return json.loads(gdb.files(sname, fname).data)
         except HTTPError:
