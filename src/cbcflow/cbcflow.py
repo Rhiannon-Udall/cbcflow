@@ -9,22 +9,30 @@ from .schema import get_schema
 
 
 def main():
+    # Read in command line arguments
     schema = get_schema()
     parser, default_data = get_parser_and_default_data(schema)
     args = parser.parse_args()
 
+    # Set the sname in the default data
     default_data["sname"] = args.sname
+
+    # Instantiate the metadata
     metadata = MetaData(
         args.sname, args.library, default_data=default_data, schema=schema
     )
 
+    # Pull the latest file from GraceDb and overwrite the metadata
     gdb = GraceDbDatabase()
-    database_data = gdb.fetch(args.sname)
+    database_data = gdb.pull(args.sname)
     metadata.data.update(database_data)
 
+    # Process updates from the user input
     process_user_input(args, parser, schema, metadata)
 
     metadata.validate(metadata.data)
     metadata.write_to_library()
     if args.print:
         metadata.pretty_print(metadata.data)
+
+    gdb.push(metadata)
