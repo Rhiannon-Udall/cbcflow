@@ -46,7 +46,7 @@ def main():
         metadata.write_to_library()
 
     if args.push_to_gracedb:
-        gdb = GraceDbDatabase()
+        gdb = GraceDbDatabase(service_url=args.gracedb_service_url)
         gdb.push(metadata)
 
     if args.print:
