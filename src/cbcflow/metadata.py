@@ -1,5 +1,6 @@
 import configparser
 import copy
+import glob
 import json
 import logging
 import os
@@ -45,6 +46,12 @@ class MetaData(object):
             logger.info("No library file: creating defaults")
             self.validate(default_data)
             self.data = default_data
+
+    @staticmethod
+    def from_file(filename, schema, default_data):
+        library = os.path.dirname(filename)
+        sname = os.path.basename(filename).split("-")[0]
+        return MetaData(sname, library, default_data, schema)
 
     @property
     def library(self):
@@ -155,3 +162,16 @@ class MetaData(object):
 
     def validate(self, data):
         jsonschema.validate(data, self.schema)
+
+
+class MetadataList(object):
+    def __init__(self, library, schema):
+        self.library = library
+        default_data = {}
+        self.metadata_list = [
+            MetaData.from_file(f, schema, default_data) for f in self.filelist
+        ]
+
+    @property
+    def filelist(self):
+        return glob.glob(os.path.join(self.library, "*cbc-metadata.json"))
