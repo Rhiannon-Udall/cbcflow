@@ -7,8 +7,14 @@ config_defaults = dict(
 )
 
 config = configparser.ConfigParser()
-config.read(os.path.expanduser("~/.cbcflow.cfg"))
-section = config["cbcflow"]
-for key in config_defaults:
-    if key in list(section.keys()):
-        config_defaults[key] = section[key]
+cfile = os.path.expanduser("~/.cbcflow.cfg")
+
+if os.path.exists(cfile):
+    config.read(cfile)
+    section_key = "cbcflow"
+    if section_key not in config.sections():
+        raise ValueError(f"You need a [cbcflow] section header in {cfile}")
+    section = config[section_key]
+    for key in config_defaults:
+        if key in list(section.keys()):
+            config_defaults[key] = section[key]
