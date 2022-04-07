@@ -50,7 +50,7 @@ def get_special_keys(schema, prekey=""):
     properties = schema["properties"]
     for key in properties:
         if properties[key]["type"] == "object":
-            get_special_keys(schema["properties"][key], prekey=key)
+            special_keys += get_special_keys(schema["properties"][key], prekey=key)
         elif properties[key]["type"] == "array" and "$ref" in properties[key]["items"]:
             special_keys.append(prekey + "_" + key)
     return special_keys
