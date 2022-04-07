@@ -2,3 +2,4 @@ argcomplete
 jsonschema
 jsondiff
 ligo-gracedb
+pygit2
