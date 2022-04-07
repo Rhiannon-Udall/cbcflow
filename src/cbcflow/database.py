@@ -40,6 +40,7 @@ class GraceDbDatabase(Database):
             return {}
 
     def push(self, metadata):
+        print(f"Pushing changes for {metadata.sname} to Gracedb ({self.service_url})")
         message = "Updating cbc-meta"
         with GraceDb(service_url=self.service_url) as gdb:
             gdb.writeLog(
