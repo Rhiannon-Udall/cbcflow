@@ -1,9 +1,12 @@
 import json
+import logging
 
 from ligo.gracedb.exceptions import HTTPError
 from ligo.gracedb.rest import GraceDb
 
 from .metadata import MetaData
+
+logger = logging.getLogger(__name__)
 
 
 class GraceDbDatabase(object):
@@ -16,11 +19,15 @@ class GraceDbDatabase(object):
             with GraceDb(service_url=self.service_url) as gdb:
                 return json.loads(gdb.files(sname, fname).data)
         except HTTPError:
-            print(f"No metadata stored on GraceDb ({self.service_url}) for {sname}")
+            logger.info(
+                f"No metadata stored on GraceDb ({self.service_url}) for {sname}"
+            )
             return {}
 
     def push(self, metadata):
-        print(f"Pushing changes for {metadata.sname} to Gracedb ({self.service_url})")
+        logger.info(
+            f"Pushing changes for {metadata.sname} to Gracedb ({self.service_url})"
+        )
         message = "Updating cbc-meta"
         with GraceDb(service_url=self.service_url) as gdb:
             gdb.writeLog(

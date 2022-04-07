@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # PYTHON_ARGCOMPLETE_OK
 
+import logging
+
 from .database import GraceDbDatabase
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
@@ -9,6 +11,8 @@ from .schema import get_schema
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
+
     # Read in command line arguments
     schema = get_schema()
     parser, default_data = get_parser_and_default_data(schema)
