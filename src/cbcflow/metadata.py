@@ -147,7 +147,7 @@ class MetaData(object):
 
     @property
     def toplevel_diff(self):
-        return ",".join(self.get_diff().keys())
+        return ",".join([str(k) for k in self.get_diff().keys()])
 
     def pretty_print(self, data):
         logger.info(f"Metadata contents for {self.sname}:")
