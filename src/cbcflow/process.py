@@ -40,6 +40,8 @@ def process_arg(arg, val, metadata, group, ignore_keys):
             raise ValueError(
                 f"Request to remove {val} from {group}/{subkey} failed: no match"
             )
+    else:
+        raise ValueError("Processing failed")
 
 
 def get_arg_groups_dictionary(args, parser):

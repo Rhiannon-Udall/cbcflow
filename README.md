@@ -28,10 +28,30 @@ To install `cbcflow` for development, clone this repository and run:
 $ pip install -e .
 ```
 
+### Autocomplete
+
+`cbcflow` uses [argcomplete](https://pypi.org/project/argcomplete/) to help
+with setting arguments. There is a global completion setup (see the
+documentation), but a fallback (often useful on clusters with changing
+environments) is to register the executable directly. This can be done by
+running
+```
+$ eval "$(register-python-argcomplete cbcflow)"
+```
+Note, this command requires that you have installed `argcomplete`.
+
+Once initialised, you can tab complete to get help with setting elements of the
+metadata. For example,
+```
+$ cbcflow SXXYYZZabc --info-[TAB]
+```
+will either auto complete all the `--info-` options, or print a list of
+available options.
+
 ### Getting help
 Run
 ```console
-cbcflow --help
+$ cbcflow --help
 ```
 for help in how to use the program.
 

@@ -71,11 +71,32 @@ def get_parser_and_default_data(schema):
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("sname", help="The superevent SNAME")
     parser.add_argument("--library", default="library", help="The library")
-    parser.add_argument(
-        "--print", action="store_true", help="Print the metadata for the event"
-    )
     parser.add_argument("--schema-version", help="The schema version to use")
     parser.add_argument("--schema-file", help="TESTING ONLY: A path to a schema file")
+    parser.add_argument(
+        "--gracedb-service-url",
+        help="The GraceDb service url",
+        default="https://gracedb-test.ligo.org/api/",
+    )
+
+    actions = parser.add_mutually_exclusive_group(required=True)
+    actions.add_argument(
+        "--update", action="store_true", help="Update the metadata for the event"
+    )
+    actions.add_argument(
+        "--print", action="store_true", help="Print the metadata for the event"
+    )
+    actions.add_argument(
+        "--push-to-gracedb",
+        action="store_true",
+        help="Push changes to the metadata to GraceDB",
+    )
+    actions.add_argument(
+        "--pull-from-gracedb",
+        action="store_true",
+        help="Pull changes to the metadata from GraceDB",
+    )
+
     parser, default_data = build_parser_from_schema(parser, schema)
     argcomplete.autocomplete(parser)
     return parser, default_data

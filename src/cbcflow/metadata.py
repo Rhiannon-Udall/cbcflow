@@ -13,13 +13,14 @@ class MetaData(object):
         Parameters
         ----------
         sname: str
-            The GraceDB assigned SNAME of the event
+            The GraceDB assigned SNAME of the event.
         library: str
-            A directory to store cached copies of the metadata
+            A directory to store cached copies of the metadata.
         default_data: dict
-            A dictionary containing the defaults inferred from the schema
+            A dictionary containing the defaults inferred from the schema. If
+            no default_data is suggested, this should be an empty dictionary.
         schema: dict
-            The loaded schema for validation
+            The loaded schema for validation.
         """
 
         self.sname = sname
@@ -51,9 +52,12 @@ class MetaData(object):
         return sname + "-cbc-metadata" + "." + fname_suffix
 
     @property
+    def filename(self):
+        return self.get_filename(self.sname)
+
+    @property
     def library_file(self):
-        fname = self.get_filename(self.sname)
-        return os.path.join(self.library, fname)
+        return os.path.join(self.library, self.filename)
 
     def load_from_library(self):
         with open(self.library_file, "r") as file:
@@ -66,8 +70,13 @@ class MetaData(object):
     def write_to_library(self):
         self.validate(self.data)
         self.print_diff()
+        print(f"Writing file {self.library_file}")
         with open(self.library_file, "w") as file:
             json.dump(self.data, file, indent=2)
+
+    @property
+    def is_updated(self):
+        return self._loaded_data != self.data
 
     def print_diff(self):
         if self._loaded_data is None:
@@ -79,6 +88,7 @@ class MetaData(object):
             print(diff)
 
     def pretty_print(self, data):
+        print(f"Metadata contents for {self.sname}:")
         print(json.dumps(data, indent=4))
 
     def validate(self, data):
