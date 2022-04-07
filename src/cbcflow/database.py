@@ -6,27 +6,7 @@ from ligo.gracedb.rest import GraceDb
 from .metadata import MetaData
 
 
-class Database(object):
-    def __init__():
-        pass
-
-    def fetch(sname):
-        """Fetch existing information for the event from the database
-
-        Parameters
-        ----------
-        sname: str
-            The superevent name
-
-        Returns
-        -------
-        metadata_dict: dict
-            A dictionary of the metadata stored in the database
-        """
-        pass
-
-
-class GraceDbDatabase(Database):
+class GraceDbDatabase(object):
     def __init__(self, service_url="https://gracedb-test.ligo.org/api/"):
         self.service_url = service_url
 

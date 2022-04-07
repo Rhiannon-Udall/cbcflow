@@ -51,9 +51,12 @@ class MetaData(object):
         return sname + "-cbc-metadata" + "." + fname_suffix
 
     @property
+    def filename(self):
+        return self.get_filename(self.sname)
+
+    @property
     def library_file(self):
-        fname = self.get_filename(self.sname)
-        return os.path.join(self.library, fname)
+        return os.path.join(self.library, self.filename)
 
     def load_from_library(self):
         with open(self.library_file, "r") as file:
