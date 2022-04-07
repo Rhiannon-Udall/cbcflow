@@ -16,7 +16,6 @@ class GraceDbDatabase(object):
     def pull(self, sname):
         fname = MetaData.get_filename(sname)
         try:
-            print(self.service_url)
             with GraceDb(service_url=self.service_url) as gdb:
                 return json.loads(gdb.files(sname, fname).data)
         except HTTPError:
