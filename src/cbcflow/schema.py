@@ -1,7 +1,10 @@
 import importlib.resources as importlib_resources
 import json
+import logging
 import sys
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def get_schema_path(version):
@@ -35,7 +38,7 @@ def get_schema(args=None):
     else:
         schema_file = get_schema_path(VERSION)
 
-    print(f"Using schema file {schema_file}")
+    logger.info(f"Using schema file {schema_file}")
     with schema_file.open("r") as file:
         schema = json.load(file)
 

@@ -1,12 +1,15 @@
 import configparser
 import copy
 import json
+import logging
 import os
 import sys
 
 import jsondiff
 import jsonschema
 import pygit2
+
+logger = logging.getLogger(__name__)
 
 
 class MetaData(object):
@@ -36,10 +39,10 @@ class MetaData(object):
         self._loaded_data = None
 
         if self.library_file_exists:
-            print("Found existing library file: loading")
+            logger.info("Found existing library file: loading")
             self.load_from_library()
         else:
-            print("No library file: creating defaults")
+            logger.info("No library file: creating defaults")
             self.validate(default_data)
             self.data = default_data
 
@@ -76,12 +79,12 @@ class MetaData(object):
 
     def write_to_library(self):
         if self.is_updated is False:
-            print("No changes made, exiting")
+            logger.info("No changes made, exiting")
             return
 
         self.validate(self.data)
         self.print_diff()
-        print(f"Writing file {self.library_file}")
+        logger.info(f"Writing file {self.library_file}")
         with open(self.library_file, "w") as file:
             json.dump(self.data, file, indent=2)
         if self.no_git_library is False:
@@ -139,16 +142,16 @@ class MetaData(object):
 
         diff = self.get_diff()
         if diff:
-            print("Changes between loaded and current data:")
-            print(diff)
+            logger.info("Changes between loaded and current data:")
+            logger.info(diff)
 
     @property
     def toplevel_diff(self):
         return ",".join(self.get_diff().keys())
 
     def pretty_print(self, data):
-        print(f"Metadata contents for {self.sname}:")
-        print(json.dumps(data, indent=4))
+        logger.info(f"Metadata contents for {self.sname}:")
+        logger.info(json.dumps(data, indent=4))
 
     def validate(self, data):
         jsonschema.validate(data, self.schema)

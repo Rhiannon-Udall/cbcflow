@@ -74,7 +74,9 @@ def get_parser_and_default_data(schema):
     parser.add_argument("--schema-version", help="The schema version to use")
     parser.add_argument("--schema-file", help="TESTING ONLY: A path to a schema file")
     parser.add_argument(
-        "--no-git-library", help="If true, do not treat the library as a git repo"
+        "--no-git-library",
+        action="store_true",
+        help="If true, do not treat the library as a git repo",
     )
     parser.add_argument(
         "--gracedb-service-url",
