@@ -156,6 +156,7 @@ $ cbcflow $EVENT --update \
     --parameter-estimation-results-UID-set ProdF1 \
     --parameter-estimation-results-config-file-set CIT:/home/gregory.ashton/O4/runs/S220331b/ProdF1.ini
 $ cbcflow $EVENT --push-to-gracedb
+```
 
 Note that, for the PE results, the UID is required (there can be multiple sets
 of results).
