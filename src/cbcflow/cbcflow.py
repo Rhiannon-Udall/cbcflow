@@ -22,17 +22,20 @@ def main():
         args.sname, args.library, default_data=default_data, schema=schema
     )
 
-    # Pull the latest file from GraceDb and overwrite the metadata
-    gdb = GraceDbDatabase()
-    database_data = gdb.pull(args.sname)
-    metadata.data.update(database_data)
+    if args.pull_from_gracedb:
+        gdb = GraceDbDatabase()
+        database_data = gdb.pull(args.sname)
+        metadata.data.update(database_data)
+        metadata.write_to_library()
 
-    # Process updates from the user input
-    process_user_input(args, parser, schema, metadata)
+    if args.update:
+        process_user_input(args, parser, schema, metadata)
+        if metadata.is_updated:
+            metadata.write_to_library()
 
-    metadata.validate(metadata.data)
-    metadata.write_to_library()
+    if args.push_to_gracedb:
+        gdb = GraceDbDatabase()
+        gdb.push(metadata)
+
     if args.print:
         metadata.pretty_print(metadata.data)
-
-    gdb.push(metadata)
