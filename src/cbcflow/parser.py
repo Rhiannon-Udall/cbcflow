@@ -2,6 +2,8 @@ import argparse
 
 import argcomplete
 
+from .configuration import config_defaults
+
 IGNORE_ARGS = ["info-sname"]
 
 group_shorthands = dict(
@@ -70,7 +72,9 @@ def build_parser_from_schema(parser, schema):
 def get_parser_and_default_data(schema):
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("sname", help="The superevent SNAME")
-    parser.add_argument("--library", default="library", help="The library")
+    parser.add_argument(
+        "--library", default=config_defaults["library"], help="The library"
+    )
     parser.add_argument("--schema-version", help="The schema version to use")
     parser.add_argument("--schema-file", help="TESTING ONLY: A path to a schema file")
     parser.add_argument(
@@ -81,7 +85,7 @@ def get_parser_and_default_data(schema):
     parser.add_argument(
         "--gracedb-service-url",
         help="The GraceDb service url",
-        default="https://gracedb-test.ligo.org/api/",
+        default=config_defaults["gracedb_service_url"],
     )
 
     actions = parser.add_mutually_exclusive_group(required=True)
