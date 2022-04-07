@@ -73,6 +73,11 @@ def get_parser_and_default_data(schema):
     parser.add_argument("--library", default="library", help="The library")
     parser.add_argument("--schema-version", help="The schema version to use")
     parser.add_argument("--schema-file", help="TESTING ONLY: A path to a schema file")
+    parser.add_argument(
+        "--gracedb-service-url",
+        help="The GraceDb service url",
+        default="https://gracedb-test.ligo.org/api/",
+    )
 
     actions = parser.add_mutually_exclusive_group(required=True)
     actions.add_argument(
