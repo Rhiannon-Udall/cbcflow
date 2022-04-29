@@ -1,1 +1,2 @@
 src/cbcflow/schema/*schema
+*.egg-info/

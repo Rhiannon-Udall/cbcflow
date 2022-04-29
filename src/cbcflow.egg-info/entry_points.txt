@@ -1,0 +1,2 @@
+[console_scripts]
+cbcflow = cbcflow:main
