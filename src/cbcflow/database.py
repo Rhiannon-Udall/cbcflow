@@ -40,6 +40,14 @@ class GraceDbDatabase(object):
             )
 
     def query_superevents(self, query):
+        """
+        Queries superevents in GraceDb, according to a given query
+
+        Inputs:
+        ------------
+        query - a GraceDb query string to query for superevents with
+        see https://gracedb.ligo.org/documentation/queries.html
+        """
         with GraceDb(service_url=self.service_url) as gdb:
             superevent_iterator = gdb.superevents(query)
             self.superevents = [superevent for superevent in superevent_iterator]
