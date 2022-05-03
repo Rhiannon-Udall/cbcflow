@@ -43,10 +43,11 @@ class GraceDbDatabase(object):
         """
         Queries superevents in GraceDb, according to a given query
 
-        Inputs:
+        Parameters
         ------------
-        query - a GraceDb query string to query for superevents with
-        see https://gracedb.ligo.org/documentation/queries.html
+        query
+            a GraceDb query string to query for superevents with
+            see https://gracedb.ligo.org/documentation/queries.html
         """
         with GraceDb(service_url=self.service_url) as gdb:
             superevent_iterator = gdb.superevents(query)
@@ -54,14 +55,14 @@ class GraceDbDatabase(object):
 
     def pull_updates_gracedb(self, library, no_git_library=False):
         """
-        Pulls updates from GraceDb and writes them to library
-        Assumes GraceDb is the truth (unless no metadata exists in GraceDb)
-        Creates default metadata if none exists in the library
+        Pulls updates from GraceDb and writes them to library, creates default data as required
 
-        Inputs:
+        Parameters:
         ------------
-        library - as in metadata.MetaData
-        no_git_library - as in metadata.MetaData
+        library
+            As in metadata.MetaData
+        no_git_library
+            As in metadata.MetaData
         """
         if hasattr(self, "superevents"):
             schema = get_schema()
@@ -85,13 +86,12 @@ class GraceDbDatabase(object):
 
     def push_updates_gracedb(self, library):
         """
-        Pushes updates from the library to GraceDb
-        Assumes the library is the source of truth
-        ** Even if the library is just default data **
+        Pushes contents of the library to GraceDb
 
-        Inputs:
+        Parameters
         ------------
-        library - as in metadata.MetaData
+        library
+            As in metadata.MetaData
         """
         if hasattr(self, "superevents"):
             schema = get_schema()
@@ -113,15 +113,12 @@ class GraceDbDatabase(object):
 
     def sync_library_gracedb(self, library):
         """
-        Attempts to sync library and GraceDb
-        Generally though absolutely considers the library to be the truth
-        Creates default metadata if none exists in the library
-        and will push that default metadata back to GraceDb
+        Attempts to sync library and GraceDb, conflict resolution presently favors library
 
-
-        Inputs:
+        Parameters:
         ------------
-        library - as in metadata.MetaData
+        library
+            As in metadata.MetaData
         """
         if hasattr(self, "superevents"):
             schema = get_schema()
@@ -156,7 +153,7 @@ class GraceDbDatabase(object):
                     # GraceDb hasn't changed but the local has, implying case 2
                     local_metadata_update.write_to_library()
                 else:
-                    # neither has been changed, implying case 4
+                    # neither has been changed, implying case 3
                     pass
 
         else:

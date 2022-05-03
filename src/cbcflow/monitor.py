@@ -6,10 +6,9 @@ from .configuration import get_cbcflow_config
 from .database import GraceDbDatabase
 
 
-def generate_crondor(monitor_interval=2, rundir=None):
+def generate_crondor():
     """
-    The submit file generation mode of monitor.
-    Creates a condor .sub which will periodically execute the run functionality
+    Creates a periodic condor to run the monitor action.
     """
     from glue import pipeline
 
@@ -74,9 +73,8 @@ def generate_crondor(monitor_interval=2, rundir=None):
 
 def run_monitor():
     """
-    The execution mode of the GraceDb Monitor
-    Pulls all superevents created within the past 30 days, and creates metadata if necessary
-    Pushes back any changes made in this process (currently on occurs if default data is being created)
+    Pulls all superevents created within the past 30 days, creates metadata if necessary,
+    then pushes back any changes made in this process
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
