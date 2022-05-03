@@ -17,7 +17,11 @@ def get_subkey(arg, group, suffix):
 
 
 def process_arg(arg, val, metadata, group, ignore_keys):
-    if val is None or group in ["positional arguments", "optional arguments"]:
+    if val is None or group in [
+        "positional arguments",
+        "optional arguments",
+        "options",
+    ]:
         return
 
     if any([sk in arg for sk in ignore_keys]):
