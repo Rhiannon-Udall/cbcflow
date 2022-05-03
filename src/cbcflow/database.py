@@ -56,8 +56,7 @@ class GraceDbDatabase(object):
         """
         Pulls updates from GraceDb and writes them to library
         Assumes GraceDb is the truth (unless no metadata exists in GraceDb)
-        Creates default metadata if none exists in the library,
-        and will update it in gracedb if possible
+        Creates default metadata if none exists in the library
 
         Inputs:
         ------------

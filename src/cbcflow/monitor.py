@@ -1,55 +1,9 @@
 import argparse
 import os
+from shutil import which
 
 from .configuration import get_cbcflow_config
 from .database import GraceDbDatabase
-
-
-def is_exe(fpath):
-    """
-    Checks if an exe exists
-    from https://git.ligo.org/richard-oshaughnessy/research-projects-RIT/-/blob/
-    temp-RIT-Tides-port_python3_restructure_package/MonteCarloMarginalizeCode/Code/RIFT/misc/dag_utils.py
-    (RIFT dag_utils)
-
-    Inputs:
-    ----------
-    fpath - the path to the exe (hopefully)
-
-    Returns:
-    -----------
-    True if file exists and is executable, else False
-    """
-    return os.path.exists(fpath) and os.access(fpath, os.X_OK)
-
-
-def which(program):
-    """
-    Gets path to an executable
-
-    from https://git.ligo.org/richard-oshaughnessy/research-projects-RIT/-/blob/
-    temp-RIT-Tides-port_python3_restructure_package/MonteCarloMarginalizeCode/Code/RIFT/misc/dag_utils.py
-    (RIFT dag_utils)
-
-    Inputs:
-    ------------
-    program - the bin level executable to find
-
-    Returns:
-    -----------
-    the path to the executable if possible, else None
-    """
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-    return None
 
 
 def generate_crondor(monitor_interval=2, rundir=None):
