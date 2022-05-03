@@ -2,3 +2,4 @@ src/cbcflow/schema/*schema
 src/cbcflow/*.egg-info
 *.egg-info/
 *.egg
+build/
