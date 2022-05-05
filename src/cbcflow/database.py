@@ -46,7 +46,7 @@ class GraceDbDatabase(object):
         Parameters
         ------------
         query
-            a GraceDb query string to query for superevents with
+            a GraceDb query string to query for superevents
             see https://gracedb.ligo.org/documentation/queries.html
         """
         with GraceDb(service_url=self.service_url) as gdb:
@@ -149,13 +149,15 @@ class GraceDbDatabase(object):
                 if gracedb_data_update != gracedb_data_original:
                     # GraceDb has been changed, implying case 1 or 4
                     self.push(local_metadata_original)
-                elif local_metadata_update.data != local_metadata_original.data:
+                elif (
+                    local_metadata_update.data != local_metadata_original.data
+                    or not local_metadata_original.library_file_exists
+                ):
                     # GraceDb hasn't changed but the local has, implying case 2
                     local_metadata_update.write_to_library()
                 else:
                     # neither has been changed, implying case 3
                     pass
-
         else:
             logger.info(
                 "This GraceDbDatabase instance has not queried for superevents yet,\
