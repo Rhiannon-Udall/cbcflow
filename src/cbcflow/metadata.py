@@ -43,6 +43,7 @@ class MetaData(object):
             self.load_from_library()
         else:
             logger.info("No library file: creating defaults")
+            default_data["sname"] = self.sname
             self.validate(default_data)
             self.data = default_data
 

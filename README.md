@@ -16,6 +16,9 @@ $ jsonschema jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data
 
 * Richard Udall (PE)
 * Wynn Ho (EM)
+* Simone Mastrogiovanni (Cosmology)
+* Suvodip Mukherjee (cosmology)
+* Bruce Edelman (R&P)
 
 ## cbcflow
 
