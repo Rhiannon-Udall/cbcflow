@@ -207,7 +207,7 @@ class LocalLibraryDatabase(object):
             "far-threshold": 1.2675e-7,
             "created-since": "2022-01-01",
         }
-        if os.path.file.exists(config_file):
+        if os.path.file.isfile(config_file):
             config.read(config_file)
             for section_key in config.sections():
                 if section_key not in library_defaults.keys():
