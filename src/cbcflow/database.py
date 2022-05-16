@@ -1,6 +1,8 @@
 import copy
+import glob
 import json
 import logging
+import os
 
 from ligo.gracedb.exceptions import HTTPError
 from ligo.gracedb.rest import GraceDb
@@ -164,3 +166,30 @@ class GraceDbDatabase(object):
                 "This GraceDbDatabase instance has not queried for superevents yet,\
                  please do so before attempting to sync."
             )
+
+
+class LocalLibraryDatabase(object):
+    def __init__(self, library, schema, default_data=None):
+        """A class to handle operations on the local library (git) database
+
+        Parameters
+        ----------
+        library: str
+            A path to the directory containing the metadata files
+        """
+
+        self.library = library
+        self.metadata_dict = {}
+
+        if default_data is None:
+            default_data = {}
+
+        metadata_list = [
+            MetaData.from_file(f, schema, default_data) for f in self.filelist
+        ]
+        for md in metadata_list:
+            self.metadata_dict[md.sname] = md
+
+    @property
+    def filelist(self):
+        return glob.glob(os.path.join(self.library, "*cbc-metadata.json"))

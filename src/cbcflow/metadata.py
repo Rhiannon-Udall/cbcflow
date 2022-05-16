@@ -1,6 +1,5 @@
 import configparser
 import copy
-import glob
 import json
 import logging
 import os
@@ -163,16 +162,3 @@ class MetaData(object):
 
     def validate(self, data):
         jsonschema.validate(data, self.schema)
-
-
-class MetadataList(object):
-    def __init__(self, library, schema):
-        self.library = library
-        default_data = {}
-        self.metadata_list = [
-            MetaData.from_file(f, schema, default_data) for f in self.filelist
-        ]
-
-    @property
-    def filelist(self):
-        return glob.glob(os.path.join(self.library, "*cbc-metadata.json"))
