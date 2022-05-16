@@ -1,4 +1,4 @@
-import copy
+import configparser
 import glob
 import json
 import logging
@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class GraceDbDatabase(object):
     def __init__(self, service_url):
         self.service_url = service_url
+        self.superevents = []
 
     def pull(self, sname):
         fname = MetaData.get_filename(sname)
@@ -53,7 +54,8 @@ class GraceDbDatabase(object):
         """
         with GraceDb(service_url=self.service_url) as gdb:
             superevent_iterator = gdb.superevents(query)
-            self.superevents = [superevent for superevent in superevent_iterator]
+            self.superevents += [superevent for superevent in superevent_iterator]
+        return self.superevents
 
     def pull_updates_gracedb(self, library, no_git_library=False):
         """
@@ -115,57 +117,51 @@ class GraceDbDatabase(object):
 
     def sync_library_gracedb(self, library):
         """
-        Attempts to sync library and GraceDb, conflict resolution presently favors library
+        Attempts to sync library and GraceDb, conflict resolution presently favors gracedb
 
         Parameters:
         ------------
         library
             As in metadata.MetaData
         """
-        if hasattr(self, "superevents"):
-            schema = get_schema()
-            _, default_data = get_parser_and_default_data(schema)
-            for superevent in self.superevents:
-                local_metadata_original = MetaData(
+        # setup defaults
+        schema = get_schema()
+        local_library = LocalLibraryDatabase(library, schema)
+        monitor_config = local_library.library_config["Monitor"]
+        query = f"created: {monitor_config['created-since']} .. now \
+        FAR <= {monitor_config['far-threshold']}"
+        _, default_data = get_parser_and_default_data(schema)
+        self.query_superevents(query)
+
+        # for superevents not in the query parameters, but already in the library
+        for superevent in local_library.metadata_dict.keys():
+            if superevent not in self.superevents:
+                self.query_superevents(superevent)
+
+        # loop over all superevents of interest
+        for superevent in self.superevents:
+            gracedb_data = self.pull(superevent["superevent_id"])
+            if superevent in local_library.metadata_dict.keys():
+                # gracedb as source of truth - if in library update
+                local_metadata = local_library.metadata_dict[superevent]
+                local_metadata.update(gracedb_data)
+                local_metadata.write_to_library()
+            else:
+                # if not in library make default
+                local_default = MetaData(
                     superevent["superevent_id"],
                     library,
                     default_data=default_data,
                     schema=schema,
                 )
-                gracedb_data_original = self.pull(superevent["superevent_id"])
-                gracedb_data_update = copy.deepcopy(gracedb_data_original)
-                local_metadata_update = copy.deepcopy(local_metadata_original)
-
-                local_metadata_update.data.update(gracedb_data_original)
-                gracedb_data_update.update(local_metadata_original.data)
-
-                # 4 cases are considered
-                # case 1 - GraceDb has no metadata
-                # then push from library, creating default if necessary
-                # case 2 - GraceDb has metadata but the library does not
-                # then create defaults and update them with GraceDb metadata
-                # case 3 - Both GraceDb and the library have metadata, and they agree
-                # then do nothing
-                # case 4 - GraceDb and the library have metadata, and they disagree
-                # then push the library's metadata to GraceDb
-                if gracedb_data_update != gracedb_data_original:
-                    # GraceDb has been changed, implying case 1 or 4
-                    local_metadata_original.write_to_library()
-                    self.push(local_metadata_original)
-                elif (
-                    local_metadata_update.data != local_metadata_original.data
-                    or not local_metadata_original.library_file_exists
-                ):
-                    # GraceDb hasn't changed but the local has, implying case 2
-                    local_metadata_update.write_to_library()
+                if gracedb_data == {}:
+                    # if not in gracedb use default, write and push
+                    local_default.write_to_library()
+                    self.push(local_default)
                 else:
-                    # neither has been changed, implying case 3
-                    pass
-        else:
-            logger.info(
-                "This GraceDbDatabase instance has not queried for superevents yet,\
-                 please do so before attempting to sync."
-            )
+                    # if in gracedb, use the gracedb data
+                    local_default.update(gracedb_data)
+                    local_default.write_to_library()
 
 
 class LocalLibraryDatabase(object):
@@ -193,3 +189,22 @@ class LocalLibraryDatabase(object):
     @property
     def filelist(self):
         return glob.glob(os.path.join(self.library, "*cbc-metadata.json"))
+
+    @property
+    def library_config(self):
+        config = configparser.ConfigParser()
+        config_file = os.path.join(self.library, "library.cfg")
+        library_defaults = dict()
+        library_defaults["monitor"] = {
+            "far-threshold": 1.2675e-7,
+            "created-since": "2022-01-01",
+        }
+        if os.path.file.exists(config_file):
+            config.read(config_file)
+            for section_key in config.sections():
+                if section_key not in library_defaults.keys():
+                    library_defaults[section_key] = dict()
+                section = config[section_key]
+                for key in section.keys():
+                    library_defaults[section_key][key] = section[key]
+        return library_defaults

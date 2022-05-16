@@ -85,16 +85,8 @@ def run_monitor():
         type=str,
         help="The .cbcflow.cfg file to use for library and service URL info",
     )
-    parser.add_argument(
-        "--lookback-window",
-        default=30,
-        help="The time in days over which the monitor scans gracedb for superevents which may be new",
-    )
     args = parser.add_argument
 
     config_values = get_cbcflow_config(args.config)
     GDb = GraceDbDatabase(config_values["gracedb_service_url"])
-
-    query = f"created: {args.lookback_window} days ago .. now"
-    GDb.query_superevents(query)
     GDb.sync_library_gracedb(config_values["library"])
