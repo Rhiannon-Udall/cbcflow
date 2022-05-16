@@ -1,6 +1,7 @@
-import argparse
 import os
 from shutil import which
+
+import configargparse
 
 from .configuration import get_cbcflow_config
 from .database import GraceDbDatabase
@@ -12,7 +13,7 @@ def generate_crondor():
     """
     from glue import pipeline
 
-    parser = argparse.ArgumentParser()
+    parser = configargparse.ArgumentParser()
     parser.add_argument(
         "--config-file",
         default="~/.cbcflow.cfg",
@@ -76,9 +77,11 @@ def run_monitor():
     Pulls all superevents created within the past 30 days, creates metadata if necessary,
     then pushes back any changes made in this process
     """
-    parser = argparse.ArgumentParser()
+    parser = configargparse.ArgumentParser(
+        config_file_parser_class=configargparse.ConfigparserConfigFileParser
+    )
     parser.add_argument(
-        "config",
+        "cbcflowconfig",
         type=str,
         help="The .cbcflow.cfg file to use for library and service URL info",
     )
@@ -87,10 +90,11 @@ def run_monitor():
         default=30,
         help="The time in days over which the monitor scans gracedb for superevents which may be new",
     )
-    args = parser.parse_args()
+    args = parser.add_argument
 
     config_values = get_cbcflow_config(args.config)
     GDb = GraceDbDatabase(config_values["gracedb_service_url"])
+
     query = f"created: {args.lookback_window} days ago .. now"
     GDb.query_superevents(query)
     GDb.sync_library_gracedb(config_values["library"])
