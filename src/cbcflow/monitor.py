@@ -1,7 +1,6 @@
+import argparse
 import os
 from shutil import which
-
-import configargparse
 
 from .configuration import get_cbcflow_config
 from .database import GraceDbDatabase
@@ -13,7 +12,7 @@ def generate_crondor():
     """
     from glue import pipeline
 
-    parser = configargparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "--config-file",
         default="~/.cbcflow.cfg",
@@ -77,9 +76,7 @@ def run_monitor():
     Pulls all superevents created within the past 30 days, creates metadata if necessary,
     then pushes back any changes made in this process
     """
-    parser = configargparse.ArgumentParser(
-        config_file_parser_class=configargparse.ConfigparserConfigFileParser
-    )
+    parser = argparse.ArgumentParser()
     parser.add_argument(
         "cbcflowconfig",
         type=str,
