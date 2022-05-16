@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class GraceDbDatabase(object):
     def __init__(self, service_url):
         self.service_url = service_url
-        self.superevents = []
+        self.superevents = dict()
 
     def pull(self, sname):
         fname = MetaData.get_filename(sname)
@@ -54,7 +54,8 @@ class GraceDbDatabase(object):
         """
         with GraceDb(service_url=self.service_url) as gdb:
             superevent_iterator = gdb.superevents(query)
-            self.superevents += [superevent for superevent in superevent_iterator]
+            for superevent in superevent_iterator:
+                self.superevents.update({superevent["superevent_id"]: superevent})
         return self.superevents
 
     def pull_updates_gracedb(self, library, no_git_library=False):
@@ -71,10 +72,10 @@ class GraceDbDatabase(object):
         if hasattr(self, "superevents"):
             schema = get_schema()
             _, default_data = get_parser_and_default_data(schema)
-            for superevent in self.superevents:
-                database_data = self.pull(superevent["superevent_id"])
+            for superevent_id, superevent in self.superevents.items():
+                database_data = self.pull(superevent_id)
                 metadata = MetaData(
-                    superevent["superevent_id"],
+                    superevent_id,
                     library,
                     default_data=default_data,
                     schema=schema,
@@ -100,9 +101,9 @@ class GraceDbDatabase(object):
         if hasattr(self, "superevents"):
             schema = get_schema()
             _, default_data = get_parser_and_default_data(schema)
-            for superevent in self.superevents:
+            for superevent_id, superevent in self.superevents.items():
                 metadata = MetaData(
-                    superevent["superevent_id"],
+                    superevent_id,
                     library,
                     default_data=default_data,
                     schema=schema,
@@ -133,7 +134,7 @@ class GraceDbDatabase(object):
         import datetime
 
         now = datetime.datetime.utcnow()
-        now_str = now.isoformat().replace("T")
+        now_str = now.strftime("%Y-%m-%d %H-%M-%S")
 
         # make query and defaults, query
         query = f"created: {monitor_config['created-since']} .. {now_str} \
@@ -142,22 +143,22 @@ class GraceDbDatabase(object):
         self.query_superevents(query)
 
         # for superevents not in the query parameters, but already in the library
-        for superevent in local_library.metadata_dict.keys():
-            if superevent not in self.superevents:
-                self.query_superevents(superevent)
+        for superevent_id in local_library.metadata_dict.keys():
+            if superevent_id not in self.superevents.keys():
+                self.query_superevents(superevent_id)
 
         # loop over all superevents of interest
-        for superevent in self.superevents:
+        for superevent_id, superevent in self.superevents.items():
             gracedb_data = self.pull(superevent["superevent_id"])
-            if superevent in local_library.metadata_dict.keys():
+            if superevent_id in local_library.metadata_dict.keys():
                 # gracedb as source of truth - if in library update
-                local_metadata = local_library.metadata_dict[superevent]
+                local_metadata = local_library.metadata_dict[superevent_id]
                 local_metadata.update(gracedb_data)
                 local_metadata.write_to_library()
             else:
                 # if not in library make default
                 local_default = MetaData(
-                    superevent["superevent_id"],
+                    superevent_id,
                     library,
                     default_data=default_data,
                     schema=schema,
@@ -207,7 +208,7 @@ class LocalLibraryDatabase(object):
             "far-threshold": 1.2675e-7,
             "created-since": "2022-01-01",
         }
-        if os.path.file.isfile(config_file):
+        if os.path.exists(config_file):
             config.read(config_file)
             for section_key in config.sections():
                 if section_key not in library_defaults.keys():
