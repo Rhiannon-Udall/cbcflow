@@ -87,6 +87,6 @@ def run_monitor():
     )
     args = parser.parse_args()
 
-    config_values = get_cbcflow_config(args.config)
+    config_values = get_cbcflow_config(args.cbcflowconfig)
     GDb = GraceDbDatabase(config_values["gracedb_service_url"])
     GDb.sync_library_gracedb(config_values["library"])
