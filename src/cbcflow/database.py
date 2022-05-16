@@ -148,6 +148,7 @@ class GraceDbDatabase(object):
                 # then push the library's metadata to GraceDb
                 if gracedb_data_update != gracedb_data_original:
                     # GraceDb has been changed, implying case 1 or 4
+                    local_metadata_original.write_to_library()
                     self.push(local_metadata_original)
                 elif (
                     local_metadata_update.data != local_metadata_original.data
