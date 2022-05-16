@@ -85,7 +85,7 @@ def run_monitor():
         type=str,
         help="The .cbcflow.cfg file to use for library and service URL info",
     )
-    args = parser.add_argument
+    args = parser.parse_args()
 
     config_values = get_cbcflow_config(args.config)
     GDb = GraceDbDatabase(config_values["gracedb_service_url"])
