@@ -128,7 +128,15 @@ class GraceDbDatabase(object):
         schema = get_schema()
         local_library = LocalLibraryDatabase(library, schema)
         monitor_config = local_library.library_config["Monitor"]
-        query = f"created: {monitor_config['created-since']} .. now \
+
+        # annying hack due to gracedb query bug
+        import datetime
+
+        now = datetime.datetime.utcnow()
+        now_str = now.isoformat().replace("T")
+
+        # make query and defaults, query
+        query = f"created: {monitor_config['created-since']} .. {now_str} \
         FAR <= {monitor_config['far-threshold']}"
         _, default_data = get_parser_and_default_data(schema)
         self.query_superevents(query)
