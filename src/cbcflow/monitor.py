@@ -64,6 +64,7 @@ def generate_crondor():
     monitor_job.add_condor_cmd("initialdir", rundir)
     monitor_job.add_condor_cmd("get_env", "True")
     monitor_job.add_condor_cmd("on_exit_remove", "False")
+    monitor_job.add_condor_cmd("cron_minute", "0")
     monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
     monitor_job.add_condor_cmd("cron_prep_time", "300")
     monitor_args = f" {os.path.expanduser(args.config_file)} "
