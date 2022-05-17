@@ -76,6 +76,12 @@ class MetaData(object):
     def library_file(self):
         return os.path.join(self.library, self.filename)
 
+    def update(self, update_dict):
+        new_data = copy.deepcopy(self.data)
+        new_data.update(update_dict)
+        self.validate(new_data)
+        self.data = new_data
+
     def load_from_library(self):
         with open(self.library_file, "r") as file:
             data = json.load(file)

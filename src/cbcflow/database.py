@@ -134,18 +134,26 @@ class GraceDbDatabase(object):
         import datetime
 
         now = datetime.datetime.utcnow()
-        now_str = now.strftime("%Y-%m-%d %H-%M-%S")
+        now_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
         # make query and defaults, query
         query = f"created: {monitor_config['created-since']} .. {now_str} \
         FAR <= {monitor_config['far-threshold']}"
+        logger.info(f"Constructed query {query} from library config")
         _, default_data = get_parser_and_default_data(schema)
         self.query_superevents(query)
+        logger.info(
+            f"Querying based on library configuration returned superevents {self.superevents.keys()}"
+        )
 
         # for superevents not in the query parameters, but already in the library
         for superevent_id in local_library.metadata_dict.keys():
             if superevent_id not in self.superevents.keys():
                 self.query_superevents(superevent_id)
+                logging.info(
+                    f"Also querying superevent {superevent_id} which was in the library\
+                \n but which did not meet query parameters"
+                )
 
         # loop over all superevents of interest
         for superevent_id, superevent in self.superevents.items():
@@ -155,6 +163,10 @@ class GraceDbDatabase(object):
                 local_metadata = local_library.metadata_dict[superevent_id]
                 local_metadata.update(gracedb_data)
                 local_metadata.write_to_library()
+                logger.info(
+                    f"The library entry for superevent {superevent_id}\
+                was updated using gracedb data"
+                )
             else:
                 # if not in library make default
                 local_default = MetaData(
@@ -167,10 +179,18 @@ class GraceDbDatabase(object):
                     # if not in gracedb use default, write and push
                     local_default.write_to_library()
                     self.push(local_default)
+                    logger.info(
+                        f"The superevent {superevent_id} had no data in the library or gracedb,\
+                    \n and so defaults were generated and added to both repositories."
+                    )
                 else:
                     # if in gracedb, use the gracedb data
                     local_default.update(gracedb_data)
                     local_default.write_to_library()
+                    logger.info(
+                        f"The superevent {superevent_id} was present in gracedb but not in the library,\
+                        \n and so was added to the library using gracedb data"
+                    )
 
 
 class LocalLibraryDatabase(object):
@@ -204,7 +224,7 @@ class LocalLibraryDatabase(object):
         config = configparser.ConfigParser()
         config_file = os.path.join(self.library, "library.cfg")
         library_defaults = dict()
-        library_defaults["monitor"] = {
+        library_defaults["Monitor"] = {
             "far-threshold": 1.2675e-7,
             "created-since": "2022-01-01",
         }

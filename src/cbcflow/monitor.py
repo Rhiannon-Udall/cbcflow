@@ -1,9 +1,13 @@
 import argparse
+import logging
 import os
 from shutil import which
 
 from .configuration import get_cbcflow_config
 from .database import GraceDbDatabase
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def generate_crondor():
@@ -85,5 +89,6 @@ def run_monitor():
     args = parser.parse_args()
 
     config_values = get_cbcflow_config(args.cbcflowconfig)
+    logging.info(f"Config values are {config_values}")
     GDb = GraceDbDatabase(config_values["gracedb_service_url"])
     GDb.sync_library_gracedb(config_values["library"])
