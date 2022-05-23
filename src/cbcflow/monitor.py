@@ -1,9 +1,13 @@
 import argparse
+import logging
 import os
 from shutil import which
 
 from .configuration import get_cbcflow_config
 from .database import GraceDbDatabase
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def generate_crondor():
@@ -54,12 +58,13 @@ def generate_crondor():
     monitor_job.set_stderr_file(os.path.join(rundir, "monitor.err"))
     monitor_job.add_condor_cmd("accounting_group", args.ligo_accounting)
     monitor_job.add_condor_cmd("accounting_group_user", args.ligo_user_name)
-    monitor_job.add_condor_cmd("request_memory", "10")
-    monitor_job.add_condor_cmd("request_disk", "10")
+    monitor_job.add_condor_cmd("request_memory", "40 Mb")
+    monitor_job.add_condor_cmd("request_disk", "10 Mb")
     monitor_job.add_condor_cmd("notification", "never")
     monitor_job.add_condor_cmd("initialdir", rundir)
     monitor_job.add_condor_cmd("get_env", "True")
     monitor_job.add_condor_cmd("on_exit_remove", "False")
+    monitor_job.add_condor_cmd("cron_minute", "0")
     monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
     monitor_job.add_condor_cmd("cron_prep_time", "300")
     monitor_args = f" {os.path.expanduser(args.config_file)} "
@@ -78,19 +83,13 @@ def run_monitor():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "config",
+        "cbcflowconfig",
         type=str,
         help="The .cbcflow.cfg file to use for library and service URL info",
     )
-    parser.add_argument(
-        "--lookback-window",
-        default=30,
-        help="The time in days over which the monitor scans gracedb for superevents which may be new",
-    )
     args = parser.parse_args()
 
-    config_values = get_cbcflow_config(args.config)
+    config_values = get_cbcflow_config(args.cbcflowconfig)
+    logging.info(f"Config values are {config_values}")
     GDb = GraceDbDatabase(config_values["gracedb_service_url"])
-    query = f"created: {args.lookback_window} days ago .. now"
-    GDb.query_superevents(query)
     GDb.sync_library_gracedb(config_values["library"])
