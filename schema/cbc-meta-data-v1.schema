@@ -73,17 +73,17 @@
         },
         "minimum_frequency": {
           "description": "The minimum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
-          "type": "float",
+          "type": "number",
           "default": 20.0
         },
         "maximum_frequency": {
           "description": "The maximum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
-          "type": "float",
+          "type": "number",
           "default": 2048.0
         },
         "geocent_time": {
           "description": "The trigger time to pass to parameter inference engines as the central time of the analysis window",
-          "type": "float",
+          "type": "number"
         },
         "results": {
           "description": "A list of results",
