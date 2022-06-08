@@ -40,9 +40,10 @@ schema-html:
     - .python:base
   script:
     - python -m pip install -r requirements.txt
-    - cd schema/visualization/.build/
-    - generate-schema-doc ../../cbc-meta-data-v1.schema ../cbc-meta-data-schema.html
-    - cd ../../../
+    - mkdir schema/visualization
+    - cd schema/visualization/
+    - generate-schema-doc ../cbc-meta-data-v1.schema cbc-meta-data-schema.html
+    - cd ../..
   artifacts:
     paths:
     - schema/visualization/*
@@ -52,11 +53,8 @@ pages:
   needs: ["docs", "python-3.9"]
   script:
     - mkdir public/
-    - mv htmlcov/ public/
-    - mv docs/_build/html/* public/
+    - mv schema/visualization public
   artifacts:
     paths:
       - public
     expire_in: 30 days
-  only:
-    - master
