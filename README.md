@@ -19,6 +19,8 @@ $ jsonschema jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data
 * Simone Mastrogiovanni (Cosmology)
 * Suvodip Mukherjee (cosmology)
 * Bruce Edelman (R&P)
+* Dimitri Estevez (All-sky)
+* Aditya Vijaykumar (TGR)
 
 ## cbcflow
 

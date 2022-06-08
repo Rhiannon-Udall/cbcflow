@@ -59,10 +59,31 @@
             "type": "string"
            }
         },
+        "detectors": {
+          "description": "The list of all detectors that should be analysed",
+          "type": "array",
+          "items": {
+            "type": "string"
+           }
+        },
         "status": {
           "description": "The status of ongoing parameter estimation",
           "type": "string",
           "default": "NOT STARTED"
+        },
+        "minimum_frequency": {
+          "description": "The minimum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
+          "type": "number",
+          "default": 20.0
+        },
+        "maximum_frequency": {
+          "description": "The maximum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
+          "type": "number",
+          "default": 2048.0
+        },
+        "geocent_time": {
+          "description": "The trigger time to pass to parameter inference engines as the central time of the analysis window",
+          "type": "number"
         },
         "results": {
           "description": "A list of results",
@@ -85,6 +106,10 @@
         "config_file": {
           "type": "string",
           "description": "The configuration file of the analysis"
+        },
+        "inference_software": {
+          "type": "string",
+          "description": "The inference software used to produce this PE result"
         },
         "result_file": {
           "type": "string",
