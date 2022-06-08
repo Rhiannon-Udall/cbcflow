@@ -53,6 +53,7 @@ pages:
   script:
     - mkdir public/
     - mv schema/visualization/* public/
+    - echo 
   artifacts:
     paths:
       - public
