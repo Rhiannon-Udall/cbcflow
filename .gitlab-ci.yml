@@ -44,4 +44,5 @@ schema-html:
     - cd ../../../
   artifacts:
     paths:
-    - schema/visualization/
+    - schema/visualization/*
+    - schema/visualizatoin/.build/*
