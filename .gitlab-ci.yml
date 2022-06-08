@@ -52,7 +52,7 @@ pages:
   stage: deploy
   script:
     - mkdir public/
-    - mv schema/visualization public
+    - mv schema/visualization/* public/
   artifacts:
     paths:
       - public
