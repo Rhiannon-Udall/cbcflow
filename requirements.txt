@@ -4,3 +4,4 @@ jsondiff
 ligo-gracedb
 pygit2
 lscsoft-glue
+json-schema-for-humans
