@@ -50,7 +50,6 @@ schema-html:
 
 pages:
   stage: deploy
-  needs: ["docs", "python-3.9"]
   script:
     - mkdir public/
     - mv schema/visualization public
