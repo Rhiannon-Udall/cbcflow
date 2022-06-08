@@ -7,6 +7,7 @@ stages:
   - initial
   - test
   - docs
+  - deploy
 
 precommit:
   stage: initial
@@ -45,4 +46,17 @@ schema-html:
   artifacts:
     paths:
     - schema/visualization/*
-    - schema/visualizatoin/.build/*
+
+pages:
+  stage: deploy
+  needs: ["docs", "python-3.9"]
+  script:
+    - mkdir public/
+    - mv htmlcov/ public/
+    - mv docs/_build/html/* public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+    - master
