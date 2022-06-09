@@ -89,6 +89,16 @@
           "description": "A list of results",
           "type": "array",
           "items": {"$ref": "#/$defs/peresult"}
+        },
+        "sampling_rate": {
+          "description": "The preferred sampling_rate for this event, generally the lowest multiple of 2 such that sampling_rate > maximum_frequency * 2",
+          "type": "number",
+          "default": 4096.0
+        },
+        "priors": {
+          "description": "An array of the preferred priors on chosen parameters for this event",
+          "type": "array",
+          "items": {"$ref": "#/$defs/parameter_prior"}
         }
       }
     }
@@ -132,8 +142,35 @@
         "comment": {
           "type": "string",
           "description": "Arbitrary comment string"
+        },
+        "waveform_approximant":{
+          "type": "string",
+          "description": "The waveform approximant being used for this analysis."
         }
-
+      }
+    },
+    "parameter_prior":{
+      "type": "object",
+      "additionalProperties":false,
+      "required":["parameter_key"],
+      "properties":{
+        "parameter_key":{
+          "type": "string",
+          "description": "The name (Bilby convention) for a parameter, e.g. chirp_mass"
+        },
+        "lower_bound":{
+          "type": "number",
+          "description": "The lower bound of the parameter's prior boundaries"
+        },
+        "upper_bound":{
+          "type": "number",
+          "description": "The upper bound of the parameter's prior boundaries"
+        },
+        "prior_type":{
+          "type": "string",
+          "default":"Uniform",
+          "description": "The type of prior (Bilby convention) for the prior, e.g. Uniform, Normal, etc."
+        }
       }
     }
   }
