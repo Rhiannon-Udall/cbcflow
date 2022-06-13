@@ -11,6 +11,7 @@ $ pip install jsonschema
 $ jsonschema jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data-v1.schema
 ```
 * For help with the json schema, see https://json-schema.org/learn/getting-started-step-by-step.html
+* For visualization of the json schema, see https://cbc.docs.ligo.org/meta-data/cbc-meta-data-schema.html
 
 ### R&D group liaisons
 
