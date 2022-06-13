@@ -95,10 +95,21 @@
           "type": "number",
           "default": 4096.0
         },
-        "priors": {
-          "description": "An array of the preferred priors on chosen parameters for this event",
-          "type": "array",
-          "items": {"$ref": "#/$defs/parameter_prior"}
+        "safe_lower_chirp_mass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_chirp_mass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_lower_mass_ratio":{
+          "description": "A safe lower mass ratio to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_luminosity_distance":{
+          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
         }
       }
     }
@@ -146,30 +157,6 @@
         "waveform_approximant":{
           "type": "string",
           "description": "The waveform approximant being used for this analysis."
-        }
-      }
-    },
-    "parameter_prior":{
-      "type": "object",
-      "additionalProperties":false,
-      "required":["parameter_key"],
-      "properties":{
-        "parameter_key":{
-          "type": "string",
-          "description": "The name (Bilby convention) for a parameter, e.g. chirp_mass"
-        },
-        "lower_bound":{
-          "type": "number",
-          "description": "The lower bound of the parameter's prior boundaries"
-        },
-        "upper_bound":{
-          "type": "number",
-          "description": "The upper bound of the parameter's prior boundaries"
-        },
-        "prior_type":{
-          "type": "string",
-          "default":"Uniform",
-          "description": "The type of prior (Bilby convention) for the prior, e.g. Uniform, Normal, etc."
         }
       }
     }
