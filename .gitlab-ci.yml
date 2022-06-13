@@ -6,6 +6,8 @@ include:
 stages:
   - initial
   - test
+  - docs
+  - deploy
 
 precommit:
   stage: initial
@@ -31,3 +33,28 @@ unit-test:
     - pip install -r requirements.txt
     - pip install .
     - pytest --cov cbcflow --cov-report xml
+
+schema-html:
+  stage: docs
+  extends:
+    - .python:base
+  script:
+    - python -m pip install -r requirements.txt
+    - mkdir schema/visualization
+    - cd schema/visualization/
+    - generate-schema-doc ../cbc-meta-data-v1.schema cbc-meta-data-schema.html
+    - cd ../..
+  artifacts:
+    paths:
+    - schema/visualization/*
+
+pages:
+  stage: deploy
+  script:
+    - mkdir public/
+    - mv schema/visualization/* public/
+    - echo 
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
