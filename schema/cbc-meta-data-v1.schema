@@ -110,6 +110,10 @@
         "safe_upper_luminosity_distance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
+        },
+        "duration":{
+          "description": "The duration of the data segment for which the analysis will contain all resolveable signal",
+          "type": "number"
         }
       }
     }
