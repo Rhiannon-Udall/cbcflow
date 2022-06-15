@@ -89,6 +89,31 @@
           "description": "A list of results",
           "type": "array",
           "items": {"$ref": "#/$defs/peresult"}
+        },
+        "sampling_rate": {
+          "description": "The preferred sampling_rate for this event, generally the lowest multiple of 2 such that sampling_rate > maximum_frequency * 2",
+          "type": "number",
+          "default": 4096.0
+        },
+        "safe_lower_chirp_mass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_chirp_mass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_lower_mass_ratio":{
+          "description": "A safe lower mass ratio to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_luminosity_distance":{
+          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "duration":{
+          "description": "The duration of the data segment for which the analysis will contain all resolveable signal",
+          "type": "number"
         }
       }
     }
@@ -132,8 +157,11 @@
         "comment": {
           "type": "string",
           "description": "Arbitrary comment string"
+        },
+        "waveform_approximant":{
+          "type": "string",
+          "description": "The waveform approximant being used for this analysis."
         }
-
       }
     }
   }
