@@ -160,7 +160,8 @@
           "description": "The name of the analysis"
         },
         "config_file": {
-          "type": "linked_file",
+          "type": "object",
+          "$ref": "#/$defs/linked_file",
           "description": "The configuration file of the analysis"
         },
         "inference_software": {
@@ -168,11 +169,13 @@
           "description": "The inference software used to produce this PE result"
         },
         "result_file": {
-          "type": "linked_file",
+          "type": "object",
+          "$ref": "#/$defs/linked_file",
           "description": "The path to the raw result file"
         },
         "pesummary_result_file": {
-          "type": "linked_file",
+          "type": "object",
+          "$ref": "#/$defs/linked_file",
           "description": "The path to the pesummary meta-data file"
         },
         "review_status": {
@@ -199,7 +202,7 @@
     "linked_file": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["cluster", "path", "md5sum", "date_last_modified"],
+      "required": ["path", "md5sum", "date_last_modified"],
       "properties": {
         "path": {
           "type": "string",
