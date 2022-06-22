@@ -23,6 +23,11 @@
           "items": {
             "type": "string"
            }
+        },
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
@@ -36,7 +41,7 @@
           "type": "array",
           "items": {
             "type": "string"
-           }
+          }
         }
       }
     },
@@ -71,18 +76,18 @@
           "type": "string",
           "default": "NOT STARTED"
         },
-        "minimum_frequency": {
-          "description": "The minimum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
+        "safe_minimum_frequency": {
+          "description": "The  validated safe minimum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
           "type": "number",
           "default": 20.0
         },
-        "maximum_frequency": {
-          "description": "The maximum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
+        "safe_maximum_frequency": {
+          "description": "The  validated safe maximum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
           "type": "number",
           "default": 2048.0
         },
-        "geocent_time": {
-          "description": "The trigger time to pass to parameter inference engines as the central time of the analysis window",
+        "safe_geocent_time": {
+          "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
           "type": "number"
         },
         "results": {
@@ -90,8 +95,8 @@
           "type": "array",
           "items": {"$ref": "#/$defs/peresult"}
         },
-        "sampling_rate": {
-          "description": "The preferred sampling_rate for this event, generally the lowest multiple of 2 such that sampling_rate > maximum_frequency * 2",
+        "safe_sampling_rate": {
+          "description": "The  validated safe  sampling_rate for this event, generally the lowest multiple of 2 such that sampling_rate > maximum_frequency * 2",
           "type": "number",
           "default": 4096.0
         },
@@ -103,6 +108,22 @@
           "description": "A safe upper chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
+        "safe_lower_primary_mass":{
+          "description": "A safe lower primary mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_primary_mass":{
+          "description": "A safe upper primary mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_lower_secondary_mass":{
+          "description": "A safe lower secondary mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_secondary_mass":{
+          "description": "A safe upper secondary mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
         "safe_lower_mass_ratio":{
           "description": "A safe lower mass ratio to set in the prior, to prevent railing",
           "type": "number"
@@ -111,9 +132,19 @@
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
-        "duration":{
-          "description": "The duration of the data segment for which the analysis will contain all resolveable signal",
+        "safe_duration":{
+          "description": "The validated safe duration of the data segment for which the analysis will contain all resolveable signal",
           "type": "number"
+        },
+        "channels":{
+          "type": "array",
+          "items":{"type":"string"},
+          "description": "The channels to use in the analysis - should have 1-1 mapping with detectors to analyze"
+        },
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     }
@@ -154,9 +185,10 @@
           "enum": ["complete", "running", "stuck"],
           "description": "Status of the run"
         },
-        "comment": {
-          "type": "string",
-          "description": "Arbitrary comment string"
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         },
         "waveform_approximant":{
           "type": "string",
@@ -169,19 +201,10 @@
       "additionalProperties": false,
       "required": ["cluster", "path", "md5sum", "date_last_modified"],
       "properties": {
-        "cluster" : {
-          "type": "string",
-          "enum": ["CIT", "LLO", "LHO", "CDF", "NIK", "PSU", "UWM", "IUCAA"],
-          "default": "CIT",
-          "description": "The cluster on which the file is stored"
-        },
         "path": {
           "type": "string",
-          "description": "The path to the file on the given cluster"
-        },
-        "public_html": {
-          "type": "string",
-          "description": "The url to access a browser acceptable version of the file, if possible"
+          "pattern": "^(CIT|LLO|LHO|IUCAA|PSU|CDF|NIK|UWM):\/",
+          "description": "The path to the file, of the form CLUSTER:/path/to/file"
         },
         "md5sum": {
           "type": "string",
@@ -190,6 +213,10 @@
         "date_last_modified":{
           "type": "string",
           "description": "The date of last modification"
+        },
+        "public_html": {
+          "type": "string",
+          "description": "The url to access a browser acceptable version of the file, if possible"
         }
       }
     }
