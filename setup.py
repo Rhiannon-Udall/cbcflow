@@ -6,6 +6,8 @@ import shutil
 
 import setuptools
 
+import versioneer
+
 files = glob.glob("schema/*schema")
 tdir = "src/cbcflow/schema/"
 if os.path.exists(tdir) is False:
@@ -15,4 +17,8 @@ for file in files:
     shutil.copy(file, dst)
 
 if __name__ == "__main__":
-    setuptools.setup(package_data={"cbcflow": ["schema/cbc-meta-data-v1.schema"]})
+    setuptools.setup(
+        package_data={"cbcflow": ["schema/cbc-meta-data-v1.schema"]},
+        version=versioneer.get_version(),
+        cmdclass=versioneer.get_cmdclass(),
+    )

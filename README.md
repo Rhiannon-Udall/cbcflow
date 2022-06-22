@@ -25,62 +25,7 @@ $ jsonschema jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data
 
 ## cbcflow
 
-This repository contains the source code for `cbcflow` a tool to interact with the metadata.
+This repository contains the source code for `cbcflow` a tool to interact with the metadata. You can find [documentation for this module here](https://cbc.docs.ligo.org/meta-data/index.html)
 
-### Installation
 
-To install `cbcflow` for development, clone this repository and run:
-```console
-$ pip install -e .
-```
-
-### Autocomplete
-
-`cbcflow` uses [argcomplete](https://pypi.org/project/argcomplete/) to help
-with setting arguments. There is a global completion setup (see the
-documentation), but a fallback (often useful on clusters with changing
-environments) is to register the executable directly. This can be done by
-running
-```
-$ eval "$(register-python-argcomplete cbcflow)"
-```
-Note, this command requires that you have installed `argcomplete`.
-
-Once initialised, you can tab complete to get help with setting elements of the
-metadata. For example,
-```
-$ cbcflow SXXYYZZabc --info-[TAB]
-```
-will either auto complete all the `--info-` options, or print a list of
-available options.
-
-### Getting help
-Run
-```console
-$ cbcflow --help
-```
-for help in how to use the program.
-
-### Development
-To install `cbcflow` for development, run
-```
-$ pip install -e .
-```
-For development, we will use `pre-commit` to check standardisation. For help
-with this, see [the documentation](https://pre-commit.com/). In short, run
-```
-$ pip install pre-commit
-$ pre-commit install
-```
-Then, when you create a git commit, `pre-commit` will try to standardize your
-changes. If there are changes, you will then need to add them and commit again.
-In some cases, `pre-commit` will print out suggested changes that are required
-(e.g. when there are spelling errors), but not fix them automatically. Here, you
-will need to fix the software directly, add, and then commit.
-
-Note that if you do not install `pre-commit`, you can still push, but if the
-standardisation checks fail, the C.I. on gitlab will fail.
-
-If you experience issues, you can commit with `--no-verify` and push then request
-help (cc @gregory.ashton).
 
