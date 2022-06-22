@@ -15,8 +15,15 @@ group_shorthands = dict(
 def process_property(key, value, arg, parser, default_data, schema):
     arg = arg + f"-{key}"
     if value["type"] == "object":
-        default_data[key] = {}
-        process_property(key, value, arg, parser, default_data[key], schema)
+        if "$ref" in value.keys():
+            _, l0, l1 = value["$ref"].split("/")
+            ref = schema[l0][l1]
+            default_data[key] = []
+            for k, v in ref["properties"].items():
+                process_property(k, v, arg, parser, {}, schema)
+        else:
+            default_data[key] = {}
+            process_property(key, value, arg, parser, default_data[key], schema)
 
     for k, v in group_shorthands.items():
         arg = arg.replace(k, v)

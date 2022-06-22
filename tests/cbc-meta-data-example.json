@@ -10,19 +10,35 @@
         "results": [
           {
             "UID": "ProdF1",
-            "config_file": "CIT:/home/albert.einstein/O4/ProdF1_config.ini",
-            "result_file": "CIT:/home/albert.einstein/O4/ProdF1_results.h5",
+            "config_file": {
+              "path":"CIT:/home/albert.einstein/O4/ProdF1_config.ini",
+              "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
+              "date_last_modified":"14-09-2015"
+            },
+            "result_file": {
+              "path":"CIT:/home/albert.einstein/O4/ProdF1_results.h5",
+              "md5sum":"17b29ba8a63c4d22bdcdec9c1e318707",
+              "date_last_modified":"14-09-2015"
+            },
             "review_status": "pass",
             "run_status": "complete",
-            "comment": "Here is a comment"
+            "notes": ["Here is a comment"]
           },
           {
             "UID": "ProdF2",
-            "config_file": "CIT:/home/albert.einstein/O4/ProdF2_config.ini",
-            "result_file": "CIT:/home/albert.einstein/O4/ProdF2_results.h5",
+            "config_file": {
+              "path": "CIT:/home/albert.einstein/O4/ProdF2_config.ini",
+              "md5sum":"03ae39ca628746f8a00dd8543703948a",
+              "date_last_modified":"17-08-2017"
+            },
+            "result_file": {
+              "path": "CIT:/home/albert.einstein/O4/ProdF2_results.h5",
+              "md5sum":"4f8aa147f3823907e3877674abad6de6",
+              "date_last_modified":"17-08-2017"
+            },
             "review_status": "fail",
             "run_status": "stuck",
-            "comment": "Here is another comment"
+            "notes": ["Here is another comment","{'here': 'is','another': 'comment'"]
           }
         ]
     }
