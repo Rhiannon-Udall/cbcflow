@@ -41,5 +41,23 @@
             "notes": ["Here is another comment","{'here': 'is','another': 'comment'"]
           }
         ]
+    },
+    "cosmology": {
+        "preferred-skymap": "https://gracedb.ligo.org/events/G298048",
+        "counterparts": [
+           {
+            "UID": "GRBXXYYZZ",
+            "right ascension": 0.2,
+            "declination": 1.2,
+            "Type": "GRB",
+            "notes": ["A GRB found by Swift"]
+           },
+           {
+            "UID": "xyz123",
+            "right ascension": 0.2,
+            "declination": 1.2,
+            "Type": "Kilonova"
+           }
+        ]
     }
 }
