@@ -45,6 +45,25 @@
         }
       }
     },
+    "cosmology": {
+      "description": "The cosmology meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "preferred-skymap": {
+          "description": "The link to the preferred skymap on GRACEDB",
+          "type": "string",
+          "default": "GRACEDB link to be updated automatically"
+        },
+        "counterparts": {
+          "description": "A list of counterparts",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/counterparts"
+          }
+        }
+      }
+    },
     "parameter_estimation": {
       "description": "The parameter estimation meta-data",
       "additionalProperties": false,
@@ -196,6 +215,68 @@
         "waveform_approximant":{
           "type": "string",
           "description": "The waveform approximant being used for this analysis."
+        }
+      }
+    },
+    "counterparts": {
+      "description": "An event counterpart tracked by the cosmo WG",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "UID" ],
+       "properties": {
+        "UID": {
+          "type": "string",
+          "description": "The unique name of the counterpart"
+        },
+        "right ascension": {
+          "description": "The right ascension of the EM counterpart (rad)",
+          "type": "number",
+          "default": "None"
+        },
+        "declination": {
+          "description": "The declination of the EM counterpart (rad)",
+          "type": "number",
+          "default": "None"
+        },
+        "redshift": {
+          "description": "Cosmological redshift",
+          "type": "number",
+          "default": "None"
+        },
+        "redshift_uncertainty": {
+          "description": "The redshift uncertainty of the EM counterpart (rad)",
+          "type": "number",
+          "default": "None"
+        },
+        "peculiar_motion": {
+          "description": "Mean value of the peculiar motion in the radial direction in km/s",
+          "type": "number",
+          "default": "None"
+        },
+        "uncertainty_peculiar_motion": {
+          "description": "Uncertainty on the radial component of the peculiar motion in km/s",
+          "type": "number",
+          "default": "None"
+        },
+        "GCN": {
+          "description": "Link to the GCN circulated for the EM counterpart, if any",
+          "type": "string",
+          "default": "None"
+        },
+        "Type": {
+          "description": "Type of EM counterpart, e.g. Kilonova, GRB",
+          "type": "string",
+          "default": "None"
+        },
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+        },
+        "time_delay": {
+          "description": "Time delay in s between the GW luminosity peak and a transient EM counterpart (Solar system barycenter)",
+          "type": "number",
+          "default": "None"
         }
       }
     },
