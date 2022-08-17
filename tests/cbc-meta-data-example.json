@@ -59,5 +59,23 @@
             "Type": "Kilonova"
            }
         ]
+    },
+    "lensing": {
+      "lensing_analysis": [
+        {
+          "UID": "PRELIM-01",
+          "description": "Joint parameter estimation analysis with S190426a",
+          "analysts": ["albert.einstein", "kip.thorne"],
+          "reviewers": ["bob.dylan"],
+          "analysis_software": "majutsu",
+          "analysis_status": "not started",
+          "review_status": "not started",
+          "config_file": {
+            "path":"CIT:/home/albert.einstein/O4/ProdF1_config.ini",
+            "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
+            "date_last_modified":"14-09-2015"
+          }
+        }
+      ]
     }
 }
