@@ -166,6 +166,76 @@
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
+    },
+    "detector_characterization": {
+      "description": "The parameter estimation meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "analysts": {
+          "description": "The names of all analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+           }
+        },
+        "reviewers": {
+          "description": "The names of all reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+           }
+        },
+        "detectors": {
+          "description": "The list of all detectors that should be analysed",
+          "type": "array",
+          "items": {
+            "type": "string"
+           }
+        },
+        "status": {
+          "description": "The status of ongoing event_validation",
+          "type": "string",
+          "default": "NOT STARTED"
+        },
+        "reccomended_detectors": {
+          "description": "The list of all detectors that should be analysed in downstream analyses",
+          "type": "array",
+          "items": {
+            "type": "string"
+           }
+        },
+        "reccomended_minimum_frequency": {
+          "description": "The  validated safe minimum frequency to set for downstream analyses to avoid data quality issues",
+          "type": "number",
+          "default": 20.0
+        },
+        "reccomended_maximum_frequency": {
+          "description": "The  validated safe maximum frequency to set for downstream analyses to avoid data quality issues",
+          "type": "number",
+          "default": 2048.0
+        },
+        "reccomended_duration": {
+          "description": "The  validated safe maximum time duration to set for downstream analyses to avoid data quality issues",
+          "type": "number",
+          "default": 4.0
+        },
+        "results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/dqrresult"}
+        },
+        "reccomended_channels":{
+          "type": "array",
+          "items":{"type":"string"},
+          "description": "The channels to use in the analysis - should have 1-1 mapping with detectors to analyze"
+        },
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+        }
+      }
     }
   },
   "$defs": {
@@ -277,6 +347,37 @@
           "description": "Time delay in s between the GW luminosity peak and a transient EM counterpart (Solar system barycenter)",
           "type": "number",
           "default": "None"
+        }
+      }
+    },
+    "dqrresult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "UID" ],
+      "properties": {
+        "UID": {
+          "type": "string",
+          "description": "The name of the analysis"
+        },
+        "dqr_path": {
+          "type": "object",
+          "$ref": "#/$defs/linked_file",
+          "description": "The path to the relevant_dqr"
+        },
+        "review_status": {
+          "type": "string",
+          "enum": ["pass", "fail", "ongoing"],
+          "description": "Status of the review"
+        },
+        "validation_result": {
+          "type": "string",
+          "enum": ["pass", "fail", "ongoing"],
+          "description": "Result of event validation"
+        },
+        "validation_notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous information about the event validation result"
         }
       }
     },
