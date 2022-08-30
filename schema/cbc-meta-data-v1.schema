@@ -180,6 +180,20 @@
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
+    },
+    "lensing": {
+      "description": "The lensing meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "lensing_analysis": {
+          "description": "A list of lensing analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/lensing_analysis"
+          }
+        }
+      }
     }
   },
   "$defs": {
@@ -368,6 +382,55 @@
         "public_html": {
           "type": "string",
           "description": "The url to access a browser acceptable version of the file, if possible"
+        }
+      }
+    },
+    "lensing_analysis": {
+      "description": "A lensing analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "UID", "analysts", "analysis_status", "review_status" ],
+      "properties": {
+        "UID": {
+          "description": "The unique identifier for this analysis",
+          "type": "string"
+        },
+        "description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },    
+        "analysis_software": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "analysis_status": {
+          "description": "The status of the analysis",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "not started"]
+        },
+        "review_status": {
+          "description": "The status of the result review",
+          "type": "string",
+          "enum": ["pass", "fail", "ongoing", "not started"]
+        },
+        "config_file": {
+          "description": "The path to the configuration file",
+          "type": "object",
+          "$ref": "#/$defs/linked_file"
         }
       }
     }
