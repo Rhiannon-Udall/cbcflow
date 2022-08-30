@@ -42,6 +42,38 @@
           }
         ]
     },
+	"extreme_matter": {
+      "matter_analyses": [
+        {
+          "UID": "source_class-01",
+          "description": "mass-based source classification",
+          "analysts": ["albert.einstein", "kip.thorne"],
+          "reviewers": ["bob.dylan"],
+          "analysis_software": "mmax-model-selection",
+          "analysis_status": "not started",
+          "review_status": "not started",
+          "result_file": {
+            "path":"CIT:/home/albert.einstein/O4/ns_probability.txt",
+            "date_last_modified":"14-09-2022",
+            "md5sum":"jf3ik9djf"
+          }
+        },
+        {
+          "UID": "eos_inference-01",
+          "description": "spectral eos inference",
+          "analysts": ["albert.einstein", "kip.thorne"],
+          "reviewers": ["bob.dylan"],
+          "analysis_software": "bilby",
+          "analysis_status": "not started",
+          "review_status": "not started",
+          "result_file": {
+            "path":"CIT:/home/albert.einstein/O4/spec_eos_posterior_samples.hdf5",
+            "date_last_modified":"14-09-2022",
+            "md5sum":"jf3ik9djf"
+          }
+        }
+      ]
+    },
     "cosmology": {
         "preferred-skymap": "https://gracedb.ligo.org/events/G298048",
         "counterparts": [

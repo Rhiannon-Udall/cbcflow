@@ -45,6 +45,20 @@
         }
       }
     },
+    "extreme_matter": {
+      "description": "The extreme matter meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "matter_analyses": {
+          "description": "A list of extreme matter analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/matter_analysis"
+          }
+        }
+      }
+    },
     "cosmology": {
       "description": "The cosmology meta-data",
       "additionalProperties": false,
@@ -213,7 +227,7 @@
         },
         "review_status": {
           "type": "string",
-          "enum": ["pass", "fail", "ongoing"],
+          "enum": ["not started", "pass", "fail", "ongoing"],
           "description": "Status of the review"
         },
         "run_status": {
@@ -229,6 +243,59 @@
         "waveform_approximant":{
           "type": "string",
           "description": "The waveform approximant being used for this analysis."
+        }
+      }
+    },
+    "matter_analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "UID" ],
+      "properties": {
+        "UID": {
+          "type": "string",
+          "description": "The unique name of the analysis"
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the analysis"
+        },
+        "reviewers": {
+          "description": "The names of all reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+           }
+        },
+        "analysts": {
+          "description": "The names of all analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+           }
+        },
+        "analysis_software": {
+          "type": "string",
+          "description": "The analysis software used to produce this result"
+        },
+        "analysis_status": {
+          "type": "string",
+          "enum": ["not started", "ongoing", "on hold", "complete", "cancelled"],
+          "description": "Status of the analysis"
+        },
+        "review_status": {
+          "type": "string",
+          "enum": ["not started", "pass", "fail", "ongoing"],
+          "description": "Status of the review"
+        },
+        "result_file": {
+          "type": "object",
+          "$ref": "#/$defs/linked_file",
+          "description": "The path to the raw result file"
+        },
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
