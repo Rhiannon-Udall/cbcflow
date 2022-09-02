@@ -195,6 +195,20 @@
           }
         }
       }
+    },
+    "testing-gr": {
+      "description": "The Testing GR meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "analyses": {
+          "description": "A list of Testing GR analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tgr_analysis"
+          }
+        }
+      }
     }
   },
   "$defs": {
@@ -423,6 +437,91 @@
           "description": "The path to the configuration file",
           "type": "object",
           "$ref": "#/$defs/linked_file"
+        }
+      }
+    },
+    "tgr_analysis": {
+      "description": "A lensing analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "UID" ],
+      "properties": {
+        "UID": {
+          "description": "The unique identifier for this analysis",
+          "type": "string"
+        },
+        "description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "analysis_software": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "analysis_status": {
+          "description": "The status of the analysis",
+          "type": "string",
+          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"]
+        },
+        "review_status": {
+          "description": "The status of the result review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"]
+        },
+        "config_file": {
+          "description": "The path to the configuration file",
+          "type": "object",
+          "$ref": "#/$defs/linked_file"
+        },
+        "safe_lower_chirp_mass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_chirp_mass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_lower_mass_ratio":{
+          "description": "A safe lower mass ratio to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_luminosity_distance":{
+          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_luminosity_distance":{
+          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "cutoff_frequency":{       
+          "description": "The cutoff maximum (or minimum) frequency used in a few TGR analyses",
+          "type": "number"
+        },
+        "safe_lower_tgr_parameter":{
+          "description": "A safe lower value for the TGR parameter to set in the prior, to prevent railing",
+          "type": "number"
+        },        
+        "safe_upper_tgr_parameter":{
+          "description": "A safe lower value for the TGR parameter to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "waveform_approximant":{
+          "type": "string",
+          "description": "The waveform approximant being used for this analysis."
         }
       }
     }

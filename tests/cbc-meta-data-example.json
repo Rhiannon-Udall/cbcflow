@@ -109,5 +109,24 @@
           }
         }
       ]
+    },
+    "testing-gr": {
+      "analyses": [
+        {
+          "UID": "PRELIM-01",
+          "description": "Inspiral Merger Ringdown Consistency Test",
+          "analysts": ["albert.einstein", "kip.thorne"],
+          "reviewers": ["bob.dylan"],
+          "analysis_software": "bilby",
+          "analysis_status": "ongoing",
+          "review_status": "unstarted",
+          "config_file": {
+            "path":"CIT:/home/albert.einstein/O4/ProdF1_config.ini",
+            "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
+            "date_last_modified":"14-09-2015"
+          },
+          "cutoff_frequency":100
+        }
+      ]
     }
 }
