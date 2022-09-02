@@ -1,5 +1,6 @@
 src/cbcflow/schema/*schema
 src/cbcflow/*.egg-info
+src/cbcflow/__pycache__/*
 *.egg-info/
 *.egg
 build/
