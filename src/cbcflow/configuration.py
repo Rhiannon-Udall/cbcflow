@@ -11,6 +11,7 @@ def get_cbcflow_config(config_file="~/.cbcflow.cfg"):
     config_defaults = dict(
         gracedb_service_url="https://gracedb-test.ligo.org/api/",
         library=None,
+        schema=None,
     )
     if os.path.exists(cfile):
         config.read(cfile)

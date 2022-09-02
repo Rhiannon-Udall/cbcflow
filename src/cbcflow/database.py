@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class GraceDbDatabase(object):
     def __init__(self, service_url):
         self.service_url = service_url
+        logger.info(f"Using GraceDB service_url: {service_url}")
         self.superevents = dict()
 
     def pull(self, sname):

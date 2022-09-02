@@ -43,15 +43,15 @@
         ]
     },
 	"extreme_matter": {
-      "matter_analyses": [
+      "analyses": [
         {
           "UID": "source_class-01",
           "description": "mass-based source classification",
           "analysts": ["albert.einstein", "kip.thorne"],
           "reviewers": ["bob.dylan"],
           "analysis_software": "mmax-model-selection",
-          "analysis_status": "not started",
-          "review_status": "not started",
+          "analysis_status": "unstarted",
+          "review_status": "unstarted",
           "result_file": {
             "path":"CIT:/home/albert.einstein/O4/ns_probability.txt",
             "date_last_modified":"14-09-2022",
@@ -64,8 +64,8 @@
           "analysts": ["albert.einstein", "kip.thorne"],
           "reviewers": ["bob.dylan"],
           "analysis_software": "bilby",
-          "analysis_status": "not started",
-          "review_status": "not started",
+          "analysis_status": "unstarted",
+          "review_status": "unstarted",
           "result_file": {
             "path":"CIT:/home/albert.einstein/O4/spec_eos_posterior_samples.hdf5",
             "date_last_modified":"14-09-2022",
@@ -75,7 +75,7 @@
       ]
     },
     "cosmology": {
-        "preferred-skymap": "https://gracedb.ligo.org/events/G298048",
+        "preferred_skymap": "https://gracedb.ligo.org/events/G298048",
         "counterparts": [
            {
             "UID": "GRBXXYYZZ",
@@ -93,15 +93,15 @@
         ]
     },
     "lensing": {
-      "lensing_analysis": [
+      "analyses": [
         {
           "UID": "PRELIM-01",
           "description": "Joint parameter estimation analysis with S190426a",
           "analysts": ["albert.einstein", "kip.thorne"],
           "reviewers": ["bob.dylan"],
           "analysis_software": "majutsu",
-          "analysis_status": "not started",
-          "review_status": "not started",
+          "analysis_status": "ongoing",
+          "review_status": "unstarted",
           "config_file": {
             "path":"CIT:/home/albert.einstein/O4/ProdF1_config.ini",
             "md5sum":"788bce028fc4fd1efabdab08b2d60f89",

@@ -50,7 +50,7 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "matter_analyses": {
+        "analyses": {
           "description": "A list of extreme matter analyses",
           "type": "array",
           "items": {
@@ -64,10 +64,10 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "preferred-skymap": {
+        "preferred_skymap": {
           "description": "The link to the preferred skymap on GRACEDB",
           "type": "string",
-          "default": "GRACEDB link to be updated automatically"
+          "default": "None"
         },
         "counterparts": {
           "description": "A list of counterparts",
@@ -107,7 +107,8 @@
         "status": {
           "description": "The status of ongoing parameter estimation",
           "type": "string",
-          "default": "NOT STARTED"
+          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
+          "default": "unstarted"
         },
         "safe_minimum_frequency": {
           "description": "The  validated safe minimum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
@@ -186,7 +187,7 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "lensing_analysis": {
+        "analyses": {
           "description": "A list of lensing analyses",
           "type": "array",
           "items": {
@@ -227,7 +228,7 @@
         },
         "review_status": {
           "type": "string",
-          "enum": ["not started", "pass", "fail", "ongoing"],
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
           "description": "Status of the review"
         },
         "run_status": {
@@ -279,12 +280,12 @@
         },
         "analysis_status": {
           "type": "string",
-          "enum": ["not started", "ongoing", "on hold", "complete", "cancelled"],
+          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
           "description": "Status of the analysis"
         },
         "review_status": {
           "type": "string",
-          "enum": ["not started", "pass", "fail", "ongoing"],
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
           "description": "Status of the review"
         },
         "result_file": {
@@ -311,43 +312,35 @@
         },
         "right ascension": {
           "description": "The right ascension of the EM counterpart (rad)",
-          "type": "number",
-          "default": "None"
+          "type": "number"
         },
         "declination": {
           "description": "The declination of the EM counterpart (rad)",
-          "type": "number",
-          "default": "None"
+          "type": "number"
         },
         "redshift": {
           "description": "Cosmological redshift",
-          "type": "number",
-          "default": "None"
+          "type": "number"
         },
         "redshift_uncertainty": {
           "description": "The redshift uncertainty of the EM counterpart (rad)",
-          "type": "number",
-          "default": "None"
+          "type": "number"
         },
         "peculiar_motion": {
           "description": "Mean value of the peculiar motion in the radial direction in km/s",
-          "type": "number",
-          "default": "None"
+          "type": "number"
         },
         "uncertainty_peculiar_motion": {
           "description": "Uncertainty on the radial component of the peculiar motion in km/s",
-          "type": "number",
-          "default": "None"
+          "type": "number"
         },
         "GCN": {
           "description": "Link to the GCN circulated for the EM counterpart, if any",
-          "type": "string",
-          "default": "None"
+          "type": "string"
         },
         "Type": {
           "description": "Type of EM counterpart, e.g. Kilonova, GRB",
-          "type": "string",
-          "default": "None"
+          "type": "string"
         },
         "notes": {
           "type": "array",
@@ -356,8 +349,7 @@
         },
         "time_delay": {
           "description": "Time delay in s between the GW luminosity peak and a transient EM counterpart (Solar system barycenter)",
-          "type": "number",
-          "default": "None"
+          "type": "number"
         }
       }
     },
@@ -389,7 +381,7 @@
       "description": "A lensing analysis",
       "type": "object",
       "additionalProperties": false,
-      "required": [ "UID", "analysts", "analysis_status", "review_status" ],
+      "required": [ "UID" ],
       "properties": {
         "UID": {
           "description": "The unique identifier for this analysis",
@@ -412,7 +404,7 @@
           "items": {
             "type": "string"
           }
-        },    
+        },
         "analysis_software": {
           "description": "The analysis software program",
           "type": "string"
@@ -420,12 +412,12 @@
         "analysis_status": {
           "description": "The status of the analysis",
           "type": "string",
-          "enum": ["complete", "running", "stuck", "not started"]
+          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"]
         },
         "review_status": {
           "description": "The status of the result review",
           "type": "string",
-          "enum": ["pass", "fail", "ongoing", "not started"]
+          "enum": ["unstarted", "pass", "fail", "ongoing"]
         },
         "config_file": {
           "description": "The path to the configuration file",
