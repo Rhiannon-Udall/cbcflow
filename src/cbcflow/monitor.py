@@ -64,8 +64,10 @@ def generate_crondor():
     monitor_job.add_condor_cmd("initialdir", rundir)
     monitor_job.add_condor_cmd("get_env", "True")
     monitor_job.add_condor_cmd("on_exit_remove", "False")
+    # These are the unusual settings - this makes the job repeat every N hours
     monitor_job.add_condor_cmd("cron_minute", "0")
     monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
+    # This tells the job to queue 5 minutes before it's execution time, so it will be ready when the time comes
     monitor_job.add_condor_cmd("cron_prep_time", "300")
     monitor_args = f" {os.path.expanduser(args.config_file)} "
     monitor_job.add_arg(monitor_args)

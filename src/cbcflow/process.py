@@ -1,4 +1,8 @@
 import argparse
+import hashlib
+import os
+import subprocess
+from datetime import datetime
 
 from .parser import group_shorthands
 from .schema import get_special_keys
@@ -16,6 +20,44 @@ def get_subkey(arg, group, suffix):
     return arg.replace(group + "_", "").replace("_" + suffix, "")
 
 
+def get_cluster():
+    # TODO if a better api is implemented use it
+    # Also maybe add NIK?
+    # I can't even access that cluster to test, so...
+    hostname = subprocess.check_output(["hostname", "-f"])
+    if "ligo-wa" in hostname:
+        return "LHO"
+    elif "ligo-la" in hostname:
+        return "LLO"
+    elif "ligo.caltech" in hostname:
+        return "CIT"
+    elif hostname == "cl8":
+        return "CDF"
+    elif "gwave.ics.psu.edu" in hostname:
+        return "PSU"
+    elif "nemo.uwm.edu" in hostname:
+        return "UWM"
+    elif "iucaa" in hostname:
+        return "IUCAA"
+    else:
+        raise ValueError("Could not identify cluster from `hostname -f` call")
+
+
+def get_date_last_modified(path):
+    mtime = os.path.getmtime(path)
+    dtime = datetime.fromtimestamp(mtime)
+    return dtime.strftime("%Y:%m:%d %H:%M:%S")
+
+
+def get_md5sum(path):
+    # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
+    with open(path, "rb") as f:
+        file_hash = hashlib.md5()
+        while chunk := f.read(8192):
+            file_hash.update(chunk)
+    return file_hash.hexdigest()
+
+
 def process_arg(arg, val, metadata, group, ignore_keys):
     if val is None or group in [
         "positional arguments",
@@ -31,7 +73,23 @@ def process_arg(arg, val, metadata, group, ignore_keys):
 
     if "_set" in arg:
         subkey = get_subkey(arg, group, "set")
-        dict_to_update[subkey] = val
+        # Treat Linked files in a special way:
+        if "path" in subkey:
+            # Expand user for the path
+            path = os.path.expanduser(val)
+            # Any argument with path in the name should be the path for a linked file
+            argument_prefix = subkey.replace("-path", "")
+            cluster = get_cluster()
+            # Update the path
+            dict_to_update[subkey] = f"{cluster}:{path}"
+            # Get standard format key date-last-modified, set value
+            date_last_modified_key = f"{argument_prefix}-date-last-modified"
+            dict_to_update[date_last_modified_key] = get_date_last_modified(path)
+            # Get standard format key md5sum, set value
+            md5sum_key = f"{argument_prefix}-md5sum"
+            dict_to_update[md5sum_key] = get_md5sum(path)
+        else:
+            dict_to_update[subkey] = val
     elif "_add" in arg:
         subkey = get_subkey(arg, group, "add")
         dict_to_update[subkey].append(val)
