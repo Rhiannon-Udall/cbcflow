@@ -50,7 +50,7 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "analysis": {
+        "analyses": {
           "description": "A list of extreme matter analyses",
           "type": "array",
           "items": {
@@ -187,7 +187,7 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "analysis": {
+        "analyses": {
           "description": "A list of lensing analyses",
           "type": "array",
           "items": {
@@ -274,7 +274,7 @@
             "type": "string"
            }
         },
-        "software": {
+        "analysis_software": {
           "type": "string",
           "description": "The analysis software used to produce this result"
         },
@@ -412,12 +412,12 @@
         "analysis_status": {
           "description": "The status of the analysis",
           "type": "string",
-          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
+          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"]
         },
         "review_status": {
           "description": "The status of the result review",
           "type": "string",
-          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "enum": ["unstarted", "pass", "fail", "ongoing"]
         },
         "config_file": {
           "description": "The path to the configuration file",
