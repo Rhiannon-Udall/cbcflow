@@ -59,6 +59,10 @@ class MetaData(object):
 
     @library.setter
     def library(self, library):
+        if library is None:
+            raise ValueError(
+                "The library directory is NoneType. Please set the library path."
+            )
         if os.path.exists(library) is False:
             os.mkdir(library)
         self._library = library
