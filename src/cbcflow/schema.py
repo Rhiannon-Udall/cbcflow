@@ -1,7 +1,6 @@
 import importlib.resources as importlib_resources
 import json
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -34,8 +33,9 @@ def get_schema(args=None):
     fileflag = "--schema-file"
     versionflag = "--schema-version"
     configuration = get_cbcflow_config()
+    config_schema = configuration["schema"]
 
-    if os.path.exists(configuration["schema"]):
+    if config_schema is not None:
         schema_file = configuration["schema"]
     elif fileflag in args:
         schema_file = args[args.index(fileflag) + 1]
