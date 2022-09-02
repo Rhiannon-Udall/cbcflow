@@ -66,6 +66,8 @@ def process_special_arguments(arg_groups, metadata, special_keys):
     for key in special_keys:
         special_key_set = {}
         for group, group_args in arg_groups.items():
+            if group not in key:
+                continue
             for arg, val in group_args.__dict__.items():
                 if key in arg:
                     special_key_key = arg.replace(key + "_", "")

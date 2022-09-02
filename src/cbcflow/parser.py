@@ -39,7 +39,8 @@ def process_property(key, value, arg, parser, default_data, schema):
             help=f"Set the {arg}",
             default=default,
         )
-        default_data[key] = default
+        if default is not None:
+            default_data[key] = default
 
     elif value["type"] == "array":
         if value["items"].get("type") == "string":
@@ -105,11 +106,6 @@ def get_parser_and_default_data(schema):
     )
     actions.add_argument(
         "--print", action="store_true", help="Print the metadata for the event"
-    )
-    actions.add_argument(
-        "--push-to-gracedb",
-        action="store_true",
-        help="Push changes to the metadata to GraceDB",
     )
     actions.add_argument(
         "--pull-from-gracedb",
