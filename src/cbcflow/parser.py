@@ -23,14 +23,14 @@ def process_property(key, value, arg, parser, default_data, schema):
                 # Linked files should have no default data, so this should be fine
                 default_data[key] = {}
                 parser.add_argument(
-                    f"--{arg}-path-set",
+                    f"--{arg.replace('_', '-')}-path-set",
                     action="store",
                     help="Set the file path\
                         this will automatically set the md5sum and data-last-modified,\
                         and infer the cluster",
                 )
                 parser.add_argument(
-                    f"--{arg}-public-html-set",
+                    f"--{arg.replace('_', '-')}-public-html-set",
                     action="store",
                     help="Set a url from which this can be accessed via public_html",
                 )
