@@ -1,11 +1,14 @@
 import argparse
 import hashlib
+import logging
 import os
 import subprocess
 from datetime import datetime
 
 from .parser import group_shorthands
-from .schema import get_special_keys
+from .schema import get_linked_file_keys, get_special_keys
+
+logger = logging.getLogger(__name__)
 
 
 def standardize_list(inlist):
@@ -24,7 +27,7 @@ def get_cluster():
     # TODO if a better api is implemented use it
     # Also maybe add NIK?
     # I can't even access that cluster to test, so...
-    hostname = subprocess.check_output(["hostname", "-f"])
+    hostname = str(subprocess.check_output(["hostname", "-f"]))
     if "ligo-wa" in hostname:
         return "LHO"
     elif "ligo-la" in hostname:
@@ -46,7 +49,7 @@ def get_cluster():
 def get_date_last_modified(path):
     mtime = os.path.getmtime(path)
     dtime = datetime.fromtimestamp(mtime)
-    return dtime.strftime("%Y:%m:%d %H:%M:%S")
+    return dtime.strftime("%Y/%m/%d %H:%M:%S")
 
 
 def get_md5sum(path):
@@ -73,23 +76,7 @@ def process_arg(arg, val, metadata, group, ignore_keys):
 
     if "_set" in arg:
         subkey = get_subkey(arg, group, "set")
-        # Treat Linked files in a special way:
-        if "path" in subkey:
-            # Expand user for the path
-            path = os.path.expanduser(val)
-            # Any argument with path in the name should be the path for a linked file
-            argument_prefix = subkey.replace("-path", "")
-            cluster = get_cluster()
-            # Update the path
-            dict_to_update[subkey] = f"{cluster}:{path}"
-            # Get standard format key date-last-modified, set value
-            date_last_modified_key = f"{argument_prefix}-date-last-modified"
-            dict_to_update[date_last_modified_key] = get_date_last_modified(path)
-            # Get standard format key md5sum, set value
-            md5sum_key = f"{argument_prefix}-md5sum"
-            dict_to_update[md5sum_key] = get_md5sum(path)
-        else:
-            dict_to_update[subkey] = val
+        dict_to_update[subkey] = val
     elif "_add" in arg:
         subkey = get_subkey(arg, group, "add")
         dict_to_update[subkey].append(val)
@@ -106,6 +93,21 @@ def process_arg(arg, val, metadata, group, ignore_keys):
         raise ValueError("Processing failed")
 
 
+def process_linked_file_path(val):
+    linked_file_dict = dict()
+    # Expand user for the path
+    path = os.path.expanduser(val)
+    # Any argument with path in the name should be the path for a linked file
+    cluster = get_cluster()
+    # Update the path
+    linked_file_dict["path"] = f"{cluster}:{path}"
+    # Get date last modified
+    linked_file_dict["date_last_modified"] = get_date_last_modified(path)
+    # Get md5sum
+    linked_file_dict["md5sum"] = get_md5sum(path)
+    return linked_file_dict
+
+
 def get_arg_groups_dictionary(args, parser):
     arg_groups = {}
     for group in parser._action_groups:
@@ -120,7 +122,7 @@ def process_standard_arguments(arg_groups, metadata, ignore_keys):
             process_arg(arg, val, metadata, group, ignore_keys)
 
 
-def process_special_arguments(arg_groups, metadata, special_keys):
+def process_special_arguments(arg_groups, metadata, special_keys, linked_file_keys):
     for key in special_keys:
         special_key_set = {}
         for group, group_args in arg_groups.items():
@@ -129,7 +131,53 @@ def process_special_arguments(arg_groups, metadata, special_keys):
                     special_key_key = arg.replace(key + "_", "")
                     if "_set" in special_key_key:
                         if val is not None:
-                            special_key_set[special_key_key.replace("_set", "")] = val
+                            # Some hacky stuff to determine if this is a linked file
+                            # And if it is, keep track of *which* linked file for naming purposes
+                            is_linked_file = False
+                            for (file_prefix, linked_file_name) in linked_file_keys:
+                                if (
+                                    file_prefix == key
+                                    and linked_file_name in special_key_key
+                                ):
+                                    is_linked_file = True
+                                    linked_file_name_to_use = linked_file_name
+                                    break
+                            # If it is a linked file, only one of two inputs should be possible
+                            if is_linked_file:
+                                if "path" in special_key_key:
+                                    # If the path is being edited, get metadata as well
+                                    if (
+                                        linked_file_name_to_use
+                                        not in special_key_set.keys()
+                                    ):
+                                        special_key_set[
+                                            linked_file_name_to_use
+                                        ] = process_linked_file_path(val)
+                                    else:
+                                        special_key_set[linked_file_name_to_use].update(
+                                            process_linked_file_path(val)
+                                        )
+                                elif "public_html" in special_key_key:
+                                    # If the public_html, it's a URL so just add directly
+                                    if (
+                                        linked_file_name_to_use
+                                        not in special_key_set.keys()
+                                    ):
+                                        special_key_set[
+                                            linked_file_name_to_use
+                                        ] = dict()
+                                    special_key_set[linked_file_name_to_use][
+                                        "public_html"
+                                    ] = val
+                                else:
+                                    raise KeyError(
+                                        "The only linked file elements which may be edited are\
+                                        the path or the public_html path"
+                                    )
+                            else:
+                                special_key_set[
+                                    special_key_key.replace("_set", "")
+                                ] = val
             subkey = key.replace(group + "_", "")
             if len(special_key_set) > 0:
 
@@ -141,6 +189,14 @@ def process_special_arguments(arg_groups, metadata, special_keys):
                 new_run = True
                 for item in metadata.data[group][subkey]:
                     if item["UID"] == special_key_set["UID"]:
+                        # Hack to make popping work
+                        check_internal_update_keys = [
+                            kk
+                            for kk, vv in special_key_set.items()
+                            if type(vv) == dict and kk in item.keys()
+                        ]
+                        for kk in check_internal_update_keys:
+                            item[kk].update(special_key_set.pop(kk))
                         item.update(special_key_set)
                         new_run = False
 
@@ -150,6 +206,16 @@ def process_special_arguments(arg_groups, metadata, special_keys):
 
 def process_user_input(args, parser, schema, metadata):
     special_keys = get_special_keys(schema)
+    linked_file_keys = get_linked_file_keys(schema, schema)
     arg_groups = get_arg_groups_dictionary(args, parser)
-    process_standard_arguments(arg_groups, metadata, ignore_keys=special_keys)
-    process_special_arguments(arg_groups, metadata, special_keys=special_keys)
+    process_standard_arguments(
+        arg_groups,
+        metadata,
+        ignore_keys=special_keys,
+    )
+    process_special_arguments(
+        arg_groups,
+        metadata,
+        special_keys=special_keys,
+        linked_file_keys=linked_file_keys,
+    )

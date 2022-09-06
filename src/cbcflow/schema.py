@@ -61,3 +61,40 @@ def get_special_keys(schema, prekey=""):
         elif properties[key]["type"] == "array" and "$ref" in properties[key]["items"]:
             special_keys.append(prekey + "_" + key)
     return special_keys
+
+
+def get_linked_file_keys(sub_schema, full_schema, prekey=""):
+    """
+    Recursive search for linked file objects
+
+    Parameters
+    -----------
+    schema :dict
+        The schema to trace through
+    prekey :str
+        Prefix string, to track path of recursion
+
+    Returns
+    ----------
+    linked_file_keys :list
+        A list of tuples (prefix_path, linked_file_name)
+    """
+    properties = sub_schema["properties"]
+    linked_file_keys = []
+    for key, value in properties.items():
+        if "$ref" in value:
+            _, _, l1 = value["$ref"].split("/")
+            if l1 == "linked_file":
+                linked_file_keys.append((prekey.strip("_"), key))
+        elif "properties" in value:
+            linked_file_keys += get_linked_file_keys(
+                value, full_schema, prekey=prekey + "_" + key
+            )
+        elif "items" in value:
+            if "$ref" in value["items"]:
+                _, l0, l1 = value["items"]["$ref"].split("/")
+                linked_file_keys += get_linked_file_keys(
+                    full_schema[l0][l1], full_schema, prekey=prekey + "_" + key
+                )
+
+    return linked_file_keys
