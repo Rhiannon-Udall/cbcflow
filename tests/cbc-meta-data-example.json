@@ -113,19 +113,49 @@
     "testing-gr": {
       "analyses": [
         {
-          "UID": "PRELIM-01",
           "description": "Inspiral Merger Ringdown Consistency Test",
           "analysts": ["albert.einstein", "kip.thorne"],
           "reviewers": ["bob.dylan"],
           "analysis_software": "bilby",
-          "analysis_status": "ongoing",
-          "review_status": "unstarted",
-          "config_file": {
-            "path":"CIT:/home/albert.einstein/O4/ProdF1_config.ini",
-            "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
-            "date_last_modified":"14-09-2015"
+          "cutoff_frequency":100,
+          "safe_lower_tgr_parameter":-1,
+          "safe_upper_tgr_parameter":1,
+          "results": [
+          {
+            "UID": "ProdInspiral1",
+            "config_file": {
+              "path":"CIT:/home/albert.einstein/O4/ProdInspiral1_config.ini",
+              "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
+              "date_last_modified":"14-09-2015"
+            },
+            "result_file": {
+              "path":"CIT:/home/albert.einstein/O4/ProdInspiral1_results.h5",
+              "md5sum":"17b29ba8a63c4d22bdcdec9c1e318707",
+              "date_last_modified":"14-09-2015"
+            },
+            "waveform_approximant": "IMRPhenomXPHM",
+            "review_status": "pass",
+            "run_status": "complete",
+            "notes": ["Here is a comment"]
           },
-          "cutoff_frequency":100
+          {
+            "UID": "ProdPostInspiral1",
+            "config_file": {
+              "path":"CIT:/home/albert.einstein/O4/ProdPostInspiral1_config.ini",
+              "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
+              "date_last_modified":"14-09-2015"
+            },
+            "result_file": {
+              "path":"CIT:/home/albert.einstein/O4/ProdPostInspiral1_results.h5",
+              "md5sum":"17b29ba8a63c4d22bdcdec9c1e318707",
+              "date_last_modified":"14-09-2015"
+            },
+            "waveform_approximant": "IMRPhenomXPHM",
+            "review_status": "fail",
+            "run_status": "stuck",
+            "notes": ["Here is another comment","{'here': 'is','another': 'comment'"]
+          }
+        ]
         }
       ]
     }

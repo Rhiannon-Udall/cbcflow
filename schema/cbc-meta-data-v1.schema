@@ -468,15 +468,10 @@
       }
     },
     "tgr_analysis": {
-      "description": "A lensing analysis",
+      "description": "A Testing GR analysis",
       "type": "object",
       "additionalProperties": false,
-      "required": [ "UID" ],
       "properties": {
-        "UID": {
-          "description": "The unique identifier for this analysis",
-          "type": "string"
-        },
         "description": {
           "description": "A short and concise description of the analysis",
           "type": "string"
@@ -499,20 +494,10 @@
           "description": "The analysis software program",
           "type": "string"
         },
-        "analysis_status": {
-          "description": "The status of the analysis",
-          "type": "string",
-          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"]
-        },
-        "review_status": {
-          "description": "The status of the result review",
-          "type": "string",
-          "enum": ["unstarted", "pass", "fail", "ongoing"]
-        },
-        "config_file": {
-          "description": "The path to the configuration file",
-          "type": "object",
-          "$ref": "#/$defs/linked_file"
+        "results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/peresult"}
         },
         "safe_lower_chirp_mass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
@@ -545,10 +530,6 @@
         "safe_upper_tgr_parameter":{
           "description": "A safe lower value for the TGR parameter to set in the prior, to prevent railing",
           "type": "number"
-        },
-        "waveform_approximant":{
-          "type": "string",
-          "description": "The waveform approximant being used for this analysis."
         }
       }
     }
