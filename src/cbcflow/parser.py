@@ -17,10 +17,28 @@ def process_property(key, value, arg, parser, default_data, schema):
     if value["type"] == "object":
         if "$ref" in value.keys():
             _, l0, l1 = value["$ref"].split("/")
-            ref = schema[l0][l1]
-            default_data[key] = []
-            for k, v in ref["properties"].items():
-                process_property(k, v, arg, parser, {}, schema)
+            # Special logic for linked files - only take the path and public html
+            # Infer the rest from the path
+            if l1 == "linked_file":
+                # Linked files should have no default data, so this should be fine
+                default_data[key] = {}
+                parser.add_argument(
+                    f"--{arg.replace('_', '-')}-path-set",
+                    action="store",
+                    help="Set the file path\
+                        this will automatically set the md5sum and data-last-modified,\
+                        and infer the cluster",
+                )
+                parser.add_argument(
+                    f"--{arg.replace('_', '-')}-public-html-set",
+                    action="store",
+                    help="Set a url from which this can be accessed via public_html",
+                )
+            else:
+                ref = schema[l0][l1]
+                default_data[key] = []
+                for k, v in ref["properties"].items():
+                    process_property(k, v, arg, parser, {}, schema)
         else:
             default_data[key] = {}
             process_property(key, value, arg, parser, default_data[key], schema)
@@ -44,7 +62,9 @@ def process_property(key, value, arg, parser, default_data, schema):
     elif value["type"] == "array":
         if value["items"].get("type") == "string":
             parser.add_argument(
-                "--" + arg + "-add", action="store", help=f"Append to the {arg}"
+                "--" + arg + "-add",
+                action="store",
+                help=f"Append to the {arg}",
             )
             parser.add_argument(
                 "--" + arg + "-remove",
