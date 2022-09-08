@@ -45,6 +45,33 @@
         }
       }
     },
+    "gracedb": {
+      "description": "Automated information pulled from GraceDB",
+      "type": "object",
+      "properties": {
+        "last_update": {
+          "description": "The last time the GraceDB metadata was updated",
+          "type": "string"
+        },
+        "preferred_event": {
+          "description": "The preferred_event from GraceDB",
+          "type": "string",
+          "pattern": "^G[0-9]{6}"
+        },
+        "far": {
+          "description": "The event far from GraceDB",
+          "type": "number"
+        },
+        "gpstime": {
+          "description": "The event gpstime from GraceDB",
+          "type": "number"
+        },
+        "instruments": {
+          "description": "The event instruments from GraceDB",
+          "type": "string"
+        }
+      }
+    },
     "extreme_matter": {
       "description": "The extreme matter meta-data",
       "additionalProperties": false,

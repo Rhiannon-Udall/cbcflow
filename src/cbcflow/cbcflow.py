@@ -3,7 +3,7 @@
 
 import logging
 
-from .database import GraceDbDatabase
+from .gracedb import fetch_gracedb_information
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
 from .process import process_user_input
@@ -31,9 +31,8 @@ def main():
     )
 
     if args.pull_from_gracedb:
-        gdb = GraceDbDatabase(service_url=args.gracedb_service_url)
-        database_data = gdb.pull(args.sname)
-        metadata.data.update(database_data)
+        gdb_data = fetch_gracedb_information(args.sname, args.gracedb_service_url)
+        metadata.data.update(gdb_data)
         metadata.write_to_library()
     elif metadata.library_file_exists is False:
         raise ValueError(
@@ -44,10 +43,6 @@ def main():
     if args.update:
         process_user_input(args, parser, schema, metadata)
         metadata.write_to_library()
-
-    if args.push_to_gracedb:
-        gdb = GraceDbDatabase(service_url=args.gracedb_service_url)
-        gdb.push(metadata)
 
     if args.print:
         metadata.pretty_print(metadata.data)
