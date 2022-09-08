@@ -4,6 +4,7 @@ import json
 import logging
 import os
 
+import jsonschema
 from ligo.gracedb.exceptions import HTTPError
 from ligo.gracedb.rest import GraceDb
 
@@ -83,7 +84,14 @@ class GraceDbDatabase(object):
                     no_git_library=no_git_library,
                 )
                 metadata.data.update(database_data)
-                metadata.write_to_library()
+                try:
+                    metadata.write_to_library()
+                except jsonschema.exceptions.ValidationError:
+                    logger.info(
+                        "GraceDB metadata cannot be validated.\
+                        Local metadata will not be updated\n"
+                    )
+
         else:
             logger.info(
                 "This GraceDbDatabase instance has not queried for superevents yet,\
