@@ -104,6 +104,27 @@
         }
       }
     },
+    "RatesAndPopulations":{
+      "description":"The R&P single event meta-data",
+      "additionalProperties":false,
+      "type":"object",
+      "properties": {
+        "CatalogsUsingThisSuperevent":{
+          "description":"Identifying information of catalogs which include this superevent",
+          "type":"array",
+          "items":{
+            "type":"string"
+          }
+        },
+        "R&PRunsUsingThisSuperevent":{
+          "description":"UIDs of R&P analyses which include this superevent",
+          "type":"array",
+          "items":{
+            "type":"string"
+          }
+        }
+      }
+    },
     "ParameterEstimation": {
       "description": "The parameter estimation meta-data",
       "additionalProperties": false,
