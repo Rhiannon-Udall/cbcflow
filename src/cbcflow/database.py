@@ -1,4 +1,5 @@
 import configparser
+import copy
 import glob
 import json
 import logging
@@ -167,16 +168,16 @@ class GraceDbDatabase(object):
         # loop over all superevents of interest
         for superevent_id, superevent in self.superevents.items():
             gracedb_data = self.pull(superevent["superevent_id"])
-            if superevent_id in local_library.metadata_dict.keys():
-                # gracedb as source of truth - if in library update
-                local_metadata = local_library.metadata_dict[superevent_id]
-                local_metadata.update(gracedb_data)
-                local_metadata.write_to_library()
-                logger.info(
-                    f"The library entry for superevent {superevent_id}\
-                was updated using gracedb data"
-                )
-            else:
+            # if superevent_id in local_library.metadata_dict.keys():
+            #     # gracedb as source of truth - if in library update
+            #     local_metadata = local_library.metadata_dict[superevent_id]
+            #     local_metadata.update(gracedb_data)
+            #     local_metadata.write_to_library()
+            #     logger.info(
+            #         f"The library entry for superevent {superevent_id}\
+            #     was updated using gracedb data"
+            #     )
+            if superevent_id not in self.superevents.items():
                 # if not in library make default
                 local_default = MetaData(
                     superevent_id,
@@ -193,13 +194,22 @@ class GraceDbDatabase(object):
                     \n and so defaults were generated and added to both repositories."
                     )
                 else:
-                    # if in gracedb, use the gracedb data
-                    local_default.update(gracedb_data)
-                    local_default.write_to_library()
-                    logger.info(
-                        f"The superevent {superevent_id} was present in gracedb but not in the library,\
-                        \n and so was added to the library using gracedb data"
-                    )
+                    try:
+                        backup_default = copy.deepcopy(local_default)
+                        # if in gracedb, use the gracedb data
+                        local_default.update(gracedb_data)
+                        local_default.write_to_library()
+                        logger.info(
+                            f"The superevent {superevent_id} was present in gracedb but not in the library,\
+                            \n and so was added to the library using gracedb data"
+                        )
+                    except jsonschema.exceptions.ValidationError:
+                        logger.info(
+                            f"For superevent {superevent_id}, metadata was present in gracedb, but failed validation\n\
+                            Writing default data to library instead\n\
+                            If important information from GraceDB must be added, do so manually\n"
+                        )
+                        backup_default.write_to_library()
 
 
 class LocalLibraryDatabase(object):

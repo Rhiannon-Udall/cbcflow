@@ -137,9 +137,16 @@ def process_special_arguments(arg_groups, metadata, special_keys, linked_file_ke
                             # And if it is, keep track of *which* linked file for naming purposes
                             is_linked_file = False
                             for (file_prefix, linked_file_name) in linked_file_keys:
-                                if (
-                                    file_prefix == key
-                                    and linked_file_name in special_key_key
+                                # Check if
+                                # a) the prefix is the current key, e.g. that we are matching
+                                # parameter_estimation_results_... to parameter_estimation_results_...
+                                # b) that removing the linked_file_name leaves one of the two possible setter strings
+                                # This prevents conflict between e.g. pesummary_result_file and result_file
+                                if file_prefix == key and (
+                                    special_key_key.replace(linked_file_name, "")
+                                    == "_path_set"
+                                    or special_key_key.replace(linked_file_name, "")
+                                    == "_public_html_set"
                                 ):
                                     is_linked_file = True
                                     linked_file_name_to_use = linked_file_name
@@ -173,8 +180,9 @@ def process_special_arguments(arg_groups, metadata, special_keys, linked_file_ke
                                     ] = val
                                 else:
                                     raise KeyError(
-                                        "The only linked file elements which may be edited are\
-                                        the path or the public_html path"
+                                        f"The only linked file elements which may be edited are\n\
+                                        the path or the public_html path\n\
+                                        The key which was to be modified was {special_key_key}"
                                     )
                             else:
                                 special_key_set[
