@@ -223,7 +223,7 @@
         }
       }
     },
-    "testing-gr": {
+    "testing_gr": {
       "description": "The Testing GR meta-data",
       "additionalProperties": false,
       "type": "object",
