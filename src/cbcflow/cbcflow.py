@@ -23,7 +23,7 @@ def main():
     args = parser.parse_args()
 
     # Set the sname in the default data
-    default_data["sname"] = args.sname
+    default_data["Sname"] = args.sname
 
     # Instantiate the metadata
     metadata = MetaData(
@@ -43,7 +43,7 @@ def main():
         except jsonschema.exceptions.ValidationError:
             logger.info(
                 "GraceDB data cannot be validated against current schema\n\
-                Acccordingly, the local library will not be updated"
+                Accordingly, the local library will not be updated"
             )
             if not metadata.library_file_exists:
                 logger.info(
@@ -58,7 +58,7 @@ def main():
         )
 
     if args.update:
-        process_user_input(args, parser, schema, metadata)
+        process_user_input(args, metadata, schema, parser)
         metadata.write_to_library()
 
     if args.print:

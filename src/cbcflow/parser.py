@@ -1,8 +1,11 @@
 import argparse
+import logging
 
 import argcomplete
 
 from .configuration import config_defaults
+
+logger = logging.getLogger(__name__)
 
 IGNORE_ARGS = ["info-sname"]
 
@@ -19,18 +22,18 @@ def process_property(key, value, arg, parser, default_data, schema):
             _, l0, l1 = value["$ref"].split("/")
             # Special logic for linked files - only take the path and public html
             # Infer the rest from the path
-            if l1 == "linked_file":
+            if l1 == "LinkedFile":
                 # Linked files should have no default data, so this should be fine
                 default_data[key] = {}
                 parser.add_argument(
-                    f"--{arg.replace('_', '-')}-path-set",
+                    f"--{arg.replace('_', '-')}-Path-set",
                     action="store",
                     help="Set the file path\
                         this will automatically set the md5sum and data-last-modified,\
                         and infer the cluster",
                 )
                 parser.add_argument(
-                    f"--{arg.replace('_', '-')}-public-html-set",
+                    f"--{arg.replace('_', '-')}-PublicHTML-set",
                     action="store",
                     help="Set a url from which this can be accessed via public_html",
                 )
@@ -50,16 +53,24 @@ def process_property(key, value, arg, parser, default_data, schema):
     if arg in IGNORE_ARGS:
         pass
     elif value["type"] == "string":
-        default = value.get("default", None)
         parser.add_argument(
             "--" + arg + "-set",
             action="store",
             help=f"Set the {arg}",
-            default=default,
         )
+        default = value.get("default", None)
         if default is not None:
             default_data[key] = default
-
+    elif value["type"] == "number":
+        parser.add_argument(
+            "--" + arg + "-set",
+            action="store",
+            help=f"Set the {arg}",
+            type=float,
+        )
+        default = value.get("default", None)
+        if default is not None:
+            default_data[key] = default
     elif value["type"] == "array":
         if value["items"].get("type") == "string":
             parser.add_argument(
@@ -73,6 +84,20 @@ def process_property(key, value, arg, parser, default_data, schema):
                 help=f"Remove from {arg}: note this must be an exact match",
             )
             default_data[key] = []
+        elif value["type"] == "number":
+            parser.add_argument(
+                "--" + arg + "-add",
+                action="store",
+                help=f"Append to the {arg}",
+                type=float,
+            )
+            parser.add_argument(
+                "--" + arg + "-remove",
+                action="store",
+                help=f"Remove from {arg}: note this must be an exact match",
+                type=float,
+            )
+            default_data[key] = []
         elif "$ref" in value["items"]:
             _, l0, l1 = value["items"]["$ref"].split("/")
             ref = schema[l0][l1]
@@ -82,8 +107,8 @@ def process_property(key, value, arg, parser, default_data, schema):
 
 
 def build_parser_from_schema(parser, schema):
-    default_data = {"sname": None}
-    ignore_groups = ["sname"]
+    default_data = {"Sname": None}
+    ignore_groups = ["Sname"]
     for group, subschema in schema["properties"].items():
         if group in ignore_groups:
             continue
