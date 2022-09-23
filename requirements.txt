@@ -6,4 +6,4 @@ pygit2
 lscsoft-glue
 json-schema-for-humans
 coverage
-benedict
+python-benedict
