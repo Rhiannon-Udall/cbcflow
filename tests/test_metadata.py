@@ -18,7 +18,7 @@ class TestMetaData(unittest.TestCase):
         self.schema = get_schema()
         _, default_data = get_parser_and_default_data(self.schema)
         self.default_data = default_data
-        self.default_data["sname"] = self.test_sname
+        self.default_data["Sname"] = self.test_sname
         self.default_metadata_kwargs = dict(
             schema=self.schema, default_data=self.default_data, no_git_library=True
         )
@@ -48,7 +48,7 @@ class TestMetaData(unittest.TestCase):
     def test_metadata_from_file(self):
         # Write a metadata file to test
         tgt = "tests/cbc-meta-data-example.json"
-        sname = "S200102a"
+        sname = "S220331b"
         os.makedirs(self.test_library_directory)
         shutil.copy(
             tgt, os.path.join(self.test_library_directory, MetaData.get_filename(sname))
@@ -58,19 +58,19 @@ class TestMetaData(unittest.TestCase):
             sname, self.test_library_directory, **self.default_metadata_kwargs
         )
         assert metadata.sname == sname
-        assert metadata.data["parameter_estimation"]["reviewers"] == ["bob.dylan"]
+        assert metadata.data["ParameterEstimation"]["Reviewers"] == ["Gregory Ashton"]
 
     def test_modify_metadata_from_file(self):
         # Write a metadata file to test
         tgt = "tests/cbc-meta-data-example.json"
-        sname = "S200102a"
+        sname = "S220331b"
         os.makedirs(self.test_library_directory)
         shutil.copy(tgt, self.test_library_directory + f"/{sname}.json")
 
         metadata = MetaData(
             sname, self.test_library_directory, **self.default_metadata_kwargs
         )
-        metadata.data["parameter_estimation"]["reviewers"].append("michael.kiwanuka")
+        metadata.data["ParameterEstimation"]["Reviewers"].append("michael.kiwanuka")
         metadata.write_to_library()
 
         metadata_mod = MetaData(
