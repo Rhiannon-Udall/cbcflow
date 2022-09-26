@@ -5,6 +5,8 @@ import os
 import subprocess
 from collections import OrderedDict
 from datetime import datetime
+from types import NoneType
+from typing import Dict, List, Tuple, Union
 
 from benedict import benedict
 
@@ -25,7 +27,10 @@ def get_subkey(arg, group, suffix):
     return arg.replace(group + "_", "").replace("_" + suffix, "")
 
 
-def get_cluster():
+def get_cluster() -> str:
+    """
+    Get the cluster this is running on
+    """
     # TODO if a better api is implemented use it
     # Also maybe add NIK?
     # I can't even access that cluster to test, so...
@@ -49,12 +54,39 @@ def get_cluster():
 
 
 def get_date_last_modified(path):
+    """
+    Get the date this file was last modified
+
+    Parameters
+    -------------
+    path
+        A path to the file (on this filesystem)
+
+    Returns
+    -------------
+    date_last_modified
+        The string formatting of the datetime this file was last modified
+
+    """
     mtime = os.path.getmtime(path)
     dtime = datetime.fromtimestamp(mtime)
     return dtime.strftime("%Y/%m/%d %H:%M:%S")
 
 
 def get_md5sum(path):
+    """
+    Get the md5sum of the file given the path
+
+    Parameters
+    ----------
+    path : str
+        A path to the file (on this filesystem)
+
+    Returns
+    --------------
+    md5sum
+        A string of the md5sum for the file at the path location
+    """
     # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
     with open(path, "rb") as f:
         file_hash = hashlib.md5()
@@ -87,16 +119,45 @@ def process_user_input(args, metadata, schema, parser):
     process_changes(active_args, metadata.data, schema)
 
 
-def update_reduced_uids(
-    reduced_uids,
-    analyses_list,
-    uid_value,
-    reduced_key,
-    full_key,
-    defaults_for_refs,
+def _update_reduced_uids(
+    reduced_uids: Dict[str, Tuple[int, Union[NoneType, str]]],
+    analyses_list: List[Dict],
+    uid_value: str,
+    reduced_key: str,
+    full_key: str,
+    defaults_for_refs: dict,
     precursor=None,
-):
-    """ """
+) -> Dict[str, Tuple[int, Union[NoneType, str]]]:
+    """
+    Helper method for process_changes
+    Given a set of reduced uids and an analysis list, update the reduced_uids
+
+    Parameters
+    ---------------------
+    reduced_uids : Dict[str, Tuple[int, Union[None, str]]]
+        Dict of form {reduced_uid:(index_in_analysis_list, precursor)} - see type hints
+    analyses_list : List[Dict]
+        The applicable list of analyses (e.g. the various PEResults already present)
+    uid_value : str
+        The value of the UID for this analysis layer (e.g. Prod1)
+    reduced_key : str
+        The reduced key for the path to the UID.
+        For example if the path is Path_To_Analysis_Path_to_Result
+        Where Path_to_Analysis is also a ref object
+        then Path_to_Result is the reduced_key
+    full_key : str
+        The full key being used.
+        In the above example, this is Path_To_Analysis_Path_to_Result
+        If there is no precursor this matches the reduced_key
+    defaults_for_refs : dict
+        A dict containing default values for the given analysis object
+        Labelled by all the paths that can generate that variety of object
+        (i.e. the full_key here)
+
+    Returns
+
+
+    """
     # Analysis index tracks what position in the analysis list is correct
     analysis_index = None
     for jj, analysis in enumerate(analyses_list):
@@ -114,6 +175,9 @@ def update_reduced_uids(
     # Otherwise, store the old index in reduced_uids
     else:
         reduced_uids[reduced_key] = (analysis_index, precursor)
+
+    # Return the modified object (though it has also been modified in place)
+    return reduced_uids
 
 
 def process_action(metadata, key_path, action, value):
@@ -148,6 +212,7 @@ def get_sub_dict_from_precursor(nested_dict, reduced_uids, precursor):
 
 
 def get_all_schema_defaults(schema):
+    """ """
     if not isinstance(schema, benedict):
         schema = benedict(schema, keypath_separator="_")
 
@@ -305,7 +370,7 @@ def process_changes(changes_dict, metadata, schema):
         uid_value = uids_dict[key]
 
         # Update the reduced_uids dict
-        update_reduced_uids(
+        _update_reduced_uids(
             reduced_uids,
             analyses_list,
             uid_value,
