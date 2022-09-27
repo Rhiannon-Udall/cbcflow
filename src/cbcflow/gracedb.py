@@ -13,20 +13,20 @@ def fetch_gracedb_information(sname, service_url):
         try:
             superevent = gdb.superevent(sname).json()
         except HTTPError:
-            raise ValueError("Superevent {sname} not found on {service_url}")
+            raise ValueError(f"Superevent {sname} not found on {service_url}")
         try:
             gname = superevent["preferred_event"]
             event = gdb.event(gname).json()
         except HTTPError:
-            raise ValueError("Event {sname} not found on {service_url}")
+            raise ValueError(f"Event {sname} not found on {service_url}")
 
     data = dict(
         gracedb=dict(
-            preferred_event=superevent["preferred_event"],
-            far=event["far"],
-            gpstime=event["gpstime"],
+            PreferredEvent=superevent["preferred_event"],
+            Far=event["far"],
+            GPSTime=event["gpstime"],
             instruments=event["instruments"],
-            last_update=str(datetime.now()),
+            LastUpdate=str(datetime.now()),
         )
     )
     return data
