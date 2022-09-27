@@ -533,5 +533,72 @@
         }
       }
     }
+    "mdr": {
+      "description": "Modified Dispersion Relation Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "analysis_software": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/peresult"}
+        },
+        "safe_lower_chirp_mass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_chirp_mass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_lower_mass_ratio":{
+          "description": "A safe lower mass ratio to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_luminosity_distance":{
+          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_luminosity_distance":{
+          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "alpha":{
+          "description": "Exponent of momentum in dispersion relation, between 0 and 4 (except 2)",
+          "type": "number"
+        },        
+        "maximum_A_eff":{
+          "description": "The upper limit on prior of effective MDR parameter, in peV^(2-alpha)",
+          "type": "number"
+        },        
+        "minimum_A_eff":{
+          "description": "The lower limit on prior of effective MDR parameter, in peV^(2-alpha)",
+          "type": "number"
+        },        
+        }
+      }
+    }
   }
 }
