@@ -467,8 +467,8 @@
         }
       }
     },
-    "tgr_analysis": {
-      "description": "A Testing GR analysis",
+    "imrct": {
+      "description": "Inspiral Merger Ringdown Consistency Test",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -521,14 +521,6 @@
         },
         "cutoff_frequency":{       
           "description": "The cutoff maximum (or minimum) frequency used in a few TGR analyses",
-          "type": "number"
-        },
-        "safe_lower_tgr_parameter":{
-          "description": "A safe lower value for the TGR parameter to set in the prior, to prevent railing",
-          "type": "number"
-        },        
-        "safe_upper_tgr_parameter":{
-          "description": "A safe lower value for the TGR parameter to set in the prior, to prevent railing",
           "type": "number"
         }
       }
@@ -657,6 +649,52 @@
         },        
         "upper_dQuadMonS":{
           "description": "The upper limit on prior of symmetric QuadMon parameter",
+          "type": "number"
+        }        
+        }
+      },
+    "ssb": {
+      "description": "Spacetime Symmetry Breaking Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "analysis_software": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/peresult"}
+        },
+        "ssb_dim":{
+          "description": "Mass dimension of the new field in the SME framework (either 5 or 6)",
+          "type": "number"
+        },      
+        "ssb_k_min":{
+          "description": "The lower limit on the prior of the spacetime symmetry breaking coefficient, in meter^(ssb_dim - 4)",
+          "type": "number"
+        },  
+        "ssb_k_max":{
+          "description": "The upper limit on the prior of the spacetime symmetry breaking coefficient, in meter^(ssb_dim - 4)",
           "type": "number"
         }        
         }
