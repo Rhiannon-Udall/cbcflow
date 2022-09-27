@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # PYTHON_ARGCOMPLETE_OK
 
+import copy
 import logging
+
+import jsonschema
 
 from .gracedb import fetch_gracedb_information
 from .metadata import MetaData
@@ -12,6 +15,7 @@ from .schema import get_schema
 
 def main():
     logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
     # Read in command line arguments
     schema = get_schema()
@@ -19,7 +23,7 @@ def main():
     args = parser.parse_args()
 
     # Set the sname in the default data
-    default_data["sname"] = args.sname
+    default_data["Sname"] = args.sname
 
     # Instantiate the metadata
     metadata = MetaData(
@@ -29,11 +33,24 @@ def main():
         schema=schema,
         no_git_library=args.no_git_library,
     )
+    default_metadata = copy.deepcopy(metadata)
 
     if args.pull_from_gracedb:
         gdb_data = fetch_gracedb_information(args.sname, args.gracedb_service_url)
         metadata.data.update(gdb_data)
-        metadata.write_to_library()
+        try:
+            metadata.write_to_library()
+        except jsonschema.exceptions.ValidationError:
+            logger.info(
+                "GraceDB data cannot be validated against current schema\n\
+                Accordingly, the local library will not be updated"
+            )
+            if not metadata.library_file_exists:
+                logger.info(
+                    "Since no local library file exists yet, it will be initialized with valid defaults"
+                )
+                default_metadata.write_to_library()
+
     elif metadata.library_file_exists is False:
         raise ValueError(
             f"The library file {metadata.library_file} does not yet exist. "
@@ -41,7 +58,7 @@ def main():
         )
 
     if args.update:
-        process_user_input(args, parser, schema, metadata)
+        process_user_input(args, metadata, schema, parser)
         metadata.write_to_library()
 
     if args.print:

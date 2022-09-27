@@ -1,12 +1,16 @@
-import argparse
+import copy
 import hashlib
 import logging
 import os
 import subprocess
+from collections import OrderedDict
 from datetime import datetime
+from types import NoneType
+from typing import Dict, List, Tuple, Union
+
+from benedict import benedict
 
 from .parser import group_shorthands
-from .schema import get_linked_file_keys, get_special_keys
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +27,10 @@ def get_subkey(arg, group, suffix):
     return arg.replace(group + "_", "").replace("_" + suffix, "")
 
 
-def get_cluster():
+def get_cluster() -> str:
+    """
+    Get the cluster this is running on
+    """
     # TODO if a better api is implemented use it
     # Also maybe add NIK?
     # I can't even access that cluster to test, so...
@@ -47,12 +54,39 @@ def get_cluster():
 
 
 def get_date_last_modified(path):
+    """
+    Get the date this file was last modified
+
+    Parameters
+    -------------
+    path
+        A path to the file (on this filesystem)
+
+    Returns
+    -------------
+    date_last_modified
+        The string formatting of the datetime this file was last modified
+
+    """
     mtime = os.path.getmtime(path)
     dtime = datetime.fromtimestamp(mtime)
     return dtime.strftime("%Y/%m/%d %H:%M:%S")
 
 
 def get_md5sum(path):
+    """
+    Get the md5sum of the file given the path
+
+    Parameters
+    ----------
+    path : str
+        A path to the file (on this filesystem)
+
+    Returns
+    --------------
+    md5sum
+        A string of the md5sum for the file at the path location
+    """
     # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
     with open(path, "rb") as f:
         file_hash = hashlib.md5()
@@ -61,163 +95,330 @@ def get_md5sum(path):
     return file_hash.hexdigest()
 
 
-def process_arg(arg, val, metadata, group, ignore_keys):
-    if val is None or group in [
-        "positional arguments",
-        "optional arguments",
-        "options",
-    ]:
-        return
+def process_user_input(args, metadata, schema, parser):
+    # Get the args which are changes in the schema, as opposed to control args
+    # TODO make this list a variable somewhere
+    active_args = {
+        key: val
+        for key, val in args.__dict__.items()
+        if key
+        not in [
+            "sname",
+            "library",
+            "schema_file",
+            "no_git_library",
+            "gracedb_service_url",
+            "update",
+            "print",
+            "pull_from_gracedb",
+        ]
+        and (val is not None)
+    }
 
-    if any([sk in arg for sk in ignore_keys]):
-        return
+    # Run the new process on the arguments which will actually be used
+    process_changes(active_args, metadata.data, schema)
 
-    dict_to_update = metadata.data[group]
 
-    if "_set" in arg:
-        subkey = get_subkey(arg, group, "set")
-        dict_to_update[subkey] = val
-    elif "_add" in arg:
-        subkey = get_subkey(arg, group, "add")
-        dict_to_update[subkey].append(val)
-        dict_to_update[subkey] = standardize_list(dict_to_update[subkey])
-    elif "_remove" in arg:
-        subkey = get_subkey(arg, group, "remove")
-        try:
-            dict_to_update[subkey].remove(val)
-        except ValueError:
-            raise ValueError(
-                f"Request to remove {val} from {group}/{subkey} failed: no match"
-            )
+def _update_reduced_uids(
+    reduced_uids: Dict[str, Tuple[int, Union[NoneType, str]]],
+    analyses_list: List[Dict],
+    uid_value: str,
+    reduced_key: str,
+    full_key: str,
+    defaults_for_refs: dict,
+    precursor=None,
+) -> Dict[str, Tuple[int, Union[NoneType, str]]]:
+    """
+    Helper method for process_changes
+    Given a set of reduced uids and an analysis list, update the reduced_uids
+
+    Parameters
+    ---------------------
+    reduced_uids : Dict[str, Tuple[int, Union[None, str]]]
+        Dict of form {reduced_uid:(index_in_analysis_list, precursor)} - see type hints
+    analyses_list : List[Dict]
+        The applicable list of analyses (e.g. the various PEResults already present)
+    uid_value : str
+        The value of the UID for this analysis layer (e.g. Prod1)
+    reduced_key : str
+        The reduced key for the path to the UID.
+        For example if the path is Path_To_Analysis_Path_to_Result
+        Where Path_to_Analysis is also a ref object
+        then Path_to_Result is the reduced_key
+    full_key : str
+        The full key being used.
+        In the above example, this is Path_To_Analysis_Path_to_Result
+        If there is no precursor this matches the reduced_key
+    defaults_for_refs : dict
+        A dict containing default values for the given analysis object
+        Labelled by all the paths that can generate that variety of object
+        (i.e. the full_key here)
+
+    Returns
+
+
+    """
+    # Analysis index tracks what position in the analysis list is correct
+    analysis_index = None
+    for jj, analysis in enumerate(analyses_list):
+        if analysis["UID"] == uid_value:
+            # If it's present, store the index
+            analysis_index = jj
+    # If it wasn't found, make a nested dict with the corresponding UID
+    # And add the newly formed index to reduced_uids, with None as the second part of the tuple
+    if analysis_index is None:
+        # If making it anew, get the correct defaults
+        default_dict = copy.deepcopy(defaults_for_refs[full_key])
+        default_dict["UID"] = uid_value
+        analyses_list.append(default_dict)
+        reduced_uids[reduced_key] = (len(analyses_list) - 1, precursor)
+    # Otherwise, store the old index in reduced_uids
     else:
-        raise ValueError("Processing failed")
+        reduced_uids[reduced_key] = (analysis_index, precursor)
+
+    # Return the modified object (though it has also been modified in place)
+    return reduced_uids
 
 
-def process_linked_file_path(val):
-    linked_file_dict = dict()
-    # Expand user for the path
-    path = os.path.expanduser(val)
-    # Any argument with path in the name should be the path for a linked file
-    cluster = get_cluster()
-    # Update the path
-    linked_file_dict["path"] = f"{cluster}:{path}"
-    # Get date last modified
-    linked_file_dict["date_last_modified"] = get_date_last_modified(path)
-    # Get md5sum
-    linked_file_dict["md5sum"] = get_md5sum(path)
-    return linked_file_dict
+def process_action(metadata, key_path, action, value):
+    if action == "set":
+        if key_path.split("_")[-1] == "Path":
+            metadata[key_path] = f"{get_cluster()}:{value}"
+            md5sum_path = key_path.replace("Path", "MD5Sum")
+            metadata[md5sum_path] = get_md5sum(value)
+            date_last_modified_path = key_path.replace("Path", "DateLastModified")
+            metadata[date_last_modified_path] = get_date_last_modified(value)
+        else:
+            metadata[key_path] = value
+    elif action == "add":
+        metadata[key_path].append(value)
+        metadata[key_path] = standardize_list(metadata[key_path])
+    elif action == "remove":
+        metadata[key_path].remove(value)
+        metadata[key_path] = standardize_list(metadata[key_path])
+    else:
+        raise ValueError(f"Could not understand action {action}")
 
 
-def get_arg_groups_dictionary(args, parser):
-    arg_groups = {}
-    for group in parser._action_groups:
-        group_dict = {a.dest: getattr(args, a.dest, None) for a in group._group_actions}
-        arg_groups[group.title] = argparse.Namespace(**group_dict)
-    return arg_groups
+def get_sub_dict_from_precursor(nested_dict, reduced_uids, precursor):
+    precursor_index, precursors_precursor = reduced_uids[precursor]
+    if precursors_precursor is None:
+        return nested_dict[precursor][precursor_index]
+    else:
+        sub_dict = get_sub_dict_from_precursor(
+            nested_dict, reduced_uids, precursors_precursor
+        )
+        return sub_dict[precursor][precursor_index]
 
 
-def process_standard_arguments(arg_groups, metadata, ignore_keys):
-    for group, group_args in arg_groups.items():
-        for arg, val in group_args.__dict__.items():
-            process_arg(arg, val, metadata, group, ignore_keys)
+def get_all_schema_defaults(schema):
+    """ """
+    if not isinstance(schema, benedict):
+        schema = benedict(schema, keypath_separator="_")
 
-
-def process_special_arguments(arg_groups, metadata, special_keys, linked_file_keys):
-    for key in special_keys:
-        special_key_set = {}
-        for group, group_args in arg_groups.items():
-            if group not in key:
-                continue
-            for arg, val in group_args.__dict__.items():
-                if key in arg:
-                    special_key_key = arg.replace(key + "_", "")
-                    if "_set" in special_key_key:
-                        if val is not None:
-                            # Some hacky stuff to determine if this is a linked file
-                            # And if it is, keep track of *which* linked file for naming purposes
-                            is_linked_file = False
-                            for (file_prefix, linked_file_name) in linked_file_keys:
-                                if (
-                                    file_prefix == key
-                                    and linked_file_name in special_key_key
-                                ):
-                                    is_linked_file = True
-                                    linked_file_name_to_use = linked_file_name
-                                    break
-                            # If it is a linked file, only one of two inputs should be possible
-                            if is_linked_file:
-                                if "path" in special_key_key:
-                                    # If the path is being edited, get metadata as well
-                                    if (
-                                        linked_file_name_to_use
-                                        not in special_key_set.keys()
-                                    ):
-                                        special_key_set[
-                                            linked_file_name_to_use
-                                        ] = process_linked_file_path(val)
-                                    else:
-                                        special_key_set[linked_file_name_to_use].update(
-                                            process_linked_file_path(val)
-                                        )
-                                elif "public_html" in special_key_key:
-                                    # If the public_html, it's a URL so just add directly
-                                    if (
-                                        linked_file_name_to_use
-                                        not in special_key_set.keys()
-                                    ):
-                                        special_key_set[
-                                            linked_file_name_to_use
-                                        ] = dict()
-                                    special_key_set[linked_file_name_to_use][
-                                        "public_html"
-                                    ] = val
-                                else:
-                                    raise KeyError(
-                                        "The only linked file elements which may be edited are\
-                                        the path or the public_html path"
-                                    )
-                            else:
-                                special_key_set[
-                                    special_key_key.replace("_set", "")
-                                ] = val
-            subkey = key.replace(group + "_", "")
-            if len(special_key_set) > 0:
-
-                if "UID" not in special_key_set:
-                    raise ValueError(
-                        f"To set {key} properties, you must provide the UID"
-                    )
-
-                new_run = True
-                for item in metadata.data[group][subkey]:
-                    if item["UID"] == special_key_set["UID"]:
-                        # Hack to make popping work
-                        check_internal_update_keys = [
-                            kk
-                            for kk, vv in special_key_set.items()
-                            if type(vv) == dict and kk in item.keys()
-                        ]
-                        for kk in check_internal_update_keys:
-                            item[kk].update(special_key_set.pop(kk))
-                        item.update(special_key_set)
-                        new_run = False
-
-                if new_run:
-                    metadata.data[group][subkey].append(special_key_set)
-
-
-def process_user_input(args, parser, schema, metadata):
-    special_keys = get_special_keys(schema)
-    linked_file_keys = get_linked_file_keys(schema, schema)
-    arg_groups = get_arg_groups_dictionary(args, parser)
-    process_standard_arguments(
-        arg_groups,
-        metadata,
-        ignore_keys=special_keys,
+    # keypaths is the object of all the keypaths in the schema
+    keypaths = schema.keypaths()
+    # referencing_keypaths gives the schema object for each keypath that has a $ref in it
+    referencing_schema_keypaths = benedict(
+        {keypath: schema[keypath] for keypath in keypaths if "$ref" in keypath}
     )
-    process_special_arguments(
-        arg_groups,
-        metadata,
-        special_keys=special_keys,
-        linked_file_keys=linked_file_keys,
+    # referencing_call_keypaths turns these into Metadata like keypaths
+    referencing_call_keypaths = benedict(
+        {
+            key.replace("$defs_", "")
+            .replace("properties_", "")
+            .replace("items_", "")
+            .replace("$ref", "")
+            .strip("_"): val
+            for key, val in referencing_schema_keypaths.items()
+        }
     )
+
+    # This gives a dict for which each def has a corresponding set of reference keypaths
+    # So, e.g. every time LinkedFile gets referenced
+    linked_file_call_keypaths = referencing_call_keypaths.invert()
+
+    # While there are still paths which are prefixed by a reference keep going
+    some_to_expand = True
+    while some_to_expand:
+        # Assume there aren't any until proven otherwise - this will overshoot one round but oh well
+        some_to_expand = False
+        # Iterate over each linked_file, and the list of keypaths that reference it
+        for linked_file, call_keypaths in linked_file_call_keypaths.items():
+            # Make a list of the unexpanded keypaths to remove at the end of the loop
+            keypaths_to_remove = list()
+            # Iterate over keypaths in the list (copy to allow modification)
+            for call_keypath in copy.copy(call_keypaths):
+                # Now, compare to each linked file, and the keypaths it includes
+                for (
+                    linked_file,
+                    reference_keypaths,
+                ) in linked_file_call_keypaths.items():
+                    # We are looking for cases where the first element of the path (e.g. PEResult)
+                    # Matches the last element of a file def (e.g. #/$defs/PEResult)
+                    if call_keypath.split("_")[0] == linked_file.split("/")[-1]:
+                        # when this happens, first add this keypath to the removal list
+                        keypaths_to_remove.append(call_keypath)
+                        # Now, for each case in the referenced file def, expand out the list
+                        # e.g. PEResult occurs both for the ParameterEstimation_Results object *and*
+                        # the TestingGR_Analyses_TGRAnalysis_Results object
+                        # so for each of these all 3 further refs (config, result, pesummary) are needed
+                        for reference_path in reference_keypaths:
+                            # Extend the path by joining, and add to the list
+                            extended_path = "_".join(
+                                [reference_path] + call_keypath.split("_")[1:]
+                            )
+                            call_keypaths.append(extended_path)
+                        # The fact that we triggered this conditional means there may still be work to do
+                        # In case of nested refs
+                        some_to_expand = True
+            # Remove repeats
+            keypaths_to_remove = standardize_list(keypaths_to_remove)
+            # Remove the now extended results
+            for keypath in keypaths_to_remove:
+                call_keypaths.remove(keypath)
+
+    # Get the reinversion - so the ref object for every path, and make it str:str
+    linked_file_for_keypath = {
+        key: val[0] for key, val in linked_file_call_keypaths.invert().items()
+    }
+
+    linked_file_defaults = dict()
+    # Now, for every ref object get the associated Default Metadata
+    for def_path in linked_file_call_keypaths.keys():
+        # Get the keypath format
+        call_path_notation = def_path.replace("#", "").replace("/", "_").strip("_")
+        # Get the schema data for the linked file
+        schema_for_def = schema[call_path_notation]
+        defaults = {}
+        for key, val in schema_for_def["properties"].items():
+            # Assign the various defaults
+            if val["type"] == "array":
+                defaults[key] = val.get("default", [])
+            else:
+                defaults[key] = val.get("default", None)
+        # set defaults for each ref object
+        linked_file_defaults[def_path] = {
+            key: val for key, val in defaults.items() if val is not None
+        }
+
+    defaults_for_keypath = {
+        key: linked_file_defaults[val] for key, val in linked_file_for_keypath.items()
+    }
+
+    return defaults_for_keypath
+
+
+def process_changes(changes_dict, metadata, schema):
+    if not isinstance(metadata, benedict):
+        metadata = benedict(metadata, keypath_separator="_")
+
+    # Make a list of all UID flags
+    uids_list = []
+    for key, val in changes_dict.items():
+        if "UID" in key:
+            uids_list.append(("_".join(key.split("_")[:-2]), val))
+
+    # Sort by increasing depth, convert to OrderedDict
+    uids_list.sort(key=lambda x: len(x[0].split("_")))
+    uids_dict = OrderedDict(uids_list)
+
+    # Get the default metadata for ref objects that may be invoked
+    defaults_by_keypath = get_all_schema_defaults(schema)
+
+    # reduced_uids will be a more useful set of keys, connecting paths for nested analyses
+    # and also indices for each analysis, as identified by the UID
+    reduced_uids = OrderedDict()
+
+    for ii, key in enumerate(uids_dict):
+        # Cleanup changes_dict while we're in this loop
+        del changes_dict[key + "_UID_set"]
+
+        # Some hacky stuff to find nested analysis keys
+        precursor = None
+
+        # We've sorted, so we only need to go through the preceding keys
+        for jj in reversed(range(ii)):
+            if list(uids_dict)[jj] in key:
+                # If a previous key is in this key, it's the precursor
+                # We only want the longest precursor
+                # If depth ever exceeds 2 this will still work accordingly
+                precursor = list(uids_dict)[jj]
+                break
+
+        # In this case, depth of analyses is 1
+        # So, no precursor, trace down directly from metadata
+        if precursor is None:
+            analyses_list = metadata[key]
+            reduced_uids_key = key
+        # Depth > 1
+        # There is a precursor, so trace down from it to get the analyses list
+        else:
+            # Get the part of the key that goes past the precursor
+            reduced_uids_key = key.replace(precursor, "").strip("_")
+            # Get the dict using the precursor's place in the analyses list
+            analysis_sub_dict = get_sub_dict_from_precursor(
+                metadata, reduced_uids, precursor
+            )
+            # If the precursor hasn't had any results made yet, make an empty list
+            if reduced_uids_key not in analysis_sub_dict:
+                analysis_sub_dict[reduced_uids_key] = []
+            # The list of analyses to check through will be that list
+            analyses_list = analysis_sub_dict[reduced_uids_key]
+
+        # Get the value to assign
+        uid_value = uids_dict[key]
+
+        # Update the reduced_uids dict
+        _update_reduced_uids(
+            reduced_uids,
+            analyses_list,
+            uid_value,
+            reduced_uids_key,
+            key,
+            defaults_by_keypath,
+            precursor=precursor,
+        )
+
+    for key, val in changes_dict.items():
+        # Get the action and the path to the action
+        action = key.split("_")[-1]
+        key_path = "_".join(key.split("_")[:-1])
+
+        # Search for what UIDs will be used to arrive at the field we want to change
+        relevant_uids = []
+        for uid_path in uids_dict:
+            if uid_path in key_path:
+                relevant_uids.append(uid_path)
+
+        # Sort by ascending order of size
+        relevant_uids.sort(key=lambda x: len(x))
+
+        # If no UIDs are relevant we can modify directly by keypath
+        if relevant_uids == []:
+            process_action(metadata, key_path, action, val)
+
+        # If there are UIDs to follow
+        else:
+            # Start from the top
+            dict_under_consideration = metadata
+            # Loop over the uids to follow
+            for ii, uid_path in enumerate(relevant_uids):
+                if ii > 0:
+                    # If there's a precursor, reduce down
+                    reduced_uid_path = uid_path.replace(
+                        relevant_uids[ii - 1], ""
+                    ).strip("_")
+                else:
+                    reduced_uid_path = uid_path
+                # Get the index in the analyses_list
+                analysis_index, _ = reduced_uids[reduced_uid_path]
+                # Grab the analysis dict, make it a benedict
+                dict_under_consideration = benedict(
+                    dict_under_consideration[reduced_uid_path][analysis_index],
+                    keypath_separator="_",
+                )
+                # reduce the key down
+                reduced_key = key_path.replace(uid_path, "").strip("_")
+            # perform this action
+            process_action(dict_under_consideration, reduced_key, action, val)

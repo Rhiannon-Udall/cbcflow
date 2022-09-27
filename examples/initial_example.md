@@ -99,7 +99,7 @@ metadata. These are:
 
 ### Fix a typo
 Okay, so what would we do if we added the wrong label? We can use the remove
-opton! For example,
+option! For example,
 ```
 EVENT=S220331a
 cbcflow $EVENT --pull-from-gracedb
