@@ -481,16 +481,16 @@
         "DQRFile": {
           "type": "object",
           "$ref": "#/$defs/LinkedFile",
-          "description": "The relevant dqr_file"
+          "description": "The relevant DQR file"
         },
         "ReviewStatus": {
           "type": "string",
-          "enum": ["pass", "fail", "ongoing"],
+          "enum": ["unstarted", "ongoing", "pass", "fail"],
           "description": "Status of the review"
         },
         "ValidationResult": {
           "type": "string",
-          "enum": ["pass", "fail", "ongoing"],
+          "enum": ["unstarted", "ongoing", "pass", "fail"],
           "description": "Result of event validation"
         },
         "ValidationNotes": {
