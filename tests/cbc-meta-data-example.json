@@ -118,8 +118,6 @@
           "reviewers": ["bob.dylan"],
           "analysis_software": "bilby",
           "cutoff_frequency":100,
-          "safe_lower_tgr_parameter":-1,
-          "safe_upper_tgr_parameter":1,
           "results": [
           {
             "UID": "ProdInspiral1",

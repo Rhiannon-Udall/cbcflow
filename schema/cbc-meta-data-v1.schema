@@ -232,7 +232,7 @@
           "description": "A list of Testing GR analyses",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/tgr_analysis"
+            "$ref": "#/$defs/imrct"
           }
         }
       }
@@ -520,7 +520,7 @@
           "type": "number"
         },
         "cutoff_frequency":{       
-          "description": "The cutoff maximum (or minimum) frequency used in a few TGR analyses",
+          "description": "The IMRCT cutoff frequency",
           "type": "number"
         }
       }
