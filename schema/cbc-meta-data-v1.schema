@@ -660,6 +660,362 @@
           "type": "number"
         }        
         }
+      },
+    "fti": {
+      "description": "Flexible Theory Independent (FTI) analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "analysis_software": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/peresult"}
+        },
+        "safe_lower_chirp_mass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_chirp_mass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "lower_dchi_minus2":{
+          "description": "The lower limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "upper_dchi_minus2":{
+          "description": "The upper limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "lower_dchi_0":{
+          "description": "The lower limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "upper_dchi_0":{
+          "description": "The upper limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "lower_dchi_1":{
+          "description": "The lower limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "upper_dchi_1":{
+          "description": "The upper limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "lower_dchi_2":{
+          "description": "The lower limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "upper_dchi_2":{
+          "description": "The upper limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "lower_dchi_3":{
+          "description": "The lower limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "upper_dchi_3":{
+          "description": "The upper limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "lower_dchi_4":{
+          "description": "The lower limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "upper_dchi_4":{
+          "description": "The upper limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "lower_dchi_5l":{
+          "description": "The lower limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "upper_dchi_5l":{
+          "description": "The upper limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "lower_dchi_6":{
+          "description": "The lower limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "upper_dchi_6":{
+          "description": "The upper limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "lower_dchi_6l":{
+          "description": "The lower limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "upper_dchi_6l":{
+          "description": "The upper limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "lower_dchi_7":{
+          "description": "The lower limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "upper_dchi_7":{
+          "description": "The upper limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "lower_kappa_s":{
+          "description": "The lower limit on prior of kappa_s parameter",
+          "type": "number"
+        },
+        "upper_kappa_s":{
+          "description": "The upper limit on prior of kappa_s parameter",
+          "type": "number"
+        },
+        "lower_kappa_a":{
+          "description": "The lower limit on prior of kappa_a parameter",
+          "type": "number"
+        },
+        "upper_kappa_a":{
+          "description": "The upper limit on prior of kappa_a parameter",
+          "type": "number"
+        },
+        "lower_tapering_cycles":{
+          "description": "The lower limit on prior of tapering_cycles parameter",
+          "type": "number"
+        },
+        "upper_tapering_cycles":{
+          "description": "The upper limit on prior of tapering_cycles parameter",
+          "type": "number"
+        },
+        "lower_f_tapering":{
+          "description": "The lower limit on prior of f_tapering parameter",
+          "type": "number"
+        },
+        "upper_f_tapering":{
+          "description": "The upper limit on prior of f_tapering parameter",
+          "type": "number"
+        }        
+        },
+    "pseob_rd": {
+      "description": "Parameterized SEOB ringdown analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "analysis_software": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/peresult"}
+        },
+        "safe_lower_chirp_mass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "safe_upper_chirp_mass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "lower_domega220":{
+          "description": "The lower limit on prior of domega220 parameter",
+          "type": "number"
+        },
+        "upper_domega220":{
+          "description": "The upper limit on prior of domega220 parameter",
+          "type": "number"
+        },
+        "lower_dtau220":{
+          "description": "The lower limit on prior of dtau220 parameter",
+          "type": "number"
+        },
+        "upper_dtau220":{
+          "description": "The upper limit on prior of dtau220 parameter",
+          "type": "number"
+        },
+        "lower_domega330":{
+          "description": "The lower limit on prior of domega330 parameter",
+          "type": "number"
+        },
+        "upper_domega330":{
+          "description": "The upper limit on prior of domega330 parameter",
+          "type": "number"
+        },
+        "lower_dtau330":{
+          "description": "The lower limit on prior of dtau330 parameter",
+          "type": "number"
+        },
+        "upper_dtau330":{
+          "description": "The upper limit on prior of dtau330 parameter",
+          "type": "number"
+        },
+        "lower_domega210":{
+          "description": "The lower limit on prior of domega210 parameter",
+          "type": "number"
+        },
+        "upper_domega210":{
+          "description": "The upper limit on prior of domega210 parameter",
+          "type": "number"
+        },
+        "lower_dtau210":{
+          "description": "The lower limit on prior of dtau210 parameter",
+          "type": "number"
+        },
+        "upper_dtau210":{
+          "description": "The upper limit on prior of dtau210 parameter",
+          "type": "number"
+        },
+        "lower_dnra22":{
+          "description": "The lower limit on prior of dnra22 parameter",
+          "type": "number"
+        },
+        "upper_dnra22":{
+          "description": "The upper limit on prior of dnra22 parameter",
+          "type": "number"
+        },
+        "lower_dnromega22":{
+          "description": "The lower limit on prior of dnromega22 parameter",
+          "type": "number"
+        },
+        "upper_dnromega22":{
+          "description": "The upper limit on prior of dnromega22 parameter",
+          "type": "number"
+        },
+        "lower_dnrdeltat22":{
+          "description": "The lower limit on prior of dnrdeltat22 parameter",
+          "type": "number"
+        },
+        "upper_dnrdeltat22":{
+          "description": "The upper limit on prior of dnrdeltat22 parameter",
+          "type": "number"
+        },
+        "lower_dnra33":{
+          "description": "The lower limit on prior of dnra33 parameter",
+          "type": "number"
+        },
+        "upper_dnra33":{
+          "description": "The upper limit on prior of dnra33 parameter",
+          "type": "number"
+        },
+        "lower_dnromega33":{
+          "description": "The lower limit on prior of dnromega33 parameter",
+          "type": "number"
+        },
+        "upper_dnromega33":{
+          "description": "The upper limit on prior of dnromega33 parameter",
+          "type": "number"
+        },
+        "lower_dnrdeltat33":{
+          "description": "The lower limit on prior of dnrdeltat33 parameter",
+          "type": "number"
+        },
+        "upper_dnrdeltat33":{
+          "description": "The upper limit on prior of dnrdeltat33 parameter",
+          "type": "number"
+        },
+        "lower_dnra21":{
+          "description": "The lower limit on prior of dnra21 parameter",
+          "type": "number"
+        },
+        "upper_dnra21":{
+          "description": "The upper limit on prior of dnra21 parameter",
+          "type": "number"
+        },
+        "lower_dnromega21":{
+          "description": "The lower limit on prior of dnromega21 parameter",
+          "type": "number"
+        },
+        "upper_dnromega21":{
+          "description": "The upper limit on prior of dnromega21 parameter",
+          "type": "number"
+        },
+        "lower_dnrdeltat21":{
+          "description": "The lower limit on prior of dnrdeltat21 parameter",
+          "type": "number"
+        },
+        "upper_dnrdeltat21":{
+          "description": "The upper limit on prior of dnrdeltat21 parameter",
+          "type": "number"
+        },
+        "lower_dnra44":{
+          "description": "The lower limit on prior of dnra44 parameter",
+          "type": "number"
+        },
+        "upper_dnra44":{
+          "description": "The upper limit on prior of dnra44 parameter",
+          "type": "number"
+        },
+        "lower_dnromega44":{
+          "description": "The lower limit on prior of dnromega44 parameter",
+          "type": "number"
+        },
+        "upper_dnromega44":{
+          "description": "The upper limit on prior of dnromega44 parameter",
+          "type": "number"
+        },
+        "lower_dnrdeltat44,dnra55":{
+          "description": "The lower limit on prior of dnrdeltat44,dnra55 parameter",
+          "type": "number"
+        },
+        "upper_dnrdeltat44,dnra55":{
+          "description": "The upper limit on prior of dnrdeltat44,dnra55 parameter",
+          "type": "number"
+        },
+        "lower_dnromega55":{
+          "description": "The lower limit on prior of dnromega55 parameter",
+          "type": "number"
+        },
+        "upper_dnromega55":{
+          "description": "The upper limit on prior of dnromega55 parameter",
+          "type": "number"
+        },
+        "lower_dnrdeltat55":{
+          "description": "The lower limit on prior of dnrdeltat55 parameter",
+          "type": "number"
+        },
+        "upper_dnrdeltat55":{
+          "description": "The upper limit on prior of dnrdeltat55 parameter",
+          "type": "number"
+        }
+        }
       }
     }
   }
+}
