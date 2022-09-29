@@ -116,7 +116,7 @@
             "type":"string"
           }
         },
-        "R&PRunsUsingThisSuperevent":{
+        "RnPRunsUsingThisSuperevent":{
           "description":"UIDs of R&P analyses which include this superevent",
           "type":"array",
           "items":{

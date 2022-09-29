@@ -1,0 +1,5 @@
+INFO:cbcflow.schema:Using schema file /home/rhiannon.udall/meta-data/meta-data/src/cbcflow/schema/cbc-meta-data-v1.schema
+INFO:cbcflow.metadata:Found existing library file: loading
+INFO:cbcflow.metadata:Changes between loaded and current data:
+INFO:cbcflow.metadata:{'RatesAndPopulations': {'CatalogsUsingThisSuperevent': ['TestCatalog1']}}
+INFO:cbcflow.metadata:Writing file /home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/cbcflow-library-example/S220331b-cbc-metadata.json
