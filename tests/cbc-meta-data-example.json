@@ -65,13 +65,7 @@
     "Reviewers": [
       "Gregory Ashton"
     ],
-    "Detectors": [
-      "H1",
-      "L1"
-    ],
     "Status": "ongoing",
-    "SafeMinimumFrequency": 21.0,
-    "SafeMaximumFrequency": 1792.0,
     "Results": [
       {
         "ReviewStatus": "pass",
@@ -103,10 +97,6 @@
       }
     ],
     "SafeSamplingRate": 2048.0,
-    "Channels": [
-      "H1_O4_channel",
-      "L1_O4_channel"
-    ],
     "Notes": [
       "A Note"
     ],
@@ -118,8 +108,7 @@
     "SafeLowerPrimaryMass": 20.0,
     "SafeUpperPrimaryMass": 30.0,
     "SafeLowerMassRatio": 0.8,
-    "SafeUpperLuminosityDistance": 15000.0,
-    "SafeDuration": 8.0
+    "SafeUpperLuminosityDistance": 15000.0
   },
   "Lensing": {
     "Analyses": [

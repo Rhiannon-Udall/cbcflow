@@ -123,28 +123,11 @@
             "type": "string"
            }
         },
-        "Detectors": {
-          "description": "The list of all detectors that should be analysed",
-          "type": "array",
-          "items": {
-            "type": "string"
-           }
-        },
         "Status": {
           "description": "The status of ongoing parameter estimation",
           "type": "string",
           "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
           "default": "unstarted"
-        },
-        "SafeMinimumFrequency": {
-          "description": "The  validated safe minimum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
-          "type": "number",
-          "default": 20.0
-        },
-        "SafeMaximumFrequency": {
-          "description": "The  validated safe maximum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
-          "type": "number",
-          "default": 2048.0
         },
         "SafeGeocentTime": {
           "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
@@ -156,7 +139,7 @@
           "items": {"$ref": "#/$defs/PEResult"}
         },
         "SafeSamplingRate": {
-          "description": "The  validated safe  sampling.rate for this event, generally the lowest multiple of 2 such that sampling.rate > maximum.frequency * 2",
+          "description": "Configurator determined safe sampling rate for this event",
           "type": "number",
           "default": 4096.0
         },
@@ -192,15 +175,6 @@
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
-        "SafeDuration":{
-          "description": "The validated safe duration of the data segment for which the analysis will contain all resolveable signal",
-          "type": "number"
-        },
-        "Channels":{
-          "type": "array",
-          "items":{"type":"string"},
-          "description": "The channels to use in the analysis - should have 1-1 mapping with detectors to analyze"
-        },
         "Notes": {
           "type": "array",
           "items": {"type": "string"},
@@ -235,8 +209,79 @@
           }
         }
       }
+    },
+  "DetectorCharacterization": {
+    "description": "The detchar meta-data",
+    "additionalProperties": false,
+    "type": "object",
+    "properties": {
+      "Analysts": {
+        "description": "The names of all analysts involved",
+        "type": "array",
+        "items": {
+          "type": "string"
+         }
+      },
+      "Reviewers": {
+        "description": "The names of all reviewers involved",
+        "type": "array",
+        "items": {
+          "type": "string"
+         }
+      },
+      "Detectors": {
+        "description": "The list of all detectors that should be analysed",
+        "type": "array",
+        "items": {
+          "type": "string"
+         }
+      },
+      "Status": {
+        "description": "The status of ongoing event_validation",
+        "type": "string",
+        "enum":["unstarted", "ongoing", "complete"],
+        "default":"unstarted"
+      },
+      "RecommendedDetectors": {
+        "description": "The list of all detectors that should be analysed in downstream analyses",
+        "type": "array",
+        "items": {
+          "type": "string"
+         }
+      },
+      "RecommendedMinimumFrequency": {
+        "description": "The  validated safe minimum frequency to set for downstream analyses to avoid data quality issues",
+        "type": "number",
+        "default": 20.0
+      },
+      "RecommendedMaximumFrequency": {
+        "description": "The  validated safe maximum frequency to set for downstream analyses to avoid data quality issues",
+        "type": "number",
+        "default": 2048.0
+      },
+      "RecommendedDuration": {
+        "description": "The  validated safe maximum time duration to set for downstream analyses to avoid data quality issues",
+        "type": "number",
+        "default": 4.0
+      },
+      "Results": {
+        "description": "A list of results",
+        "type": "array",
+        "items": {"$ref": "#/$defs/DQRResult"}
+      },
+      "RecommendedChannels":{
+        "type": "array",
+        "items":{"type":"string"},
+        "description": "The channels to use in the analysis - should have 1-1 mapping with detectors to analyze"
+      },
+      "Notes": {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+      }
     }
-  },
+  }
+},
   "$defs": {
     "PEResult": {
       "description": "A result of a PE run",
@@ -395,6 +440,39 @@
         "TimeDelay": {
           "description": "Time delay in s between the GW luminosity peak and a transient EM counterpart (Solar system barycenter)",
           "type": "number"
+        }
+      }
+    },
+    "DQRResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "UID" ],
+      "properties": {
+        "UID": {
+          "type": "string",
+          "description": "The name of the analysis"
+        },
+        "DQRFile": {
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile",
+          "description": "The relevant DQR file"
+        },
+        "ReviewStatus": {
+          "type": "string",
+          "enum": ["unstarted", "ongoing", "pass", "fail"],
+          "default":"unstarted",
+          "description": "Status of the review"
+        },
+        "ValidationResult": {
+          "type": "string",
+          "enum": ["pending", "pass", "fail"],
+          "default": "pending",
+          "description": "Result of event validation"
+        },
+        "ValidationNotes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous information about the event validation result"
         }
       }
     },
