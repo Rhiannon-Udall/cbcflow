@@ -109,18 +109,11 @@
       "additionalProperties":false,
       "type":"object",
       "properties": {
-        "CatalogsUsingThisSuperevent":{
-          "description":"Identifying information of catalogs which include this superevent",
-          "type":"array",
-          "items":{
-            "type":"string"
-          }
-        },
         "RnPRunsUsingThisSuperevent":{
           "description":"UIDs of R&P analyses which include this superevent",
           "type":"array",
           "items":{
-            "type":"string"
+            "$ref": "#/$defs/RnPRun"
           }
         }
       }
@@ -134,7 +127,7 @@
           "description": "The names of all analysts involved",
           "type": "array",
           "items": {
-            "type": "string"
+              "type":"string"
            }
         },
         "Reviewers": {
@@ -570,6 +563,22 @@
           "description": "The path to the configuration file",
           "type": "object",
           "$ref": "#/$defs/LinkedFile"
+        }
+      }
+    },
+    "RnPRun": {
+      "description": "An RnP analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "RunFile":{
+          "description":"A linked file for this RnP Run",
+          "type": "object",
+          "$ref":"#/$defs/LinkedFile"
         }
       }
     },
