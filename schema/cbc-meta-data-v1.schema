@@ -110,7 +110,7 @@
       "type":"object",
       "properties": {
         "RnPRunsUsingThisSuperevent":{
-          "description":"UIDs of R&P analyses which include this superevent",
+          "description":"The R&P runs which use this superevent",
           "type":"array",
           "items":{
             "$ref": "#/$defs/RnPRun"
