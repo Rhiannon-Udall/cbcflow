@@ -18,8 +18,8 @@ master_doc = "index"
 
 # General information about the project.
 project = "cbcflow"
-copyright = "2022, Greg Ashton, Richard Udall, et al."
-author = "Greg Ashton, Richard Udall, et al."
+copyright = "2022, Greg Ashton, Rhiannon Udall, et al."
+author = "Greg Ashton, Rhiannon Udall, et al."
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -104,6 +104,20 @@
         }
       }
     },
+    "RatesAndPopulations":{
+      "description":"The R&P single event meta-data",
+      "additionalProperties":false,
+      "type":"object",
+      "properties": {
+        "RnPRunsUsingThisSuperevent":{
+          "description":"The R&P runs which use this superevent",
+          "type":"array",
+          "items":{
+            "$ref": "#/$defs/RnPRun"
+          }
+        }
+      }
+    },
     "ParameterEstimation": {
       "description": "The parameter estimation meta-data",
       "additionalProperties": false,
@@ -113,7 +127,7 @@
           "description": "The names of all analysts involved",
           "type": "array",
           "items": {
-            "type": "string"
+              "type":"string"
            }
         },
         "Reviewers": {
@@ -549,6 +563,22 @@
           "description": "The path to the configuration file",
           "type": "object",
           "$ref": "#/$defs/LinkedFile"
+        }
+      }
+    },
+    "RnPRun": {
+      "description": "An RnP analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "RunFile":{
+          "description":"A linked file for this RnP Run",
+          "type": "object",
+          "$ref":"#/$defs/LinkedFile"
         }
       }
     },
