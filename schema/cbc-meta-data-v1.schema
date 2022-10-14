@@ -223,9 +223,7 @@
             "$ref": "#/$defs/SSD",
             "$ref": "#/$defs/SIM",
             "$ref": "#/$defs/FTI",
-            "$ref": "#/$defs/MDR",
-            "$ref": "#/$defs/PSEOBRD"
-          }
+            "$ref": "#/$defs/MDR"          }
         }
       }
     },
@@ -968,7 +966,7 @@
           "type": "number"
         }        
         },
-    "PSEOBRD": {
+    "XYZ": {
       "description": "Parameterized SEOB ringdown analysis",
       "type": "object",
       "additionalProperties": false,
