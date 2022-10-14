@@ -223,7 +223,8 @@
             "$ref": "#/$defs/SSD",
             "$ref": "#/$defs/SIM",
             "$ref": "#/$defs/FTI",
-            "$ref": "#/$defs/MDR"          }
+            "$ref": "#/$defs/MDR"
+            }
         }
       }
     },
@@ -673,7 +674,7 @@
         "Results": {
           "description": "A list of results",
           "type": "array",
-          "items": {"$ref": "#/$defs/peresult"}
+          "items": {"$ref": "#/$defs/PEResult"}
         },
         "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
@@ -739,7 +740,7 @@
         "Results": {
           "description": "A list of results",
           "type": "array",
-          "items": {"$ref": "#/$defs/peresult"}
+          "items": {"$ref": "#/$defs/PEResult"}
         },
         "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
@@ -797,7 +798,7 @@
         "Results": {
           "description": "A list of results",
           "type": "array",
-          "items": {"$ref": "#/$defs/peresult"}
+          "items": {"$ref": "#/$defs/PEResult"}
         },
         "SSBDim":{
           "description": "Mass dimension of the new field in the SME framework (either 5 or 6)",
@@ -843,7 +844,7 @@
         "Results": {
           "description": "A list of results",
           "type": "array",
-          "items": {"$ref": "#/$defs/peresult"}
+          "items": {"$ref": "#/$defs/PEResult"}
         },
         "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
@@ -966,7 +967,7 @@
           "type": "number"
         }        
         },
-    "XYZ": {
+    "PSEOBRD": {
       "description": "Parameterized SEOB ringdown analysis",
       "type": "object",
       "additionalProperties": false,
@@ -996,7 +997,7 @@
         "Results": {
           "description": "A list of results",
           "type": "array",
-          "items": {"$ref": "#/$defs/peresult"}
+          "items": {"$ref": "#/$defs/PEResult"}
         },
         "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",

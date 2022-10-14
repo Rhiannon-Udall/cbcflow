@@ -189,10 +189,8 @@
         "SafeUpperChirpMass": 30.0,
         "SafeLowerMassRatio": 0.5,
         "SafeUpperLuminosityDistance": 2000.0,
-        "CutoffFrequency": 1000.0,
-        "SafeLowerTGRParameter": -1.0,
-        "SafeUpperTGRParameter": 1.0
-      },
+        "CutoffFrequency": 1000.0
+        },
       {
         "Analysts": [
           "Rhiannon Udall"
