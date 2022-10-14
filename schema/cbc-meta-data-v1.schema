@@ -582,7 +582,7 @@
         }
       }
     },
-    "imrct": {
+    "IMRCT": {
       "description": "Inspiral Merger Ringdown Consistency Test",
       "type": "object",
       "additionalProperties": false,
@@ -640,7 +640,7 @@
         }
       }
     },
-    "mdr": {
+    "MDR": {
       "description": "Modified Dispersion Relation Analysis",
       "type": "object",
       "additionalProperties": false,
@@ -649,46 +649,46 @@
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
-        "analysts": {
+        "Analysts": {
           "description": "The name of analysts involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "reviewers": {
+        "Reviewers": {
           "description": "The name of reviewers involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "analysis_software": {
+        "AnalysisSoftware": {
           "description": "The analysis software program",
           "type": "string"
         },
-        "results": {
+        "Results": {
           "description": "A list of results",
           "type": "array",
           "items": {"$ref": "#/$defs/peresult"}
         },
-        "safe_lower_chirp_mass":{
+        "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_chirp_mass":{
+        "SafeUpperChirpMass":{
           "description": "A safe upper chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_lower_mass_ratio":{
+        "SafeLowerMassRatio":{
           "description": "A safe lower mass ratio to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_luminosity_distance":{
+        "SafeUpperLuminosityDistance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_luminosity_distance":{
+        "SafeUpperLuminosityDistance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
@@ -715,46 +715,42 @@
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
-        "analysts": {
+        "Analysts": {
           "description": "The name of analysts involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "reviewers": {
+        "Reviewers": {
           "description": "The name of reviewers involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "analysis_software": {
+        "AnalysisSoftware": {
           "description": "The analysis software program",
           "type": "string"
         },
-        "results": {
+        "Results": {
           "description": "A list of results",
           "type": "array",
           "items": {"$ref": "#/$defs/peresult"}
         },
-        "safe_lower_chirp_mass":{
+        "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_chirp_mass":{
+        "SafeUpperChirpMass":{
           "description": "A safe upper chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_lower_mass_ratio":{
+        "SafeLowerMassRatio":{
           "description": "A safe lower mass ratio to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_luminosity_distance":{
-          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
-          "type": "number"
-        },
-        "safe_upper_luminosity_distance":{
+        "SafeUpperLuminosityDistance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
@@ -777,25 +773,25 @@
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
-        "analysts": {
+        "Analysts": {
           "description": "The name of analysts involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "reviewers": {
+        "Reviewers": {
           "description": "The name of reviewers involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "analysis_software": {
+        "AnalysisSoftware": {
           "description": "The analysis software program",
           "type": "string"
         },
-        "results": {
+        "Results": {
           "description": "A list of results",
           "type": "array",
           "items": {"$ref": "#/$defs/peresult"}
@@ -823,146 +819,146 @@
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
-        "analysts": {
+        "Analysts": {
           "description": "The name of analysts involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "reviewers": {
+        "Reviewers": {
           "description": "The name of reviewers involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "analysis_software": {
+        "AnalysisSoftware": {
           "description": "The analysis software program",
           "type": "string"
         },
-        "results": {
+        "Results": {
           "description": "A list of results",
           "type": "array",
           "items": {"$ref": "#/$defs/peresult"}
         },
-        "safe_lower_chirp_mass":{
+        "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_chirp_mass":{
+        "SafeUpperChirpMass":{
           "description": "A safe upper chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "lower_dchi_minus2":{
+        "LowerDchiMinus2":{
           "description": "The lower limit on prior of dchi_minus2 parameter",
           "type": "number"
         },
-        "upper_dchi_minus2":{
+        "UpperDchiMinus2":{
           "description": "The upper limit on prior of dchi_minus2 parameter",
           "type": "number"
         },
-        "lower_dchi_0":{
+        "LowerDchi0":{
           "description": "The lower limit on prior of dchi_0 parameter",
           "type": "number"
         },
-        "upper_dchi_0":{
+        "UpperDchi0":{
           "description": "The upper limit on prior of dchi_0 parameter",
           "type": "number"
         },
-        "lower_dchi_1":{
+        "LowerDchi1":{
           "description": "The lower limit on prior of dchi_1 parameter",
           "type": "number"
         },
-        "upper_dchi_1":{
+        "1":{
           "description": "The upper limit on prior of dchi_1 parameter",
           "type": "number"
         },
-        "lower_dchi_2":{
+        "LowerDchi2":{
           "description": "The lower limit on prior of dchi_2 parameter",
           "type": "number"
         },
-        "upper_dchi_2":{
+        "UpperDchi2":{
           "description": "The upper limit on prior of dchi_2 parameter",
           "type": "number"
         },
-        "lower_dchi_3":{
+        "LowerDchi3":{
           "description": "The lower limit on prior of dchi_3 parameter",
           "type": "number"
         },
-        "upper_dchi_3":{
+        "UpperDchi3":{
           "description": "The upper limit on prior of dchi_3 parameter",
           "type": "number"
         },
-        "lower_dchi_4":{
+        "LowerDchi4":{
           "description": "The lower limit on prior of dchi_4 parameter",
           "type": "number"
         },
-        "upper_dchi_4":{
+        "UpperDchi4":{
           "description": "The upper limit on prior of dchi_4 parameter",
           "type": "number"
         },
-        "lower_dchi_5l":{
+        "LowerDchi5l":{
           "description": "The lower limit on prior of dchi_5l parameter",
           "type": "number"
         },
-        "upper_dchi_5l":{
+        "UpperDchi5l":{
           "description": "The upper limit on prior of dchi_5l parameter",
           "type": "number"
         },
-        "lower_dchi_6":{
+        "LowerDchi6":{
           "description": "The lower limit on prior of dchi_6 parameter",
           "type": "number"
         },
-        "upper_dchi_6":{
+        "UpperDchi6":{
           "description": "The upper limit on prior of dchi_6 parameter",
           "type": "number"
         },
-        "lower_dchi_6l":{
+        "LowerDchi6l":{
           "description": "The lower limit on prior of dchi_6l parameter",
           "type": "number"
         },
-        "upper_dchi_6l":{
+        "UpperDchi6l":{
           "description": "The upper limit on prior of dchi_6l parameter",
           "type": "number"
         },
-        "lower_dchi_7":{
+        "LowerDchi7":{
           "description": "The lower limit on prior of dchi_7 parameter",
           "type": "number"
         },
-        "upper_dchi_7":{
+        "UpperDchi7":{
           "description": "The upper limit on prior of dchi_7 parameter",
           "type": "number"
         },
-        "lower_kappa_s":{
+        "LowerKappaS":{
           "description": "The lower limit on prior of kappa_s parameter",
           "type": "number"
         },
-        "upper_kappa_s":{
+        "UpperKappaS":{
           "description": "The upper limit on prior of kappa_s parameter",
           "type": "number"
         },
-        "lower_kappa_a":{
+        "LowerKappaA":{
           "description": "The lower limit on prior of kappa_a parameter",
           "type": "number"
         },
-        "upper_kappa_a":{
+        "UpperKappaA":{
           "description": "The upper limit on prior of kappa_a parameter",
           "type": "number"
         },
-        "lower_tapering_cycles":{
+        "LowerTaperingCycles":{
           "description": "The lower limit on prior of tapering_cycles parameter",
           "type": "number"
         },
-        "upper_tapering_cycles":{
+        "UpperTaperingCycles":{
           "description": "The upper limit on prior of tapering_cycles parameter",
           "type": "number"
         },
-        "lower_f_tapering":{
+        "LowerFTapering":{
           "description": "The lower limit on prior of f_tapering parameter",
           "type": "number"
         },
-        "upper_f_tapering":{
+        "UpperFTapering":{
           "description": "The upper limit on prior of f_tapering parameter",
           "type": "number"
         }        
@@ -976,82 +972,82 @@
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
-        "analysts": {
+        "Analysts": {
           "description": "The name of analysts involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "reviewers": {
+        "Reviewers": {
           "description": "The name of reviewers involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "analysis_software": {
+        "AnalysisSoftware": {
           "description": "The analysis software program",
           "type": "string"
         },
-        "results": {
+        "Results": {
           "description": "A list of results",
           "type": "array",
           "items": {"$ref": "#/$defs/peresult"}
         },
-        "safe_lower_chirp_mass":{
+        "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_chirp_mass":{
+        "SafeUpperChirpMass":{
           "description": "A safe upper chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "lower_domega220":{
+        "LowerDOmega220":{
           "description": "The lower limit on prior of domega220 parameter",
           "type": "number"
         },
-        "upper_domega220":{
+        "UpperDOmega220":{
           "description": "The upper limit on prior of domega220 parameter",
           "type": "number"
         },
-        "lower_dtau220":{
+        "LowerDTau220":{
           "description": "The lower limit on prior of dtau220 parameter",
           "type": "number"
         },
-        "upper_dtau220":{
+        "UpperDTau220":{
           "description": "The upper limit on prior of dtau220 parameter",
           "type": "number"
         },
-        "lower_domega330":{
+        "LowerDOmega330":{
           "description": "The lower limit on prior of domega330 parameter",
           "type": "number"
         },
-        "upper_domega330":{
+        "UpperDOmega330":{
           "description": "The upper limit on prior of domega330 parameter",
           "type": "number"
         },
-        "lower_dtau330":{
+        "LowerDTau330":{
           "description": "The lower limit on prior of dtau330 parameter",
           "type": "number"
         },
-        "upper_dtau330":{
+        "UpperDTau330":{
           "description": "The upper limit on prior of dtau330 parameter",
           "type": "number"
         },
-        "lower_domega210":{
+        "LowerDOmega210":{
           "description": "The lower limit on prior of domega210 parameter",
           "type": "number"
         },
-        "upper_domega210":{
+        "UpperDOmega210":{
           "description": "The upper limit on prior of domega210 parameter",
           "type": "number"
         },
-        "lower_dtau210":{
+        "LowerDTau210":{
           "description": "The lower limit on prior of dtau210 parameter",
           "type": "number"
         },
-        "upper_dtau210":{
+        "UpperDTau210":{
           "description": "The upper limit on prior of dtau210 parameter",
           "type": "number"
         },
