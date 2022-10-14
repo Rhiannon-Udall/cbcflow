@@ -42,6 +42,12 @@ def generate_crondor():
         default=os.environ["LIGO_USER_NAME"],
         help="The LIGO accounting user for the job to be tagged with",
     )
+    parser.add_argument(
+        "--testing-configuration",
+        action="store_true",
+        help="If true, changes the crondor interval to every 10 minutes\
+            Only use when testing - this pace is unnecessary for actual use",
+    )
     args = parser.parse_args()
 
     if args.rundir is None:
@@ -65,8 +71,12 @@ def generate_crondor():
     monitor_job.add_condor_cmd("get_env", "True")
     monitor_job.add_condor_cmd("on_exit_remove", "False")
     # These are the unusual settings - this makes the job repeat every N hours
-    monitor_job.add_condor_cmd("cron_minute", "0")
-    monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
+    if args.testing_configuration:
+        monitor_job.add_condor_cmd("cron_minute", "10")
+        monitor_job.add_condor_cmd("cron_hour", "*")
+    else:
+        monitor_job.add_condor_cmd("cron_minute", "0")
+        monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
     # This tells the job to queue 5 minutes before it's execution time, so it will be ready when the time comes
     monitor_job.add_condor_cmd("cron_prep_time", "300")
     monitor_args = f" {os.path.expanduser(args.config_file)} "

@@ -5,38 +5,38 @@
   "description": "The meta-data for a single CBC trigger",
   "additionalProperties": false,
   "type": "object",
-  "required": [ "sname" ],
+  "required": [ "Sname" ],
   "properties": {
-    "sname": {
+    "Sname": {
       "description": "The GraceDB defined sname",
       "type": "string",
       "pattern": "^S[0-9]{6}[a-z]+"
     },
-    "info": {
+    "Info": {
       "description": "General information about the trigger",
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "labels": {
+        "Labels": {
           "description": "Any labels the trigger has",
           "type": "array",
           "items": {
             "type": "string"
            }
         },
-        "notes": {
+        "Notes": {
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
-    "publications": {
+    "Publications": {
       "description": "The publications meta-data",
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "papers": {
+        "Papers": {
           "description": "The papers this trigger appears in",
           "type": "array",
           "items": {
@@ -45,190 +45,177 @@
         }
       }
     },
-    "gracedb": {
+    "GraceDB": {
       "description": "Automated information pulled from GraceDB",
       "type": "object",
       "properties": {
-        "last_update": {
+        "LastUpdate": {
           "description": "The last time the GraceDB metadata was updated",
           "type": "string"
         },
-        "preferred_event": {
-          "description": "The preferred_event from GraceDB",
+        "PreferredEvent": {
+          "description": "The preferred.event from GraceDB",
           "type": "string",
           "pattern": "^G[0-9]{6}"
         },
-        "far": {
+        "FAR": {
           "description": "The event far from GraceDB",
           "type": "number"
         },
-        "gpstime": {
+        "GPSTime": {
           "description": "The event gpstime from GraceDB",
           "type": "number"
         },
-        "instruments": {
+        "Instruments": {
           "description": "The event instruments from GraceDB",
           "type": "string"
         }
       }
     },
-    "extreme_matter": {
+    "ExtremeMatter": {
       "description": "The extreme matter meta-data",
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "analyses": {
+        "Analyses": {
           "description": "A list of extreme matter analyses",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/matter_analysis"
+            "$ref": "#/$defs/MatterAnalysis"
           }
         }
       }
     },
-    "cosmology": {
+    "Cosmology": {
       "description": "The cosmology meta-data",
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "preferred_skymap": {
+        "PreferredSkymap": {
           "description": "The link to the preferred skymap on GRACEDB",
-          "type": "string",
-          "default": "None"
+          "type": "string"
         },
-        "counterparts": {
+        "Counterparts": {
           "description": "A list of counterparts",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/counterparts"
+            "$ref": "#/$defs/Counterparts"
           }
         }
       }
     },
-    "parameter_estimation": {
+    "RatesAndPopulations":{
+      "description":"The R&P single event meta-data",
+      "additionalProperties":false,
+      "type":"object",
+      "properties": {
+        "RnPRunsUsingThisSuperevent":{
+          "description":"The R&P runs which use this superevent",
+          "type":"array",
+          "items":{
+            "$ref": "#/$defs/RnPRun"
+          }
+        }
+      }
+    },
+    "ParameterEstimation": {
       "description": "The parameter estimation meta-data",
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "analysts": {
+        "Analysts": {
           "description": "The names of all analysts involved",
           "type": "array",
           "items": {
-            "type": "string"
+              "type":"string"
            }
         },
-        "reviewers": {
+        "Reviewers": {
           "description": "The names of all reviewers involved",
           "type": "array",
           "items": {
             "type": "string"
            }
         },
-        "detectors": {
-          "description": "The list of all detectors that should be analysed",
-          "type": "array",
-          "items": {
-            "type": "string"
-           }
-        },
-        "status": {
+        "Status": {
           "description": "The status of ongoing parameter estimation",
           "type": "string",
           "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
           "default": "unstarted"
         },
-        "safe_minimum_frequency": {
-          "description": "The  validated safe minimum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
-          "type": "number",
-          "default": 20.0
-        },
-        "safe_maximum_frequency": {
-          "description": "The  validated safe maximum frequency to set for the analysis, so that the integration window will contain all resolvable signal",
-          "type": "number",
-          "default": 2048.0
-        },
-        "safe_geocent_time": {
+        "SafeGeocentTime": {
           "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
           "type": "number"
         },
-        "results": {
+        "Results": {
           "description": "A list of results",
           "type": "array",
-          "items": {"$ref": "#/$defs/peresult"}
+          "items": {"$ref": "#/$defs/PEResult"}
         },
-        "safe_sampling_rate": {
-          "description": "The  validated safe  sampling_rate for this event, generally the lowest multiple of 2 such that sampling_rate > maximum_frequency * 2",
+        "SafeSamplingRate": {
+          "description": "Configurator determined safe sampling rate for this event",
           "type": "number",
           "default": 4096.0
         },
-        "safe_lower_chirp_mass":{
+        "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_chirp_mass":{
+        "SafeUpperChirpMass":{
           "description": "A safe upper chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_lower_primary_mass":{
+        "SafeLowerPrimaryMass":{
           "description": "A safe lower primary mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_primary_mass":{
+        "SafeUpperPrimaryMass":{
           "description": "A safe upper primary mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_lower_secondary_mass":{
+        "SafeLowerSecondaryMass":{
           "description": "A safe lower secondary mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_secondary_mass":{
+        "SafeUpperSecondaryMass":{
           "description": "A safe upper secondary mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_lower_mass_ratio":{
+        "SafeLowerMassRatio":{
           "description": "A safe lower mass ratio to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_luminosity_distance":{
+        "SafeUpperLuminosityDistance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_duration":{
-          "description": "The validated safe duration of the data segment for which the analysis will contain all resolveable signal",
-          "type": "number"
-        },
-        "channels":{
-          "type": "array",
-          "items":{"type":"string"},
-          "description": "The channels to use in the analysis - should have 1-1 mapping with detectors to analyze"
-        },
-        "notes": {
+        "Notes": {
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
-    "lensing": {
+    "Lensing": {
       "description": "The lensing meta-data",
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "analyses": {
+        "Analyses": {
           "description": "A list of lensing analyses",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/lensing_analysis"
+            "$ref": "#/$defs/LensingAnalysis"
           }
         }
       }
     },
-    "testing-gr": {
+    "TestingGR": {
       "description": "The Testing GR meta-data",
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "analyses": {
+        "Analyses": {
           "description": "A list of Testing GR analyses",
           "type": "array",
           "items": {
@@ -236,10 +223,82 @@
           }
         }
       }
+    },
+  "DetectorCharacterization": {
+    "description": "The detchar meta-data",
+    "additionalProperties": false,
+    "type": "object",
+    "properties": {
+      "Analysts": {
+        "description": "The names of all analysts involved",
+        "type": "array",
+        "items": {
+          "type": "string"
+         }
+      },
+      "Reviewers": {
+        "description": "The names of all reviewers involved",
+        "type": "array",
+        "items": {
+          "type": "string"
+         }
+      },
+      "Detectors": {
+        "description": "The list of all detectors that should be analysed",
+        "type": "array",
+        "items": {
+          "type": "string"
+         }
+      },
+      "Status": {
+        "description": "The status of ongoing event_validation",
+        "type": "string",
+        "enum":["unstarted", "ongoing", "complete"],
+        "default":"unstarted"
+      },
+      "RecommendedDetectors": {
+        "description": "The list of all detectors that should be analysed in downstream analyses",
+        "type": "array",
+        "items": {
+          "type": "string"
+         }
+      },
+      "RecommendedMinimumFrequency": {
+        "description": "The  validated safe minimum frequency to set for downstream analyses to avoid data quality issues",
+        "type": "number",
+        "default": 20.0
+      },
+      "RecommendedMaximumFrequency": {
+        "description": "The  validated safe maximum frequency to set for downstream analyses to avoid data quality issues",
+        "type": "number",
+        "default": 2048.0
+      },
+      "RecommendedDuration": {
+        "description": "The  validated safe maximum time duration to set for downstream analyses to avoid data quality issues",
+        "type": "number",
+        "default": 4.0
+      },
+      "Results": {
+        "description": "A list of results",
+        "type": "array",
+        "items": {"$ref": "#/$defs/DQRResult"}
+      },
+      "RecommendedChannels":{
+        "type": "array",
+        "items":{"type":"string"},
+        "description": "The channels to use in the analysis - should have 1-1 mapping with detectors to analyze"
+      },
+      "Notes": {
+        "type": "array",
+        "items": {"type": "string"},
+        "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+      }
     }
-  },
+  }
+},
   "$defs": {
-    "peresult": {
+    "PEResult": {
+      "description": "A result of a PE run",
       "type": "object",
       "additionalProperties": false,
       "required": [ "UID" ],
@@ -248,47 +307,49 @@
           "type": "string",
           "description": "The name of the analysis"
         },
-        "config_file": {
+        "ConfigFile": {
           "type": "object",
-          "$ref": "#/$defs/linked_file",
+          "$ref": "#/$defs/LinkedFile",
           "description": "The configuration file of the analysis"
         },
-        "inference_software": {
+        "InferenceSoftware": {
           "type": "string",
           "description": "The inference software used to produce this PE result"
         },
-        "result_file": {
+        "ResultFile": {
           "type": "object",
-          "$ref": "#/$defs/linked_file",
+          "$ref": "#/$defs/LinkedFile",
           "description": "The path to the raw result file"
         },
-        "pesummary_result_file": {
+        "PESummaryResultFile": {
           "type": "object",
-          "$ref": "#/$defs/linked_file",
+          "$ref": "#/$defs/LinkedFile",
           "description": "The path to the pesummary meta-data file"
         },
-        "review_status": {
+        "ReviewStatus": {
           "type": "string",
           "enum": ["unstarted", "pass", "fail", "ongoing"],
-          "description": "Status of the review"
+          "description": "Status of the review",
+          "default": "unstarted"
         },
-        "run_status": {
+        "RunStatus": {
           "type": "string",
           "enum": ["complete", "running", "stuck"],
           "description": "Status of the run"
         },
-        "notes": {
+        "Notes": {
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         },
-        "waveform_approximant":{
+        "WaveformApproximant":{
           "type": "string",
           "description": "The waveform approximant being used for this analysis."
         }
       }
     },
-    "matter_analysis": {
+    "MatterAnalysis": {
+      "description": "An Extreme Matter analysis",
       "type": "object",
       "additionalProperties": false,
       "required": [ "UID" ],
@@ -297,51 +358,53 @@
           "type": "string",
           "description": "The unique name of the analysis"
         },
-        "description": {
+        "Description": {
           "type": "string",
           "description": "The description of the analysis"
         },
-        "reviewers": {
+        "Reviewers": {
           "description": "The names of all reviewers involved",
           "type": "array",
           "items": {
             "type": "string"
            }
         },
-        "analysts": {
+        "Analysts": {
           "description": "The names of all analysts involved",
           "type": "array",
           "items": {
             "type": "string"
            }
         },
-        "analysis_software": {
+        "AnalysisSoftware": {
           "type": "string",
           "description": "The analysis software used to produce this result"
         },
-        "analysis_status": {
+        "AnalysisStatus": {
           "type": "string",
           "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
-          "description": "Status of the analysis"
+          "description": "Status of the analysis",
+          "default":"unstarted"
         },
-        "review_status": {
+        "ReviewStatus": {
           "type": "string",
           "enum": ["unstarted", "pass", "fail", "ongoing"],
-          "description": "Status of the review"
+          "description": "Status of the review",
+          "default":"unstarted"
         },
-        "result_file": {
+        "ResultFile": {
           "type": "object",
-          "$ref": "#/$defs/linked_file",
+          "$ref": "#/$defs/LinkedFile",
           "description": "The path to the raw result file"
         },
-        "notes": {
+        "Notes": {
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
-    "counterparts": {
+    "Counterparts": {
       "description": "An event counterpart tracked by the cosmo WG",
       "type": "object",
       "additionalProperties": false,
@@ -351,27 +414,27 @@
           "type": "string",
           "description": "The unique name of the counterpart"
         },
-        "right ascension": {
+        "RightAscension": {
           "description": "The right ascension of the EM counterpart (rad)",
           "type": "number"
         },
-        "declination": {
+        "Declination": {
           "description": "The declination of the EM counterpart (rad)",
           "type": "number"
         },
-        "redshift": {
+        "Redshift": {
           "description": "Cosmological redshift",
           "type": "number"
         },
-        "redshift_uncertainty": {
+        "RedshiftUncertainty": {
           "description": "The redshift uncertainty of the EM counterpart (rad)",
           "type": "number"
         },
-        "peculiar_motion": {
+        "PeculiarMotion": {
           "description": "Mean value of the peculiar motion in the radial direction in km/s",
           "type": "number"
         },
-        "uncertainty_peculiar_motion": {
+        "UncertaintyPeculiarMotion": {
           "description": "Uncertainty on the radial component of the peculiar motion in km/s",
           "type": "number"
         },
@@ -383,42 +446,76 @@
           "description": "Type of EM counterpart, e.g. Kilonova, GRB",
           "type": "string"
         },
-        "notes": {
+        "Notes": {
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         },
-        "time_delay": {
+        "TimeDelay": {
           "description": "Time delay in s between the GW luminosity peak and a transient EM counterpart (Solar system barycenter)",
           "type": "number"
         }
       }
     },
-    "linked_file": {
+    "DQRResult": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "md5sum", "date_last_modified"],
+      "required": [ "UID" ],
       "properties": {
-        "path": {
+        "UID": {
+          "type": "string",
+          "description": "The name of the analysis"
+        },
+        "DQRFile": {
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile",
+          "description": "The relevant DQR file"
+        },
+        "ReviewStatus": {
+          "type": "string",
+          "enum": ["unstarted", "ongoing", "pass", "fail"],
+          "default":"unstarted",
+          "description": "Status of the review"
+        },
+        "ValidationResult": {
+          "type": "string",
+          "enum": ["pending", "pass", "fail"],
+          "default": "pending",
+          "description": "Result of event validation"
+        },
+        "ValidationNotes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous information about the event validation result"
+        }
+      }
+    },
+    "LinkedFile": {
+      "description":"A stored file, including path, metadata, and webview if applicable",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Path", "MD5Sum", "DateLastModified"],
+      "properties": {
+        "Path": {
           "type": "string",
           "pattern": "^(CIT|LLO|LHO|IUCAA|PSU|CDF|NIK|UWM):\/",
           "description": "The path to the file, of the form CLUSTER:/path/to/file"
         },
-        "md5sum": {
+        "MD5Sum": {
           "type": "string",
           "description": "The md5sum of the file"
         },
-        "date_last_modified":{
+        "DateLastModified":{
           "type": "string",
           "description": "The date of last modification"
         },
-        "public_html": {
+        "PublicHTML": {
           "type": "string",
           "description": "The url to access a browser acceptable version of the file, if possible"
         }
       }
     },
-    "lensing_analysis": {
+    "LensingAnalysis": {
       "description": "A lensing analysis",
       "type": "object",
       "additionalProperties": false,
@@ -428,42 +525,60 @@
           "description": "The unique identifier for this analysis",
           "type": "string"
         },
-        "description": {
+        "Description": {
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
-        "analysts": {
+        "Analysts": {
           "description": "The name of analysts involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "reviewers": {
+        "Reviewers": {
           "description": "The name of reviewers involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "analysis_software": {
+        "AnalysisSoftware": {
           "description": "The analysis software program",
           "type": "string"
         },
-        "analysis_status": {
+        "AnalysisStatus": {
           "description": "The status of the analysis",
           "type": "string",
-          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"]
+          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
+          "default":"unstarted"
         },
-        "review_status": {
+        "ReviewStatus": {
           "description": "The status of the result review",
           "type": "string",
-          "enum": ["unstarted", "pass", "fail", "ongoing"]
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
         },
-        "config_file": {
+        "ConfigFile": {
           "description": "The path to the configuration file",
           "type": "object",
-          "$ref": "#/$defs/linked_file"
+          "$ref": "#/$defs/LinkedFile"
+        }
+      }
+    },
+    "RnPRun": {
+      "description": "An RnP analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "RunFile":{
+          "description":"A linked file for this RnP Run",
+          "type": "object",
+          "$ref":"#/$defs/LinkedFile"
         }
       }
     },
@@ -472,50 +587,50 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "description": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
-        "analysts": {
+        "Analysts": {
           "description": "The name of analysts involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "reviewers": {
+        "Reviewers": {
           "description": "The name of reviewers involved",
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "analysis_software": {
+        "AnalysisSoftware": {
           "description": "The analysis software program",
           "type": "string"
         },
-        "results": {
+        "Results": {
           "description": "A list of results",
           "type": "array",
-          "items": {"$ref": "#/$defs/peresult"}
+          "items": {"$ref": "#/$defs/PEResult"}
         },
-        "safe_lower_chirp_mass":{
+        "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_chirp_mass":{
+        "SafeUpperChirpMass":{
           "description": "A safe upper chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_lower_mass_ratio":{
+        "SafeLowerMassRatio":{
           "description": "A safe lower mass ratio to set in the prior, to prevent railing",
           "type": "number"
         },
-        "safe_upper_luminosity_distance":{
-          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
-          "type": "number"
-        },
-        "safe_upper_luminosity_distance":{
+        "SafeUpperLuminosityDistance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },

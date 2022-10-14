@@ -1,160 +1,232 @@
 {
-    "sname": "S190425z",
-    "publications": {
-        "papers": ["O4a"]
-    },
-    "parameter_estimation": {
-        "analysts": ["albert.einstein", "kip.thorne"],
-        "reviewers": ["bob.dylan"],
-        "status": "complete",
-        "results": [
-          {
-            "UID": "ProdF1",
-            "config_file": {
-              "path":"CIT:/home/albert.einstein/O4/ProdF1_config.ini",
-              "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
-              "date_last_modified":"14-09-2015"
-            },
-            "result_file": {
-              "path":"CIT:/home/albert.einstein/O4/ProdF1_results.h5",
-              "md5sum":"17b29ba8a63c4d22bdcdec9c1e318707",
-              "date_last_modified":"14-09-2015"
-            },
-            "review_status": "pass",
-            "run_status": "complete",
-            "notes": ["Here is a comment"]
-          },
-          {
-            "UID": "ProdF2",
-            "config_file": {
-              "path": "CIT:/home/albert.einstein/O4/ProdF2_config.ini",
-              "md5sum":"03ae39ca628746f8a00dd8543703948a",
-              "date_last_modified":"17-08-2017"
-            },
-            "result_file": {
-              "path": "CIT:/home/albert.einstein/O4/ProdF2_results.h5",
-              "md5sum":"4f8aa147f3823907e3877674abad6de6",
-              "date_last_modified":"17-08-2017"
-            },
-            "review_status": "fail",
-            "run_status": "stuck",
-            "notes": ["Here is another comment","{'here': 'is','another': 'comment'"]
-          }
-        ]
-    },
-	"extreme_matter": {
-      "analyses": [
-        {
-          "UID": "source_class-01",
-          "description": "mass-based source classification",
-          "analysts": ["albert.einstein", "kip.thorne"],
-          "reviewers": ["bob.dylan"],
-          "analysis_software": "mmax-model-selection",
-          "analysis_status": "unstarted",
-          "review_status": "unstarted",
-          "result_file": {
-            "path":"CIT:/home/albert.einstein/O4/ns_probability.txt",
-            "date_last_modified":"14-09-2022",
-            "md5sum":"jf3ik9djf"
-          }
+  "Sname": "S220331b",
+  "Info": {
+    "Labels": [
+      "Testing cbcflow"
+    ],
+    "Notes": [
+      "Testing cbcflow"
+    ]
+  },
+  "Publications": {
+    "Papers": [
+      "Testing cbcflow"
+    ]
+  },
+  "GraceDB": {},
+  "ExtremeMatter": {
+    "Analyses": [
+      {
+        "Reviewers": [
+          "gregory.ashton"
+        ],
+        "Analysts": [
+          "rhiannon.udall"
+        ],
+        "AnalysisStatus": "ongoing",
+        "ReviewStatus": "fail",
+        "Notes": [
+          "Testing CBCFlow"
+        ],
+        "UID": "TestF1",
+        "Description": "CBCFlow test object creation",
+        "ResultFile": {
+          "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini",
+          "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+          "DateLastModified": "2022/09/08 08:01:17",
+          "PublicHTML": "https://ldas-jobs.ligo.caltech.edu/~rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_result_file.json"
+        }
+      }
+    ]
+  },
+  "Cosmology": {
+    "Counterparts": [
+      {
+        "Notes": [
+          "A test note"
+        ],
+        "UID": "TestF1",
+        "Declination": 1.5,
+        "RightAscension": 1.5,
+        "Redshift": 0.1,
+        "PeculiarMotion": 1000.0,
+        "UncertaintyPeculiarMotion": 100.0,
+        "GCN": "A sample GCN",
+        "Type": "GRB",
+        "TimeDelay": 2.0
+      }
+    ],
+    "PreferredSkymap": "A skymap"
+  },
+  "ParameterEstimation": {
+    "Analysts": [
+      "Rhiannon Udall"
+    ],
+    "Reviewers": [
+      "Gregory Ashton"
+    ],
+    "Status": "ongoing",
+    "Results": [
+      {
+        "ReviewStatus": "pass",
+        "Notes": [
+          "A note"
+        ],
+        "UID": "TestF1",
+        "ConfigFile": {
+          "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini",
+          "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+          "DateLastModified": "2022/09/08 08:01:17",
+          "PublicHTML": "https://ldas-jobs.ligo.caltech.edu/~rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini"
         },
-        {
-          "UID": "eos_inference-01",
-          "description": "spectral eos inference",
-          "analysts": ["albert.einstein", "kip.thorne"],
-          "reviewers": ["bob.dylan"],
-          "analysis_software": "bilby",
-          "analysis_status": "unstarted",
-          "review_status": "unstarted",
-          "result_file": {
-            "path":"CIT:/home/albert.einstein/O4/spec_eos_posterior_samples.hdf5",
-            "date_last_modified":"14-09-2022",
-            "md5sum":"jf3ik9djf"
-          }
+        "ResultFile": {
+          "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_result_file.json",
+          "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+          "DateLastModified": "2022/09/08 13:31:04",
+          "PublicHTML": "https://ldas-jobs.ligo.caltech.edu/~rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_result_file.json"
+        },
+        "PESummaryResultFile": {
+          "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_pesummary_file.json",
+          "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+          "DateLastModified": "2022/09/08 13:31:10",
+          "PublicHTML": "https://ldas-jobs.ligo.caltech.edu/~rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_pesummary_file.json"
+        },
+        "InferenceSoftware": "bilby",
+        "RunStatus": "complete",
+        "WaveformApproximant": "TaylorF2"
+      }
+    ],
+    "SafeSamplingRate": 2048.0,
+    "Notes": [
+      "A Note"
+    ],
+    "SafeGeocentTime": 1.0,
+    "SafeLowerChirpMass": 20.0,
+    "SafeUpperChirpMass": 30.0,
+    "SafeUpperSecondaryMass": 30.0,
+    "SafeLowerSecondaryMass": 20.0,
+    "SafeLowerPrimaryMass": 20.0,
+    "SafeUpperPrimaryMass": 30.0,
+    "SafeLowerMassRatio": 0.8,
+    "SafeUpperLuminosityDistance": 15000.0
+  },
+  "Lensing": {
+    "Analyses": [
+      {
+        "Analysts": [
+          "Rhiannon Udall"
+        ],
+        "Reviewers": [
+          "Gregory Ashton"
+        ],
+        "AnalysisStatus": "ongoing",
+        "ReviewStatus": "fail",
+        "UID": "TestF1",
+        "Description": "A lensing analysis",
+        "AnalysisSoftware": "Hanabi",
+        "ConfigFile": {
+          "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini",
+          "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+          "DateLastModified": "2022/09/08 08:01:17",
+          "PublicHTML": "https://ldas-jobs.ligo.caltech.edu/~rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini"
         }
-      ]
-    },
-    "cosmology": {
-        "preferred_skymap": "https://gracedb.ligo.org/events/G298048",
-        "counterparts": [
-           {
-            "UID": "GRBXXYYZZ",
-            "right ascension": 0.2,
-            "declination": 1.2,
-            "Type": "GRB",
-            "notes": ["A GRB found by Swift"]
-           },
-           {
-            "UID": "xyz123",
-            "right ascension": 0.2,
-            "declination": 1.2,
-            "Type": "Kilonova"
-           }
-        ]
-    },
-    "lensing": {
-      "analyses": [
-        {
-          "UID": "PRELIM-01",
-          "description": "Joint parameter estimation analysis with S190426a",
-          "analysts": ["albert.einstein", "kip.thorne"],
-          "reviewers": ["bob.dylan"],
-          "analysis_software": "majutsu",
-          "analysis_status": "ongoing",
-          "review_status": "unstarted",
-          "config_file": {
-            "path":"CIT:/home/albert.einstein/O4/ProdF1_config.ini",
-            "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
-            "date_last_modified":"14-09-2015"
-          }
-        }
-      ]
-    },
-    "testing-gr": {
-      "analyses": [
-        {
-          "description": "Inspiral Merger Ringdown Consistency Test",
-          "analysts": ["albert.einstein", "kip.thorne"],
-          "reviewers": ["bob.dylan"],
-          "analysis_software": "bilby",
-          "cutoff_frequency":100,
-          "results": [
+      }
+    ]
+  },
+  "TestingGR": {
+    "Analyses": [
+      {
+        "Analysts": [
+          "Rhiannon Udall"
+        ],
+        "Reviewers": [
+          "Gregory Ashton"
+        ],
+        "Results": [
           {
-            "UID": "ProdInspiral1",
-            "config_file": {
-              "path":"CIT:/home/albert.einstein/O4/ProdInspiral1_config.ini",
-              "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
-              "date_last_modified":"14-09-2015"
+            "ReviewStatus": "ongoing",
+            "Notes": [
+              "A note, with high recursion depth"
+            ],
+            "UID": "TestA1",
+            "InferenceSoftware": "bilby",
+            "RunStatus": "complete",
+            "WaveformApproximant": "SEOBNRv5",
+            "ConfigFile": {
+              "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini",
+              "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+              "DateLastModified": "2022/09/08 08:01:17",
+              "PublicHTML": "https://ldas-jobs.ligo.caltech.edu/~rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini"
             },
-            "result_file": {
-              "path":"CIT:/home/albert.einstein/O4/ProdInspiral1_results.h5",
-              "md5sum":"17b29ba8a63c4d22bdcdec9c1e318707",
-              "date_last_modified":"14-09-2015"
+            "ResultFile": {
+              "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_result_file.json",
+              "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+              "DateLastModified": "2022/09/08 13:31:04",
+              "PublicHTML": "https://ldas-jobs.ligo.caltech.edu/~rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_result_file.json"
             },
-            "waveform_approximant": "IMRPhenomXPHM",
-            "review_status": "pass",
-            "run_status": "complete",
-            "notes": ["Here is a comment"]
+            "PESummaryResultFile": {
+              "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_pesummary_file.json",
+              "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+              "DateLastModified": "2022/09/08 13:31:10",
+              "PublicHTML": "https://ldas-jobs.ligo.caltech.edu/~rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_pesummary_file.json"
+            }
           },
           {
-            "UID": "ProdPostInspiral1",
-            "config_file": {
-              "path":"CIT:/home/albert.einstein/O4/ProdPostInspiral1_config.ini",
-              "md5sum":"788bce028fc4fd1efabdab08b2d60f89",
-              "date_last_modified":"14-09-2015"
-            },
-            "result_file": {
-              "path":"CIT:/home/albert.einstein/O4/ProdPostInspiral1_results.h5",
-              "md5sum":"17b29ba8a63c4d22bdcdec9c1e318707",
-              "date_last_modified":"14-09-2015"
-            },
-            "waveform_approximant": "IMRPhenomXPHM",
-            "review_status": "fail",
-            "run_status": "stuck",
-            "notes": ["Here is another comment","{'here': 'is','another': 'comment'"]
+            "ReviewStatus": "unstarted",
+            "Notes": [],
+            "UID": "TestA2",
+            "ConfigFile": {
+              "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini",
+              "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+              "DateLastModified": "2022/09/08 08:01:17"
+            }
           }
-        ]
-        }
-      ]
-    }
+        ],
+        "UID": "TestF1",
+        "Description": "A TGR Analysis",
+        "AnalysisSoftware": "tiger",
+        "SafeLowerChirpMass": 20.0,
+        "SafeUpperChirpMass": 30.0,
+        "SafeLowerMassRatio": 0.5,
+        "SafeUpperLuminosityDistance": 2000.0,
+        "CutoffFrequency": 1000.0,
+        "SafeLowerTGRParameter": -1.0,
+        "SafeUpperTGRParameter": 1.0
+      },
+      {
+        "Analysts": [
+          "Rhiannon Udall"
+        ],
+        "Reviewers": [],
+        "Results": [
+          {
+            "ReviewStatus": "unstarted",
+            "Notes": [
+              "Another deep recursion note"
+            ],
+            "UID": "TestA3",
+            "RunStatus": "complete",
+            "ConfigFile": {
+              "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini",
+              "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+              "DateLastModified": "2022/09/08 08:01:17"
+            }
+          },
+          {
+            "ReviewStatus": "unstarted",
+            "Notes": [],
+            "UID": "TestA4",
+            "RunStatus": "complete",
+            "ConfigFile": {
+              "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini",
+              "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
+              "DateLastModified": "2022/09/08 08:01:17"
+            }
+          }
+        ],
+        "UID": "TestF2",
+        "Description": "Testing multiple analyses"
+      }
+    ]
+  }
 }
