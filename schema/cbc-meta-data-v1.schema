@@ -219,7 +219,13 @@
           "description": "A list of Testing GR analyses",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/imrct"
+            "$ref": {
+            "#/$defs/IMRCT",
+            "#/$defs/MDR",
+            "#/$defs/SSB",
+            "#/$defs/SIM",
+            "#/$defs/FTI",
+            "#/$defs/PSEOBRD",
           }
         }
       }
@@ -1139,12 +1145,20 @@
           "description": "The upper limit on prior of dnromega44 parameter",
           "type": "number"
         },
-        "LowerDnrdeltat44,dnra55":{
-          "description": "The lower limit on prior of dnrdeltat44,dnra55 parameter",
+        "LowerDnrdeltat44":{
+          "description": "The lower limit on prior of dnrdeltat44 parameter",
           "type": "number"
         },
-        "UpperDnrdeltat44,dnra55":{
-          "description": "The upper limit on prior of dnrdeltat44,dnra55 parameter",
+        "UpperDnrdeltat44":{
+          "description": "The upper limit on prior of dnrdeltat44 parameter",
+          "type": "number"
+        },
+        "LowerDnra55":{
+          "description": "The lower limit on prior of dnra55 parameter",
+          "type": "number"
+        },
+        "UpperDnra55":{
+          "description": "The upper limit on prior of dnra55 parameter",
           "type": "number"
         },
         "LowerDnromega55":{
