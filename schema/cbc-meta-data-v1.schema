@@ -223,6 +223,7 @@
             "$ref": "#/$defs/SSD",
             "$ref": "#/$defs/SIM",
             "$ref": "#/$defs/FTI",
+            "$ref": "#/$defs/PSEOBRD",
             "$ref": "#/$defs/MDR"
             }
         }
