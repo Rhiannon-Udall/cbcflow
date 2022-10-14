@@ -634,7 +634,7 @@
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
-        "cutoff_frequency":{       
+        "CutoffFrequency":{       
           "description": "The IMRCT cutoff frequency",
           "type": "number"
         }
@@ -692,21 +692,21 @@
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
-        "alpha":{
+        "Alpha":{
           "description": "Exponent of momentum in dispersion relation, between 0 and 4 (except 2)",
           "type": "number"
         },        
-        "maximum_A_eff":{
+        "MaximumAEff":{
           "description": "The upper limit on prior of effective MDR parameter, in peV^(2-alpha)",
           "type": "number"
         },        
-        "minimum_A_eff":{
+        "MinimumAEff":{
           "description": "The lower limit on prior of effective MDR parameter, in peV^(2-alpha)",
           "type": "number"
         }        
         }
       },
-    "sim": {
+    "SIM": {
       "description": "Spin-Induced Quadrupole Moment Analysis",
       "type": "object",
       "additionalProperties": false,
@@ -754,17 +754,17 @@
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
-        "lower_dQuadMonS":{
+        "LowerDQuadMonS":{
           "description": "The lower limit on prior of symmetric QuadMon parameter",
           "type": "number"
         },        
-        "upper_dQuadMonS":{
+        "UpperDQuadMonS":{
           "description": "The upper limit on prior of symmetric QuadMon parameter",
           "type": "number"
         }        
         }
       },
-    "ssb": {
+    "SSB": {
       "description": "Spacetime Symmetry Breaking Analysis",
       "type": "object",
       "additionalProperties": false,
@@ -796,21 +796,21 @@
           "type": "array",
           "items": {"$ref": "#/$defs/peresult"}
         },
-        "ssb_dim":{
+        "SSBDim":{
           "description": "Mass dimension of the new field in the SME framework (either 5 or 6)",
           "type": "number"
         },      
-        "ssb_k_min":{
+        "SSBKMin":{
           "description": "The lower limit on the prior of the spacetime symmetry breaking coefficient, in meter^(ssb_dim - 4)",
           "type": "number"
         },  
-        "ssb_k_max":{
+        "SSBKMax":{
           "description": "The upper limit on the prior of the spacetime symmetry breaking coefficient, in meter^(ssb_dim - 4)",
           "type": "number"
         }        
         }
       },
-    "fti": {
+    "FTI": {
       "description": "Flexible Theory Independent (FTI) analysis",
       "type": "object",
       "additionalProperties": false,
@@ -963,7 +963,7 @@
           "type": "number"
         }        
         },
-    "pseob_rd": {
+    "PSEOBRD": {
       "description": "Parameterized SEOB ringdown analysis",
       "type": "object",
       "additionalProperties": false,
@@ -1051,115 +1051,115 @@
           "description": "The upper limit on prior of dtau210 parameter",
           "type": "number"
         },
-        "lower_dnra22":{
+        "LowerDnra22":{
           "description": "The lower limit on prior of dnra22 parameter",
           "type": "number"
         },
-        "upper_dnra22":{
+        "UpperDnra22":{
           "description": "The upper limit on prior of dnra22 parameter",
           "type": "number"
         },
-        "lower_dnromega22":{
+        "LowerDnromega22":{
           "description": "The lower limit on prior of dnromega22 parameter",
           "type": "number"
         },
-        "upper_dnromega22":{
+        "UpperDnromega22":{
           "description": "The upper limit on prior of dnromega22 parameter",
           "type": "number"
         },
-        "lower_dnrdeltat22":{
+        "LowerDnrdeltat22":{
           "description": "The lower limit on prior of dnrdeltat22 parameter",
           "type": "number"
         },
-        "upper_dnrdeltat22":{
+        "UpperDnrdeltat22":{
           "description": "The upper limit on prior of dnrdeltat22 parameter",
           "type": "number"
         },
-        "lower_dnra33":{
+        "LowerDnra33":{
           "description": "The lower limit on prior of dnra33 parameter",
           "type": "number"
         },
-        "upper_dnra33":{
+        "UpperDnra33":{
           "description": "The upper limit on prior of dnra33 parameter",
           "type": "number"
         },
-        "lower_dnromega33":{
+        "LowerDnromega33":{
           "description": "The lower limit on prior of dnromega33 parameter",
           "type": "number"
         },
-        "upper_dnromega33":{
+        "UpperDnromega33":{
           "description": "The upper limit on prior of dnromega33 parameter",
           "type": "number"
         },
-        "lower_dnrdeltat33":{
+        "LowerDnrdeltat33":{
           "description": "The lower limit on prior of dnrdeltat33 parameter",
           "type": "number"
         },
-        "upper_dnrdeltat33":{
+        "UpperDnrdeltat33":{
           "description": "The upper limit on prior of dnrdeltat33 parameter",
           "type": "number"
         },
-        "lower_dnra21":{
+        "LowerDnra21":{
           "description": "The lower limit on prior of dnra21 parameter",
           "type": "number"
         },
-        "upper_dnra21":{
+        "UpperDnra21":{
           "description": "The upper limit on prior of dnra21 parameter",
           "type": "number"
         },
-        "lower_dnromega21":{
+        "LowerDnromega21":{
           "description": "The lower limit on prior of dnromega21 parameter",
           "type": "number"
         },
-        "upper_dnromega21":{
+        "UpperDnromega21":{
           "description": "The upper limit on prior of dnromega21 parameter",
           "type": "number"
         },
-        "lower_dnrdeltat21":{
+        "LowerDnrdeltat21":{
           "description": "The lower limit on prior of dnrdeltat21 parameter",
           "type": "number"
         },
-        "upper_dnrdeltat21":{
+        "UpperDnrdeltat21":{
           "description": "The upper limit on prior of dnrdeltat21 parameter",
           "type": "number"
         },
-        "lower_dnra44":{
+        "LowerDnra44":{
           "description": "The lower limit on prior of dnra44 parameter",
           "type": "number"
         },
-        "upper_dnra44":{
+        "UpperDnra44":{
           "description": "The upper limit on prior of dnra44 parameter",
           "type": "number"
         },
-        "lower_dnromega44":{
+        "LowerDnromega44":{
           "description": "The lower limit on prior of dnromega44 parameter",
           "type": "number"
         },
-        "upper_dnromega44":{
+        "UpperDnromega44":{
           "description": "The upper limit on prior of dnromega44 parameter",
           "type": "number"
         },
-        "lower_dnrdeltat44,dnra55":{
+        "LowerDnrdeltat44,dnra55":{
           "description": "The lower limit on prior of dnrdeltat44,dnra55 parameter",
           "type": "number"
         },
-        "upper_dnrdeltat44,dnra55":{
+        "UpperDnrdeltat44,dnra55":{
           "description": "The upper limit on prior of dnrdeltat44,dnra55 parameter",
           "type": "number"
         },
-        "lower_dnromega55":{
+        "LowerDnromega55":{
           "description": "The lower limit on prior of dnromega55 parameter",
           "type": "number"
         },
-        "upper_dnromega55":{
+        "UpperDnromega55":{
           "description": "The upper limit on prior of dnromega55 parameter",
           "type": "number"
         },
-        "lower_dnrdeltat55":{
+        "LowerDnrdeltat55":{
           "description": "The lower limit on prior of dnrdeltat55 parameter",
           "type": "number"
         },
-        "upper_dnrdeltat55":{
+        "UpperDnrdeltat55":{
           "description": "The upper limit on prior of dnrdeltat55 parameter",
           "type": "number"
         }
