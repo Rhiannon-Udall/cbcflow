@@ -219,6 +219,11 @@
           "description": "A list of Testing GR analyses",
           "type": "array",
           "items": {
+            "$ref": "#/$defs/IMRCT",
+            "$ref": "#/$defs/SSD",
+            "$ref": "#/$defs/SIM",
+            "$ref": "#/$defs/FTI",
+            "$ref": "#/$defs/MDR",
             "$ref": "#/$defs/PSEOBRD"
           }
         }
