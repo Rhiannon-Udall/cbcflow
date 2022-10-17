@@ -215,16 +215,46 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "Analyses": {
-          "description": "A list of Testing GR analyses",
+        "IMRCTAnalyses": {
+          "description": "A list of Inspiral-merger-ringdown Consistency Test analyses",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/IMRCT",
-            "$ref": "#/$defs/SSD",
-            "$ref": "#/$defs/SIM",
-            "$ref": "#/$defs/FTI",
-            "$ref": "#/$defs/PSEOBRD",
+            "$ref": "#/$defs/IMRCT"
+            }
+        },
+        "SSBAnalyses": {
+          "description": "A list of Spacetime Symmetry Breaking analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SSB"
+            }
+        },
+        "MDRAnalyses": {
+          "description": "A list of Modified Dispersion Relation analyses",
+          "type": "array",
+          "items": {
             "$ref": "#/$defs/MDR"
+            }
+        },
+        "PSEOBRDAnalyses": {
+          "description": "A list of pSEOB Ringdown analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PSEOBRD"
+            }
+        },
+        "FTIAnalyses": {
+          "description": "A list of Flexible Theory Independent analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FTI"
+            }
+        },
+        "SIMAnalyses": {
+          "description": "A list of spin-induced quadrupole moment analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SIM"
             }
         }
       }
@@ -966,8 +996,9 @@
         "UpperFTapering":{
           "description": "The upper limit on prior of f_tapering parameter",
           "type": "number"
-        }        
-        },
+        } 
+        }       
+      },
     "PSEOBRD": {
       "description": "Parameterized SEOB ringdown analysis",
       "type": "object",
@@ -1180,4 +1211,3 @@
       }
     }
   }
-}
