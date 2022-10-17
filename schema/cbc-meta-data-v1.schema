@@ -680,7 +680,11 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "description": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
@@ -742,7 +746,11 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "description": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
@@ -800,6 +808,10 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
         "Description": {
           "description": "A short and concise description of the analysis",
           "type": "string"
@@ -846,7 +858,11 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "description": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
@@ -1000,7 +1016,11 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "description": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
