@@ -901,7 +901,7 @@
           "description": "The lower limit on prior of dchi_1 parameter",
           "type": "number"
         },
-        "1":{
+        "UpperDchi1":{
           "description": "The upper limit on prior of dchi_1 parameter",
           "type": "number"
         },
