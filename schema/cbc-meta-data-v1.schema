@@ -723,10 +723,6 @@
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
           "type": "number"
         },
-        "SafeUpperLuminosityDistance":{
-          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
-          "type": "number"
-        },
         "Alpha":{
           "description": "Exponent of momentum in dispersion relation, between 0 and 4 (except 2)",
           "type": "number"
@@ -804,7 +800,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "description": {
+        "Description": {
           "description": "A short and concise description of the analysis",
           "type": "string"
         },
