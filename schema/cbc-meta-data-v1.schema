@@ -215,12 +215,47 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "Analyses": {
-          "description": "A list of Testing GR analyses",
+        "IMRCTAnalyses": {
+          "description": "A list of Inspiral-merger-ringdown Consistency Test analyses",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/TGRAnalysis"
-          }
+            "$ref": "#/$defs/IMRCT"
+            }
+        },
+        "SSBAnalyses": {
+          "description": "A list of Spacetime Symmetry Breaking analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SSB"
+            }
+        },
+        "MDRAnalyses": {
+          "description": "A list of Modified Dispersion Relation analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MDR"
+            }
+        },
+        "PSEOBRDAnalyses": {
+          "description": "A list of pSEOB Ringdown analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PSEOBRD"
+            }
+        },
+        "FTIAnalyses": {
+          "description": "A list of Flexible Theory Independent analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FTI"
+            }
+        },
+        "SIMAnalyses": {
+          "description": "A list of spin-induced quadrupole moment analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SIM"
+            }
         }
       }
     },
@@ -582,8 +617,8 @@
         }
       }
     },
-    "TGRAnalysis": {
-      "description": "A Testing GR analysis",
+    "IMRCT": {
+      "description": "Inspiral Merger Ringdown Consistency Test",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -635,18 +670,560 @@
           "type": "number"
         },
         "CutoffFrequency":{       
-          "description": "The cutoff maximum (or minimum) frequency used in a few TGR analyses",
+          "description": "The IMRCT cutoff frequency",
+          "type": "number"
+        }
+      }
+    },
+    "MDR": {
+      "description": "Modified Dispersion Relation Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "SafeLowerChirpMass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "SafeLowerTGRParameter":{
-          "description": "A safe lower value for the TGR parameter to set in the prior, to prevent railing",
+        "SafeUpperChirpMass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeLowerMassRatio":{
+          "description": "A safe lower mass ratio to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeUpperLuminosityDistance":{
+          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "Alpha":{
+          "description": "Exponent of momentum in dispersion relation, between 0 and 4 (except 2)",
           "type": "number"
         },        
-        "SafeUpperTGRParameter":{
-          "description": "A safe lower value for the TGR parameter to set in the prior, to prevent railing",
+        "MaximumAEff":{
+          "description": "The upper limit on prior of effective MDR parameter, in peV^(2-alpha)",
           "type": "number"
+        },        
+        "MinimumAEff":{
+          "description": "The lower limit on prior of effective MDR parameter, in peV^(2-alpha)",
+          "type": "number"
+        }        
+        }
+      },
+    "SIM": {
+      "description": "Spin-Induced Quadrupole Moment Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "SafeLowerChirpMass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeUpperChirpMass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeLowerMassRatio":{
+          "description": "A safe lower mass ratio to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeUpperLuminosityDistance":{
+          "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "LowerDQuadMonS":{
+          "description": "The lower limit on prior of symmetric QuadMon parameter",
+          "type": "number"
+        },        
+        "UpperDQuadMonS":{
+          "description": "The upper limit on prior of symmetric QuadMon parameter",
+          "type": "number"
+        }        
+        }
+      },
+    "SSB": {
+      "description": "Spacetime Symmetry Breaking Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "SSBDim":{
+          "description": "Mass dimension of the new field in the SME framework (either 5 or 6)",
+          "type": "number"
+        },      
+        "SSBKMin":{
+          "description": "The lower limit on the prior of the spacetime symmetry breaking coefficient, in meter^(ssb_dim - 4)",
+          "type": "number"
+        },  
+        "SSBKMax":{
+          "description": "The upper limit on the prior of the spacetime symmetry breaking coefficient, in meter^(ssb_dim - 4)",
+          "type": "number"
+        }        
+        }
+      },
+    "FTI": {
+      "description": "Flexible Theory Independent (FTI) analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "SafeLowerChirpMass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeUpperChirpMass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "LowerDchiMinus2":{
+          "description": "The lower limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "UpperDchiMinus2":{
+          "description": "The upper limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "LowerDchi0":{
+          "description": "The lower limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "UpperDchi0":{
+          "description": "The upper limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "LowerDchi1":{
+          "description": "The lower limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "UpperDchi1":{
+          "description": "The upper limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "LowerDchi2":{
+          "description": "The lower limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "UpperDchi2":{
+          "description": "The upper limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "LowerDchi3":{
+          "description": "The lower limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "UpperDchi3":{
+          "description": "The upper limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "LowerDchi4":{
+          "description": "The lower limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "UpperDchi4":{
+          "description": "The upper limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "LowerDchi5l":{
+          "description": "The lower limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "UpperDchi5l":{
+          "description": "The upper limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "LowerDchi6":{
+          "description": "The lower limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "UpperDchi6":{
+          "description": "The upper limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "LowerDchi6l":{
+          "description": "The lower limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "UpperDchi6l":{
+          "description": "The upper limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "LowerDchi7":{
+          "description": "The lower limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "UpperDchi7":{
+          "description": "The upper limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "LowerKappaS":{
+          "description": "The lower limit on prior of kappa_s parameter",
+          "type": "number"
+        },
+        "UpperKappaS":{
+          "description": "The upper limit on prior of kappa_s parameter",
+          "type": "number"
+        },
+        "LowerKappaA":{
+          "description": "The lower limit on prior of kappa_a parameter",
+          "type": "number"
+        },
+        "UpperKappaA":{
+          "description": "The upper limit on prior of kappa_a parameter",
+          "type": "number"
+        },
+        "LowerTaperingCycles":{
+          "description": "The lower limit on prior of tapering_cycles parameter",
+          "type": "number"
+        },
+        "UpperTaperingCycles":{
+          "description": "The upper limit on prior of tapering_cycles parameter",
+          "type": "number"
+        },
+        "LowerFTapering":{
+          "description": "The lower limit on prior of f_tapering parameter",
+          "type": "number"
+        },
+        "UpperFTapering":{
+          "description": "The upper limit on prior of f_tapering parameter",
+          "type": "number"
+        } 
+        }       
+      },
+    "PSEOBRD": {
+      "description": "Parameterized SEOB ringdown analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "SafeLowerChirpMass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeUpperChirpMass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "LowerDOmega220":{
+          "description": "The lower limit on prior of domega220 parameter",
+          "type": "number"
+        },
+        "UpperDOmega220":{
+          "description": "The upper limit on prior of domega220 parameter",
+          "type": "number"
+        },
+        "LowerDTau220":{
+          "description": "The lower limit on prior of dtau220 parameter",
+          "type": "number"
+        },
+        "UpperDTau220":{
+          "description": "The upper limit on prior of dtau220 parameter",
+          "type": "number"
+        },
+        "LowerDOmega330":{
+          "description": "The lower limit on prior of domega330 parameter",
+          "type": "number"
+        },
+        "UpperDOmega330":{
+          "description": "The upper limit on prior of domega330 parameter",
+          "type": "number"
+        },
+        "LowerDTau330":{
+          "description": "The lower limit on prior of dtau330 parameter",
+          "type": "number"
+        },
+        "UpperDTau330":{
+          "description": "The upper limit on prior of dtau330 parameter",
+          "type": "number"
+        },
+        "LowerDOmega210":{
+          "description": "The lower limit on prior of domega210 parameter",
+          "type": "number"
+        },
+        "UpperDOmega210":{
+          "description": "The upper limit on prior of domega210 parameter",
+          "type": "number"
+        },
+        "LowerDTau210":{
+          "description": "The lower limit on prior of dtau210 parameter",
+          "type": "number"
+        },
+        "UpperDTau210":{
+          "description": "The upper limit on prior of dtau210 parameter",
+          "type": "number"
+        },
+        "LowerDnra22":{
+          "description": "The lower limit on prior of dnra22 parameter",
+          "type": "number"
+        },
+        "UpperDnra22":{
+          "description": "The upper limit on prior of dnra22 parameter",
+          "type": "number"
+        },
+        "LowerDnromega22":{
+          "description": "The lower limit on prior of dnromega22 parameter",
+          "type": "number"
+        },
+        "UpperDnromega22":{
+          "description": "The upper limit on prior of dnromega22 parameter",
+          "type": "number"
+        },
+        "LowerDnrdeltat22":{
+          "description": "The lower limit on prior of dnrdeltat22 parameter",
+          "type": "number"
+        },
+        "UpperDnrdeltat22":{
+          "description": "The upper limit on prior of dnrdeltat22 parameter",
+          "type": "number"
+        },
+        "LowerDnra33":{
+          "description": "The lower limit on prior of dnra33 parameter",
+          "type": "number"
+        },
+        "UpperDnra33":{
+          "description": "The upper limit on prior of dnra33 parameter",
+          "type": "number"
+        },
+        "LowerDnromega33":{
+          "description": "The lower limit on prior of dnromega33 parameter",
+          "type": "number"
+        },
+        "UpperDnromega33":{
+          "description": "The upper limit on prior of dnromega33 parameter",
+          "type": "number"
+        },
+        "LowerDnrdeltat33":{
+          "description": "The lower limit on prior of dnrdeltat33 parameter",
+          "type": "number"
+        },
+        "UpperDnrdeltat33":{
+          "description": "The upper limit on prior of dnrdeltat33 parameter",
+          "type": "number"
+        },
+        "LowerDnra21":{
+          "description": "The lower limit on prior of dnra21 parameter",
+          "type": "number"
+        },
+        "UpperDnra21":{
+          "description": "The upper limit on prior of dnra21 parameter",
+          "type": "number"
+        },
+        "LowerDnromega21":{
+          "description": "The lower limit on prior of dnromega21 parameter",
+          "type": "number"
+        },
+        "UpperDnromega21":{
+          "description": "The upper limit on prior of dnromega21 parameter",
+          "type": "number"
+        },
+        "LowerDnrdeltat21":{
+          "description": "The lower limit on prior of dnrdeltat21 parameter",
+          "type": "number"
+        },
+        "UpperDnrdeltat21":{
+          "description": "The upper limit on prior of dnrdeltat21 parameter",
+          "type": "number"
+        },
+        "LowerDnra44":{
+          "description": "The lower limit on prior of dnra44 parameter",
+          "type": "number"
+        },
+        "UpperDnra44":{
+          "description": "The upper limit on prior of dnra44 parameter",
+          "type": "number"
+        },
+        "LowerDnromega44":{
+          "description": "The lower limit on prior of dnromega44 parameter",
+          "type": "number"
+        },
+        "UpperDnromega44":{
+          "description": "The upper limit on prior of dnromega44 parameter",
+          "type": "number"
+        },
+        "LowerDnrdeltat44":{
+          "description": "The lower limit on prior of dnrdeltat44 parameter",
+          "type": "number"
+        },
+        "UpperDnrdeltat44":{
+          "description": "The upper limit on prior of dnrdeltat44 parameter",
+          "type": "number"
+        },
+        "LowerDnra55":{
+          "description": "The lower limit on prior of dnra55 parameter",
+          "type": "number"
+        },
+        "UpperDnra55":{
+          "description": "The upper limit on prior of dnra55 parameter",
+          "type": "number"
+        },
+        "LowerDnromega55":{
+          "description": "The lower limit on prior of dnromega55 parameter",
+          "type": "number"
+        },
+        "UpperDnromega55":{
+          "description": "The upper limit on prior of dnromega55 parameter",
+          "type": "number"
+        },
+        "LowerDnrdeltat55":{
+          "description": "The lower limit on prior of dnrdeltat55 parameter",
+          "type": "number"
+        },
+        "UpperDnrdeltat55":{
+          "description": "The upper limit on prior of dnrdeltat55 parameter",
+          "type": "number"
+        }
         }
       }
     }
   }
-}
