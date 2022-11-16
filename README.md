@@ -13,15 +13,24 @@ $ jsonschema jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data
 * For help with the json schema, see https://json-schema.org/learn/getting-started-step-by-step.html
 * For visualization of the json schema, see https://cbc.docs.ligo.org/meta-data/cbc-meta-data-schema.html
 
+### Developers
+* Gregory Ashton
+* Rhiannon Udall
+* Pablo Barneo
+
 ### R&D group liaisons
 
-* Richard Udall (PE)
+* Rhiannon Udall (PE)
 * Wynn Ho (EM)
 * Simone Mastrogiovanni (Cosmology)
 * Suvodip Mukherjee (cosmology)
 * Bruce Edelman (R&P)
 * Dimitri Estevez (All-sky)
 * Aditya Vijaykumar (TGR)
+* Ronaldas Macas
+* Siddharth Soni
+* Apratim Ganguly
+* Ka-Lok Lo
 
 ## cbcflow
 
