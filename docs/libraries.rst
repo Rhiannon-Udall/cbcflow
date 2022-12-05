@@ -1,3 +1,4 @@
+.. role:: red
 (proposal) Libraries in CBCFlow
 ===============================
 
@@ -18,9 +19,16 @@ This will form a hub-spoke (potentially recursively) structure to the overall co
 
 Example Usage
 -------------
-Consider an example event S230401a, which is highly significant.
+Consider an example BNS event S230401a, which is highly significant.
 As per usual, GraceDB will automatically populate the page for this event, and followup will proceed accordingly.
 Separately, the CBC group library will be running a monitor to track GraceDB for updates.
 At the next point in its cadence, it will identify S230401a and pull the information from GraceDB,
 populating a default metadata json in the CBC group library.
-
+A child parameter estimation library pulls this event automatically at the cadence of its monitor, and Asimov begins PE automatically.
+When Asimov completes the PE, the metadata for the results are added to the library, which is then pushed back to the CBC library.
+:red:`Would this be done automatically? Possibly Asimov triggers it rather than a cbcflow monitor?`
+Once this occurs, a separate monitor for the R&P child library pulls the updated metadata from the CBC library. 
+The R&P library has another child library, specifically for BNS events, which now pulls these updates.
+R&P analysis is performed, and the metadata for this is added to the BNS library by a user
+via typical git procedure (i.e. making a branch and submitting an MR).
+Once this is done, the data gets pushed back to the R&P central library, and from there to the CBC library. 
