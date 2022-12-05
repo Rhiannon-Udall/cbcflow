@@ -1,4 +1,9 @@
+.. raw:: html
+
+    <style> .red {color: red !important} </style>
+
 .. role:: red
+
 (proposal) Libraries in CBCFlow
 ===============================
 
@@ -26,7 +31,7 @@ At the next point in its cadence, it will identify S230401a and pull the informa
 populating a default metadata json in the CBC group library.
 A child parameter estimation library pulls this event automatically at the cadence of its monitor, and Asimov begins PE automatically.
 When Asimov completes the PE, the metadata for the results are added to the library, which is then pushed back to the CBC library.
-:red:`Would this be done automatically? Possibly Asimov triggers it rather than a cbcflow monitor?`
+:red:`EDITING NOTE: Would this be done automatically? Possibly Asimov triggers it rather than a cbcflow monitor?`
 Once this occurs, a separate monitor for the R&P child library pulls the updated metadata from the CBC library. 
 The R&P library has another child library, specifically for BNS events, which now pulls these updates.
 R&P analysis is performed, and the metadata for this is added to the BNS library by a user
