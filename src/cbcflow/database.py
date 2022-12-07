@@ -243,10 +243,11 @@ class LocalLibraryDatabase(object):
         config = configparser.ConfigParser()
         config_file = os.path.join(self.library, "library.cfg")
         library_defaults = dict()
-        library_defaults["Monitor"] = {
+        library_defaults["Events"] = {
             "far-threshold": 1.2675e-7,
             "created-since": "2022-01-01",
         }
+        library_defaults["Monitor"] = {"parent": "gracedb"}
         if os.path.exists(config_file):
             config.read(config_file)
             for section_key in config.sections():
