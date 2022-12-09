@@ -12,3 +12,5 @@ Welcome to the cbcflow documentation!
    metadata
    usage
    libraries
+   actionitems
+   gwosc
