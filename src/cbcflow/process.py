@@ -3,28 +3,20 @@ import hashlib
 import logging
 import os
 import subprocess
-from collections import OrderedDict
 from datetime import datetime
-from types import NoneType
-from typing import Dict, List, Tuple, Union
 
-from benedict import benedict
-
-from .parser import group_shorthands
+import benedict
+from jsonmerge import Merger
+from jsonmerge.strategies import ArrayStrategy
 
 logger = logging.getLogger(__name__)
 
 
-def standardize_list(inlist):
+def standardize_list(inlist: list) -> list:
+    """Creates a list sorted in a standard way"""
     inlist = list(set(inlist))
     inlist = sorted(inlist)
     return inlist
-
-
-def get_subkey(arg, group, suffix):
-    for key, val in group_shorthands.items():
-        group = group.replace(val, key)
-    return arg.replace(group + "_", "").replace("_" + suffix, "")
 
 
 def get_cluster() -> str:
@@ -53,7 +45,7 @@ def get_cluster() -> str:
         raise ValueError("Could not identify cluster from `hostname -f` call")
 
 
-def get_date_last_modified(path):
+def get_date_last_modified(path: str) -> str:
     """
     Get the date this file was last modified
 
@@ -64,7 +56,7 @@ def get_date_last_modified(path):
 
     Returns
     -------------
-    date_last_modified
+    date_last_modified : str
         The string formatting of the datetime this file was last modified
 
     """
@@ -73,7 +65,7 @@ def get_date_last_modified(path):
     return dtime.strftime("%Y/%m/%d %H:%M:%S")
 
 
-def get_md5sum(path):
+def get_md5sum(path: str) -> str:
     """
     Get the md5sum of the file given the path
 
@@ -84,7 +76,7 @@ def get_md5sum(path):
 
     Returns
     --------------
-    md5sum
+    md5sum : str
         A string of the md5sum for the file at the path location
     """
     # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
@@ -95,120 +87,119 @@ def get_md5sum(path):
     return file_hash.hexdigest()
 
 
-def process_user_input(args, metadata, schema, parser):
-    # Get the args which are changes in the schema, as opposed to control args
-    # TODO make this list a variable somewhere
-    active_args = {
-        key: val
-        for key, val in args.__dict__.items()
-        if key
-        not in [
-            "sname",
-            "library",
-            "schema_file",
-            "no_git_library",
-            "gracedb_service_url",
-            "update",
-            "print",
-            "pull_from_gracedb",
-        ]
-        and (val is not None)
-    }
-
-    # Run the new process on the arguments which will actually be used
-    process_changes(active_args, metadata.data, schema)
-
-
-def _update_reduced_uids(
-    reduced_uids: Dict[str, Tuple[int, Union[NoneType, str]]],
-    analyses_list: List[Dict],
-    uid_value: str,
-    reduced_key: str,
-    full_key: str,
-    defaults_for_refs: dict,
-    precursor=None,
-) -> Dict[str, Tuple[int, Union[NoneType, str]]]:
-    """
-    Helper method for process_changes
-    Given a set of reduced uids and an analysis list, update the reduced_uids
-
-    Parameters
-    ---------------------
-    reduced_uids : Dict[str, Tuple[int, Union[None, str]]]
-        Dict of form {reduced_uid:(index_in_analysis_list, precursor)} - see type hints
-    analyses_list : List[Dict]
-        The applicable list of analyses (e.g. the various PEResults already present)
-    uid_value : str
-        The value of the UID for this analysis layer (e.g. Prod1)
-    reduced_key : str
-        The reduced key for the path to the UID.
-        For example if the path is Path_To_Analysis_Path_to_Result
-        Where Path_to_Analysis is also a ref object
-        then Path_to_Result is the reduced_key
-    full_key : str
-        The full key being used.
-        In the above example, this is Path_To_Analysis_Path_to_Result
-        If there is no precursor this matches the reduced_key
-    defaults_for_refs : dict
-        A dict containing default values for the given analysis object
-        Labelled by all the paths that can generate that variety of object
-        (i.e. the full_key here)
-
-    Returns
-
-
-    """
-    # Analysis index tracks what position in the analysis list is correct
-    analysis_index = None
-    for jj, analysis in enumerate(analyses_list):
-        if analysis["UID"] == uid_value:
-            # If it's present, store the index
-            analysis_index = jj
-    # If it wasn't found, make a nested dict with the corresponding UID
-    # And add the newly formed index to reduced_uids, with None as the second part of the tuple
-    if analysis_index is None:
-        # If making it anew, get the correct defaults
-        default_dict = copy.deepcopy(defaults_for_refs[full_key])
-        default_dict["UID"] = uid_value
-        analyses_list.append(default_dict)
-        reduced_uids[reduced_key] = (len(analyses_list) - 1, precursor)
-    # Otherwise, store the old index in reduced_uids
+def form_update_json_from_args(args, removal_json=False):
+    if not isinstance(args, dict):
+        args_dict = args.__dict__
     else:
-        reduced_uids[reduced_key] = (analysis_index, precursor)
+        args_dict = args
 
-    # Return the modified object (though it has also been modified in place)
-    return reduced_uids
+    arg_keys_by_depth = sorted(
+        list(args_dict.keys()), key=lambda x: (len(x.split("_")), "UID" not in x)
+    )
+
+    logging.info(arg_keys_by_depth)
+
+    update_json = dict()
+
+    for arg_key in arg_keys_by_depth:
+        working_dict = update_json
+        elements = arg_key.split("_")[:-1]
+        # key_path = "_".join(elements)
+        action = arg_key.split("_")[-1]
+        if removal_json and action == "add":
+            # if this json is for removing, skip all the adds (they will be done separately)
+            continue
+        if not removal_json and action == "remove":
+            # if this json is not for removing, skip all the removes (they will be done separately)
+            continue
+        for ii, element in enumerate(elements):
+            if element in working_dict.keys():
+                if isinstance(working_dict[element], dict):
+                    working_dict = working_dict[element]
+                elif isinstance(working_dict[element], list):
+                    # In this construction only one UID identified object can be modified at a time
+                    # We pre-sorted to make sure it already exists
+                    working_dict = working_dict[element][0]
+            else:
+                if ii == len(elements) - 1:
+                    if action == "set":
+                        working_dict[element] = args_dict[arg_key]
+                    elif action == "add" or action == "remove":
+                        working_dict[element] = [args_dict[arg_key]]
+                    if element == "Path":
+                        # This is the special case of linked files
+                        path = args_dict[arg_key].split(":")[-1]
+                        working_dict["MD5Sum"] = get_md5sum(path)
+                        working_dict["DateLastModified"] = get_date_last_modified(path)
+                else:
+                    # If the next thing will be setting a UID, we need to make the array it will go in
+                    if elements[ii + 1] == "UID":
+                        working_dict[element] = [dict()]
+                        working_dict = working_dict[element][0]
+                    # Otherwise we are just going down the dict
+                    else:
+                        working_dict[element] = dict()
+                        working_dict = working_dict[element]
+    return update_json
 
 
-def process_action(metadata, key_path, action, value):
-    if action == "set":
-        if key_path.split("_")[-1] == "Path":
-            metadata[key_path] = f"{get_cluster()}:{value}"
-            md5sum_path = key_path.replace("Path", "MD5Sum")
-            metadata[md5sum_path] = get_md5sum(value)
-            date_last_modified_path = key_path.replace("Path", "DateLastModified")
-            metadata[date_last_modified_path] = get_date_last_modified(value)
-        else:
-            metadata[key_path] = value
-    elif action == "add":
-        metadata[key_path].append(value)
-        metadata[key_path] = standardize_list(metadata[key_path])
-    elif action == "remove":
-        metadata[key_path].remove(value)
-        metadata[key_path] = standardize_list(metadata[key_path])
-    else:
-        raise ValueError(f"Could not understand action {action}")
+def recurse_add_array_merge_options(schema, is_removal_dict=False):
+    if schema["type"] == "array":
+        if "$ref" in schema["items"]:
+            schema.update(
+                dict(mergeStrategy="arrayMergeById", mergeOptions=dict(idRef="/UID"))
+            )
+        elif "type" in schema["items"]:
+            if is_removal_dict:
+                schema.update(
+                    dict(
+                        mergeStrategy="remove",
+                    )
+                )
+            else:
+                schema.update(
+                    dict(
+                        mergeStrategy="append",
+                    )
+                )
+    elif schema["type"] == "object" and "properties" in schema.keys():
+        for prop in schema["properties"]:
+            recurse_add_array_merge_options(
+                schema["properties"][prop], is_removal_dict=is_removal_dict
+            )
 
 
-def get_sub_dict_from_precursor(nested_dict, reduced_uids, precursor):
-    precursor_index, precursors_precursor = reduced_uids[precursor]
-    if precursors_precursor is None:
-        return nested_dict[precursor][precursor_index]
-    else:
-        sub_dict = get_sub_dict_from_precursor(
-            nested_dict, reduced_uids, precursors_precursor
+def get_merger(schema, for_removal=False):
+    merge_schema = copy.deepcopy(schema)
+    recurse_add_array_merge_options(merge_schema, is_removal_dict=for_removal)
+    for ref in merge_schema["$defs"]:
+        recurse_add_array_merge_options(
+            merge_schema["$defs"][ref], is_removal_dict=for_removal
         )
-        return sub_dict[precursor][precursor_index]
+
+    class RemoveStrategy(ArrayStrategy):
+        def _merge(
+            self, walk, base, head, schema, sortByRef=None, sortReverse=None, **kwargs
+        ):
+            new_array = []
+            for array_element in base.val:
+                if array_element not in head.val:
+                    new_array.append(array_element)
+
+            base.val = new_array
+
+            self.sort_array(walk, base, sortByRef, sortReverse)
+
+            return base
+
+        def get_schema(self, walk, schema, **kwargs):
+            schema.val.pop("maxItems", None)
+            schema.val.pop("uniqueItems", None)
+
+            return schema
+
+    merger = Merger(merge_schema, strategies=dict(remove=RemoveStrategy()))
+    return merger
 
 
 def get_all_schema_defaults(schema):
@@ -307,118 +298,3 @@ def get_all_schema_defaults(schema):
     }
 
     return defaults_for_keypath
-
-
-def process_changes(changes_dict, metadata, schema):
-    if not isinstance(metadata, benedict):
-        metadata = benedict(metadata, keypath_separator="_")
-
-    # Make a list of all UID flags
-    uids_list = []
-    for key, val in changes_dict.items():
-        if "UID" in key:
-            uids_list.append(("_".join(key.split("_")[:-2]), val))
-
-    # Sort by increasing depth, convert to OrderedDict
-    uids_list.sort(key=lambda x: len(x[0].split("_")))
-    uids_dict = OrderedDict(uids_list)
-
-    # Get the default metadata for ref objects that may be invoked
-    defaults_by_keypath = get_all_schema_defaults(schema)
-
-    # reduced_uids will be a more useful set of keys, connecting paths for nested analyses
-    # and also indices for each analysis, as identified by the UID
-    reduced_uids = OrderedDict()
-
-    for ii, key in enumerate(uids_dict):
-        # Cleanup changes_dict while we're in this loop
-        del changes_dict[key + "_UID_set"]
-
-        # Some hacky stuff to find nested analysis keys
-        precursor = None
-
-        # We've sorted, so we only need to go through the preceding keys
-        for jj in reversed(range(ii)):
-            if list(uids_dict)[jj] in key:
-                # If a previous key is in this key, it's the precursor
-                # We only want the longest precursor
-                # If depth ever exceeds 2 this will still work accordingly
-                precursor = list(uids_dict)[jj]
-                break
-
-        # In this case, depth of analyses is 1
-        # So, no precursor, trace down directly from metadata
-        if precursor is None:
-            analyses_list = metadata[key]
-            reduced_uids_key = key
-        # Depth > 1
-        # There is a precursor, so trace down from it to get the analyses list
-        else:
-            # Get the part of the key that goes past the precursor
-            reduced_uids_key = key.replace(precursor, "").strip("_")
-            # Get the dict using the precursor's place in the analyses list
-            analysis_sub_dict = get_sub_dict_from_precursor(
-                metadata, reduced_uids, precursor
-            )
-            # If the precursor hasn't had any results made yet, make an empty list
-            if reduced_uids_key not in analysis_sub_dict:
-                analysis_sub_dict[reduced_uids_key] = []
-            # The list of analyses to check through will be that list
-            analyses_list = analysis_sub_dict[reduced_uids_key]
-
-        # Get the value to assign
-        uid_value = uids_dict[key]
-
-        # Update the reduced_uids dict
-        _update_reduced_uids(
-            reduced_uids,
-            analyses_list,
-            uid_value,
-            reduced_uids_key,
-            key,
-            defaults_by_keypath,
-            precursor=precursor,
-        )
-
-    for key, val in changes_dict.items():
-        # Get the action and the path to the action
-        action = key.split("_")[-1]
-        key_path = "_".join(key.split("_")[:-1])
-
-        # Search for what UIDs will be used to arrive at the field we want to change
-        relevant_uids = []
-        for uid_path in uids_dict:
-            if uid_path in key_path:
-                relevant_uids.append(uid_path)
-
-        # Sort by ascending order of size
-        relevant_uids.sort(key=lambda x: len(x))
-
-        # If no UIDs are relevant we can modify directly by keypath
-        if relevant_uids == []:
-            process_action(metadata, key_path, action, val)
-
-        # If there are UIDs to follow
-        else:
-            # Start from the top
-            dict_under_consideration = metadata
-            # Loop over the uids to follow
-            for ii, uid_path in enumerate(relevant_uids):
-                if ii > 0:
-                    # If there's a precursor, reduce down
-                    reduced_uid_path = uid_path.replace(
-                        relevant_uids[ii - 1], ""
-                    ).strip("_")
-                else:
-                    reduced_uid_path = uid_path
-                # Get the index in the analyses_list
-                analysis_index, _ = reduced_uids[reduced_uid_path]
-                # Grab the analysis dict, make it a benedict
-                dict_under_consideration = benedict(
-                    dict_under_consideration[reduced_uid_path][analysis_index],
-                    keypath_separator="_",
-                )
-                # reduce the key down
-                reduced_key = key_path.replace(uid_path, "").strip("_")
-            # perform this action
-            process_action(dict_under_consideration, reduced_key, action, val)
