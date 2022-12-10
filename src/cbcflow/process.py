@@ -5,7 +5,7 @@ import os
 import subprocess
 from datetime import datetime
 
-import benedict
+from benedict import benedict
 from jsonmerge import Merger
 from jsonmerge.strategies import ArrayStrategy
 
@@ -88,16 +88,16 @@ def get_md5sum(path: str) -> str:
 
 
 def form_update_json_from_args(args, removal_json=False):
+    # This allows for testing with input dicts, which is convenient
     if not isinstance(args, dict):
         args_dict = args.__dict__
     else:
         args_dict = args
 
+    # This sorts keys in a way we will use later
     arg_keys_by_depth = sorted(
         list(args_dict.keys()), key=lambda x: (len(x.split("_")), "UID" not in x)
     )
-
-    logging.info(arg_keys_by_depth)
 
     update_json = dict()
 
