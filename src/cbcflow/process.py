@@ -104,7 +104,6 @@ def form_update_json_from_args(args, removal_json=False):
     for arg_key in arg_keys_by_depth:
         working_dict = update_json
         elements = arg_key.split("_")[:-1]
-        # key_path = "_".join(elements)
         action = arg_key.split("_")[-1]
         if removal_json and action == "add":
             # if this json is for removing, skip all the adds (they will be done separately)
@@ -123,8 +122,10 @@ def form_update_json_from_args(args, removal_json=False):
             else:
                 if ii == len(elements) - 1:
                     if action == "set":
+                        # setting is straightforward
                         working_dict[element] = args_dict[arg_key]
                     elif action == "add" or action == "remove":
+                        # For adding we are making an array of one element to update with
                         working_dict[element] = [args_dict[arg_key]]
                     if element == "Path":
                         # This is the special case of linked files
@@ -273,7 +274,6 @@ def get_all_schema_defaults(schema):
     linked_file_for_keypath = {
         key: val[0] for key, val in linked_file_call_keypaths.invert().items()
     }
-
     linked_file_defaults = dict()
     # Now, for every ref object get the associated Default Metadata
     for def_path in linked_file_call_keypaths.keys():
@@ -298,3 +298,45 @@ def get_all_schema_defaults(schema):
     }
 
     return defaults_for_keypath
+
+
+def populate_defaults_if_necessary(
+    base, head, schema_defaults, key_path="", refId="UID"
+):
+    if isinstance(base, dict) and isinstance(head, dict):
+        # If both are dicts, we aren't in a place where it makes sense to populate new defaults, so we keep going
+        new_head_dict = head
+        for key in head.keys():
+            if key in base.keys():
+                # If the key is present in both, then continue onwards
+                new_head_dict[key] = populate_defaults_if_necessary(
+                    base[key],
+                    head[key],
+                    schema_defaults,
+                    (key_path + f"_{key}").strip("_"),
+                    refId=refId,
+                )
+        return new_head_dict
+    elif isinstance(base, list) and isinstance(head, list):
+        # In this case we are now at an array
+        new_head_array = []
+        for head_list_element in head:
+            # For each element in head, we want to see if there is anything corresponding yet in base
+            if isinstance(head_list_element, dict):
+                head_ref = head_list_element[refId]
+                already_exists = False
+                for base_list_element in base:
+                    if base_list_element[refId] == head_ref:
+                        already_exists = True
+                        new_head_array.append(head_list_element)
+                        break
+                    else:
+                        continue
+                if not already_exists:
+                    # If there isn't anything corresponding in base, we want to make the default
+                    default = copy.copy(schema_defaults[key_path])
+                    default.update(head_list_element)
+                    new_head_array.append(default)
+            else:
+                new_head_array.append(head_list_element)
+        return new_head_array
