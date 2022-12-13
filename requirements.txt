@@ -7,3 +7,4 @@ lscsoft-glue
 json-schema-for-humans
 coverage
 python-benedict
+jsonmerge
