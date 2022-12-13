@@ -412,7 +412,7 @@ def populate_defaults_if_necessary(
         return new_head_array
 
 
-def process_user_inputs(args: argparse.Namespace, metadata: MetaData, schema: dict):
+def process_user_input(args: argparse.Namespace, metadata: MetaData, schema: dict):
     """Chains commands to take in user args and update the metadata with them
 
     Parameters
