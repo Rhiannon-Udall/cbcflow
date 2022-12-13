@@ -1,3 +1,4 @@
+import argparse
 import copy
 import hashlib
 import logging
@@ -8,6 +9,8 @@ from datetime import datetime
 from benedict import benedict
 from jsonmerge import Merger
 from jsonmerge.strategies import ArrayStrategy
+
+from .metadata import MetaData
 
 logger = logging.getLogger(__name__)
 
@@ -87,12 +90,26 @@ def get_md5sum(path: str) -> str:
     return file_hash.hexdigest()
 
 
-def form_update_json_from_args(args, removal_json=False):
+def form_update_json_from_args(
+    args: argparse.Namespace, removal_json: bool = False
+) -> dict:
+    """Given args output from argparse, make a json to merge into metadata.data
+
+    Parameters
+    ==========
+    args : `argparse.Namespace`
+        The arguments input by the user via argparse
+    removal_json : bool, default=False
+        Whether or not this is a json for doing removals
+        Removal jsons are essentially negative images of the expected change
+
+    Returns
+    =======
+    update_json : dict
+        The json containing the update information
+    """
     # This allows for testing with input dicts, which is convenient
-    if not isinstance(args, dict):
-        args_dict = args.__dict__
-    else:
-        args_dict = args
+    args_dict = args
 
     # This sorts keys in a way we will use later
     arg_keys_by_depth = sorted(
@@ -144,7 +161,18 @@ def form_update_json_from_args(args, removal_json=False):
     return update_json
 
 
-def recurse_add_array_merge_options(schema, is_removal_dict=False):
+def recurse_add_array_merge_options(
+    schema: dict, is_removal_dict: bool = False
+) -> None:
+    """Add the requisite jsonmerge details to the schema, in prep to make a Merger
+
+    Parameters
+    ==========
+    schema : dict
+        The schema to which the merge options will be added
+    is_removal_dict : bool, default=False
+        Whether this will be used for performing a removal operation
+    """
     if schema["type"] == "array":
         if "$ref" in schema["items"]:
             schema.update(
@@ -170,7 +198,21 @@ def recurse_add_array_merge_options(schema, is_removal_dict=False):
             )
 
 
-def get_merger(schema, for_removal=False):
+def get_merger(schema: dict, for_removal: bool = False) -> Merger:
+    """Generate the `jsonmerge.Merger` object we will use
+
+    Parameters
+    ==========
+    schema : dict
+        The base schema, this will be modified then used for the merger
+    for_removal : bool, default=False
+        If true make a merger which performs removals
+
+    Returns
+    =======
+    merger : `jsonmerge.Merger`
+        The merger which will be used to do the update
+    """
     merge_schema = copy.deepcopy(schema)
     recurse_add_array_merge_options(merge_schema, is_removal_dict=for_removal)
     for ref in merge_schema["$defs"]:
@@ -203,7 +245,7 @@ def get_merger(schema, for_removal=False):
     return merger
 
 
-def get_all_schema_defaults(schema):
+def get_all_schema_defaults(schema: dict):
     """ """
     if not isinstance(schema, benedict):
         schema = benedict(schema, keypath_separator="_")
@@ -301,8 +343,36 @@ def get_all_schema_defaults(schema):
 
 
 def populate_defaults_if_necessary(
-    base, head, schema_defaults, key_path="", refId="UID"
-):
+    base: dict,
+    head: dict,
+    schema_defaults: dict,
+    key_path: str = "",
+    refId: str = "UID",
+) -> dict:
+    """New defaults are necessary if we create a new instance of an object.
+    This determines when a new instance is being made, rather than just modifying and old one,
+    and then edits the update json accordingly.
+
+    Parameters
+    ==========
+    base : dict
+        The dictionary which will be updated.
+        When used recursively, a sub-dict of that dict.
+    head : dict
+        The update json, before defaults are set.
+        When used recursively, a sub-dict of that dict.
+    schema_defaults : dict
+        A set of keypaths which specify defaults for various objects.
+    key_path : str, default=""
+        The path which will be build up as we descend.
+    refId : str, default="UID"
+        The reference ID used to identify different objects.
+
+    Returns
+    =======
+    dict
+        The updated head, with defaults set where appropriate.
+    """
     if isinstance(base, dict) and isinstance(head, dict):
         # If both are dicts, we aren't in a place where it makes sense to populate new defaults, so we keep going
         new_head_dict = head
@@ -340,3 +410,55 @@ def populate_defaults_if_necessary(
             else:
                 new_head_array.append(head_list_element)
         return new_head_array
+
+
+def process_user_inputs(args: argparse.Namespace, metadata: MetaData, schema: dict):
+    """Chains commands to take in user args and update the metadata with them
+
+    Parameters
+    ==========
+    args : `argparse.Namespace`
+        The arguments from the argparser with which to update the metadata
+    metadata : `cbcflow.metadata.MetaData`
+        The metadata to which the update will be applied
+    schema : dict
+        The schema which describes the metadata
+    """
+    # Form the add and remove jsons from arguments
+    # Adding and subtraction should be done separately
+    update_json_add = form_update_json_from_args(args)
+    update_json_remove = form_update_json_from_args(args, removal_json=True)
+
+    process_update_json(update_json_add, metadata, schema)
+    process_update_json(update_json_remove, metadata, schema, is_removal=True)
+
+
+def process_update_json(
+    update_json: dict, metadata: MetaData, schema: dict, is_removal: bool = False
+):
+    """Chains commands to take in and update json and update the metadata with it
+
+    Parameters
+    ==========
+    update_json : dict
+        The dict to update the metadata with
+    metadata : `cbcflow.metadata.MetaData`
+        The metadata to which the update will be applied
+    schema : dict
+        The schema which describes the metadata
+    is_removal : bool, default=False
+        If true, this json will be interpreted as a negative image, and the update will be a removal
+    """
+    if not is_removal:
+        # If we are adding, we may need defaults
+        # Get the schema defaults, and use them to make defaults where necessary in the add json
+        schema_defaults = get_all_schema_defaults(schema)
+        update_json = populate_defaults_if_necessary(
+            metadata.data, update_json, schema_defaults
+        )
+
+    # generate the merger objects
+    merger = get_merger(schema, for_removal=is_removal)
+
+    # apply merges
+    metadata.data = merger.merge(metadata.data, update_json)

@@ -8,8 +8,8 @@ import jsonschema
 
 from .gracedb import fetch_gracedb_information
 from .metadata import MetaData
-from .oldprocess import process_user_input
 from .parser import get_parser_and_default_data
+from .process import process_user_input
 from .schema import get_schema
 
 
@@ -58,7 +58,7 @@ def main():
         )
 
     if args.update:
-        process_user_input(args, metadata, schema, parser)
+        process_user_input(args, metadata, schema)
         metadata.write_to_library()
 
     if args.print:
