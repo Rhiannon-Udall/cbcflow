@@ -78,6 +78,15 @@ class TestMetaData(unittest.TestCase):
         )
         assert metadata.data == metadata_mod.data
 
+    def test_parsing_of_user_inputs(self):
+        pass
+
+    def test_update_metadata_with_json(self):
+        pass
+
+    def test_update_metadata_from_yaml(self):
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()
