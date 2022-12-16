@@ -1,0 +1,43 @@
+{
+    "ExtremeMatter":{
+        "Analyses":[
+            {
+                "UID":"TestF1",
+                "Reviewers":["Jonah Kanner"],
+                "ResultFile":{
+                    "Path":"tests/test-file-for-linking-2.txt"
+                }
+            },
+            {
+                "UID":"TestF3",
+                "Description":"Yet another fake analysis"
+            }
+        ]
+    },
+    "TestingGR":{
+        "IMRCTAnalyses":[
+            {
+                "UID":"TestF1",
+                "Analysts":["Mr C++"],
+                "Results":[
+                    {
+                        "UID":"TestF1",
+                        "WaveformApproximant":"NRSur7dq4",
+                        "ResultFile":{
+                            "Path":"tests/test-file-for-linking-2.txt"
+                        },
+                        "Notes":["Another note"]
+                    },
+                    {
+                        "UID":"TestF3",
+                        "WaveformApproximant":"IMRPhenomXPHM"
+                    }
+                ]
+            },
+            {
+                "UID":"TestF3",
+                "Analysts":["Donald Knuth"]
+            }
+        ]
+    }
+}        

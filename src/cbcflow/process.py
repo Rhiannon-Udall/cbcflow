@@ -1,93 +1,20 @@
+from __future__ import annotations
+
 import argparse
 import copy
-import hashlib
 import logging
-import os
-import subprocess
-from datetime import datetime
+from typing import TYPE_CHECKING, Union
 
 from benedict import benedict
 from jsonmerge import Merger
 from jsonmerge.strategies import ArrayStrategy
 
-from .metadata import MetaData
+from .utils import fill_out_linked_file, standardize_list
+
+if TYPE_CHECKING:
+    from .metadata import MetaData
 
 logger = logging.getLogger(__name__)
-
-
-def standardize_list(inlist: list) -> list:
-    """Creates a list sorted in a standard way"""
-    inlist = list(set(inlist))
-    inlist = sorted(inlist)
-    return inlist
-
-
-def get_cluster() -> str:
-    """
-    Get the cluster this is running on
-    """
-    # TODO if a better api is implemented use it
-    # Also maybe add NIK?
-    # I can't even access that cluster to test, so...
-    hostname = str(subprocess.check_output(["hostname", "-f"]))
-    if "ligo-wa" in hostname:
-        return "LHO"
-    elif "ligo-la" in hostname:
-        return "LLO"
-    elif "ligo.caltech" in hostname:
-        return "CIT"
-    elif hostname == "cl8":
-        return "CDF"
-    elif "gwave.ics.psu.edu" in hostname:
-        return "PSU"
-    elif "nemo.uwm.edu" in hostname:
-        return "UWM"
-    elif "iucaa" in hostname:
-        return "IUCAA"
-    else:
-        raise ValueError("Could not identify cluster from `hostname -f` call")
-
-
-def get_date_last_modified(path: str) -> str:
-    """
-    Get the date this file was last modified
-
-    Parameters
-    -------------
-    path
-        A path to the file (on this filesystem)
-
-    Returns
-    -------------
-    date_last_modified : str
-        The string formatting of the datetime this file was last modified
-
-    """
-    mtime = os.path.getmtime(path)
-    dtime = datetime.fromtimestamp(mtime)
-    return dtime.strftime("%Y/%m/%d %H:%M:%S")
-
-
-def get_md5sum(path: str) -> str:
-    """
-    Get the md5sum of the file given the path
-
-    Parameters
-    ----------
-    path : str
-        A path to the file (on this filesystem)
-
-    Returns
-    --------------
-    md5sum : str
-        A string of the md5sum for the file at the path location
-    """
-    # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
-    with open(path, "rb") as f:
-        file_hash = hashlib.md5()
-        while chunk := f.read(8192):
-            file_hash.update(chunk)
-    return file_hash.hexdigest()
 
 
 def form_update_json_from_args(
@@ -122,7 +49,9 @@ def form_update_json_from_args(
         working_dict = update_json
         elements = arg_key.split("_")[:-1]
         action = arg_key.split("_")[-1]
-        if removal_json and action == "add":
+        if removal_json and (
+            action == "add" or (action == "set" and elements[-1] != "UID")
+        ):
             # if this json is for removing, skip all the adds (they will be done separately)
             continue
         if not removal_json and action == "remove":
@@ -139,16 +68,12 @@ def form_update_json_from_args(
             else:
                 if ii == len(elements) - 1:
                     if action == "set":
-                        # setting is straightforward
+                        # Just set the element
+                        # Note linked files will be modified later on by another function
                         working_dict[element] = args_dict[arg_key]
                     elif action == "add" or action == "remove":
                         # For adding we are making an array of one element to update with
                         working_dict[element] = [args_dict[arg_key]]
-                    if element == "Path":
-                        # This is the special case of linked files
-                        path = args_dict[arg_key].split(":")[-1]
-                        working_dict["MD5Sum"] = get_md5sum(path)
-                        working_dict["DateLastModified"] = get_date_last_modified(path)
                 else:
                     # If the next thing will be setting a UID, we need to make the array it will go in
                     if elements[ii + 1] == "UID":
@@ -343,8 +268,8 @@ def get_all_schema_defaults(schema: dict):
 
 
 def populate_defaults_if_necessary(
-    base: dict,
-    head: dict,
+    base: Union[dict, list],
+    head: Union[dict, list],
     schema_defaults: dict,
     key_path: str = "",
     refId: str = "UID",
@@ -352,6 +277,7 @@ def populate_defaults_if_necessary(
     """New defaults are necessary if we create a new instance of an object.
     This determines when a new instance is being made, rather than just modifying and old one,
     and then edits the update json accordingly.
+    This also deals with linked files when appropriate
 
     Parameters
     ==========
@@ -374,18 +300,42 @@ def populate_defaults_if_necessary(
         The updated head, with defaults set where appropriate.
     """
     if isinstance(base, dict) and isinstance(head, dict):
-        # If both are dicts, we aren't in a place where it makes sense to populate new defaults, so we keep going
-        new_head_dict = head
+        new_head_dict = dict()
         for key in head.keys():
+            new_key_path = (key_path + f"_{key}").strip("_")
             if key in base.keys():
+                new_head_dict[key] = copy.deepcopy(head[key])
                 # If the key is present in both, then continue onwards
                 new_head_dict[key] = populate_defaults_if_necessary(
                     base[key],
                     head[key],
                     schema_defaults,
-                    (key_path + f"_{key}").strip("_"),
+                    new_key_path,
                     refId=refId,
                 )
+            else:
+                if isinstance(head[key], dict):
+                    new_head_dict[key] = dict()
+                    if key_path in schema_defaults.keys():
+                        new_head_dict[key].update(schema_defaults[new_key_path])
+                    new_head_dict[key].update(head[key])
+                if isinstance(head[key], list):
+                    new_head_dict[key] = list()
+                    new_head_dict[key] = populate_defaults_if_necessary(
+                        list(),
+                        head[key],
+                        schema_defaults,
+                        new_key_path,
+                        refId=refId,
+                    )
+                else:
+                    new_head_dict[key] = populate_defaults_if_necessary(
+                        dict(),
+                        head[key],
+                        schema_defaults,
+                        new_key_path,
+                        refId=refId,
+                    )
         return new_head_dict
     elif isinstance(base, list) and isinstance(head, list):
         # In this case we are now at an array
@@ -398,7 +348,15 @@ def populate_defaults_if_necessary(
                 for base_list_element in base:
                     if base_list_element[refId] == head_ref:
                         already_exists = True
-                        new_head_array.append(head_list_element)
+                        # It is possible this object already exists but some object within it does not
+                        # So recurse further down
+                        new_element = populate_defaults_if_necessary(
+                            base_list_element,
+                            head_list_element,
+                            schema_defaults,
+                            key_path=key_path,
+                        )
+                        new_head_array.append(new_element)
                         break
                     else:
                         continue
@@ -406,10 +364,40 @@ def populate_defaults_if_necessary(
                     # If there isn't anything corresponding in base, we want to make the default
                     default = copy.copy(schema_defaults[key_path])
                     default.update(head_list_element)
-                    new_head_array.append(default)
+                    new_element = populate_defaults_if_necessary(
+                        dict(), default, schema_defaults, key_path=key_path
+                    )
+                    new_head_array.append(new_element)
             else:
                 new_head_array.append(head_list_element)
         return new_head_array
+    else:
+        return head
+
+
+def fill_linked_files_if_necessary(head):
+    if isinstance(head, dict):
+        if "Path" in head.keys():
+            temp_head = copy.deepcopy(head)
+            # This is the case we are looking for
+            # If Path is in head.keys(), then head must be a LinkedFile
+            path = head["Path"]
+            return fill_out_linked_file(path, temp_head)
+        else:
+            new_head_dict = head
+            for key in head.keys():
+                new_head_dict[key] = fill_linked_files_if_necessary(new_head_dict[key])
+            return new_head_dict
+    elif isinstance(head, list):
+        new_array = []
+        for element in head:
+            if isinstance(element, dict):
+                new_array.append(fill_linked_files_if_necessary(element))
+            else:
+                new_array.append(element)
+        return new_array
+    else:
+        return head
 
 
 def process_user_input(args: argparse.Namespace, metadata: MetaData, schema: dict):
@@ -456,6 +444,7 @@ def process_update_json(
         update_json = populate_defaults_if_necessary(
             metadata.data, update_json, schema_defaults
         )
+    update_json = fill_linked_files_if_necessary(update_json)
 
     # generate the merger objects
     merger = get_merger(schema, for_removal=is_removal)

@@ -11,7 +11,7 @@ from .configuration import config_defaults
 from .gracedb import fetch_gracedb_information
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
-from .process import process_update_json, process_user_input
+from .process import process_user_input
 from .schema import get_schema
 
 
@@ -138,4 +138,4 @@ def from_file():
     logger.info(json.dumps(file_contents, indent=4))
 
     logger.info("Updating Metadata")
-    process_update_json(file_contents, metadata, schema, is_removal=args.removal_file)
+    metadata.update(file_contents, is_removal=args.removal_file)
