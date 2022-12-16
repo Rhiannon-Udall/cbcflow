@@ -33,6 +33,8 @@ def get_cluster() -> str:
         return "UWM"
     elif "iucaa" in hostname:
         return "IUCAA"
+    elif "runner" in hostname:
+        return "Gitlab"
     else:
         raise ValueError("Could not identify cluster from `hostname -f` call")
 
