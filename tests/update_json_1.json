@@ -10,15 +10,15 @@
         "Counterparts": [
             {
                 "UID": "TestF1",
-                "RightAscension": 0,
-                "Declination": 0,
-                "Redshift": 1,
+                "RightAscension": 0.0,
+                "Declination": 0.0,
+                "Redshift": 1.0,
                 "RedshiftUncertainty": 0.5,
                 "PeculiarMotion": 100,
-                "UncertaintyPeculiarMotion": 50,
+                "UncertaintyPeculiarMotion": 50.0,
                 "GCN": "A sample GCN",
                 "Type": "GRB",
-                "TimeDelay": 2
+                "TimeDelay": 2.0
             },
             {
                 "UID": "TestF2"

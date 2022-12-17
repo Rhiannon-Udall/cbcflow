@@ -1,5 +1,5 @@
 from . import _version
-from .cbcflow import main
+from .cbcflow import from_file, main
 from .monitor import generate_crondor, run_monitor
 
 __version__ = _version.get_versions()["version"]

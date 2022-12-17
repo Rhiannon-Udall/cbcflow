@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import json
 import logging
 from typing import TYPE_CHECKING, Union
 
@@ -35,8 +36,22 @@ def form_update_json_from_args(
     update_json : dict
         The json containing the update information
     """
-    # This allows for testing with input dicts, which is convenient
-    args_dict = args
+    args_dict = {
+        key: val
+        for key, val in args.__dict__.items()
+        if key
+        not in [
+            "sname",
+            "library",
+            "schema_file",
+            "no_git_library",
+            "gracedb_service_url",
+            "update",
+            "print",
+            "pull_from_gracedb",
+        ]
+        and (val is not None)
+    }
 
     # This sorts keys in a way we will use later
     arg_keys_by_depth = sorted(
@@ -73,7 +88,7 @@ def form_update_json_from_args(
                         working_dict[element] = args_dict[arg_key]
                     elif action == "add" or action == "remove":
                         # For adding we are making an array of one element to update with
-                        working_dict[element] = [args_dict[arg_key]]
+                        working_dict[element] = args_dict[arg_key]
                 else:
                     # If the next thing will be setting a UID, we need to make the array it will go in
                     if elements[ii + 1] == "UID":
@@ -415,6 +430,7 @@ def process_user_input(args: argparse.Namespace, metadata: MetaData, schema: dic
     # Form the add and remove jsons from arguments
     # Adding and subtraction should be done separately
     update_json_add = form_update_json_from_args(args)
+    logger.info(json.dumps(update_json_add, indent=4))
     update_json_remove = form_update_json_from_args(args, removal_json=True)
 
     process_update_json(update_json_add, metadata, schema)

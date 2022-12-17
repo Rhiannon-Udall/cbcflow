@@ -3,6 +3,7 @@
 
 import argparse
 import copy
+import json
 import logging
 
 import jsonschema
@@ -78,7 +79,7 @@ def from_file():
     file_parser = argparse.ArgumentParser()
     file_parser.add_argument("sname", help="The superevent SNAME")
     file_parser.add_argument(
-        "update-file",
+        "update_file",
         help="The file to update from, either a json or a yaml.\
         The type of file will be inferred from the ending .yaml or .json",
     )
@@ -116,14 +117,16 @@ def from_file():
         no_git_library=args.no_git_library,
     )
 
-    if args.update_file.split(".") == "yaml" or args.update_file.split(".") == "yml":
+    if (
+        args.update_file.split(".")[-1] == "yaml"
+        or args.update_file.split(".")[-1] == "yml"
+    ):
         # In this case, we treat the file as a yaml
         import yaml
 
         with open(args.update_file, "r") as file:
             file_contents = yaml.safe_load(file)
-    elif args.update_file.split(".") == "json":
-        import json
+    elif args.update_file.split(".")[-1] == "json":
 
         with open(args.update_file, "r") as file:
             file_contents = json.load(file)
@@ -139,3 +142,6 @@ def from_file():
 
     logger.info("Updating Metadata")
     metadata.update(file_contents, is_removal=args.removal_file)
+
+    logger.info("Writing to library")
+    metadata.write_to_library()
