@@ -415,7 +415,7 @@ def fill_linked_files_if_necessary(head):
         return head
 
 
-def process_user_input(args: argparse.Namespace, metadata: MetaData, schema: dict):
+def process_user_input(args: argparse.Namespace, metadata: MetaData):
     """Chains commands to take in user args and update the metadata with them
 
     Parameters
@@ -433,12 +433,12 @@ def process_user_input(args: argparse.Namespace, metadata: MetaData, schema: dic
     logger.info(json.dumps(update_json_add, indent=4))
     update_json_remove = form_update_json_from_args(args, removal_json=True)
 
-    process_update_json(update_json_add, metadata, schema)
-    process_update_json(update_json_remove, metadata, schema, is_removal=True)
+    metadata.update(update_json_add)
+    metadata.update(update_json_remove, is_removal=True)
 
 
 def process_update_json(
-    update_json: dict, metadata: MetaData, schema: dict, is_removal: bool = False
+    update_json: dict, target_json: dict, schema: dict, is_removal: bool = False
 ):
     """Chains commands to take in and update json and update the metadata with it
 
@@ -458,7 +458,7 @@ def process_update_json(
         # Get the schema defaults, and use them to make defaults where necessary in the add json
         schema_defaults = get_all_schema_defaults(schema)
         update_json = populate_defaults_if_necessary(
-            metadata.data, update_json, schema_defaults
+            target_json, update_json, schema_defaults
         )
     update_json = fill_linked_files_if_necessary(update_json)
 
@@ -466,4 +466,5 @@ def process_update_json(
     merger = get_merger(schema, for_removal=is_removal)
 
     # apply merges
-    metadata.data = merger.merge(metadata.data, update_json)
+    target_json = merger.merge(target_json, update_json)
+    return target_json
