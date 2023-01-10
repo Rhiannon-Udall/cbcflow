@@ -84,8 +84,8 @@ class MetaData(object):
 
     def update(self, update_dict, is_removal=False):
         new_metadata = copy.deepcopy(self)
-        process_update_json(
-            update_dict, new_metadata, self.schema, is_removal=is_removal
+        new_metadata.data = process_update_json(
+            update_dict, new_metadata.data, self.schema, is_removal=is_removal
         )
         self.validate(new_metadata.data)
         self.data = new_metadata.data
