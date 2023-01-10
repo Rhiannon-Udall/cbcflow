@@ -675,6 +675,209 @@
         }
       }
     },
+    "TIGER": {
+      "description": "TIGER Test",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "SafeLowerChirpMass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeUpperChirpMass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "LowerDchiMinus2":{
+          "description": "The lower limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "UpperDchiMinus2":{
+          "description": "The upper limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "LowerDchi0":{
+          "description": "The lower limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "UpperDchi0":{
+          "description": "The upper limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "LowerDchi1":{
+          "description": "The lower limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "UpperDchi1":{
+          "description": "The upper limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "LowerDchi2":{
+          "description": "The lower limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "UpperDchi2":{
+          "description": "The upper limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "LowerDchi3":{
+          "description": "The lower limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "UpperDchi3":{
+          "description": "The upper limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "LowerDchi4":{
+          "description": "The lower limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "UpperDchi4":{
+          "description": "The upper limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "LowerDchi5l":{
+          "description": "The lower limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "UpperDchi5l":{
+          "description": "The upper limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "LowerDchi6":{
+          "description": "The lower limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "UpperDchi6":{
+          "description": "The upper limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "LowerDchi6l":{
+          "description": "The lower limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "UpperDchi6l":{
+          "description": "The upper limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "LowerDchi7":{
+          "description": "The lower limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "UpperDchi7":{
+          "description": "The upper limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "UpperDB1":{
+          "description": "The upper limit on prior of db_1 parameter",
+          "type": "number"
+        },
+        "LowerDB1":{
+          "description": "The lower limit on prior of db_1 parameter",
+          "type": "number"
+        },
+        "UpperDB1":{
+          "description": "The lower limit on prior of db_1 parameter",
+          "type": "number"
+        },
+        "LowerDB2":{
+          "description": "The upper limit on prior of db_2 parameter",
+          "type": "number"
+        },
+        "UpperDB2":{
+          "description": "The lower limit on prior of db_2 parameter",
+          "type": "number"
+        },
+        "LowerDB3":{
+          "description": "The upper limit on prior of db_3 parameter",
+          "type": "number"
+        },
+        "UpperDB3":{
+          "description": "The lower limit on prior of db_3 parameter",
+          "type": "number"
+        },
+        "LowerDB4":{
+          "description": "The upper limit on prior of db_4 parameter",
+          "type": "number"
+        },
+        "UpperDB4":{
+          "description": "The lower limit on prior of db_4 parameter",
+          "type": "number"
+        },
+        "LowerDC1":{
+          "description": "The lower limit on prior of dc_1 parameter",
+          "type": "number"
+        },
+        "UpperDC1":{
+          "description": "The lower limit on prior of dc_1 parameter",
+          "type": "number"
+        },
+        "LowerDC2":{
+          "description": "The upper limit on prior of dc_2 parameter",
+          "type": "number"
+        },
+        "UpperDC2":{
+          "description": "The lower limit on prior of dc_2 parameter",
+          "type": "number"
+        },
+        "LowerDC3":{
+          "description": "The upper limit on prior of dc_3 parameter",
+          "type": "number"
+        },
+        "UpperDC3":{
+          "description": "The lower limit on prior of dc_3 parameter",
+          "type": "number"
+        },
+        "LowerDC4":{
+          "description": "The upper limit on prior of dc_4 parameter",
+          "type": "number"
+        },
+        "UpperDC4":{
+          "description": "The lower limit on prior of dc_4 parameter",
+          "type": "number"
+        },
+        "LowerDCL":{
+          "description": "The upper limit on prior of dc_l parameter",
+          "type": "number"
+        },
+        "UpperDCL":{
+          "description": "The lower limit on prior of dc_l parameter",
+          "type": "number"
+        },
+        }
+      }
+    },
     "MDR": {
       "description": "Modified Dispersion Relation Analysis",
       "type": "object",
