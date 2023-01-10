@@ -1424,7 +1424,115 @@
         "UpperDnrdeltat55":{
           "description": "The upper limit on prior of dnrdeltat55 parameter",
           "type": "number"
-        }
+        },
+    "pyRING": {
+      "description": "pyRING ringdown analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "tStartIMRModel":{
+          "description": "GR baseline model used to compute the reconstructed waveform, from which the estimate of the start time is extracted.",
+          "type": "string"
+        },
+        "RingdownModel":{
+          "description": "Ringdown model used in the analysis. Can vary within the range: ['Damped-sinusoids', 'Kerr', 'MMRDNP', 'TEOBResumSPM']",
+          "type": "string"
+        },
+        "LowerLogA0DS":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 0 mode of the Damped-sinusoids model.",
+          "type": "number"
+        },
+        "UpperLogA0DS":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 0 mode of the Damped-sinusoids model.",
+          "type": "number"
+        },
+        "LowerLogA1DS":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 1 mode of the Damped-sinusoids model.",
+          "type": "number"
+        },
+        "UpperLogA1DS":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 1 mode of the Damped-sinusoids model.",
+          "type": "number"
+        },
+        "LowerA220Kerr":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 220 mode of the Kerr model.",
+          "type": "number"
+        },
+        "UpperA220Kerr":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 220 mode of the Kerr model.",
+          "type": "number"
+        },
+        "LowerA221Kerr":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 221 mode of the Kerr model.",
+          "type": "number"
+        },
+        "UpperA221Kerr":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 221 mode of the Kerr model.",
+          "type": "number"
+        },
+        "LowerA330Kerr":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 330 mode of the Kerr model.",
+          "type": "number"
+        },
+        "UpperA330Kerr":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 330 mode of the Kerr model.",
+          "type": "number"
+        },
+        "LowerA210Kerr":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 210 mode of the Kerr model.",
+          "type": "number"
+        },
+        "UpperA210Kerr":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 210 mode of the Kerr model.",
+          "type": "number"
+        },
+        "LowerLogDistanceMMRDNP":{
+          "description": "Lower bound [Mpc] of the distance prior for the MMRDNP model.",
+          "type": "number"
+        },
+        "UpperLogDistanceMMRDNP":{
+          "description": "Upper bound [Mpc] of the distance prior for the MMRDNP model.",
+          "type": "number"
+        },
+        "LowerLogDistanceTEOB":{
+          "description": "Lower bound [Mpc] of the distance prior for the TEOB model.",
+          "type": "number"
+        },
+        "UpperLogDistanceTEOB":{
+          "description": "Upper bound [Mpc] of the distance prior for the TEOB model.",
+          "type": "number"
+        },
         }
       }
     }
