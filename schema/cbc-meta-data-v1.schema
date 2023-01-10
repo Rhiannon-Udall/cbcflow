@@ -874,7 +874,6 @@
         "UpperDCL":{
           "description": "The lower limit on prior of dc_l parameter",
           "type": "number"
-        },
         }
       }
     },
