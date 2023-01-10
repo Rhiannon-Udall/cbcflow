@@ -23,6 +23,7 @@ def get_superevent(
         The library from which to fetch information
     no_git_library : bool
         If true, don't attempt to treat this library as a git repository
+        
     Returns
     =======
     cbcflow.metadata.MetaData
