@@ -1424,7 +1424,8 @@
         "UpperDnrdeltat55":{
           "description": "The upper limit on prior of dnrdeltat55 parameter",
           "type": "number"
-        },
+        }
+      },
     "pyRING": {
       "description": "pyRING ringdown analysis",
       "type": "object",
@@ -1532,8 +1533,9 @@
         "UpperLogDistanceTEOB":{
           "description": "Upper bound [Mpc] of the distance prior for the TEOB model.",
           "type": "number"
-        },
         }
       }
     }
   }
+}
+}
