@@ -6,3 +6,4 @@ src/cbcflow/__pycache__/*
 *.pyc
 __pycache__	
 build/
+docs/_build

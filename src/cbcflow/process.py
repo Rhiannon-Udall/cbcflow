@@ -1,104 +1,42 @@
+from __future__ import annotations
+
+import argparse
 import copy
-import hashlib
+import json
 import logging
-import os
-import subprocess
-from collections import OrderedDict
-from datetime import datetime
-from types import NoneType
-from typing import Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Union
 
 from benedict import benedict
+from jsonmerge import Merger
+from jsonmerge.strategies import ArrayStrategy
 
-from .parser import group_shorthands
+from .utils import fill_out_linked_file, standardize_list
+
+if TYPE_CHECKING:
+    from .metadata import MetaData
 
 logger = logging.getLogger(__name__)
 
 
-def standardize_list(inlist):
-    inlist = list(set(inlist))
-    inlist = sorted(inlist)
-    return inlist
-
-
-def get_subkey(arg, group, suffix):
-    for key, val in group_shorthands.items():
-        group = group.replace(val, key)
-    return arg.replace(group + "_", "").replace("_" + suffix, "")
-
-
-def get_cluster() -> str:
-    """
-    Get the cluster this is running on
-    """
-    # TODO if a better api is implemented use it
-    # Also maybe add NIK?
-    # I can't even access that cluster to test, so...
-    hostname = str(subprocess.check_output(["hostname", "-f"]))
-    if "ligo-wa" in hostname:
-        return "LHO"
-    elif "ligo-la" in hostname:
-        return "LLO"
-    elif "ligo.caltech" in hostname:
-        return "CIT"
-    elif hostname == "cl8":
-        return "CDF"
-    elif "gwave.ics.psu.edu" in hostname:
-        return "PSU"
-    elif "nemo.uwm.edu" in hostname:
-        return "UWM"
-    elif "iucaa" in hostname:
-        return "IUCAA"
-    else:
-        raise ValueError("Could not identify cluster from `hostname -f` call")
-
-
-def get_date_last_modified(path):
-    """
-    Get the date this file was last modified
+def form_update_json_from_args(
+    args: argparse.Namespace, removal_json: bool = False
+) -> dict:
+    """Given args output from argparse, make a json to merge into metadata.data
 
     Parameters
-    -------------
-    path
-        A path to the file (on this filesystem)
+    ==========
+    args : `argparse.Namespace`
+        The arguments input by the user via argparse
+    removal_json : bool, default=False
+        Whether or not this is a json for doing removals
+        Removal jsons are essentially negative images of the expected change
 
     Returns
-    -------------
-    date_last_modified
-        The string formatting of the datetime this file was last modified
-
+    =======
+    update_json : dict
+        The json containing the update information
     """
-    mtime = os.path.getmtime(path)
-    dtime = datetime.fromtimestamp(mtime)
-    return dtime.strftime("%Y/%m/%d %H:%M:%S")
-
-
-def get_md5sum(path):
-    """
-    Get the md5sum of the file given the path
-
-    Parameters
-    ----------
-    path : str
-        A path to the file (on this filesystem)
-
-    Returns
-    --------------
-    md5sum
-        A string of the md5sum for the file at the path location
-    """
-    # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
-    with open(path, "rb") as f:
-        file_hash = hashlib.md5()
-        while chunk := f.read(8192):
-            file_hash.update(chunk)
-    return file_hash.hexdigest()
-
-
-def process_user_input(args, metadata, schema, parser):
-    # Get the args which are changes in the schema, as opposed to control args
-    # TODO make this list a variable somewhere
-    active_args = {
+    args_dict = {
         key: val
         for key, val in args.__dict__.items()
         if key
@@ -115,103 +53,139 @@ def process_user_input(args, metadata, schema, parser):
         and (val is not None)
     }
 
-    # Run the new process on the arguments which will actually be used
-    process_changes(active_args, metadata.data, schema)
+    # This sorts keys in a way we will use later
+    arg_keys_by_depth = sorted(
+        list(args_dict.keys()), key=lambda x: (len(x.split("_")), "UID" not in x)
+    )
+
+    update_json = dict()
+
+    for arg_key in arg_keys_by_depth:
+        working_dict = update_json
+        elements = arg_key.split("_")[:-1]
+        action = arg_key.split("_")[-1]
+        if removal_json and (
+            action == "add" or (action == "set" and elements[-1] != "UID")
+        ):
+            # if this json is for removing, skip all the adds (they will be done separately)
+            continue
+        if not removal_json and action == "remove":
+            # if this json is not for removing, skip all the removes (they will be done separately)
+            continue
+        for ii, element in enumerate(elements):
+            if element in working_dict.keys():
+                if isinstance(working_dict[element], dict):
+                    working_dict = working_dict[element]
+                elif isinstance(working_dict[element], list):
+                    # In this construction only one UID identified object can be modified at a time
+                    # We pre-sorted to make sure it already exists
+                    working_dict = working_dict[element][0]
+            else:
+                if ii == len(elements) - 1:
+                    if action == "set":
+                        # Just set the element
+                        # Note linked files will be modified later on by another function
+                        working_dict[element] = args_dict[arg_key]
+                    elif action == "add" or action == "remove":
+                        # For adding we are making an array of one element to update with
+                        working_dict[element] = args_dict[arg_key]
+                else:
+                    # If the next thing will be setting a UID, we need to make the array it will go in
+                    if elements[ii + 1] == "UID":
+                        working_dict[element] = [dict()]
+                        working_dict = working_dict[element][0]
+                    # Otherwise we are just going down the dict
+                    else:
+                        working_dict[element] = dict()
+                        working_dict = working_dict[element]
+    return update_json
 
 
-def _update_reduced_uids(
-    reduced_uids: Dict[str, Tuple[int, Union[NoneType, str]]],
-    analyses_list: List[Dict],
-    uid_value: str,
-    reduced_key: str,
-    full_key: str,
-    defaults_for_refs: dict,
-    precursor=None,
-) -> Dict[str, Tuple[int, Union[NoneType, str]]]:
-    """
-    Helper method for process_changes
-    Given a set of reduced uids and an analysis list, update the reduced_uids
+def recurse_add_array_merge_options(
+    schema: dict, is_removal_dict: bool = False
+) -> None:
+    """Add the requisite jsonmerge details to the schema, in prep to make a Merger
 
     Parameters
-    ---------------------
-    reduced_uids : Dict[str, Tuple[int, Union[None, str]]]
-        Dict of form {reduced_uid:(index_in_analysis_list, precursor)} - see type hints
-    analyses_list : List[Dict]
-        The applicable list of analyses (e.g. the various PEResults already present)
-    uid_value : str
-        The value of the UID for this analysis layer (e.g. Prod1)
-    reduced_key : str
-        The reduced key for the path to the UID.
-        For example if the path is Path_To_Analysis_Path_to_Result
-        Where Path_to_Analysis is also a ref object
-        then Path_to_Result is the reduced_key
-    full_key : str
-        The full key being used.
-        In the above example, this is Path_To_Analysis_Path_to_Result
-        If there is no precursor this matches the reduced_key
-    defaults_for_refs : dict
-        A dict containing default values for the given analysis object
-        Labelled by all the paths that can generate that variety of object
-        (i.e. the full_key here)
+    ==========
+    schema : dict
+        The schema to which the merge options will be added
+    is_removal_dict : bool, default=False
+        Whether this will be used for performing a removal operation
+    """
+    if schema["type"] == "array":
+        if "$ref" in schema["items"]:
+            schema.update(
+                dict(mergeStrategy="arrayMergeById", mergeOptions=dict(idRef="/UID"))
+            )
+        elif "type" in schema["items"]:
+            if is_removal_dict:
+                schema.update(
+                    dict(
+                        mergeStrategy="remove",
+                    )
+                )
+            else:
+                schema.update(
+                    dict(
+                        mergeStrategy="append",
+                    )
+                )
+    elif schema["type"] == "object" and "properties" in schema.keys():
+        for prop in schema["properties"]:
+            recurse_add_array_merge_options(
+                schema["properties"][prop], is_removal_dict=is_removal_dict
+            )
+
+
+def get_merger(schema: dict, for_removal: bool = False) -> Merger:
+    """Generate the `jsonmerge.Merger` object we will use
+
+    Parameters
+    ==========
+    schema : dict
+        The base schema, this will be modified then used for the merger
+    for_removal : bool, default=False
+        If true make a merger which performs removals
 
     Returns
-
-
+    =======
+    merger : `jsonmerge.Merger`
+        The merger which will be used to do the update
     """
-    # Analysis index tracks what position in the analysis list is correct
-    analysis_index = None
-    for jj, analysis in enumerate(analyses_list):
-        if analysis["UID"] == uid_value:
-            # If it's present, store the index
-            analysis_index = jj
-    # If it wasn't found, make a nested dict with the corresponding UID
-    # And add the newly formed index to reduced_uids, with None as the second part of the tuple
-    if analysis_index is None:
-        # If making it anew, get the correct defaults
-        default_dict = copy.deepcopy(defaults_for_refs[full_key])
-        default_dict["UID"] = uid_value
-        analyses_list.append(default_dict)
-        reduced_uids[reduced_key] = (len(analyses_list) - 1, precursor)
-    # Otherwise, store the old index in reduced_uids
-    else:
-        reduced_uids[reduced_key] = (analysis_index, precursor)
-
-    # Return the modified object (though it has also been modified in place)
-    return reduced_uids
-
-
-def process_action(metadata, key_path, action, value):
-    if action == "set":
-        if key_path.split("_")[-1] == "Path":
-            metadata[key_path] = f"{get_cluster()}:{value}"
-            md5sum_path = key_path.replace("Path", "MD5Sum")
-            metadata[md5sum_path] = get_md5sum(value)
-            date_last_modified_path = key_path.replace("Path", "DateLastModified")
-            metadata[date_last_modified_path] = get_date_last_modified(value)
-        else:
-            metadata[key_path] = value
-    elif action == "add":
-        metadata[key_path].append(value)
-        metadata[key_path] = standardize_list(metadata[key_path])
-    elif action == "remove":
-        metadata[key_path].remove(value)
-        metadata[key_path] = standardize_list(metadata[key_path])
-    else:
-        raise ValueError(f"Could not understand action {action}")
-
-
-def get_sub_dict_from_precursor(nested_dict, reduced_uids, precursor):
-    precursor_index, precursors_precursor = reduced_uids[precursor]
-    if precursors_precursor is None:
-        return nested_dict[precursor][precursor_index]
-    else:
-        sub_dict = get_sub_dict_from_precursor(
-            nested_dict, reduced_uids, precursors_precursor
+    merge_schema = copy.deepcopy(schema)
+    recurse_add_array_merge_options(merge_schema, is_removal_dict=for_removal)
+    for ref in merge_schema["$defs"]:
+        recurse_add_array_merge_options(
+            merge_schema["$defs"][ref], is_removal_dict=for_removal
         )
-        return sub_dict[precursor][precursor_index]
+
+    class RemoveStrategy(ArrayStrategy):
+        def _merge(
+            self, walk, base, head, schema, sortByRef=None, sortReverse=None, **kwargs
+        ):
+            new_array = []
+            for array_element in base.val:
+                if array_element not in head.val:
+                    new_array.append(array_element)
+
+            base.val = new_array
+
+            self.sort_array(walk, base, sortByRef, sortReverse)
+
+            return base
+
+        def get_schema(self, walk, schema, **kwargs):
+            schema.val.pop("maxItems", None)
+            schema.val.pop("uniqueItems", None)
+
+            return schema
+
+    merger = Merger(merge_schema, strategies=dict(remove=RemoveStrategy()))
+    return merger
 
 
-def get_all_schema_defaults(schema):
+def get_all_schema_defaults(schema: dict):
     """ """
     if not isinstance(schema, benedict):
         schema = benedict(schema, keypath_separator="_")
@@ -282,7 +256,6 @@ def get_all_schema_defaults(schema):
     linked_file_for_keypath = {
         key: val[0] for key, val in linked_file_call_keypaths.invert().items()
     }
-
     linked_file_defaults = dict()
     # Now, for every ref object get the associated Default Metadata
     for def_path in linked_file_call_keypaths.keys():
@@ -309,116 +282,188 @@ def get_all_schema_defaults(schema):
     return defaults_for_keypath
 
 
-def process_changes(changes_dict, metadata, schema):
-    if not isinstance(metadata, benedict):
-        metadata = benedict(metadata, keypath_separator="_")
+def populate_defaults_if_necessary(
+    base: Union[dict, list],
+    head: Union[dict, list],
+    schema_defaults: dict,
+    key_path: str = "",
+    refId: str = "UID",
+) -> dict:
+    """New defaults are necessary if we create a new instance of an object.
+    This determines when a new instance is being made, rather than just modifying and old one,
+    and then edits the update json accordingly.
+    This also deals with linked files when appropriate
 
-    # Make a list of all UID flags
-    uids_list = []
-    for key, val in changes_dict.items():
-        if "UID" in key:
-            uids_list.append(("_".join(key.split("_")[:-2]), val))
+    Parameters
+    ==========
+    base : dict
+        The dictionary which will be updated.
+        When used recursively, a sub-dict of that dict.
+    head : dict
+        The update json, before defaults are set.
+        When used recursively, a sub-dict of that dict.
+    schema_defaults : dict
+        A set of keypaths which specify defaults for various objects.
+    key_path : str, default=""
+        The path which will be build up as we descend.
+    refId : str, default="UID"
+        The reference ID used to identify different objects.
 
-    # Sort by increasing depth, convert to OrderedDict
-    uids_list.sort(key=lambda x: len(x[0].split("_")))
-    uids_dict = OrderedDict(uids_list)
-
-    # Get the default metadata for ref objects that may be invoked
-    defaults_by_keypath = get_all_schema_defaults(schema)
-
-    # reduced_uids will be a more useful set of keys, connecting paths for nested analyses
-    # and also indices for each analysis, as identified by the UID
-    reduced_uids = OrderedDict()
-
-    for ii, key in enumerate(uids_dict):
-        # Cleanup changes_dict while we're in this loop
-        del changes_dict[key + "_UID_set"]
-
-        # Some hacky stuff to find nested analysis keys
-        precursor = None
-
-        # We've sorted, so we only need to go through the preceding keys
-        for jj in reversed(range(ii)):
-            if list(uids_dict)[jj] in key:
-                # If a previous key is in this key, it's the precursor
-                # We only want the longest precursor
-                # If depth ever exceeds 2 this will still work accordingly
-                precursor = list(uids_dict)[jj]
-                break
-
-        # In this case, depth of analyses is 1
-        # So, no precursor, trace down directly from metadata
-        if precursor is None:
-            analyses_list = metadata[key]
-            reduced_uids_key = key
-        # Depth > 1
-        # There is a precursor, so trace down from it to get the analyses list
-        else:
-            # Get the part of the key that goes past the precursor
-            reduced_uids_key = key.replace(precursor, "").strip("_")
-            # Get the dict using the precursor's place in the analyses list
-            analysis_sub_dict = get_sub_dict_from_precursor(
-                metadata, reduced_uids, precursor
-            )
-            # If the precursor hasn't had any results made yet, make an empty list
-            if reduced_uids_key not in analysis_sub_dict:
-                analysis_sub_dict[reduced_uids_key] = []
-            # The list of analyses to check through will be that list
-            analyses_list = analysis_sub_dict[reduced_uids_key]
-
-        # Get the value to assign
-        uid_value = uids_dict[key]
-
-        # Update the reduced_uids dict
-        _update_reduced_uids(
-            reduced_uids,
-            analyses_list,
-            uid_value,
-            reduced_uids_key,
-            key,
-            defaults_by_keypath,
-            precursor=precursor,
-        )
-
-    for key, val in changes_dict.items():
-        # Get the action and the path to the action
-        action = key.split("_")[-1]
-        key_path = "_".join(key.split("_")[:-1])
-
-        # Search for what UIDs will be used to arrive at the field we want to change
-        relevant_uids = []
-        for uid_path in uids_dict:
-            if uid_path in key_path:
-                relevant_uids.append(uid_path)
-
-        # Sort by ascending order of size
-        relevant_uids.sort(key=lambda x: len(x))
-
-        # If no UIDs are relevant we can modify directly by keypath
-        if relevant_uids == []:
-            process_action(metadata, key_path, action, val)
-
-        # If there are UIDs to follow
-        else:
-            # Start from the top
-            dict_under_consideration = metadata
-            # Loop over the uids to follow
-            for ii, uid_path in enumerate(relevant_uids):
-                if ii > 0:
-                    # If there's a precursor, reduce down
-                    reduced_uid_path = uid_path.replace(
-                        relevant_uids[ii - 1], ""
-                    ).strip("_")
-                else:
-                    reduced_uid_path = uid_path
-                # Get the index in the analyses_list
-                analysis_index, _ = reduced_uids[reduced_uid_path]
-                # Grab the analysis dict, make it a benedict
-                dict_under_consideration = benedict(
-                    dict_under_consideration[reduced_uid_path][analysis_index],
-                    keypath_separator="_",
+    Returns
+    =======
+    dict
+        The updated head, with defaults set where appropriate.
+    """
+    if isinstance(base, dict) and isinstance(head, dict):
+        new_head_dict = dict()
+        for key in head.keys():
+            new_key_path = (key_path + f"_{key}").strip("_")
+            if key in base.keys():
+                new_head_dict[key] = copy.deepcopy(head[key])
+                # If the key is present in both, then continue onwards
+                new_head_dict[key] = populate_defaults_if_necessary(
+                    base[key],
+                    head[key],
+                    schema_defaults,
+                    new_key_path,
+                    refId=refId,
                 )
-                # reduce the key down
-                reduced_key = key_path.replace(uid_path, "").strip("_")
-            # perform this action
-            process_action(dict_under_consideration, reduced_key, action, val)
+            else:
+                if isinstance(head[key], dict):
+                    new_head_dict[key] = dict()
+                    if key_path in schema_defaults.keys():
+                        new_head_dict[key].update(schema_defaults[new_key_path])
+                    new_head_dict[key].update(head[key])
+                if isinstance(head[key], list):
+                    new_head_dict[key] = list()
+                    new_head_dict[key] = populate_defaults_if_necessary(
+                        list(),
+                        head[key],
+                        schema_defaults,
+                        new_key_path,
+                        refId=refId,
+                    )
+                else:
+                    new_head_dict[key] = populate_defaults_if_necessary(
+                        dict(),
+                        head[key],
+                        schema_defaults,
+                        new_key_path,
+                        refId=refId,
+                    )
+        return new_head_dict
+    elif isinstance(base, list) and isinstance(head, list):
+        # In this case we are now at an array
+        new_head_array = []
+        for head_list_element in head:
+            # For each element in head, we want to see if there is anything corresponding yet in base
+            if isinstance(head_list_element, dict):
+                head_ref = head_list_element[refId]
+                already_exists = False
+                for base_list_element in base:
+                    if base_list_element[refId] == head_ref:
+                        already_exists = True
+                        # It is possible this object already exists but some object within it does not
+                        # So recurse further down
+                        new_element = populate_defaults_if_necessary(
+                            base_list_element,
+                            head_list_element,
+                            schema_defaults,
+                            key_path=key_path,
+                        )
+                        new_head_array.append(new_element)
+                        break
+                    else:
+                        continue
+                if not already_exists:
+                    # If there isn't anything corresponding in base, we want to make the default
+                    default = copy.copy(schema_defaults[key_path])
+                    default.update(head_list_element)
+                    new_element = populate_defaults_if_necessary(
+                        dict(), default, schema_defaults, key_path=key_path
+                    )
+                    new_head_array.append(new_element)
+            else:
+                new_head_array.append(head_list_element)
+        return new_head_array
+    else:
+        return head
+
+
+def fill_linked_files_if_necessary(head):
+    if isinstance(head, dict):
+        if "Path" in head.keys():
+            temp_head = copy.deepcopy(head)
+            # This is the case we are looking for
+            # If Path is in head.keys(), then head must be a LinkedFile
+            path = head["Path"]
+            return fill_out_linked_file(path, temp_head)
+        else:
+            new_head_dict = head
+            for key in head.keys():
+                new_head_dict[key] = fill_linked_files_if_necessary(new_head_dict[key])
+            return new_head_dict
+    elif isinstance(head, list):
+        new_array = []
+        for element in head:
+            if isinstance(element, dict):
+                new_array.append(fill_linked_files_if_necessary(element))
+            else:
+                new_array.append(element)
+        return new_array
+    else:
+        return head
+
+
+def process_user_input(args: argparse.Namespace, metadata: MetaData, schema: dict):
+    """Chains commands to take in user args and update the metadata with them
+
+    Parameters
+    ==========
+    args : `argparse.Namespace`
+        The arguments from the argparser with which to update the metadata
+    metadata : `cbcflow.metadata.MetaData`
+        The metadata to which the update will be applied
+    schema : dict
+        The schema which describes the metadata
+    """
+    # Form the add and remove jsons from arguments
+    # Adding and subtraction should be done separately
+    update_json_add = form_update_json_from_args(args)
+    logger.info(json.dumps(update_json_add, indent=4))
+    update_json_remove = form_update_json_from_args(args, removal_json=True)
+
+    process_update_json(update_json_add, metadata, schema)
+    process_update_json(update_json_remove, metadata, schema, is_removal=True)
+
+
+def process_update_json(
+    update_json: dict, metadata: MetaData, schema: dict, is_removal: bool = False
+):
+    """Chains commands to take in and update json and update the metadata with it
+
+    Parameters
+    ==========
+    update_json : dict
+        The dict to update the metadata with
+    metadata : `cbcflow.metadata.MetaData`
+        The metadata to which the update will be applied
+    schema : dict
+        The schema which describes the metadata
+    is_removal : bool, default=False
+        If true, this json will be interpreted as a negative image, and the update will be a removal
+    """
+    if not is_removal:
+        # If we are adding, we may need defaults
+        # Get the schema defaults, and use them to make defaults where necessary in the add json
+        schema_defaults = get_all_schema_defaults(schema)
+        update_json = populate_defaults_if_necessary(
+            metadata.data, update_json, schema_defaults
+        )
+    update_json = fill_linked_files_if_necessary(update_json)
+
+    # generate the merger objects
+    merger = get_merger(schema, for_removal=is_removal)
+
+    # apply merges
+    metadata.data = merger.merge(metadata.data, update_json)

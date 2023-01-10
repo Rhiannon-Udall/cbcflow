@@ -1,0 +1,65 @@
+Cosmology:
+  Counterparts:
+  - Declination: 0
+    GCN: A sample GCN
+    PeculiarMotion: 100
+    Redshift: 1
+    RedshiftUncertainty: 0.5
+    RightAscension: 0
+    TimeDelay: 2
+    Type: GRB
+    UID: TestF1
+    UncertaintyPeculiarMotion: 50
+  - UID: TestF2
+  PreferredSkymap: A sample preferred skymap, showing that setting works correctly
+ExtremeMatter:
+  Analyses:
+  - AnalysisSoftware: A fake software
+    AnalysisStatus: ongoing
+    Analysts:
+    - Rhiannon Udall
+    Description: A fake analysis
+    ResultFile:
+      Path: tests/test-file-for-linking-1.txt
+      PublicHTML: fake-url.org
+    Reviewers:
+    - Gregory Ashton
+    UID: TestF1
+  - Description: Another fake analysis
+    ResultFile:
+      Path: tests/test-file-for-linking-1.txt
+    UID: TestF2
+Info:
+  Labels:
+  - A test label, showing that appending works
+  - A second test label
+TestingGR:
+  IMRCTAnalyses:
+  - Analysts:
+    - Rhiannon Udall
+    Description: A fake analysis
+    Results:
+    - Notes:
+      - A note
+      ResultFile:
+        Path: tests/test-file-for-linking-1.txt
+        PublicHTML: a-fake-url.org
+      UID: TestF1
+      WaveformApproximant: IMRPhenomXPHM
+    - Notes:
+      - A note
+      ResultFile:
+        Path: tests/test-file-for-linking-1.txt
+      UID: TestF2
+    UID: TestF1
+  - Analysts:
+    - Rhiannon Udall
+    Description: Another fake analysis
+    Results:
+    - ResultFile:
+        Path: tests/test-file-for-linking-1.txt
+        PublicHTML: a-fake-url.org
+      UID: TestF1
+      WaveformApproximant: SEOBNRv4PHM
+    UID: TestF2
+  SSBAnalyses: []
