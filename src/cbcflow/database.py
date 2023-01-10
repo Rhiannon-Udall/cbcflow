@@ -243,6 +243,7 @@ class LocalLibraryDatabase(object):
         config = configparser.ConfigParser()
         config_file = os.path.join(self.library, "library.cfg")
         library_defaults = dict()
+        library_defaults["Library Info"] = {"library-name": "CBC-Library"}
         library_defaults["Monitor"] = {
             "far-threshold": 1.2675e-7,
             "created-since": "2022-01-01",
@@ -256,3 +257,16 @@ class LocalLibraryDatabase(object):
                 for key in section.keys():
                     library_defaults[section_key][key] = section[key]
         return library_defaults
+
+    @property
+    def index_file_path(self):
+        library_name = self.library_config["Library Info"]["library-name"]
+        index_file = os.path.join(self.library, f"{library_name}-index.json")
+        return index_file
+
+    def read_current_index(self):
+        if os.path.exists(self.index_file_path):
+            index_data = json.load(self.index_file_path)
+            return index_data
+        else:
+            logger.info("No index file currently present")
