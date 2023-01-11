@@ -15,6 +15,8 @@ from .schema import get_schema
 
 logger = logging.getLogger(__name__)
 
+# from .process import populate_defaults_if_necessary
+
 
 class GraceDbDatabase(object):
     def __init__(self, service_url):
@@ -265,9 +267,14 @@ class LocalLibraryDatabase(object):
         index_file = os.path.join(self.library, f"{library_name}-index.json")
         return index_file
 
-    def read_current_index(self):
-        if os.path.exists(self.index_file_path):
-            index_data = json.load(self.index_file_path)
-            return index_data
-        else:
-            logger.info("No index file currently present")
+    @property
+    def library_index_schema(self):
+        return get_schema(index_schema=True)
+
+    # def read_current_index(self):
+    #     if os.path.exists(self.index_file_path):
+
+    #         current_index_data = json.load(self.index_file_path)
+    #         return index_data
+    #     else:
+    #         logger.info("No index file currently present")
