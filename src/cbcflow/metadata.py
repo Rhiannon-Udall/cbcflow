@@ -9,6 +9,8 @@ import jsondiff
 import jsonschema
 import pygit2
 
+from .process import process_update_json
+
 logger = logging.getLogger(__name__)
 
 
@@ -80,11 +82,13 @@ class MetaData(object):
     def library_file(self):
         return os.path.join(self.library, self.filename)
 
-    def update(self, update_dict):
-        new_data = copy.deepcopy(self.data)
-        new_data.update(update_dict)
-        self.validate(new_data)
-        self.data = new_data
+    def update(self, update_dict, is_removal=False):
+        new_metadata = copy.deepcopy(self)
+        process_update_json(
+            update_dict, new_metadata, self.schema, is_removal=is_removal
+        )
+        self.validate(new_metadata.data)
+        self.data = new_metadata.data
 
     def load_from_library(self):
         with open(self.library_file, "r") as file:

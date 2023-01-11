@@ -1,0 +1,95 @@
+{
+    "Info": {
+        "Labels": [
+            "A test label, showing that appending works",
+            "A second test label"
+        ]
+    },
+    "Cosmology": {
+        "PreferredSkymap": "A sample preferred skymap, showing that setting works correctly",
+        "Counterparts": [
+            {
+                "UID": "TestF1",
+                "RightAscension": 0.0,
+                "Declination": 0.0,
+                "Redshift": 1.0,
+                "RedshiftUncertainty": 0.5,
+                "PeculiarMotion": 100,
+                "UncertaintyPeculiarMotion": 50.0,
+                "GCN": "A sample GCN",
+                "Type": "GRB",
+                "TimeDelay": 2.0
+            },
+            {
+                "UID": "TestF2"
+            }
+        ]
+    },
+    "ExtremeMatter":{
+        "Analyses":[
+            {
+                "UID":"TestF1",
+                "Description":"A fake analysis",
+                "Reviewers":["Gregory Ashton"],
+                "Analysts":["Rhiannon Udall"],
+                "AnalysisSoftware":"A fake software",
+                "AnalysisStatus":"ongoing",
+                "ResultFile":{
+                    "Path":"tests/test-file-for-linking-1.txt",
+                    "PublicHTML":"fake-url.org"
+                }
+            },
+            {
+                "UID":"TestF2",
+                "Description":"Another fake analysis",
+                "ResultFile":{
+                    "Path":"tests/test-file-for-linking-1.txt"
+                }
+            }
+        ]
+    },
+    "TestingGR":{
+        "IMRCTAnalyses":[
+            {
+                "UID":"TestF1",
+                "Description":"A fake analysis",
+                "Analysts":["Rhiannon Udall"],
+                "Results":[
+                    {
+                        "UID":"TestF1",
+                        "WaveformApproximant":"IMRPhenomXPHM",
+                        "ResultFile":{
+                            "Path":"tests/test-file-for-linking-1.txt",
+                            "PublicHTML":"a-fake-url.org"
+                        },
+                        "Notes":["A note"]
+                    },
+                    {
+                        "UID":"TestF2",
+                        "ResultFile":{
+                            "Path":"tests/test-file-for-linking-1.txt"
+                        },
+                        "Notes":["A note"]
+                    }
+                ]
+            },
+            {
+                "UID":"TestF2",
+                "Description":"Another fake analysis",
+                "Analysts":["Rhiannon Udall"],
+                "Results":[
+                    {
+                        "UID":"TestF1",
+                        "WaveformApproximant":"SEOBNRv4PHM",
+                        "ResultFile":{
+                            "Path":"tests/test-file-for-linking-1.txt",
+                            "PublicHTML":"a-fake-url.org"
+                        }
+                    }
+                ]
+            }
+        ],
+        "SSBAnalyses":[
+        ]
+    }
+}
