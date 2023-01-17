@@ -6,6 +6,7 @@ include:
 stages:
   - initial
   - test
+  - pre-docs
   - docs
   - deploy
 
