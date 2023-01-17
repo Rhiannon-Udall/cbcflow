@@ -14,3 +14,4 @@ Welcome to the cbcflow documentation!
    libraries
    actionitems
    gwosc
+   schema
