@@ -9,7 +9,8 @@ The schema defines what metadata can be stored for an event.
 Adding to the schema
 --------------------
 
-Each stakeholder should have a liaison responsible for writing and maintaining the metadata schema. If you are unsure who this is, please contact the Greg Ashton or the R&D chairs.
+Each stakeholder should have a liaison responsible for writing and maintaining the metadata schema.
+If you are unsure who this is, please contact the Greg Ashton or the R&D chairs.
 
 As a liaison, the process to edit the metadata is:
 

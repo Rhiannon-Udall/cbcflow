@@ -1,4 +1,4 @@
-(proposal) GWOSC Integration 
+GWOSC Integration 
 ============================
 An important feature of CBCFlow will be a web portal
 which allows visualization of library contents easily,

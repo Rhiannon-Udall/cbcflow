@@ -4,7 +4,7 @@
 
 .. role:: red
 
-(proposal) Libraries in CBCFlow
+Libraries in CBCFlow
 ===============================
 
 Outline
@@ -15,9 +15,7 @@ One central repository will be maintained by the CBC group broadly,
 and this will pull default information directly from GraceDB via monitor.
 Sub-groups may maintain their own forks of this library.
 These forks would have different configurations, but the same superevents.
-These different configurations will be used to automatically populate metadata describing events which meet configuration criteria.
-:red:`Or alternately may have a subset of superevents.`
-:red:`If this is the case, then pulling will be done by a special selective pull.`
+These different configurations will be used to automatically populate indices describing events which meet configuration criteria.
 Sub-group forks can run monitors to automatically pull from their upstream,
 but pushes back to the CBC central library will be manually triggered by responsible parties within the sub-group.
 Management of sub-group repositories would be a matter left to respective sub-groups.

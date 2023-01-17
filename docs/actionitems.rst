@@ -9,19 +9,16 @@ Critical Pre-O4 Tasks
 #. Verify GraceDB monitor functionality
 #. Integrate Asimov
 #. Setup CI for main library to verify integrity before merging
-
+#. Add fork configuration, either by maintaining curated index, or methods to only pull events of interest
+#. Correspondingly improve library configuration options
+#. Integrate GWOSC
 
 High Priority Pre-O4 Tasks
 --------------------------
-#. Improve JSON editing backend, and add update from YAML option (almost complete)
-#. Setup sub-group forks
-#. Add fork configuration, either by maintaining curated index, or methods to only pull events of interest
-#. Correspondingly improve library configuration options
-#. Setup GWOSC
+#. Setup sub-group and paper forks (where appropriate)
 
 Moderate Priority Pre-O4 / During O4 Tasks
 ------------------------------------------
-
 #. Tracking changes which affect downstream analysis
 #. Monitoring for monitors
 #. Verify md5sums of all linked files on a periodic basis
