@@ -6,12 +6,22 @@ Welcome to the cbcflow documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
+   :caption: Basic Usage
 
    installation
-   metadata
    usage
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Schema Information:
+
+   metadata
+   schema-visualization
+   
+.. toctree::
+   :maxdepth: 1
+   :caption: Planning and Integration
+
    libraries
    actionitems
    gwosc
-   schema

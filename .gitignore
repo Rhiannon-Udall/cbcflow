@@ -7,3 +7,4 @@ src/cbcflow/__pycache__/*
 __pycache__	
 build/
 docs/_build/*
+docs/schema_visualization/*
