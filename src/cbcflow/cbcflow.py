@@ -61,7 +61,7 @@ def main():
         )
 
     if args.update:
-        process_user_input(args, metadata, schema)
+        process_user_input(args, metadata)
         metadata.write_to_library()
 
     if args.print:
