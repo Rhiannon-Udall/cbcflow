@@ -1,0 +1,109 @@
+Python Metadata Interface
+=========================
+
+Core Usage
+----------
+
+In addition to the :doc:`command-line-usage`, python scripts may conveniently edit metadata. 
+To do this, we start by loading in metadata for usage.
+Prototypically, this may be done with: 
+
+.. code-block::
+
+    from cbcflow.metadata import MetaData
+    from cbcflow.parser import get_parser_and_default_data
+    from cbcflow.schema import get_schema
+
+    schema = get_schema()
+    _, default_data = get_parser_and_default_data(schema)
+
+    sname = S190425z
+    library = /path/to/a/library/directory
+
+    test_metadata = MetaData(sname, library, default_data, schema)
+
+If the library already contains metadata for the superevent described by ``sname``, then that metadata will be loaded.
+Otherwise, this superevent will start with default data. 
+Notably, this default data *does not* include the GraceDB information
+- updating the superevent with this information requires specifically fetching that data from GraceDB.
+However, when interacting with the central CBC library or it's derivatives
+(which are directly or indirectly kept up to date with GraceDB)
+this should not be an issue. 
+
+Now that metadata has been loaded, we may edit it.
+We can borrow an example from :doc:`command-line-usage`, by defining our update json: 
+
+.. code-block:: 
+
+    update_add_json = {
+        "ParameterEstimation":{
+            "Status":"ongoing",
+            "Analysts":["Albert Einstein"]
+        }
+    }
+
+This may then be applied to the MetaData object with that object's ``update`` method:
+
+.. code-block:: 
+
+    test_metadata.update(update_add_json)
+
+Producing the equivalent result to the example before.
+Similar to before, if one wants to remove an array element, one should construct a negative image JSON:
+
+.. code-block::
+
+    update_remove_json = {
+        "ParameterEstimation":{
+            "Reviewers":"Kip Thorne"
+        }
+    }
+
+and then apply it in removal mode:
+
+.. code-block::
+
+    test_metadata.update(update_remove_json, is_removal=True)
+
+The same examples from before also work to arbitrary complexity.
+For example, the last yaml update method would be rendered as:
+
+.. code-block::
+
+    update_add_json_2 = {
+        "TestingGR":{
+            "IMRCTAnalyses":[
+                {
+                    "UID":"IMRCT1",
+                    "SafeLowerMassRatio":2,
+                    "Results":[
+                        {
+                            "UID":"ProdF1",
+                            "WaveformApproximant":"IMRPhenomXPHM"
+                        },
+                        {
+                            "UID":"ProdF2",
+                            "WaveformApproximant":"SEOBNRv4PHM"
+                        }
+                    ]
+                },
+                {
+                    "UID":"IMRCT2",
+                    "SafeLowerMassRatio":3,
+                    "Results":[
+                        {
+                            "UID":"ProdF1",
+                            "WaveformApproximant":"SEOBNRv4PHM"
+                        },
+                        {
+                            "UID":"ProdF2",
+                            "WaveformApproximant":"IMRPhenomXPHM"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+These do get rather complicated to construct, and it is strongly recommended that when rendering them one should use the ``json.dumps`` method with an indent of at least 2.
+However, for automated scripts this should be substantially easier to interact with. 

@@ -14,7 +14,8 @@ Finally, we lay out future development goals (also reflected in the git issues),
    :caption: Basic Usage
 
    installation
-   usage
+   command-line-usage
+   usage-for-scripting
    libraries
 
 .. toctree::
@@ -30,3 +31,4 @@ Finally, we lay out future development goals (also reflected in the git issues),
 
    actionitems
    gwosc
+   asimov
