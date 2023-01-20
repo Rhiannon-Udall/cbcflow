@@ -107,3 +107,13 @@ For example, the last yaml update method would be rendered as:
 
 These do get rather complicated to construct, and it is strongly recommended that when rendering them one should use the ``json.dumps`` method with an indent of at least 2.
 However, for automated scripts this should be substantially easier to interact with. 
+
+Once we are happy with our changes to the metadata, we can write it back to the library:
+
+.. code-block::
+
+    metadata.write_to_library()
+
+If the library is a git repository (and our example implicitly is - this is flagged when making the MetaData object, and is default True),
+then writing to it will also automatically commit the changes and push them to the origin gitlab repository.
+For this reason, it strongly behooves the average user to interact with forks of libraries, rather than the libraries themselves. 
