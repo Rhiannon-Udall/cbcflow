@@ -55,7 +55,7 @@ Similar to before, if one wants to remove an array element, one should construct
 
     update_remove_json = {
         "ParameterEstimation":{
-            "Reviewers":"Kip Thorne"
+            "Reviewers":["Kip Thorne"]
         }
     }
 
@@ -115,5 +115,4 @@ Once we are happy with our changes to the metadata, we can write it back to the 
     metadata.write_to_library()
 
 If the library is a git repository (and our example implicitly is - this is flagged when making the MetaData object, and is default True),
-then writing to it will also automatically commit the changes and push them to the origin gitlab repository.
-For this reason, it strongly behooves the average user to interact with forks of libraries, rather than the libraries themselves. 
+then writing to it will also automatically commit the changes. 
