@@ -4,7 +4,7 @@ Metadata Schema
 The schema defines what metadata can be stored for an event.
 
 * For help with the json schema, see https://json-schema.org/learn/getting-started-step-by-step.html
-* For visualization of the json schema, see https://cbc.docs.ligo.org/meta-data/cbc-meta-data-schema.html
+* For visualization of the json schema, see :doc:`schema-visualization`
 
 Adding to the schema
 --------------------
