@@ -378,19 +378,19 @@
           "description": "The BBH membership probability",
           "type": "number"
         },
-        "Mass 1": {
+        "Mass1": {
           "description": "The redshifted template mass of the first binary component in solar masses",
           "type": "number"
         },
-        "Mass 2": {
+        "Mass2": {
           "description": "The redshifted template mass of the secondary binary component in solar masses",
           "type": "number"
         },
-        "spin1z": {
+        "Spin1z": {
           "description": "The template aligned spin of the first binary component",
           "type": "number"
         },
-        "spin2z": {
+        "Spin2z": {
           "description": "The template aligned spin of the secondary binary component",
           "type": "number"
         },
