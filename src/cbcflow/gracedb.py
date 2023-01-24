@@ -21,11 +21,11 @@ def fetch_gracedb_information(sname, service_url):
             raise ValueError(f"Event {sname} not found on {service_url}")
 
     data = dict(
-        gracedb=dict(
+        GraceDB=dict(
             PreferredEvent=superevent["preferred_event"],
-            Far=event["far"],
+            FAR=event["far"],
             GPSTime=event["gpstime"],
-            instruments=event["instruments"],
+            Instruments=event["instruments"],
             LastUpdate=str(datetime.now()),
         )
     )
