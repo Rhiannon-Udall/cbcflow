@@ -98,7 +98,7 @@ class MetaData(object):
         self.data = data
         self._loaded_data = copy.deepcopy(data)
 
-    def write_to_library(self, message: str | None):
+    def write_to_library(self, message: str | None = None):
         """
         Write loaded metadata back to library, and stage/commit if the library is a git repository
 
