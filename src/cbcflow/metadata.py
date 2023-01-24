@@ -98,7 +98,15 @@ class MetaData(object):
         self.data = data
         self._loaded_data = copy.deepcopy(data)
 
-    def write_to_library(self):
+    def write_to_library(self, message: str | None):
+        """
+        Write loaded metadata back to library, and stage/commit if the library is a git repository
+
+        Parameters
+        ==========
+        message : str | None
+            If passed, this message will be used for the git commit instead of the default.
+        """
         if self.is_updated is False:
             logger.info("No changes made, exiting")
             return
@@ -109,9 +117,17 @@ class MetaData(object):
         with open(self.library_file, "w") as file:
             json.dump(self.data, file, indent=2)
         if self.no_git_library is False:
-            self.git_add_and_commit()
+            self.git_add_and_commit(message=message)
 
-    def git_add_and_commit(self):
+    def git_add_and_commit(self, message: str | None = None):
+        """
+        Perform the git operations add and commit
+
+        Parameters
+        ==========
+        message : str | None
+            If passed, this message will be used in the git commit, rather than the default.
+        """
         if os.path.exists(os.path.join(self.library, ".git")) is False:
             raise ValueError(
                 f"The library directory {self.library} is not a repository"
@@ -132,8 +148,9 @@ class MetaData(object):
         repo.index.add(self.filename)
         repo.index.write()
         author = self._get_author_signature()
-        message = f"Changes made to [{self.toplevel_diff}]"
-        message += f"\ncmd line: {' '.join(sys.argv)}"
+        if message is None:
+            message = f"Changes made to [{self.toplevel_diff}]"
+            message += f"\ncmd line: {' '.join(sys.argv)}"
         tree = repo.index.write_tree()
         repo.create_commit(ref, author, author, message, tree, parents)
 
