@@ -271,10 +271,9 @@ class LocalLibraryDatabase(object):
     def library_index_schema(self):
         return get_schema(index_schema=True)
 
-    # def read_current_index(self):
-    #     if os.path.exists(self.index_file_path):
-
-    #         current_index_data = json.load(self.index_file_path)
-    #         return index_data
-    #     else:
-    #         logger.info("No index file currently present")
+    def read_current_index(self):
+        if os.path.exists(self.index_file_path):
+            current_index_data = json.load(self.index_file_path)
+            return current_index_data
+        else:
+            logger.info("No index file currently present")
