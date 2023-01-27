@@ -19,7 +19,28 @@
             }
         },
         "Superevents":{
-            "description":"The individual superevents which are in this library"
+            "description":"The individual superevents which are in this library",
+            "type":"array",
+            "items":{"$ref":"#/$defs/Superevent"}
+        }
+    },
+    "$defs":{
+        "Superevent":{
+            "description":"A superevent stored in this library",
+            "type":"object",
+            "additionalProperties":false,
+            "Properties":{
+                "Sname":{
+                    "description": "The GraceDB defined sname",
+                    "type": "string",
+                    "pattern": "^S[0-9]{6}[a-z]+"
+                },
+                "LastUpdate":{
+                    "description":"The time and date yyyy-mm-dd hh:mm:ss of this superevent's metadata's last update",
+                    "type":"string",
+                    "pattern":"20[0-9]{2}-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-6][0-9]:[0-6][0-9]*"
+                }
+            }
         }
     }
 }

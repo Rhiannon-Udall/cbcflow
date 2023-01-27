@@ -4,6 +4,7 @@ import glob
 import json
 import logging
 import os
+import subprocess
 
 import jsonschema
 from ligo.gracedb.exceptions import HTTPError
@@ -20,11 +21,25 @@ logger = logging.getLogger(__name__)
 
 class GraceDbDatabase(object):
     def __init__(self, service_url):
+        """Setup the GraceDbDatabase that this library pairs to
+
+        Parameters
+        ==========
+        service_url : str
+            The http address for the gracedb instance that this library pairs to
+        """
         self.service_url = service_url
         logger.info(f"Using GraceDB service_url: {service_url}")
         self.superevents = dict()
 
     def pull(self, sname):
+        """Pull information on the superevent with this sname from GraceDB
+
+        Parameters
+        ==========
+        sname : str
+            The sname for the superevent in question
+        """
         fname = MetaData.get_filename(sname)
         try:
             with GraceDb(service_url=self.service_url) as gdb:
@@ -36,6 +51,13 @@ class GraceDbDatabase(object):
             return {}
 
     def push(self, metadata):
+        """Push the newly update metadata to GraceDB - deprecated by changes in backend infrastructure
+
+        Parameters
+        ==========
+        metadata : cbcflow.metadata.MetaData
+            The metadata object to push back to GraceDB
+        """
         logger.info(
             f"Pushing changes for {metadata.sname} to Gracedb ({self.service_url})"
         )
@@ -48,11 +70,10 @@ class GraceDbDatabase(object):
             )
 
     def query_superevents(self, query):
-        """
-        Queries superevents in GraceDb, according to a given query
+        """Queries superevents in GraceDb, according to a given query
 
         Parameters
-        ------------
+        ==========
         query
             a GraceDb query string to query for superevents
             see https://gracedb.ligo.org/documentation/queries.html
@@ -64,11 +85,10 @@ class GraceDbDatabase(object):
         return self.superevents
 
     def pull_updates_gracedb(self, library, no_git_library=False):
-        """
-        Pulls updates from GraceDb and writes them to library, creates default data as required
+        """Pulls updates from GraceDb and writes them to library, creates default data as required
 
         Parameters:
-        ------------
+        ===========
         library
             As in metadata.MetaData
         no_git_library
@@ -102,11 +122,10 @@ class GraceDbDatabase(object):
             )
 
     def push_updates_gracedb(self, library):
-        """
-        Pushes contents of the library to GraceDb
+        """Pushes contents of the library to GraceDb
 
         Parameters
-        ------------
+        ==========
         library
             As in metadata.MetaData
         """
@@ -129,11 +148,10 @@ class GraceDbDatabase(object):
             )
 
     def sync_library_gracedb(self, library):
-        """
-        Attempts to sync library and GraceDb, conflict resolution presently favors gracedb
+        """Attempts to sync library and GraceDb, conflict resolution presently favors gracedb
 
         Parameters:
-        ------------
+        ===========
         library
             As in metadata.MetaData
         """
@@ -219,7 +237,7 @@ class LocalLibraryDatabase(object):
         """A class to handle operations on the local library (git) database
 
         Parameters
-        ----------
+        ==========
         library: str
             A path to the directory containing the metadata files
         """
@@ -238,10 +256,12 @@ class LocalLibraryDatabase(object):
 
     @property
     def filelist(self):
+        """The list of cbc metadata jsons in this library"""
         return glob.glob(os.path.join(self.library, "*cbc-metadata.json"))
 
     @property
     def library_config(self):
+        """The configuration information for this library"""
         config = configparser.ConfigParser()
         config_file = os.path.join(self.library, "library.cfg")
         library_defaults = dict()
@@ -263,17 +283,47 @@ class LocalLibraryDatabase(object):
 
     @property
     def index_file_path(self):
+        """The file path to the library's index json"""
         library_name = self.library_config["Library Info"]["library-name"]
         index_file = os.path.join(self.library, f"{library_name}-index.json")
         return index_file
 
     @property
     def library_index_schema(self):
+        """The schema being used for this library's index"""
         return get_schema(index_schema=True)
 
     def read_current_index(self):
+        """Fetch the info from the index json as it currently exists"""
         if os.path.exists(self.index_file_path):
             current_index_data = json.load(self.index_file_path)
             return current_index_data
         else:
             logger.info("No index file currently present")
+
+    def get_date_of_last_commit(self, sname):
+        """Get the date of the last commit including the metadata file for sname
+
+        Parameters
+        ==========
+        sname : str
+            The sname corresponding to the superevent whose metadata we are checking.
+
+        Returns
+        =======
+        str
+            The date and time last modified in iso standard (yyyy-MM-dd hh:mm:ss)
+        """
+        datetime = str(
+            subprocess.check_output(
+                [
+                    "git",
+                    "log",
+                    "-1",
+                    "--date=iso",
+                    "--format=%cd",
+                    f"{sname}-cbc-metadata.json",
+                ]
+            )
+        ).split(" ")[:-1]
+        return datetime
