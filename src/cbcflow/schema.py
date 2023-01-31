@@ -24,7 +24,7 @@ def get_schema_path(version, schema_type_designator="cbc"):
         raise ValueError("Too many matching schema files found")
 
 
-def get_schema(args=None, index_schema=False):
+def get_schema(args=None, index_schema: bool = False) -> dict:
     if args is None:
         args = sys.argv
     VERSION = "v1"

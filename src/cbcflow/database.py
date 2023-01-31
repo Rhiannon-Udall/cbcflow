@@ -4,9 +4,10 @@ import glob
 import json
 import logging
 import os
-import subprocess
+from functools import cached_property
 
 import jsonschema
+import pygit2
 from ligo.gracedb.exceptions import HTTPError
 from ligo.gracedb.rest import GraceDb
 
@@ -201,7 +202,7 @@ class GraceDbDatabase(object):
                 # if not in library make default
                 local_default = MetaData(
                     superevent_id,
-                    library,
+                    local_library_path=library,
                     default_data=default_data,
                     schema=schema,
                 )
@@ -233,7 +234,12 @@ class GraceDbDatabase(object):
 
 
 class LocalLibraryDatabase(object):
-    def __init__(self, library, schema, default_data=None):
+    def __init__(
+        self,
+        library_path: str,
+        schema: dict | None = None,
+        default_data: dict | None = None,
+    ):
         """A class to handle operations on the local library (git) database
 
         Parameters
@@ -242,14 +248,16 @@ class LocalLibraryDatabase(object):
             A path to the directory containing the metadata files
         """
 
-        self.library = library
+        self.library = library_path
         self.metadata_dict = {}
 
+        self.metadata_schema = schema
         if default_data is None:
-            default_data = {}
+            _, default_data = get_parser_and_default_data(self.metadata_schema)
 
         metadata_list = [
-            MetaData.from_file(f, schema, default_data) for f in self.filelist
+            MetaData.from_file(f, self.metadata_schema, default_data)
+            for f in self.filelist
         ]
         for md in metadata_list:
             self.metadata_dict[md.sname] = md
@@ -260,6 +268,28 @@ class LocalLibraryDatabase(object):
         return glob.glob(os.path.join(self.library, "*cbc-metadata.json"))
 
     @property
+    def metadata_schema(self) -> dict:
+        """The schema for the metadata jsons in this library"""
+        return self._metadata_schema
+
+    @metadata_schema.setter
+    def metadata_schema(self, schema: dict | None = None):
+        if schema is None:
+            self._metadata_schema = get_schema()
+        else:
+            self._metadata_schema = schema
+
+    @cached_property
+    def _author_signature(self):
+        gitconfig = os.path.expanduser("~/.gitconfig")
+        config = configparser.ConfigParser()
+        config.sections()
+        config.read(gitconfig)
+        name = config["user"]["name"]
+        email = config["user"]["email"]
+        return pygit2.Signature(name, email)
+
+    @cached_property
     def library_config(self):
         """The configuration information for this library"""
         config = configparser.ConfigParser()
@@ -293,6 +323,26 @@ class LocalLibraryDatabase(object):
         """The schema being used for this library's index"""
         return get_schema(index_schema=True)
 
+    def _initialize_library_git_repo(self):
+        """Initialize the pygit repository object for this library"""
+        if os.path.exists(os.path.join(self.library, ".git")) is False:
+            raise ValueError(
+                f"The library directory {self.library} is not a repository"
+            )
+
+        self.repo = pygit2.init_repository(self.library)
+
+        try:
+            self.ref = self.repo.head.name
+        except pygit2.GitError:
+            # If the git repo is empty
+            raise ValueError(
+                f"The git library directory {self.library} is empty ."
+                "Please initialise with a commit"
+            )
+
+        self.parents = [self.repo.head.target]
+
     def read_current_index(self):
         """Fetch the info from the index json as it currently exists"""
         if os.path.exists(self.index_file_path):
@@ -301,29 +351,16 @@ class LocalLibraryDatabase(object):
         else:
             logger.info("No index file currently present")
 
-    def get_date_of_last_commit(self, sname):
-        """Get the date of the last commit including the metadata file for sname
-
-        Parameters
-        ==========
-        sname : str
-            The sname corresponding to the superevent whose metadata we are checking.
-
-        Returns
-        =======
-        str
-            The date and time last modified in iso standard (yyyy-MM-dd hh:mm:ss)
-        """
-        datetime = str(
-            subprocess.check_output(
-                [
-                    "git",
-                    "log",
-                    "-1",
-                    "--date=iso",
-                    "--format=%cd",
-                    f"{sname}-cbc-metadata.json",
-                ]
-            )
-        ).split(" ")[:-1]
-        return datetime
+        # datetime = str(
+        #     subprocess.check_output(
+        #         [
+        #             "git",
+        #             "log",
+        #             "-1",
+        #             "--date=iso",
+        #             "--format=%cd",
+        #             f"{sname}-cbc-metadata.json",
+        #         ]
+        #     )
+        # ).split(" ")[:-1]
+        # return datetime

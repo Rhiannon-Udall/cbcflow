@@ -1,4 +1,3 @@
-import configparser
 import copy
 import json
 import logging
@@ -7,36 +6,52 @@ import sys
 
 import jsondiff
 import jsonschema
-import pygit2
 
+from .database import LocalLibraryDatabase
 from .process import process_update_json
 
 logger = logging.getLogger(__name__)
 
 
 class MetaData(object):
-    def __init__(self, sname, library, default_data, schema, no_git_library=False):
+    def __init__(
+        self,
+        sname: str,
+        local_library: LocalLibraryDatabase | None = None,
+        local_library_path: str | None = None,
+        schema: dict | None = None,
+        default_data: dict | None = None,
+        no_git_library: bool = False,
+    ):
         """A object to store and interact with a metadata object
 
         Parameters
         ----------
         sname: str
             The GraceDB assigned SNAME of the event.
-        library: str
+        local_library : cbcflow.database.LocalLibraryDatabase, optional
             A directory to store cached copies of the metadata.
-        default_data: dict
+        local_library_path : str, optional
+            The path
+        default_data: dict, optional
             A dictionary containing the defaults inferred from the schema. If
             no default_data is suggested, this should be an empty dictionary.
-        schema: dict
+        schema: dict, optional
             The loaded schema for validation.
-        no_git_library: bool
+        no_git_library: bool, default=False
             If False (default), treat the library as a git directory and add
             and commit changes on write.
         """
 
         self.sname = sname
-        self.library = library
-        self.schema = schema
+        if local_library is not None:
+            self.library = local_library
+        elif local_library_path is not None:
+            self.library = LocalLibraryDatabase(
+                local_library_path, schema=schema, default_data=default_data
+            )
+        else:
+            raise ValueError("One of local_library or local_library_path must be given")
         self.no_git_library = no_git_library
         self._loaded_data = None
 
@@ -50,23 +65,30 @@ class MetaData(object):
             self.data = default_data
 
     @staticmethod
-    def from_file(filename, schema, default_data):
-        library = os.path.dirname(filename)
+    def from_file(filename, schema=None, default_data=None, local_library=None):
         sname = os.path.basename(filename).split("-")[0]
-        return MetaData(sname, library, default_data, schema)
+        if local_library is None:
+            local_library_path = os.path.dirname(filename)
+            return MetaData(
+                sname,
+                default_data=default_data,
+                schema=schema,
+                local_library_path=local_library_path,
+            )
+        else:
+            return MetaData(
+                sname,
+                default_data=default_data,
+                schema=schema,
+                local_library=local_library,
+            )
 
     @property
-    def library(self):
+    def library(self) -> LocalLibraryDatabase:
         return self._library
 
     @library.setter
-    def library(self, library):
-        if library is None:
-            raise ValueError(
-                "The library directory is NoneType. Please set the library path."
-            )
-        if os.path.exists(library) is False:
-            os.mkdir(library)
+    def library(self, library: LocalLibraryDatabase) -> None:
         self._library = library
 
     @staticmethod
@@ -80,12 +102,15 @@ class MetaData(object):
 
     @property
     def library_file(self):
-        return os.path.join(self.library, self.filename)
+        return os.path.join(self.library.library, self.filename)
 
     def update(self, update_dict, is_removal=False):
         new_metadata = copy.deepcopy(self)
         new_metadata.data = process_update_json(
-            update_dict, new_metadata.data, self.schema, is_removal=is_removal
+            update_dict,
+            new_metadata.data,
+            self.library._metadata_schema,
+            is_removal=is_removal,
         )
         self.validate(new_metadata.data)
         self.data = new_metadata.data
@@ -128,40 +153,19 @@ class MetaData(object):
         message : str | None
             If passed, this message will be used in the git commit, rather than the default.
         """
-        if os.path.exists(os.path.join(self.library, ".git")) is False:
-            raise ValueError(
-                f"The library directory {self.library} is not a repository"
-            )
+        if not hasattr(self.library, "repo"):
+            self.library._initialize
 
-        repo = pygit2.init_repository(self.library)
-
-        try:
-            ref = repo.head.name
-        except pygit2.GitError:
-            # If the git repo is empty
-            raise ValueError(
-                f"The git library directory {self.library} is empty ."
-                "Please initialise with a commit"
-            )
-
-        parents = [repo.head.target]
-        repo.index.add(self.filename)
-        repo.index.write()
-        author = self._get_author_signature()
+        self.library.repo.index.add(self.filename)
+        self.library.repo.index.write()
+        author = self.library._author_signature
         if message is None:
             message = f"Changes made to [{self.toplevel_diff}]"
             message += f"\ncmd line: {' '.join(sys.argv)}"
-        tree = repo.index.write_tree()
-        repo.create_commit(ref, author, author, message, tree, parents)
-
-    def _get_author_signature(self):
-        gitconfig = os.path.expanduser("~/.gitconfig")
-        config = configparser.ConfigParser()
-        config.sections()
-        config.read(gitconfig)
-        name = config["user"]["name"]
-        email = config["user"]["email"]
-        return pygit2.Signature(name, email)
+        tree = self.library.repo.index.write_tree()
+        self.library.repo.create_commit(
+            self.library.ref, author, author, message, tree, self.library.parents
+        )
 
     @property
     def is_updated(self):
@@ -192,4 +196,20 @@ class MetaData(object):
         logger.info(json.dumps(data, indent=4))
 
     def validate(self, data):
-        jsonschema.validate(data, self.schema)
+        jsonschema.validate(data, self.library.metadata_schema)
+
+    def get_date_of_last_commit(self):
+        """Get the date of the last commit including the metadata file for sname
+
+        Parameters
+        ==========
+        sname : str
+            The sname corresponding to the superevent whose metadata we are checking.
+
+        Returns
+        =======
+        str
+            The date and time last modified in iso standard (yyyy-MM-dd hh:mm:ss)
+        """
+        if not hasattr(self.library, "repo"):
+            self.library._initialize_library_git_repo()
