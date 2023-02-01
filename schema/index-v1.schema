@@ -9,8 +9,8 @@
         "LibraryStatus":{
             "description":"The status of the library as a whole",
             "type":"object",
-            "additionalProperties":false,
-            "Properties":{
+            "additionalProperties":true,
+            "properties":{
                 "LastUpdate":{
                     "description":"The time and date yyyy-mm-dd hh:mm:ss of this library's last update",
                     "type":"string",
@@ -28,8 +28,8 @@
         "Superevent":{
             "description":"A superevent stored in this library",
             "type":"object",
-            "additionalProperties":false,
-            "Properties":{
+            "additionalProperties":true,
+            "properties":{
                 "Sname":{
                     "description": "The GraceDB defined sname",
                     "type": "string",

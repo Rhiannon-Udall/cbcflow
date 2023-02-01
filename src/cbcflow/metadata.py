@@ -2,13 +2,17 @@ import copy
 import json
 import logging
 import os
+import subprocess
 import sys
+from typing import TYPE_CHECKING, Union
 
 import jsondiff
 import jsonschema
 
-from .database import LocalLibraryDatabase
 from .process import process_update_json
+
+if TYPE_CHECKING:
+    from .database import LocalLibraryDatabase
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +21,7 @@ class MetaData(object):
     def __init__(
         self,
         sname: str,
-        local_library: LocalLibraryDatabase | None = None,
+        local_library: Union["LocalLibraryDatabase", None] = None,
         local_library_path: str | None = None,
         schema: dict | None = None,
         default_data: dict | None = None,
@@ -47,6 +51,8 @@ class MetaData(object):
         if local_library is not None:
             self.library = local_library
         elif local_library_path is not None:
+            from cbcflow.database import LocalLibraryDatabase
+
             self.library = LocalLibraryDatabase(
                 local_library_path, schema=schema, default_data=default_data
             )
@@ -84,11 +90,11 @@ class MetaData(object):
             )
 
     @property
-    def library(self) -> LocalLibraryDatabase:
+    def library(self) -> "LocalLibraryDatabase":
         return self._library
 
     @library.setter
-    def library(self, library: LocalLibraryDatabase) -> None:
+    def library(self, library: "LocalLibraryDatabase") -> None:
         self._library = library
 
     @staticmethod
@@ -211,5 +217,19 @@ class MetaData(object):
         str
             The date and time last modified in iso standard (yyyy-MM-dd hh:mm:ss)
         """
-        if not hasattr(self.library, "repo"):
-            self.library._initialize_library_git_repo()
+        # What this function seeks to do is bizarrely difficult with pygit
+        # So I will just use subprocess instead.
+        # However, this remains as a mechanism by which one would start the process
+        # if not hasattr(self.library, "repo"):
+        #     self.library._initialize_library_git_repo()
+
+        cwd = os.getcwd()
+        os.chdir(self.library.library)
+        date, time = str(
+            subprocess.check_output(
+                ["git", "log", "-1", "--date=iso", "--format=%cd", self.library_file]
+            )
+        ).split(" ")[:-1]
+        datetime = date.strip("b'") + " " + time
+        os.chdir(cwd)
+        return datetime

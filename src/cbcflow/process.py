@@ -102,7 +102,7 @@ def form_update_json_from_args(
 
 
 def recurse_add_array_merge_options(
-    schema: dict, is_removal_dict: bool = False
+    schema: dict, is_removal_dict: bool = False, idRef: str = "/UID"
 ) -> None:
     """Add the requisite jsonmerge details to the schema, in prep to make a Merger
 
@@ -116,7 +116,7 @@ def recurse_add_array_merge_options(
     if schema["type"] == "array":
         if "$ref" in schema["items"]:
             schema.update(
-                dict(mergeStrategy="arrayMergeById", mergeOptions=dict(idRef="/UID"))
+                dict(mergeStrategy="arrayMergeById", mergeOptions=dict(idRef=idRef))
             )
         elif "type" in schema["items"]:
             if is_removal_dict:
@@ -185,8 +185,47 @@ def get_merger(schema: dict, for_removal: bool = False) -> Merger:
     return merger
 
 
-def get_all_schema_defaults(schema: dict):
-    """ """
+def get_simple_schema_defaults(schema: dict) -> dict:
+    """Populates defaults typical objects which don't involve any object referencing
+
+    Parameters
+    ==========
+    schema : dict
+        The schema for which defaults are desired
+
+    Returns
+    =======
+    dict
+        The defaults of properties and sub-properties for the schema
+    """
+    default_data = {}
+    for prop_key, prop_contents in schema["properties"].items():
+        if prop_contents["type"] == "object":
+            default_data[prop_key] = get_simple_schema_defaults(
+                schema["properties"][prop_key]
+            )
+        elif prop_contents["type"] == "array":
+            default_data[prop_key] = []
+        elif "default" in prop_contents.keys():
+            default_data[prop_key] = prop_contents["default"]
+    return default_data
+
+
+def get_all_schema_def_defaults(schema: dict) -> dict:
+    """Provides defaults for referenced objects, indexed by keypath
+
+    Parameters
+    ==========
+    schema : dict
+        The schema for which defaults are desired
+
+    Returns
+    =======
+    dict
+        The defaults of referenced objects in the schema, referenced by keypaths.
+        These are the the possible call paths for the referenced object, with each
+        level of hierarchy separated by underscores.
+    """
     if not isinstance(schema, benedict):
         schema = benedict(schema, keypath_separator="_")
 
@@ -456,7 +495,7 @@ def process_update_json(
     if not is_removal:
         # If we are adding, we may need defaults
         # Get the schema defaults, and use them to make defaults where necessary in the add json
-        schema_defaults = get_all_schema_defaults(schema)
+        schema_defaults = get_all_schema_def_defaults(schema)
         update_json = populate_defaults_if_necessary(
             target_json, update_json, schema_defaults
         )

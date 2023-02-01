@@ -6,6 +6,8 @@ import logging
 import os
 from functools import cached_property
 
+import dateutil.parser as dp
+import jsondiff
 import jsonschema
 import pygit2
 from ligo.gracedb.exceptions import HTTPError
@@ -13,6 +15,7 @@ from ligo.gracedb.rest import GraceDb
 
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
+from .process import get_all_schema_def_defaults, get_simple_schema_defaults
 from .schema import get_schema
 
 logger = logging.getLogger(__name__)
@@ -256,7 +259,9 @@ class LocalLibraryDatabase(object):
             _, default_data = get_parser_and_default_data(self.metadata_schema)
 
         metadata_list = [
-            MetaData.from_file(f, self.metadata_schema, default_data)
+            MetaData.from_file(
+                f, self.metadata_schema, default_data, local_library=self
+            )
             for f in self.filelist
         ]
         for md in metadata_list:
@@ -343,7 +348,7 @@ class LocalLibraryDatabase(object):
 
         self.parents = [self.repo.head.target]
 
-    def read_current_index(self):
+    def read_index_file(self):
         """Fetch the info from the index json as it currently exists"""
         if os.path.exists(self.index_file_path):
             current_index_data = json.load(self.index_file_path)
@@ -351,16 +356,35 @@ class LocalLibraryDatabase(object):
         else:
             logger.info("No index file currently present")
 
-        # datetime = str(
-        #     subprocess.check_output(
-        #         [
-        #             "git",
-        #             "log",
-        #             "-1",
-        #             "--date=iso",
-        #             "--format=%cd",
-        #             f"{sname}-cbc-metadata.json",
-        #         ]
-        #     )
-        # ).split(" ")[:-1]
-        # return datetime
+    def generate_index_from_library(self):
+        """Generate the index reflecting the current state of the library"""
+        current_most_recent = "2015-09-14 09:50:45"
+        new_index = get_simple_schema_defaults(self.library_index_schema)
+        superevent_default = get_all_schema_def_defaults(self.library_index_schema)[
+            "Superevents"
+        ]
+        for sname, metadata in self.metadata_dict.items():
+            superevent_meta = copy.deepcopy(superevent_default)
+            superevent_meta["Sname"] = sname
+            superevent_meta["LastUpdated"] = metadata.get_date_of_last_commit()
+            new_index["Superevents"].append(superevent_meta)
+            if dp.parse(superevent_meta["LastUpdated"]) > dp.parse(current_most_recent):
+                current_most_recent = superevent_meta["LastUpdated"]
+        new_index["LibraryStatus"]["LastUpdated"] = current_most_recent
+        return new_index
+
+    def check_for_index_update(self):
+        """Check if the index file will see any changes"""
+        read_file_data = self.read_index_file()
+        generate_data = self.generate_index_from_library()
+        diff = jsondiff.diff(read_file_data, generate_data)
+        if diff != {}:
+            logger.info("Index data has changed since it was last written")
+            logger.info(json.dump(diff, indent=2))
+        return diff
+
+    def write_index_file(self):
+        """Writes the new index to the"""
+        new_index_data = self.generate_index_from_library()
+        with open(self.index_file_path, "w") as f:
+            json.dump(new_index_data, f, indent=2)
