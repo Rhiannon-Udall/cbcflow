@@ -346,9 +346,9 @@
           "enum": ["preferred", "neighbor"],
           "description": "State of the event"
         },
-        "Label": {
+        "Labels": {
           "type": "string",
-          "description": "Label of the event. THE LABELS HAVE NOT BEEN DEFINED YET. THIS SHOULD BE FIXED WHEN LABELS ARE CHOSEN AND IMPLEMENTED IN GRACEDB."
+          "description": "Labels of the event. THE LABELS HAVE NOT BEEN DEFINED YET. THIS SHOULD BE FIXED WHEN LABELS ARE CHOSEN AND IMPLEMENTED IN GRACEDB."
         },
         "GPSTime": {
           "description": "The event gps time",
@@ -358,8 +358,24 @@
           "description": "The event false alarm rate (/yr)",
           "type": "number"
         },       
-        "SNR": {
+        "NetworkSNR": {
           "description": "The recovered network SNR",
+          "type": "number"
+        },
+        "H1SNR": {
+          "description": "The individual SNR for the LIGO-Hanford detector (H1)",
+          "type": "number"
+        },
+        "L1SNR": {
+          "description": "The individual SNR for the LIGO-Livingston detector (L1)",
+          "type": "number"
+        },
+        "V1SNR": {
+          "description": "The individual SNR for the Virgo detector (V1)",
+          "type": "number"
+        },
+        "K1SNR": {
+          "description": "The individual SNR for KAGRA (K1)",
           "type": "number"
         },
         "Pastro": {
@@ -405,6 +421,18 @@
         "HasMassGap": {
           "description": "The probability, assuming the source is of astrophysical origin, that at least one of the compact objects has mass in the range 3-5 solar masses",
           "type": "number"
+        },
+        "XML": {
+          "description": "GraceDB link to the coinc.xml file",
+          "type": "string"
+        },
+        "SourceClassification": {
+          "description": "GraceDB link to the pipeline.pastro.json file",
+          "type": "string"
+        },
+        "Skymap": {
+          "description": "GraceDB link to the bayestar.multiorder.fits file",
+          "type": "string"
         } 
       }
     },
