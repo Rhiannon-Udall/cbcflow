@@ -143,9 +143,13 @@
           "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
           "default": "unstarted"
         },
-        "SafeGeocentTime": {
-          "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
-          "type": "number"
+        "IllustrativeResult": {
+          "description": "The UID of a PE Result which demonstrates the key features of this event. This is *not* the only result of interest, merely a representative result.",
+          "type": "string"
+        },
+        "SkymapReleaseResult": {
+          "description": "The UID of the result from which the updated skymap release is derived",
+          "type": "string"
         },
         "Results": {
           "description": "A list of results",
@@ -187,6 +191,10 @@
         },
         "SafeUpperLuminosityDistance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeGeocentTime": {
+          "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
           "type": "number"
         },
         "Notes": {
@@ -372,14 +380,24 @@
           "enum": ["complete", "running", "stuck"],
           "description": "Status of the run"
         },
+        "WaveformApproximant":{
+          "type": "string",
+          "description": "The waveform approximant being used for this analysis."
+        },
+        "Deprecated":{
+          "description":"If true, this analysis has been deprecated, either because a flaw was discovered or a more up to date analysis which supersedes it has been added. If this is true, do not use this result.",
+          "type": "boolean",
+          "default": false
+        },
+        "Publications":{
+          "description":"The LVK publications which use this result.",
+          "type":"array",
+          "items":{"type":"string"}
+        },
         "Notes": {
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
-        },
-        "WaveformApproximant":{
-          "type": "string",
-          "description": "The waveform approximant being used for this analysis."
         }
       }
     },
