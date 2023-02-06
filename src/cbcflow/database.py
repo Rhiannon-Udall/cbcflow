@@ -303,6 +303,7 @@ class LocalLibraryDatabase(object):
         library_defaults["Library Info"] = {"library-name": "CBC-Library"}
         library_defaults["Events"] = {
             "far-threshold": 1.2675e-7,
+            "pastro-threshold": 0.5,
             "created-since": "2022-01-01",
         }
         library_defaults["Monitor"] = {"parent": "gracedb"}
