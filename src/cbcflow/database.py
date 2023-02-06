@@ -305,6 +305,8 @@ class LocalLibraryDatabase(object):
             "far-threshold": 1.2675e-7,
             "pastro-threshold": 0.5,
             "created-since": "2022-01-01",
+            "snames-to-include": [],
+            "snames-to-exclude": [],
         }
         library_defaults["Monitor"] = {"parent": "gracedb"}
         if os.path.exists(config_file):
@@ -364,7 +366,7 @@ class LocalLibraryDatabase(object):
         superevent_default = get_all_schema_def_defaults(self.library_index_schema)[
             "Superevents"
         ]
-        for sname, metadata in self.metadata_dict.items():
+        for sname, metadata in self.downselected_metadata_dict.items():
             superevent_meta = copy.deepcopy(superevent_default)
             superevent_meta["Sname"] = sname
             superevent_meta["LastUpdated"] = metadata.get_date_of_last_commit()
@@ -389,3 +391,22 @@ class LocalLibraryDatabase(object):
         new_index_data = self.generate_index_from_library()
         with open(self.index_file_path, "w") as f:
             json.dump(new_index_data, f, indent=2)
+
+    @cached_property
+    def downselected_metadata_dict(self):
+        """Get the snames of events which satisfy library inclusion criteria"""
+        downselected_metadata_dict = dict()
+        for sname, metadata in self.metadata_dict:
+            if sname in self.library_config["snames-to-include"]:
+                self.downselected_metadata_dict[sname] = metadata
+            elif sname in self.library_config["snames-to-exclude"]:
+                pass
+            # TODO prepare for how this will work with the all-sky schema changes
+            # This will include:
+            # 1. adapting to G-eventwise values
+            # 2. adding p-astro
+            # 3. possibly adding p_nsbh, p_bns, b_bbh
+            # 4. possibly adding SNR
+            elif metadata["GraceDB"]["FAR"] <= self.library_config["far-threshold"]:
+                self.downselected_metadata_dict[sname] = metadata
+        return downselected_metadata_dict
