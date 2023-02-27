@@ -41,7 +41,7 @@ class TestMetaData(unittest.TestCase):
         self.check_metadata_data = copy.deepcopy(
             MetaData(
                 self.test_sname,
-                self.test_library_directory,
+                local_library_path=self.test_library_directory,
                 **self.default_metadata_kwargs,
             ).data
         )
