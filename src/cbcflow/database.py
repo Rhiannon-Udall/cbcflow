@@ -284,6 +284,9 @@ class LocalLibraryDatabase(object):
         else:
             self._metadata_schema = schema
 
+    def validate(self, data):
+        jsonschema.validate(data, self.metadata_schema)
+
     @cached_property
     def _author_signature(self):
         gitconfig = os.path.expanduser("~/.gitconfig")

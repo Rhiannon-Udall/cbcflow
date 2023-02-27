@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import json
 import logging
@@ -7,7 +9,6 @@ import sys
 from typing import TYPE_CHECKING, Union
 
 import jsondiff
-import jsonschema
 
 from .process import process_update_json
 
@@ -26,7 +27,7 @@ class MetaData(object):
         schema: dict | None = None,
         default_data: dict | None = None,
         no_git_library: bool = False,
-    ):
+    ) -> None:
         """A object to store and interact with a metadata object
 
         Parameters
@@ -67,11 +68,35 @@ class MetaData(object):
         else:
             logger.info("No library file: creating defaults")
             default_data["Sname"] = self.sname
-            self.validate(default_data)
+            self.library.validate(default_data)
             self.data = default_data
 
     @staticmethod
-    def from_file(filename, schema=None, default_data=None, local_library=None):
+    def from_file(
+        filename: str,
+        schema: dict | None = None,
+        default_data: dict | None = None,
+        local_library: Union["LocalLibraryDatabase", None] = None,
+    ) -> MetaData:
+        """Load a metadata object given a file path
+
+        Parameters
+        ==========
+        filename : str
+            The path to the file to load from
+        schema : dict | None, optional
+            If passed, the schema to use for the file, if None then use the configuration default
+        default_data : dict | None, optional
+            If passed, use this default data for loading the schema, if None then use the default for the schema
+        local_library : `cbcflow.database.LocalLibrayDatabase`, optional
+            If passed, load the MetaData with this backend library.
+            If None, it will load the library using the file path.
+
+        Returns
+        =======
+        MetaData
+            The metadata object for this file\
+        """
         sname = os.path.basename(filename).split("-")[0]
         if local_library is None:
             local_library_path = os.path.dirname(filename)
@@ -91,26 +116,58 @@ class MetaData(object):
 
     @property
     def library(self) -> "LocalLibraryDatabase":
+        """The library this metadata is attached to"""
         return self._library
 
     @library.setter
     def library(self, library: "LocalLibraryDatabase") -> None:
+        """The library this metadata is attached to
+
+        Parameters
+        ==========
+        library : `cbcflow.database.LocalLibraryDatabase`
+            The library to which this metadata will be connected.
+        """
         self._library = library
 
     @staticmethod
-    def get_filename(sname):
+    def get_filename(sname: str) -> str:
+        """Get the standard file name given an sname
+
+        Parameters
+        ==========
+        sname : str
+            The superevent's sname string
+
+        Returns
+        =======
+        str
+            The corresponding standard file name
+        """
         fname_suffix = "json"
         return sname + "-cbc-metadata" + "." + fname_suffix
 
     @property
-    def filename(self):
+    def filename(self) -> str:
+        """The file name associated with this metadata object"""
         return self.get_filename(self.sname)
 
     @property
-    def library_file(self):
+    def library_file(self) -> None:
+        """The full metadata's file path, found in its corresponding library"""
         return os.path.join(self.library.library, self.filename)
 
-    def update(self, update_dict, is_removal=False):
+    def update(self, update_dict: dict, is_removal: bool = False) -> None:
+        """Update the metadata with new elements
+
+        Parameters
+        ==========
+        update_dict : dict
+            The dictionary containing instructions to update with
+        is_removal : bool, optional
+            If true, this dictionary will treat all primitive list elements (i.e. not objects)
+            as something to be removed, rather than added. Use sparingly.
+        """
         new_metadata = copy.deepcopy(self)
         new_metadata.data = process_update_json(
             update_dict,
@@ -118,31 +175,32 @@ class MetaData(object):
             self.library._metadata_schema,
             is_removal=is_removal,
         )
-        self.validate(new_metadata.data)
+        self.library.validate(new_metadata.data)
         self.data = new_metadata.data
 
     def load_from_library(self):
+        """Load metadata from a library"""
         with open(self.library_file, "r") as file:
             data = json.load(file)
 
-        self.validate(data)
+        self.library.validate(data)
         self.data = data
         self._loaded_data = copy.deepcopy(data)
 
-    def write_to_library(self, message: str | None = None):
+    def write_to_library(self, message: str | None = None) -> None:
         """
         Write loaded metadata back to library, and stage/commit if the library is a git repository
 
         Parameters
         ==========
-        message : str | None
+        message : str | None, optional
             If passed, this message will be used for the git commit instead of the default.
         """
         if self.is_updated is False:
             logger.info("No changes made, exiting")
             return
 
-        self.validate(self.data)
+        self.library.validate(self.data)
         self.print_diff()
         logger.info(f"Writing file {self.library_file}")
         with open(self.library_file, "w") as file:
@@ -160,7 +218,7 @@ class MetaData(object):
             If passed, this message will be used in the git commit, rather than the default.
         """
         if not hasattr(self.library, "repo"):
-            self.library._initialize
+            self.library._initialize_library_git_repo()
 
         self.library.repo.index.add(self.filename)
         self.library.repo.index.write()
@@ -175,16 +233,26 @@ class MetaData(object):
 
     @property
     def is_updated(self):
+        """Has the library been updated since it was loaded"""
         return self._loaded_data != self.data
 
     @property
     def library_file_exists(self):
+        """Does a file for this superevent exist in this library"""
         return os.path.exists(self.library_file)
 
     def get_diff(self):
+        """Give the difference between the loaded data and the updated data
+
+        Returns
+        =======
+        dict
+            The output of a json diff between the loaded data and the current data
+        """
         return jsondiff.diff(self._loaded_data, self.data)
 
     def print_diff(self):
+        """Cleanly print the output of get_diff"""
         if self._loaded_data is None:
             return
 
@@ -195,14 +263,13 @@ class MetaData(object):
 
     @property
     def toplevel_diff(self):
+        """Get a clean string representation of the output of get_diff"""
         return ",".join([str(k) for k in self.get_diff().keys()])
 
-    def pretty_print(self, data):
+    def pretty_print(self):
+        """Prettily print the contents of the data"""
         logger.info(f"Metadata contents for {self.sname}:")
-        logger.info(json.dumps(data, indent=4))
-
-    def validate(self, data):
-        jsonschema.validate(data, self.library.metadata_schema)
+        logger.info(json.dumps(self.data, indent=4))
 
     def get_date_of_last_commit(self):
         """Get the date of the last commit including the metadata file for sname
