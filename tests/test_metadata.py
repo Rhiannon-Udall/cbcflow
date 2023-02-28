@@ -286,6 +286,9 @@ class TestMetaData(unittest.TestCase):
         pass
 
     def test_update_metadata_with_json_add(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         metadata = MetaData(
             self.test_sname,
             local_library_path=self.test_library_directory,
@@ -300,6 +303,9 @@ class TestMetaData(unittest.TestCase):
         assert self.check_metadata_data == metadata.data
 
     def test_update_metadata_with_json_remove(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         # Start out the same as above
         metadata = MetaData(
             self.test_sname,
@@ -348,6 +354,9 @@ class TestMetaData(unittest.TestCase):
         assert self.check_metadata_data == metadata.data
 
     def test_update_metadata_from_json(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         # Use the command line argument to modify directly from a json
         metadata = MetaData(
             self.test_sname,
