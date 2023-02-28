@@ -233,7 +233,7 @@ class TestMetaData(unittest.TestCase):
             local_library_path=self.test_library_directory,
             **self.default_metadata_kwargs,
         )
-        assert metadata.library == self.test_library_directory
+        assert metadata.library.library == self.test_library_directory
 
     def test_empty_metadata_library_print(self):
         metadata = MetaData(
@@ -241,7 +241,7 @@ class TestMetaData(unittest.TestCase):
             local_library_path=self.test_library_directory,
             **self.default_metadata_kwargs,
         )
-        metadata.pretty_print(metadata.data)
+        metadata.pretty_print()
 
     def test_metadata_from_file(self):
         # Write a metadata file to test
@@ -253,7 +253,9 @@ class TestMetaData(unittest.TestCase):
         )
 
         metadata = MetaData(
-            sname, self.test_library_directory, **self.default_metadata_kwargs
+            sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
         assert metadata.sname == sname
         assert metadata.data["ParameterEstimation"]["Reviewers"] == ["Gregory Ashton"]
