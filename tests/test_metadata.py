@@ -21,7 +21,7 @@ class TestMetaData(unittest.TestCase):
             shutil.rmtree(self.test_library_directory)
 
     def setUp(self):
-        self.test_library_directory = "test_library"
+        self.test_library_directory = "tests/test_library"
         self.test_sname = "S190425z"
         self.schema = get_schema()
         _, default_data = get_parser_and_default_data(self.schema)
@@ -364,6 +364,7 @@ class TestMetaData(unittest.TestCase):
             **self.default_metadata_kwargs,
         )
         metadata.write_to_library()
+        logger.info(metadata.library.library)
         cmd_1 = [
             "cbcflow_from_file",
             "S190425z",
@@ -391,6 +392,9 @@ class TestMetaData(unittest.TestCase):
         assert altered_metadata.data == self.check_metadata_data
 
     def test_update_metadata_from_yaml(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         # now as above, just with yamls
         metadata = MetaData(
             self.test_sname,
@@ -425,6 +429,9 @@ class TestMetaData(unittest.TestCase):
         assert altered_metadata.data == self.check_metadata_data
 
     def test_update_with_flag_commands(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         metadata = MetaData(
             self.test_sname,
             local_library_path=self.test_library_directory,
