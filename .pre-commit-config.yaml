@@ -18,15 +18,15 @@ repos:
         - nd
         - --skip
         - '*.html'
--   repo: https://github.com/timothycrosley/isort
-    rev: 5.10.1
-    hooks:
-    -   id: isort
-        args:
-        - -w=88
-        - -m=3
-        - -tc
-        - -sp=setup.cfg
+# -   repo: https://github.com/timothycrosley/isort
+#     rev: 5.10.1
+#     hooks:
+#     -   id: isort
+#         args:
+#         - -w=88
+#         - -m=3
+#         - -tc
+#         - -sp=setup.cfg
 -   repo: local
     hooks:
     -   id: flynt
