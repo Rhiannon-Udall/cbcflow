@@ -44,10 +44,11 @@ def generate_crondor():
         help="The LIGO accounting user for the job to be tagged with",
     )
     parser.add_argument(
-        "--testing-configuration",
-        action="store_true",
-        help="If true, changes the crondor interval to every 10 minutes\
-            Only use when testing - this pace is unnecessary for actual use",
+        "--monitor-minute",
+        type=int,
+        default=0,
+        help="If passed, sets the minute to run the job, so that one can get quick feedback"
+        "Defaults to 0 for normal operation",
     )
     args = parser.parse_args()
 
@@ -56,7 +57,7 @@ def generate_crondor():
     else:
         rundir = args.rundir
 
-    monitor_exe = which("monitor_run")
+    monitor_exe = which("cbcflow_monitor_run")
     monitor_job = pipeline.CondorJob(
         universe="vanilla", executable=monitor_exe, queue=1
     )
@@ -71,13 +72,9 @@ def generate_crondor():
     monitor_job.add_condor_cmd("initialdir", rundir)
     monitor_job.add_condor_cmd("get_env", "True")
     monitor_job.add_condor_cmd("on_exit_remove", "False")
-    # These are the unusual settings - this makes the job repeat every N hours
-    if args.testing_configuration:
-        monitor_job.add_condor_cmd("cron_minute", "10")
-        monitor_job.add_condor_cmd("cron_hour", "*")
-    else:
-        monitor_job.add_condor_cmd("cron_minute", "0")
-        monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
+    # These are the unusual settings - this makes the job repeat every N hours, at the Mth minute
+    monitor_job.add_condor_cmd("cron_minute", f"{args.monitor_minute}")
+    monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
     # This tells the job to queue 5 minutes before it's execution time, so it will be ready when the time comes
     monitor_job.add_condor_cmd("cron_prep_time", "300")
     monitor_args = f" {os.path.expanduser(args.config_file)} "

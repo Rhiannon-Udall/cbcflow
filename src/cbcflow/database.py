@@ -162,7 +162,8 @@ class GraceDbDatabase(object):
         # setup defaults
         schema = get_schema()
         local_library = LocalLibraryDatabase(library, schema)
-        monitor_config = local_library.library_config["Monitor"]
+        # monitor_config = local_library.library_config["Monitor"]
+        event_config = local_library.library_config["Events"]
 
         # annying hack due to gracedb query bug
         import datetime
@@ -171,8 +172,8 @@ class GraceDbDatabase(object):
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
         # make query and defaults, query
-        query = f"created: {monitor_config['created-since']} .. {now_str} \
-        FAR <= {monitor_config['far-threshold']}"
+        query = f"created: {event_config['created-since']} .. {now_str} \
+        FAR <= {event_config['far-threshold']}"
         logger.info(f"Constructed query {query} from library config")
         _, default_data = get_parser_and_default_data(schema)
         self.query_superevents(query)
@@ -192,15 +193,6 @@ class GraceDbDatabase(object):
         # loop over all superevents of interest
         for superevent_id, superevent in self.superevents.items():
             gracedb_data = self.pull(superevent["superevent_id"])
-            # if superevent_id in local_library.metadata_dict.keys():
-            #     # gracedb as source of truth - if in library update
-            #     local_metadata = local_library.metadata_dict[superevent_id]
-            #     local_metadata.update(gracedb_data)
-            #     local_metadata.write_to_library()
-            #     logger.info(
-            #         f"The library entry for superevent {superevent_id}\
-            #     was updated using gracedb data"
-            #     )
             if superevent_id not in self.superevents.items():
                 # if not in library make default
                 local_default = MetaData(
