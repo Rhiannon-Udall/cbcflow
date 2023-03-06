@@ -62,8 +62,10 @@ class MetaData(object):
         self.no_git_library = no_git_library
         self._loaded_data = None
 
+        logger.info(f"Loading metadata object for superevent {self.sname}")
+
         if self.library_file_exists:
-            logger.info("Found existing library file: loading")
+            logger.debug("Found existing library file: loading")
             self.load_from_library()
         else:
             logger.info("No library file: creating defaults")

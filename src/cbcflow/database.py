@@ -171,16 +171,17 @@ class GraceDbDatabase(object):
         now = datetime.datetime.utcnow()
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
+        logging.info(f"Syncing with GraceDB at time {now_str}")
         # make query and defaults, query
         query = f"created: {event_config['created-since']} .. {now_str} \
         FAR <= {event_config['far-threshold']}"
         logger.info(f"Constructed query {query} from library config")
         _, default_data = get_parser_and_default_data(schema)
         self.query_superevents(query)
-        logger.info(
-            f"Querying based on library configuration returned superevents {self.superevents.keys()}"
-        )
+        from pprint import pformat
 
+        logger.info("Querying based on library configuration returned superevents:")
+        logger.info(pformat(self.query_superevents))
         # for superevents not in the query parameters, but already in the library
         for superevent_id in local_library.metadata_dict.keys():
             if superevent_id not in self.superevents.keys():
@@ -197,7 +198,7 @@ class GraceDbDatabase(object):
                 # if not in library make default
                 local_default = MetaData(
                     superevent_id,
-                    local_library_path=library,
+                    local_library=local_library,
                     default_data=default_data,
                     schema=schema,
                 )
@@ -344,7 +345,9 @@ class LocalLibraryDatabase(object):
                 "Please initialise with a commit"
             )
 
-        self.parents = [self.repo.head.target]
+    @property
+    def parents(self):
+        return self.repo.head.target
 
     def read_index_file(self):
         """Fetch the info from the index json as it currently exists"""

@@ -66,7 +66,7 @@ def generate_crondor():
     monitor_job.set_stderr_file(os.path.join(rundir, "monitor.err"))
     monitor_job.add_condor_cmd("accounting_group", args.ligo_accounting)
     monitor_job.add_condor_cmd("accounting_group_user", args.ligo_user_name)
-    monitor_job.add_condor_cmd("request_memory", "40 Mb")
+    monitor_job.add_condor_cmd("request_memory", "200 Mb")
     monitor_job.add_condor_cmd("request_disk", "10 Mb")
     monitor_job.add_condor_cmd("notification", "never")
     monitor_job.add_condor_cmd("initialdir", rundir)
@@ -100,6 +100,8 @@ def run_monitor():
     args = parser.parse_args()
 
     config_values = get_cbcflow_config(args.cbcflowconfig)
+    logging.info("CBCFlow monitor is beginning sweep")
     logging.info(f"Config values are {config_values}")
     GDb = GraceDbDatabase(config_values["gracedb_service_url"])
     GDb.sync_library_gracedb(config_values["library"])
+    logging.info("Sweep completed, resting")
