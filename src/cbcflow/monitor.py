@@ -6,7 +6,7 @@ from shutil import which
 from glue import pipeline
 
 from .configuration import get_cbcflow_config
-from .database import GraceDbDatabase
+from .database import GraceDbDatabase, LocalLibraryDatabase
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ def generate_crondor():
     monitor_job.set_stderr_file(os.path.join(rundir, "monitor.err"))
     monitor_job.add_condor_cmd("accounting_group", args.ligo_accounting)
     monitor_job.add_condor_cmd("accounting_group_user", args.ligo_user_name)
-    monitor_job.add_condor_cmd("request_memory", "200 Mb")
+    monitor_job.add_condor_cmd("request_memory", "40 Mb")
     monitor_job.add_condor_cmd("request_disk", "10 Mb")
     monitor_job.add_condor_cmd("notification", "never")
     monitor_job.add_condor_cmd("initialdir", rundir)
@@ -100,8 +100,18 @@ def run_monitor():
     args = parser.parse_args()
 
     config_values = get_cbcflow_config(args.cbcflowconfig)
+    local_library = LocalLibraryDatabase(library_path=config_values["library"])
     logging.info("CBCFlow monitor is beginning sweep")
     logging.info(f"Config values are {config_values}")
-    GDb = GraceDbDatabase(config_values["gracedb_service_url"])
-    GDb.sync_library_gracedb(config_values["library"])
+    if local_library.library_config["Monitor"]["parent"] == "gracedb":
+        GDb = GraceDbDatabase(config_values["gracedb_service_url"])
+        GDb.sync_library_gracedb(local_library=local_library)
+    elif os.path.exists(local_library.library_config["Monitor"]["parent"]):
+        # This will be the branch for pulling from a git repo in the local filesystem
+        pass
+    elif "https" in local_library.library_config["Monitor"]["parent"]:
+        # This will be the branch for pulling from a non-local git repo on e.g. gitlab
+        pass
+    logger.info("Updating index file for library")
+    local_library.write_index_file()
     logging.info("Sweep completed, resting")

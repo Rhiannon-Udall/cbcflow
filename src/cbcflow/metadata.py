@@ -62,7 +62,7 @@ class MetaData(object):
         self.no_git_library = no_git_library
         self._loaded_data = None
 
-        logger.info(f"Loading metadata object for superevent {self.sname}")
+        logger.debug(f"Loading metadata object for superevent {self.sname}")
 
         if self.library_file_exists:
             logger.debug("Found existing library file: loading")
@@ -170,15 +170,15 @@ class MetaData(object):
             If true, this dictionary will treat all primitive list elements (i.e. not objects)
             as something to be removed, rather than added. Use sparingly.
         """
-        new_metadata = copy.deepcopy(self)
-        new_metadata.data = process_update_json(
+        new_metadata_data = copy.deepcopy(self.data)
+        new_metadata_data = process_update_json(
             update_dict,
-            new_metadata.data,
+            new_metadata_data,
             self.library._metadata_schema,
             is_removal=is_removal,
         )
-        self.library.validate(new_metadata.data)
-        self.data = new_metadata.data
+        self.library.validate(new_metadata_data)
+        self.data = new_metadata_data
 
     def load_from_library(self):
         """Load metadata from a library"""
