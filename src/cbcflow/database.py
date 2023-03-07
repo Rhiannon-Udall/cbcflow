@@ -5,6 +5,8 @@ import json
 import logging
 import os
 from functools import cached_property
+import sys
+from pprint import pformat
 
 import dateutil.parser as dp
 from jsondiff import replace, diff
@@ -40,20 +42,11 @@ class LocalLibraryDatabase(object):
         """
 
         self.library = library_path
-        self.metadata_dict = {}
-
         self.metadata_schema = schema
-        if default_data is None:
-            _, default_data = get_parser_and_default_data(self.metadata_schema)
 
-        metadata_list = [
-            MetaData.from_file(
-                f, self.metadata_schema, default_data, local_library=self
-            )
-            for f in self.filelist
-        ]
-        for md in metadata_list:
-            self.metadata_dict[md.sname] = md
+        logger.info(
+            f"Library initialized with {len(self.metadata_dict.keys())} superevents stored"
+        )
 
     @property
     def filelist(self):
@@ -71,6 +64,48 @@ class LocalLibraryDatabase(object):
             self._metadata_schema = get_schema()
         else:
             self._metadata_schema = schema
+
+    @cached_property
+    def metadata_default_data(self) -> dict:
+        """The default data for a metadata object with this library's schema"""
+        return get_parser_and_default_data(self.metadata_schema)
+
+    @cached_property
+    def metadata_dict(self) -> dict:
+        metadata_dict = dict()
+        metadata_list = [
+            MetaData.from_file(
+                f, self.metadata_schema, self.metadata_default_data, local_library=self
+            )
+            for f in self.filelist
+        ]
+        for md in metadata_list:
+            metadata_dict[md.sname] = md
+        return metadata_dict
+
+    @cached_property
+    def downselected_metadata_dict(self) -> dict:
+        """Get the snames of events which satisfy library inclusion criteria
+
+        Returns
+        """
+        downselected_metadata_dict = dict()
+        for sname, metadata in self.metadata_dict.items():
+            if sname in self.library_config["Events"]["snames-to-include"]:
+                downselected_metadata_dict[sname] = metadata
+            elif sname in self.library_config["Events"]["snames-to-exclude"]:
+                pass
+            # TODO prepare for how this will work with the all-sky schema changes
+            # This will include:
+            # 1. adapting to G-eventwise values
+            # 2. adding p-astro
+            # 3. possibly adding p_nsbh, p_bns, b_bbh
+            # 4. possibly adding SNR
+            elif metadata.data["GraceDB"]["FAR"] <= float(
+                self.library_config["Events"]["far-threshold"]
+            ):
+                downselected_metadata_dict[sname] = metadata
+        return downselected_metadata_dict
 
     def validate(self, data):
         jsonschema.validate(data, self.metadata_schema)
@@ -141,19 +176,60 @@ class LocalLibraryDatabase(object):
             )
 
     @property
-    def parents(self):
+    def git_parents(self):
         return [self.repo.head.target]
 
-    def read_index_file(self):
+    def git_add_and_commit(
+        self, filename, message: str | None = None, sname: str | None = None
+    ):
+        """
+        Perform the git operations add and commit
+
+        Parameters
+        ==========
+        filename : str
+            The path to the file to commit
+        message : str, optional
+            If passed, this message will be used in the git commit, rather than the default.
+        sname : str, optional
+            The sname of the metadata, if a metadata file is what is being committed.
+            Used for generating a default commit message.
+        """
+        if not hasattr(self, "repo"):
+            # If necessary, initialize git information for this library
+            self._initialize_library_git_repo()
+
+        # Add the file to the index
+        self.repo.index.add(filename)
+        self.repo.index.write()
+        author = self._author_signature
+        if message is None:
+            if sname is not None:
+                metadata = self.metadata_dict[sname]
+                # The case where the file being committed is a metadata file
+                message = f"Changes made to [{metadata.toplevel_diff}]\n"
+            message += f"cmd line: {' '.join(sys.argv)}"
+        # Write the index to the working tree
+        tree = self.repo.index.write_tree()
+        # Commit the tree
+        self.repo.create_commit(
+            self.ref, author, author, message, tree, self.git_parents
+        )
+
+    @cached_property
+    def index_from_file(self) -> dict:
         """Fetch the info from the index json as it currently exists"""
         if os.path.exists(self.index_file_path):
-            current_index_data = json.load(self.index_file_path)
+            with open(self.index_file_path, "r") as f:
+                current_index_data = json.load(f)
             return current_index_data
         else:
             logger.info("No index file currently present")
+            return dict()
 
-    def generate_index_from_library(self):
-        """Generate the index reflecting the current state of the library
+    @cached_property
+    def generated_index(self) -> dict:
+        """The index generated to reflect the current state of the library
 
         Returns
         =======
@@ -193,9 +269,7 @@ class LocalLibraryDatabase(object):
             The output of jsondiff between the current index file
             and the index generated presently
         """
-        read_file_data = self.read_index_file()
-        generate_data = self.generate_index_from_library()
-        index_diff = diff(read_file_data, generate_data)
+        index_diff = diff(self.index_from_file, self.generated_index)
         if index_diff != {}:
             logger.info("Index data has changed since it was last written")
             string_rep_diff = get_dumpable_json_diff(index_diff)
@@ -204,30 +278,15 @@ class LocalLibraryDatabase(object):
 
     def write_index_file(self):
         """Writes the new index to the library"""
-        new_index_data = self.generate_index_from_library()
-        with open(self.index_file_path, "w") as f:
-            json.dump(new_index_data, f, indent=2)
-
-    @cached_property
-    def downselected_metadata_dict(self):
-        """Get the snames of events which satisfy library inclusion criteria"""
-        downselected_metadata_dict = dict()
-        for sname, metadata in self.metadata_dict.items():
-            if sname in self.library_config["Events"]["snames-to-include"]:
-                downselected_metadata_dict[sname] = metadata
-            elif sname in self.library_config["Events"]["snames-to-exclude"]:
-                pass
-            # TODO prepare for how this will work with the all-sky schema changes
-            # This will include:
-            # 1. adapting to G-eventwise values
-            # 2. adding p-astro
-            # 3. possibly adding p_nsbh, p_bns, b_bbh
-            # 4. possibly adding SNR
-            elif metadata.data["GraceDB"]["FAR"] <= float(
-                self.library_config["Events"]["far-threshold"]
-            ):
-                downselected_metadata_dict[sname] = metadata
-        return downselected_metadata_dict
+        index_delta = self.check_for_index_update()
+        if index_delta != dict():
+            with open(self.index_file_path, "w") as f:
+                json.dump(self.generated_index, f, indent=2)
+            self.git_add_and_commit(
+                filename=self.index_file_path,
+                message=f"Updating index with changes:\n\
+                    {pformat(get_dumpable_json_diff(index_delta))}",
+            )
 
 
 class GraceDbDatabase(object):

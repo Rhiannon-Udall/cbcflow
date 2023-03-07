@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import subprocess
-import sys
 from typing import TYPE_CHECKING, Union
 
 import jsondiff
@@ -208,30 +207,9 @@ class MetaData(object):
         with open(self.library_file, "w") as file:
             json.dump(self.data, file, indent=2)
         if self.no_git_library is False:
-            self.git_add_and_commit(message=message)
-
-    def git_add_and_commit(self, message: str | None = None):
-        """
-        Perform the git operations add and commit
-
-        Parameters
-        ==========
-        message : str | None
-            If passed, this message will be used in the git commit, rather than the default.
-        """
-        if not hasattr(self.library, "repo"):
-            self.library._initialize_library_git_repo()
-
-        self.library.repo.index.add(self.filename)
-        self.library.repo.index.write()
-        author = self.library._author_signature
-        if message is None:
-            message = f"Changes made to [{self.toplevel_diff}]"
-            message += f"\ncmd line: {' '.join(sys.argv)}"
-        tree = self.library.repo.index.write_tree()
-        self.library.repo.create_commit(
-            self.library.ref, author, author, message, tree, self.library.parents
-        )
+            self.library.git_add_and_commit(
+                filename=self.filename, message=message, sname=self.sname
+            )
 
     @property
     def is_updated(self):
