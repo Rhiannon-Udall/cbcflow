@@ -6,7 +6,7 @@ from shutil import which
 from glue import pipeline
 
 from .configuration import get_cbcflow_config
-from .database import GraceDbDatabase, LocalLibraryDatabase
+from .database import LocalLibraryDatabase
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -103,17 +103,8 @@ def run_monitor():
     local_library = LocalLibraryDatabase(library_path=config_values["library"])
     logging.info("CBCFlow monitor is beginning sweep")
     logging.info(f"Config values are {config_values}")
-    if local_library.library_config["Monitor"]["parent"] == "gracedb":
-        GDb = GraceDbDatabase(
-            service_url=config_values["gracedb_service_url"], library=local_library
-        )
-        GDb.sync_library()
-    elif os.path.exists(local_library.library_config["Monitor"]["parent"]):
-        # This will be the branch for pulling from a git repo in the local filesystem
-        pass
-    elif "https" in local_library.library_config["Monitor"]["parent"]:
-        # This will be the branch for pulling from a non-local git repo on e.g. gitlab
-        pass
+    local_library.initialize_parent(source_path=config_values["gracedb_service_url"])
+    local_library.library_parent.sync_library()
     logger.info("Updating index file for library")
     local_library.write_index_file()
     logging.info("Sweep completed, resting")

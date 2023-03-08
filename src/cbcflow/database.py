@@ -48,6 +48,45 @@ class LocalLibraryDatabase(object):
             f"Library initialized with {len(self.metadata_dict.keys())} superevents stored"
         )
 
+    ############################################################################
+    ############################################################################
+    ####                     Metadata and Configuration                     ####
+    ############################################################################
+    ############################################################################
+
+    @property
+    def library_parent(self) -> "LibraryParent":
+        """The parent to this library"""
+        return self._library_parent
+
+    def initialize_parent(self, source_path=None):
+        """Get the LibraryParent object which will act as parent to this library
+
+        Parameters
+        ==========
+        source_path
+            The path (GraceDB url, git url, or filesystem path) to the parent source
+        """
+        if source_path is None:
+            source_path = self.library_config["Monitor"]["parent"]
+            logger.info(
+                f"Initializing parent from configuration, with source path {source_path}"
+            )
+        if "https://gracedb" in source_path:
+            self._library_parent = GraceDbDatabase(
+                service_url=source_path, library=self
+            )
+        elif os.path.exists(source_path):
+            # This will be the branch for pulling from a git repo in the local filesystem
+            pass
+        elif "https" in source_path:
+            # This will be the branch for pulling from a non-local git repo on e.g. gitlab
+            pass
+        else:
+            raise ValueError(
+                f"Could not obtain source information from path {source_path}"
+            )
+
     @property
     def filelist(self):
         """The list of cbc metadata jsons in this library"""
@@ -112,16 +151,6 @@ class LocalLibraryDatabase(object):
         jsonschema.validate(data, self.metadata_schema)
 
     @cached_property
-    def _author_signature(self):
-        gitconfig = os.path.expanduser("~/.gitconfig")
-        config = configparser.ConfigParser()
-        config.sections()
-        config.read(gitconfig)
-        name = config["user"]["name"]
-        email = config["user"]["email"]
-        return pygit2.Signature(name, email)
-
-    @cached_property
     def library_config(self):
         """The configuration information for this library"""
         config = configparser.ConfigParser()
@@ -132,6 +161,7 @@ class LocalLibraryDatabase(object):
             "far-threshold": 1.2675e-7,
             "pastro-threshold": 0.5,
             "created-since": "2022-01-01",
+            "created-before": "now",
             "snames-to-include": [],
             "snames-to-exclude": [],
         }
@@ -146,23 +176,11 @@ class LocalLibraryDatabase(object):
                     library_defaults[section_key][key] = section[key]
         return library_defaults
 
-    @property
-    def index_file_name(self) -> str:
-        """The name of the index file, given the library name"""
-        library_name = self.library_config["Library Info"]["library-name"]
-        index_file_name = f"{library_name}-index.json"
-        return index_file_name
-
-    @property
-    def index_file_path(self) -> str:
-        """The file path to the library's index json"""
-        index_file = os.path.join(self.library, self.index_file_name)
-        return index_file
-
-    @property
-    def library_index_schema(self):
-        """The schema being used for this library's index"""
-        return get_schema(index_schema=True)
+    ############################################################################
+    ############################################################################
+    ####                Git Related Functions and Properties                ####
+    ############################################################################
+    ############################################################################
 
     @property
     def is_git_repository(self) -> bool:
@@ -243,6 +261,40 @@ class LocalLibraryDatabase(object):
         self.repo.create_commit(
             self.ref, author, author, message, tree, self.git_parents
         )
+
+    @cached_property
+    def _author_signature(self):
+        gitconfig = os.path.expanduser("~/.gitconfig")
+        config = configparser.ConfigParser()
+        config.sections()
+        config.read(gitconfig)
+        name = config["user"]["name"]
+        email = config["user"]["email"]
+        return pygit2.Signature(name, email)
+
+    ############################################################################
+    ############################################################################
+    ####               Index Related Functions and Properties               ####
+    ############################################################################
+    ############################################################################
+
+    @property
+    def index_file_name(self) -> str:
+        """The name of the index file, given the library name"""
+        library_name = self.library_config["Library Info"]["library-name"]
+        index_file_name = f"{library_name}-index.json"
+        return index_file_name
+
+    @property
+    def index_file_path(self) -> str:
+        """The file path to the library's index json"""
+        index_file = os.path.join(self.library, self.index_file_name)
+        return index_file
+
+    @property
+    def library_index_schema(self):
+        """The schema being used for this library's index"""
+        return get_schema(index_schema=True)
 
     @cached_property
     def index_from_file(self) -> dict:
@@ -382,6 +434,7 @@ class LibraryParent(object):
         """Propagates metadata in superevents_to_propagate into the library.
         Should be overwritten by the child class.
         """
+        return None
 
     def sync_library(self) -> None:
         """A method for syncing the library, using the query specified in the library config.
@@ -493,8 +546,11 @@ class GraceDbDatabase(LibraryParent):
         # annying hack due to gracedb query bug
         import datetime
 
-        now = datetime.datetime.utcnow()
-        now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        if event_config["created-before"] == "now":
+            now = datetime.datetime.utcnow()
+            now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            now_str = event_config["created-before"]
 
         logging.info(f"Syncing with GraceDB at time UTC:{now_str}")
         # make query and defaults, query
