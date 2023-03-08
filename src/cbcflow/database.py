@@ -9,7 +9,7 @@ import sys
 from pprint import pformat
 
 import dateutil.parser as dp
-from jsondiff import replace, diff
+from jsondiff import diff
 import jsonschema
 import pygit2
 from ligo.gracedb.rest import GraceDb
@@ -68,7 +68,8 @@ class LocalLibraryDatabase(object):
     @cached_property
     def metadata_default_data(self) -> dict:
         """The default data for a metadata object with this library's schema"""
-        return get_parser_and_default_data(self.metadata_schema)
+        _, default_data = get_parser_and_default_data(self.metadata_schema)
+        return default_data
 
     @cached_property
     def metadata_dict(self) -> dict:
@@ -146,10 +147,16 @@ class LocalLibraryDatabase(object):
         return library_defaults
 
     @property
-    def index_file_path(self):
-        """The file path to the library's index json"""
+    def index_file_name(self) -> str:
+        """The name of the index file, given the library name"""
         library_name = self.library_config["Library Info"]["library-name"]
-        index_file = os.path.join(self.library, f"{library_name}-index.json")
+        index_file_name = f"{library_name}-index.json"
+        return index_file_name
+
+    @property
+    def index_file_path(self) -> str:
+        """The file path to the library's index json"""
+        index_file = os.path.join(self.library, self.index_file_name)
         return index_file
 
     @property
@@ -157,11 +164,17 @@ class LocalLibraryDatabase(object):
         """The schema being used for this library's index"""
         return get_schema(index_schema=True)
 
+    @property
+    def is_git_repository(self) -> bool:
+        """Whether this library is a git repository"""
+        return os.path.exists(os.path.join(self.library, ".git"))
+
     def _initialize_library_git_repo(self):
         """Initialize the pygit repository object for this library"""
-        if os.path.exists(os.path.join(self.library, ".git")) is False:
+        if not self.is_git_repository:
             raise ValueError(
-                f"The library directory {self.library} is not a repository"
+                f"The library directory {self.library} is not a repository,\
+                so you can't initialize pygit information for it."
             )
 
         self.repo = pygit2.init_repository(self.library)
@@ -177,7 +190,16 @@ class LocalLibraryDatabase(object):
 
     @property
     def git_parents(self):
-        return [self.repo.head.target]
+        """The parents (in the git sense) for the repository"""
+        if hasattr(self, "repo"):
+            return [self.repo.head.target]
+        else:
+            try:
+                self._initialize_library_git_repo()
+            except ValueError:
+                raise AttributeError(
+                    "Cannot get git parents for this repo, since it is not a git repo!"
+                )
 
     def git_add_and_commit(
         self, filename, message: str | None = None, sname: str | None = None
@@ -204,10 +226,16 @@ class LocalLibraryDatabase(object):
         self.repo.index.write()
         author = self._author_signature
         if message is None:
+            # If no message is given, make a default
             if sname is not None:
-                metadata = self.metadata_dict[sname]
                 # The case where the file being committed is a metadata file
-                message = f"Changes made to [{metadata.toplevel_diff}]\n"
+                if sname in self.metadata_dict:
+                    # If we are updating an extant bit of metadata
+                    metadata = self.metadata_dict[sname]
+                    message = f"Changes made to [{metadata.toplevel_diff}]\n"
+                else:
+                    # If we are creating a new metadata file
+                    message = f"Committing metadata for new superevent {sname}"
             message += f"cmd line: {' '.join(sys.argv)}"
         # Write the index to the working tree
         tree = self.repo.index.write_tree()
@@ -283,14 +311,86 @@ class LocalLibraryDatabase(object):
             with open(self.index_file_path, "w") as f:
                 json.dump(self.generated_index, f, indent=2)
             self.git_add_and_commit(
-                filename=self.index_file_path,
+                filename=self.index_file_name,
                 message=f"Updating index with changes:\n\
                     {pformat(get_dumpable_json_diff(index_delta))}",
             )
 
 
-class GraceDbDatabase(object):
-    def __init__(self, service_url):
+class LibraryParent(object):
+    def __init__(self, source_path: str, library: LocalLibraryDatabase) -> None:
+        """Setup a LibraryParent object
+
+        Parameters
+        ==========
+        source_path : str
+            A path to the parent's source.
+            This can be a GraceDB service URL, a git repo url,
+            or the path to a git repo on the shared filesystem.
+        """
+        self.source_path = source_path
+        self.superevents_to_propagate = dict()
+        self.library = library
+        logger.info(
+            f"Parent of library {self.library} initialized with source path {self.source_path}"
+        )
+
+    def pull(self, sname: str) -> dict():
+        """A method for pulling superevent metadata from this parent source.
+        Child classes should overwrite this method.
+
+        Parameters
+        ==========
+        sname : str
+            The superevent sname
+
+        Returns
+        =======
+        dict
+            A dict containing pulled information about the superevent
+        """
+        return dict()
+
+    @property
+    def superevents_to_propagate(self) -> list:
+        """Superevents which should be propagated from this parent"""
+        return self._superevents_to_propagate
+
+    @superevents_to_propagate.setter
+    def superevents_to_propagate(self, new_superevents: list) -> None:
+        if not hasattr(self, "_superevents_to_propagage"):
+            self._superevents_to_propagate = list()
+        self._superevents_to_propagate += new_superevents
+
+    def query_superevents(self, query: str) -> list:
+        """A method for fetching new superevents according to some query
+        This should be overwritten by child classes
+
+        Parameters
+        ==========
+        query : str
+            A query for a collection of superevents (which may be empty or have only one element)
+
+        Returns
+        =======
+        list
+            The collection of superevents (represented by their sname) satisfying the query
+        """
+        return list()
+
+    def pull_library_updates(self) -> None:
+        """Propagates metadata in superevents_to_propagate into the library.
+        Should be overwritten by the child class.
+        """
+
+    def sync_library(self) -> None:
+        """A method for syncing the library, using the query specified in the library config.
+        This should be overwritten by the child class."""
+        return None
+
+
+class GraceDbDatabase(LibraryParent):
+    def __init__(self, service_url: str, library: LocalLibraryDatabase) -> None:
         """Setup the GraceDbDatabase that this library pairs to
 
         Parameters
@@ -298,9 +398,7 @@ class GraceDbDatabase(object):
         service_url : str
             The http address for the gracedb instance that this library pairs to
         """
-        self.service_url = service_url
-        self.queried_superevents = dict()
-        logger.info(f"Using GraceDB service_url: {service_url}")
+        super(GraceDbDatabase, self).__init__(source_path=service_url, library=library)
 
     def pull(self, sname: str) -> dict:
         """Pull information on the superevent with this sname from GraceDB
@@ -315,84 +413,70 @@ class GraceDbDatabase(object):
         dict
             The GraceDB data for the superevent
         """
-        return fetch_gracedb_information(sname, service_url=self.service_url)
+        return fetch_gracedb_information(sname, service_url=self.source_path)
 
-    @property
-    def queried_superevents(self) -> dict:
-        """Superevents which have been queried from GraceDB by this object"""
-        return self._queried_superevents
-
-    @queried_superevents.setter
-    def queried_superevents(self, newly_queried_superevents: dict) -> None:
-        if not hasattr(self, "_queried_superevents"):
-            self._queried_superevents = dict()
-        self._queried_superevents.update(newly_queried_superevents)
-
-    def query_superevents(self, query: str):
+    def query_superevents(self, query: str) -> list:
         """Queries superevents in GraceDb, according to a given query
 
         Parameters
         ==========
-        query
+        query : str
             a GraceDb query string to query for superevents
             see https://gracedb.ligo.org/documentation/queries.html
 
         Returns
         =======
-        self.queried_superevents
-            The queried_superevents attribute updated with these queries.
-            This is also modified in place.
+        list
+            The superevents which satisfy the query
         """
-        with GraceDb(service_url=self.service_url) as gdb:
+        queried_superevents = []
+        with GraceDb(service_url=self.source_path) as gdb:
             superevent_iterator = gdb.superevents(query)
             for superevent in superevent_iterator:
-                self.queried_superevents.update(
-                    {superevent["superevent_id"]: superevent}
-                )
-        return self.queried_superevents
+                queried_superevents.append(superevent["superevent_id"])
+        return queried_superevents
 
-    def pull_updates_gracedb(
-        self, library: LocalLibraryDatabase, no_git_library: bool = False
-    ):
-        """Pulls updates from GraceDb and writes them to library, creates default data as required
-
-        Parameters:
-        ===========
-        library
-            As in metadata.MetaData
-        no_git_library
-            As in metadata.MetaData
-        """
-        if hasattr(self, "queried_superevents"):
-            schema = get_schema()
-            _, default_data = get_parser_and_default_data(schema)
-            for superevent_id, superevent in self.queried_superevents.items():
-                database_data = self.pull(superevent_id)
-                metadata = MetaData(
-                    superevent_id,
-                    local_library=library,
-                    default_data=default_data,
-                    schema=schema,
-                    no_git_library=no_git_library,
-                )
-                metadata.update(database_data)
+    def pull_library_updates(self) -> None:
+        """Pulls updates from GraceDb and writes them to library, creates default data as required"""
+        if hasattr(self, "superevents_to_propagate"):
+            for superevent_id in self.superevents_to_propagate:
+                if superevent_id in self.library.metadata_dict.keys():
+                    metadata = self.library.metadata_dict[superevent_id]
+                else:
+                    metadata = MetaData(
+                        superevent_id,
+                        local_library=self.library,
+                        schema=self.library.metadata_schema,
+                        default_data=self.library.metadata_default_data,
+                    )
                 try:
+                    backup_data = copy.deepcopy(metadata.data)
+                    database_data = self.pull(superevent_id)
+                    metadata.update(database_data)
+                    changes = metadata.get_diff()
+                    if "GraceDB" in changes.keys() and len(changes.keys()) == 1:
+                        if len(changes["GraceDB"].keys()) == 1:
+                            continue
+                        # This is a hack to make it not update if the only update would be "LastUpdate"
+                        # It may have to change in further schema versions
+                    logger.info(f"Updates to supervent {superevent_id}")
+                    string_rep_changes = get_dumpable_json_diff(changes)
+                    logger.info(json.dumps(string_rep_changes, indent=2))
                     metadata.write_to_library()
                 except jsonschema.exceptions.ValidationError:
                     logger.info(
-                        "GraceDB metadata cannot be validated.\
-                        Local metadata will not be updated\n"
+                        f"For superevent {superevent_id}, GraceDB generated metadata failed validation\
+                        Writing backup data (either default or pre-loaded) to library instead\n"
                     )
-
+                    metadata.update(backup_data)
+                    metadata.write_to_library()
         else:
             logger.info(
-                "This GraceDbDatabase instance has not queried for superevents yet,\
+                "This GraceDbDatabase instance has not assigned any superevents to propagate yet\
                  please do so before attempting to pull them."
             )
 
-    def sync_library_gracedb(
-        self, local_library: LocalLibraryDatabase = None, local_library_path=None
-    ):
+    def sync_library(self) -> None:
         """Attempts to sync library and GraceDb,
         pulling any new events and changes to GraceDB data.
 
@@ -403,14 +487,8 @@ class GraceDbDatabase(object):
 
         """
         # setup defaults
-        schema = get_schema()
-        if local_library is None:
-            assert (
-                local_library_path is not None
-            ), "Must specify library object or path to library"
-            local_library = LocalLibraryDatabase(local_library_path, schema)
         # monitor_config = local_library.library_config["Monitor"]
-        event_config = local_library.library_config["Events"]
+        event_config = self.library.library_config["Events"]
 
         # annying hack due to gracedb query bug
         import datetime
@@ -423,54 +501,18 @@ class GraceDbDatabase(object):
         query = f"created: {event_config['created-since']} .. {now_str} \
         FAR <= {event_config['far-threshold']}"
         logger.info(f"Constructed query {query} from library config")
-        _, default_data = get_parser_and_default_data(schema)
-        self.query_superevents(query)
+        self.superevents_to_propagate = self.query_superevents(query)
 
         logger.info(
-            f"Querying based on library configuration returned {len(self.queried_superevents)} superevents"
+            f"Querying based on library configuration returned {len(self.superevents_to_propagate)} superevents"
         )
         # for superevents not in the query parameters, but already in the library
-        for superevent_id in local_library.metadata_dict.keys():
-            if superevent_id not in self.queried_superevents.keys():
-                self.query_superevents(superevent_id)
+        for superevent_id in self.library.metadata_dict.keys():
+            if superevent_id not in self.superevents_to_propagate:
+                self.superevents_to_propagate.append(superevent_id)
                 logging.info(
                     f"Also querying superevent {superevent_id} which was in the library\
                 \n but which did not meet query parameters"
                 )
 
-        # loop over all superevents of interest
-        for superevent_id, superevent in self.queried_superevents.items():
-            gracedb_data = self.pull(superevent["superevent_id"])
-            if superevent_id in local_library.metadata_dict.keys():
-                local_data = local_library.metadata_dict[superevent_id]
-            else:
-                # if not in library make default
-                logger.info(
-                    f"Superevent {superevent_id} appeared in the GraceDB query,\n\
-                            but was not present in the library, so defaults are being generated."
-                )
-                local_data = MetaData(
-                    superevent_id,
-                    local_library=local_library,
-                    default_data=default_data,
-                    schema=schema,
-                )
-            try:
-                backup_data = copy.deepcopy(local_data.data)
-                # if in gracedb, use the gracedb data
-                local_data.update(gracedb_data)
-                changes = local_data.get_diff()
-                if replace in changes:
-                    # This is a hack to make it not update if the only update would be "LastUpdate"
-                    # It may have to change in further schema versions
-                    logger.info(f"Updates to supervent {superevent_id}")
-                    string_rep_changes = get_dumpable_json_diff(changes)
-                    logger.info(json.dumps(string_rep_changes, indent=2))
-                    local_data.write_to_library()
-            except jsonschema.exceptions.ValidationError:
-                logger.info(
-                    f"For superevent {superevent_id}, GraceDB generated metadata failed validation\
-                    Writing backup data (either default or pre-loaded) to library instead\n"
-                )
-                local_data.update(backup_data)
-                local_data.write_to_library
+        self.pull_library_updates()

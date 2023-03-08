@@ -129,8 +129,12 @@ def get_dumpable_json_diff(diff: dict) -> dict:
     """
     string_rep_diff = dict()
     for key, val in diff.items():
-        if isinstance(key, Symbol):
-            string_rep_diff[key.label] = val
+        if isinstance(val, dict):
+            val_to_write = get_dumpable_json_diff(val)
         else:
-            string_rep_diff[key] = val
+            val_to_write = val
+        if isinstance(key, Symbol):
+            string_rep_diff[key.label] = val_to_write
+        else:
+            string_rep_diff[key] = val_to_write
     return string_rep_diff

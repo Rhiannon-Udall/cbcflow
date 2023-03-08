@@ -104,8 +104,10 @@ def run_monitor():
     logging.info("CBCFlow monitor is beginning sweep")
     logging.info(f"Config values are {config_values}")
     if local_library.library_config["Monitor"]["parent"] == "gracedb":
-        GDb = GraceDbDatabase(config_values["gracedb_service_url"])
-        GDb.sync_library_gracedb(local_library=local_library)
+        GDb = GraceDbDatabase(
+            service_url=config_values["gracedb_service_url"], library=local_library
+        )
+        GDb.sync_library()
     elif os.path.exists(local_library.library_config["Monitor"]["parent"]):
         # This will be the branch for pulling from a git repo in the local filesystem
         pass
