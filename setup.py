@@ -19,6 +19,9 @@ for file in files:
 if __name__ == "__main__":
     setuptools.setup(
         package_data={"cbcflow": ["schema/cbc-meta-data-v1.schema"]},
+        entry_points = {
+            "asimov.hooks.postmonitor": ["cbcflow = cbcflow.asimov:Collector"]
+        },
         version=versioneer.get_version(),
         cmdclass=versioneer.get_cmdclass(),
     )
