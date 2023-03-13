@@ -20,7 +20,8 @@ if __name__ == "__main__":
     setuptools.setup(
         package_data={"cbcflow": ["schema/cbc-meta-data-v1.schema"]},
         entry_points = {
-            "asimov.hooks.postmonitor": ["cbcflow = cbcflow.asimov:Collector"]
+            "asimov.hooks.postmonitor": ["cbcflow = cbcflow.asimov:Collector"],
+            "asimov.hooks.applicator": ["cbcflow = cbcflow.asimov:Applicator"]
         },
         version=versioneer.get_version(),
         cmdclass=versioneer.get_cmdclass(),
