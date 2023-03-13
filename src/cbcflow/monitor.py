@@ -66,7 +66,7 @@ def generate_crondor():
     monitor_job.set_stderr_file(os.path.join(rundir, "monitor.err"))
     monitor_job.add_condor_cmd("accounting_group", args.ligo_accounting)
     monitor_job.add_condor_cmd("accounting_group_user", args.ligo_user_name)
-    monitor_job.add_condor_cmd("request_memory", "40 Mb")
+    monitor_job.add_condor_cmd("request_memory", "200 Mb")
     monitor_job.add_condor_cmd("request_disk", "10 Mb")
     monitor_job.add_condor_cmd("notification", "never")
     monitor_job.add_condor_cmd("initialdir", rundir)
