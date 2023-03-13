@@ -221,7 +221,7 @@ class LocalLibraryDatabase(object):
                 )
 
     def git_add_and_commit(
-        self, filename, message: str | None = None, sname: str | None = None
+        self, filename, message: Union[str, None] = None, sname: Union[str, None] = None
     ):
         """
         Perform the git operations add and commit
