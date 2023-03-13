@@ -37,8 +37,8 @@ class Collector:
 class Applicator:
     """Apply information from CBCFlow to an asimov event"""
 
-    def __init__(self):
-        pass
+    def __init__(self, ledger):
+        self.ledger = ledger
 
     def run(self, sid=None):
         
