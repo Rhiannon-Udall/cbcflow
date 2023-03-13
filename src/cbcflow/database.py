@@ -7,6 +7,7 @@ import os
 from functools import cached_property
 import sys
 from pprint import pformat
+from typing import Union
 
 import dateutil.parser as dp
 from jsondiff import diff
@@ -30,8 +31,8 @@ class LocalLibraryDatabase(object):
     def __init__(
         self,
         library_path: str,
-        schema: dict | None = None,
-        default_data: dict | None = None,
+        schema: Union[dict, None] = None,
+        default_data: Union[dict, None] = None,
     ):
         """A class to handle operations on the local library (git) database
 
@@ -98,7 +99,7 @@ class LocalLibraryDatabase(object):
         return self._metadata_schema
 
     @metadata_schema.setter
-    def metadata_schema(self, schema: dict | None = None):
+    def metadata_schema(self, schema: Union[dict, None] = None):
         if schema is None:
             self._metadata_schema = get_schema()
         else:

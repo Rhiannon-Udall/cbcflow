@@ -22,9 +22,9 @@ class MetaData(object):
         self,
         sname: str,
         local_library: Union["LocalLibraryDatabase", None] = None,
-        local_library_path: str | None = None,
-        schema: dict | None = None,
-        default_data: dict | None = None,
+        local_library_path: Union[str, None] = None,
+        schema: Union[dict, None] = None,
+        default_data: Union[dict, None] = None,
         no_git_library: bool = False,
     ) -> None:
         """A object to store and interact with a metadata object
@@ -75,8 +75,8 @@ class MetaData(object):
     @staticmethod
     def from_file(
         filename: str,
-        schema: dict | None = None,
-        default_data: dict | None = None,
+        schema: Union[dict, None] = None,
+        default_data: Union[dict, None] = None,
         local_library: Union["LocalLibraryDatabase", None] = None,
     ) -> MetaData:
         """Load a metadata object given a file path
@@ -188,7 +188,7 @@ class MetaData(object):
         self.data = data
         self._loaded_data = copy.deepcopy(data)
 
-    def write_to_library(self, message: str | None = None) -> None:
+    def write_to_library(self, message: Union[str, None] = None) -> None:
         """
         Write loaded metadata back to library, and stage/commit if the library is a git repository
 
