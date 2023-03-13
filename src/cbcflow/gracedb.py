@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from typing import Union
 
 from ligo.gracedb.exceptions import HTTPError
 from ligo.gracedb.rest import GraceDb
@@ -7,14 +8,14 @@ from ligo.gracedb.rest import GraceDb
 logger = logging.getLogger(__name__)
 
 
-def fetch_gracedb_information(sname: str, service_url: str | None = None):
+def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
     """Get the standard GraceDB metadata contents for this superevent
 
     Parameters
     ==========
     sname : str
         The sname of the superevent to fetch.
-    service_url : str | None, optional
+    service_url : Union[str, None], optional
         The url for the GraceDB instance to access.
         If None is passed then this will use the configuration default.
 

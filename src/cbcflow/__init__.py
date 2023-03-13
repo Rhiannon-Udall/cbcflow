@@ -1,3 +1,5 @@
+from typing import Union
+
 from . import _version
 from .cbcflow import from_file, main
 from .configuration import get_cbcflow_config
@@ -10,7 +12,7 @@ __version__ = _version.get_versions()["version"]
 
 
 def get_superevent(
-    sname: str, library: str | None = None, no_git_library: bool = False
+    sname: str, library: Union[str, None] = None, no_git_library: bool = False
 ):
     """
     A helper method to easily fetch information on a given superevent.
