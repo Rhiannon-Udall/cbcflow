@@ -1,3 +1,5 @@
+from typing import Union
+
 from . import _version
 from .cbcflow import from_file, main
 from .configuration import get_cbcflow_config
@@ -10,7 +12,7 @@ __version__ = _version.get_versions()["version"]
 
 
 def get_superevent(
-    sname: str, library: str | None = None, no_git_library: bool = False
+    sname: str, library: Union[str, None] = None, no_git_library: bool = False
 ):
     """
     A helper method to easily fetch information on a given superevent.
@@ -23,6 +25,7 @@ def get_superevent(
         The library from which to fetch information
     no_git_library : bool
         If true, don't attempt to treat this library as a git repository
+
     Returns
     =======
     cbcflow.metadata.MetaData
@@ -37,7 +40,11 @@ def get_superevent(
         library = config_defaults["library"]
 
     metadata = MetaData(
-        sname, library, default_data, schema, no_git_library=no_git_library
+        sname,
+        local_library_path=library,
+        default_data=default_data,
+        schema=schema,
+        no_git_library=no_git_library,
     )
 
     return metadata
