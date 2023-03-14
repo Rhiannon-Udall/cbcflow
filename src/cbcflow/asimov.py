@@ -6,12 +6,21 @@ from asimov import config
 
 
 class Collector:
+
+    # TODO: Add all possible asimov states to the map
+    status_map = {
+        "ready": "unstarted",
+        "uploaded": "complete",
+        "running": "ongoing",
+    }
+    
     def __init__(self, ledger):
         """
         Collect data from the asimov ledger and write it to a CBCFlow library.
         """
-        self.library = ledger.data["hooks"]["cbcflow"]["library location"]
-        self.schema_section = ledger.data["hooks"]["cbcflow"]["schema section"]
+        hook_data = ledger.data["hooks"]["postmonitor"]["cbcflow"]
+        self.library = hook_data["library location"]
+        self.schema_section = hook_data["schema section"]
         self.ledger = ledger
 
     def run(self):
@@ -21,13 +30,16 @@ class Collector:
 
         for event in self.ledger.get_event():
             output = {}
-            pe = output[self.schema_section] = []
+            output[self.schema_section] = {}
+            pe = output[self.schema_section]['Results'] = []
             metadata = cbcflow.get_superevent(event.meta['ligo']['sname'], library=self.library)
             for analysis in event.productions:
                 analysis_output = {}
-                analysis_output["uid"] = analysis.name
+                analysis_output["UID"] = analysis.name
                 analysis_output["InferenceSoftware"] = str(analysis.pipeline)
-                analysis_output["RunStatus"] = str(analysis.status)
+                if analysis.status.lower() in self.status_map.keys():
+                    if analysis.status.lower() in {"complete", "running", "stuck"}:
+                        analysis_output["RunStatus"] = self.status_map[analysis.status.lower()]
                 if "waveform" in analysis.meta:
                     if "approximant" in analysis.meta["waveform"]:
                         analysis_output["WaveformApproximant"] = str(
@@ -39,6 +51,7 @@ class Collector:
                     analysis_output["ResultFile"] = analysis.pipeline.collect_assets()
                 pe.append(analysis_output)
                 metadata.update(output)
+                metadata.write_to_library(message="Analysis run update by asimov")
             
 
 
@@ -46,8 +59,9 @@ class Applicator:
     """Apply information from CBCFlow to an asimov event"""
 
     def __init__(self, ledger):
+        hook_data = ledger.data["hooks"]["applicator"]["cbcflow"]
         self.ledger = ledger
-        self.library = ledger.data["hooks"]["cbcflow"]["library location"]
+        self.library = hook_data["library location"]
 
     def run(self, sid=None):
 
@@ -57,7 +71,6 @@ class Applicator:
         ifos = detchar["RecommendedDetectors"]
         if len(ifos) == 0:
             ifos = grace["Instruments"].split(",")
-
         quality = {}
         max_f = quality["maximum frequency"] = {}
         min_f = quality["minimum frequency"] = {}
@@ -69,8 +82,9 @@ class Applicator:
         # Data settings
         data = {}
         channels = data["channels"] = {}
-        for i, ifo in enumerate(ifos):
-            channels[ifo] = detchar["RecommendedChannels"][i]
+        if len(detchar["RecommendedChannels"]) > 0:
+            for i, ifo in enumerate(ifos):
+                channels[ifo] = detchar["RecommendedChannels"][i]
         data["segment length"] = detchar["RecommendedDuration"]
 
         # GraceDB Settings
@@ -90,3 +104,4 @@ class Applicator:
         }
 
         event = Event.from_dict(output)
+        self.ledger.add_event(event)
