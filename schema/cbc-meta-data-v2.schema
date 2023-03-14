@@ -1055,6 +1055,110 @@
         }        
         }
       },
+    "bhmimicker": {
+      "description": "Black Hole Mimicker Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "UpperLambda1":{
+          "description": "Maximum of the lambda_1 prior",
+          "type": "number"
+        },
+        "UpperLambda2":{
+          "description": "Maximum of the lambda_2 prior",
+          "type": "number"
+        },
+        "CutoffFrequency":{
+          "description": "Cutoff Frequency used in the analysis",
+          "type": "number"
+        }
+        }
+      },
+    "SMA": {
+      "description": "The subdominant mode analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "LowerDamp21":{
+          "description": "Lower limit of the damp21 prior",
+          "type": "number"
+        },
+        "UpperDamp21":{
+          "description": "Upper limit of the damp21 prior",
+          "type": "number"
+        },
+        "LowerDamp33":{
+          "description": "Lower limit of the damp33 prior",
+          "type": "number"
+        },
+        "UpperDamp33":{
+          "description": "Upper limit of the damp33 prior",
+          "type": "number"
+        }
+        }
+      },
     "FTI": {
       "description": "Flexible Theory Independent (FTI) analysis",
       "type": "object",
