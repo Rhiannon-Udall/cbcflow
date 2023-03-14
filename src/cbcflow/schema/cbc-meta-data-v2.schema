@@ -12,6 +12,11 @@
       "type": "string",
       "pattern": "^S[0-9]{6}[a-z]+"
     },
+    "SchemaVersion":{
+      "description": "The schema which this metadata was written with",
+      "type":"string",
+      "default":"v2"
+    },
     "Info": {
       "description": "General information about the trigger",
       "additionalProperties": false,
