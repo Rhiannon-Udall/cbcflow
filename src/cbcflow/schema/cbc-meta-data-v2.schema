@@ -148,14 +148,22 @@
           "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
           "default": "unstarted"
         },
-        "SafeGeocentTime": {
-          "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
-          "type": "number"
+        "IllustrativeResult": {
+          "description": "The UID of a PE Result which demonstrates the key features of this event. This is *not* the only result of interest, merely a representative result.",
+          "type": "string"
+        },
+        "SkymapReleaseResult": {
+          "description": "The UID of the result from which the updated skymap release is derived",
+          "type": "string"
         },
         "Results": {
           "description": "A list of results",
           "type": "array",
           "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "SafeGeocentTime": {
+          "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
+          "type": "number"
         },
         "SafeSamplingRate": {
           "description": "Configurator determined safe sampling rate for this event",
