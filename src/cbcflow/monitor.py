@@ -3,6 +3,8 @@ import logging
 import os
 from shutil import which
 
+from glue import pipeline
+
 from .configuration import get_cbcflow_config
 from .database import GraceDbDatabase
 
@@ -14,7 +16,6 @@ def generate_crondor():
     """
     Creates a periodic condor to run the monitor action.
     """
-    from glue import pipeline
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

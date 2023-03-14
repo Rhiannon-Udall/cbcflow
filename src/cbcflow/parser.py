@@ -1,5 +1,6 @@
 import argparse
 import logging
+from typing import Tuple
 
 import argcomplete
 
@@ -75,12 +76,12 @@ def process_property(key, value, arg, parser, default_data, schema):
         if value["items"].get("type") == "string":
             parser.add_argument(
                 "--" + arg + "-add",
-                action="store",
+                action="append",
                 help=f"Append to the {arg}",
             )
             parser.add_argument(
                 "--" + arg + "-remove",
-                action="store",
+                action="append",
                 help=f"Remove from {arg}: note this must be an exact match",
             )
             default_data[key] = []
@@ -106,7 +107,9 @@ def process_property(key, value, arg, parser, default_data, schema):
                 process_property(k, v, arg, parser, {}, schema)
 
 
-def build_parser_from_schema(parser, schema):
+def build_parser_from_schema(
+    parser: argparse.ArgumentParser, schema: dict
+) -> Tuple[argparse.ArgumentParser, dict]:
     default_data = {"Sname": None}
     ignore_groups = ["Sname"]
     for group, subschema in schema["properties"].items():
