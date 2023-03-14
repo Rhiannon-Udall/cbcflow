@@ -28,8 +28,8 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
         from .configuration import config_defaults
 
         service_url = config_defaults["gracedb_service_url"]
-        logger.info("Using configuration default GraceDB service_url")
-    logger.info(f"Using GraceDB service_url: {service_url}")
+        logger.debug("Using configuration default GraceDB service_url")
+    logger.debug(f"Using GraceDB service_url: {service_url}")
     with GraceDb(service_url=service_url) as gdb:
         try:
             superevent = gdb.superevent(sname).json()
