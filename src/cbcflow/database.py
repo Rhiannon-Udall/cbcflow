@@ -45,9 +45,7 @@ class LocalLibraryDatabase(object):
         self.library = library_path
         self.metadata_schema = schema
 
-        logger.info(
-            f"Library initialized with {len(self.metadata_dict.keys())} superevents stored"
-        )
+        logger.info(f"Library initialized with {len(self.filelist)} superevents stored")
 
     ############################################################################
     ############################################################################
