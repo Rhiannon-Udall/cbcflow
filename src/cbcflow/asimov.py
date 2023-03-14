@@ -9,7 +9,7 @@ class Collector:
         """
         Collect data from the asimov ledger and write it to a CBCFlow library.
         """
-
+        self.schema_section = "ParameterEstimation"
         self.ledger = ledger
 
     def run(self):
@@ -19,7 +19,7 @@ class Collector:
 
         for event in self.ledger.get_event():
             output = {}
-            pe = output["ParameterEstimation"] = []
+            pe = output[self.schema_section] = []
             
             for analysis in event.productions:
                 analysis_output = {}
@@ -44,23 +44,40 @@ class Applicator:
         
         metadata = cbcflow.get_superevent(sid, library="cbcflow")
         detchar = metadata.data['DetectorCharacterization']
-
+        grace = metadata.data['GraceDB']]
         ifos = detchar['RecommendedDetectors']
         if len(ifos) == 0:
-            ifos = metadata.data['GraceDB']['Instruments'].split(",")
+            ifos = grace['Instruments'].split(",")
         
         quality = {}
         max_f = quality['maximum frequency'] = {}
         min_f = quality['minimum frequency'] = {}
-        # RecommendedChannels RecommendedDuration
+
         for ifo in ifos:
             max_f[ifo] = detchar['RecommendedMaximumFrequency']
             min_f[ifo] = detchar['RecommendedMinimumFrequency']
-        print(quality)
+        
+        # Data settings
+        data = {}
+        channels = data['channels'] = {}
+        for i, ifo in enumerate(ifos):
+            channels[ifo] = detchar['RecommendedChannels'][i]
+        data['segment length'] = detchar['RecommendedDuration']
 
-        event = Event.from_dict(dict(name = metadata.data['Sname'], quality=quality))
+        # GraceDB Settings
+        ligo = {}
+        ligo['preferred event'] = grace['PreferredEvent']
+        ligo['sname'] = sid
+        ligo['false alarm rate'] = grace['FAR']
 
-        print(event)
+        event_time = grace['GPSTime']
+
+        output = {"name": metadata.data['Sname'],
+                  "quality": quality,
+                  "ligo": ligo,
+                  "data": data,
+                  "event time": grace['GPSTime']}
+        
+        event = Event.from_dict(output)
         
         
-        pass
