@@ -6,7 +6,7 @@ from shutil import which
 from glue import pipeline
 
 from .configuration import get_cbcflow_config
-from .database import GraceDbDatabase
+from .database import LocalLibraryDatabase
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -44,10 +44,11 @@ def generate_crondor():
         help="The LIGO accounting user for the job to be tagged with",
     )
     parser.add_argument(
-        "--testing-configuration",
-        action="store_true",
-        help="If true, changes the crondor interval to every 10 minutes\
-            Only use when testing - this pace is unnecessary for actual use",
+        "--monitor-minute",
+        type=int,
+        default=0,
+        help="If passed, sets the minute to run the job, so that one can get quick feedback"
+        "Defaults to 0 for normal operation",
     )
     args = parser.parse_args()
 
@@ -56,7 +57,7 @@ def generate_crondor():
     else:
         rundir = args.rundir
 
-    monitor_exe = which("monitor_run")
+    monitor_exe = which("cbcflow_monitor_run")
     monitor_job = pipeline.CondorJob(
         universe="vanilla", executable=monitor_exe, queue=1
     )
@@ -65,19 +66,15 @@ def generate_crondor():
     monitor_job.set_stderr_file(os.path.join(rundir, "monitor.err"))
     monitor_job.add_condor_cmd("accounting_group", args.ligo_accounting)
     monitor_job.add_condor_cmd("accounting_group_user", args.ligo_user_name)
-    monitor_job.add_condor_cmd("request_memory", "40 Mb")
+    monitor_job.add_condor_cmd("request_memory", "200 Mb")
     monitor_job.add_condor_cmd("request_disk", "10 Mb")
     monitor_job.add_condor_cmd("notification", "never")
     monitor_job.add_condor_cmd("initialdir", rundir)
     monitor_job.add_condor_cmd("get_env", "True")
     monitor_job.add_condor_cmd("on_exit_remove", "False")
-    # These are the unusual settings - this makes the job repeat every N hours
-    if args.testing_configuration:
-        monitor_job.add_condor_cmd("cron_minute", "10")
-        monitor_job.add_condor_cmd("cron_hour", "*")
-    else:
-        monitor_job.add_condor_cmd("cron_minute", "0")
-        monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
+    # These are the unusual settings - this makes the job repeat every N hours, at the Mth minute
+    monitor_job.add_condor_cmd("cron_minute", f"{args.monitor_minute}")
+    monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
     # This tells the job to queue 5 minutes before it's execution time, so it will be ready when the time comes
     monitor_job.add_condor_cmd("cron_prep_time", "300")
     monitor_args = f" {os.path.expanduser(args.config_file)} "
@@ -103,6 +100,11 @@ def run_monitor():
     args = parser.parse_args()
 
     config_values = get_cbcflow_config(args.cbcflowconfig)
+    local_library = LocalLibraryDatabase(library_path=config_values["library"])
+    logging.info("CBCFlow monitor is beginning sweep")
     logging.info(f"Config values are {config_values}")
-    GDb = GraceDbDatabase(config_values["gracedb_service_url"])
-    GDb.sync_library_gracedb(config_values["library"])
+    local_library.initialize_parent(source_path=config_values["gracedb_service_url"])
+    local_library.library_parent.sync_library()
+    logger.info("Updating index file for library")
+    local_library.write_index_file()
+    logging.info("Sweep completed, resting")

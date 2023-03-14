@@ -91,10 +91,11 @@ To see what these defaults look like, we can do:
 
 Notably, this default data *does not* include the GraceDB information
 - updating the superevent with this information requires specifically fetching that data from GraceDB.
-However, when interacting with the central CBC library or it's derivatives
+When interacting with the central CBC library or it's derivatives
 (which are directly or indirectly kept up to date with GraceDB)
 this should not be an issue. 
 However, if we want to add GraceDB data manually, we can do:
+
 .. code-block::
 
     >>> gracedb_info = cbcflow.gracedb.fetch_gracedb_information("S190521q")
