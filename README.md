@@ -2,16 +2,18 @@
 
 ## The meta-data schema
 
-This repository hosts the JSON schema for CBC meta data in O4 see https://dcc.ligo.org/LIGO-T2100502 for background.
+This repository hosts the JSON schema for CBC meta data in O4 - see https://dcc.ligo.org/LIGO-T2100502 for background.
+Currently v1 of the schema is the stable version, while v2 is under development, and will be deployed before the beginning of the fourth observing run. 
+Details of the schema, and how to add to it, can be found in [the documentation](https://cbc.docs.ligo.org/projects/meta-data/index.html). 
 
-* To add to the schema, please clone the repository add lines to `schema/cbc-meta-data-v1.schema` and create a MR.
-* The CI will check the validity of the schema, you can do this locally by running
-```console
-$ pip install jsonschema
-$ jsonschema jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data-v1.schema
-```
-* For help with the json schema, see https://json-schema.org/learn/getting-started-step-by-step.html
-* For visualization of the json schema, see https://cbc.docs.ligo.org/meta-data/cbc-meta-data-schema.html
+
+## cbcflow
+
+This repository contains the source code for `cbcflow` a tool to interact with the metadata. Please see the documentation for further details.
+
+### Development Calls
+
+Development calls take place every other Wednesday at 8 PST / 11 EST / 16 UTC, and will take place on teamspeak. Any interested collaboration member is welcome to attend. 
 
 ### Developers
 * Gregory Ashton
@@ -27,14 +29,10 @@ $ jsonschema jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data
 * Bruce Edelman (R&P)
 * Dimitri Estevez (All-sky)
 * Aditya Vijaykumar (TGR)
-* Ronaldas Macas
-* Siddharth Soni
-* Apratim Ganguly
-* Ka-Lok Lo
-
-## cbcflow
-
-This repository contains the source code for `cbcflow` a tool to interact with the metadata. You can find [documentation for this module here](https://cbc.docs.ligo.org/meta-data/index.html)
+* Ronaldas Macas (Detchar)
+* Siddharth Soni (Detchar)
+* Apratim Ganguly (Lensing)
+* Ka-Lok Lo (Lensing)
 
 
 

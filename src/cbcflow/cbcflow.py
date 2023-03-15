@@ -31,7 +31,7 @@ def main():
     # Instantiate the metadata
     metadata = MetaData(
         args.sname,
-        args.library,
+        local_library_path=args.library,
         default_data=default_data,
         schema=schema,
         no_git_library=args.no_git_library,
@@ -61,11 +61,11 @@ def main():
         )
 
     if args.update:
-        process_user_input(args, metadata, schema)
+        process_user_input(args, metadata)
         metadata.write_to_library()
 
     if args.print:
-        metadata.pretty_print(metadata.data)
+        metadata.pretty_print()
 
 
 def from_file():
@@ -111,7 +111,7 @@ def from_file():
     # Instantiate the metadata
     metadata = MetaData(
         args.sname,
-        args.library,
+        local_library_path=args.library,
         default_data=default_data,
         schema=schema,
         no_git_library=args.no_git_library,

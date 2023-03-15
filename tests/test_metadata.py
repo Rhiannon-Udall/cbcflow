@@ -21,7 +21,7 @@ class TestMetaData(unittest.TestCase):
             shutil.rmtree(self.test_library_directory)
 
     def setUp(self):
-        self.test_library_directory = "test_library"
+        self.test_library_directory = "tests/test_library"
         self.test_sname = "S190425z"
         self.schema = get_schema()
         _, default_data = get_parser_and_default_data(self.schema)
@@ -41,7 +41,7 @@ class TestMetaData(unittest.TestCase):
         self.check_metadata_data = copy.deepcopy(
             MetaData(
                 self.test_sname,
-                self.test_library_directory,
+                local_library_path=self.test_library_directory,
                 **self.default_metadata_kwargs,
             ).data
         )
@@ -221,21 +221,27 @@ class TestMetaData(unittest.TestCase):
 
     def test_empty_metadata_sname(self):
         metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
         assert metadata.sname == self.test_sname
 
     def test_empty_metadata_library(self):
         metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
-        assert metadata.library == self.test_library_directory
+        assert metadata.library.library == self.test_library_directory
 
     def test_empty_metadata_library_print(self):
         metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
-        metadata.pretty_print(metadata.data)
+        metadata.pretty_print()
 
     def test_metadata_from_file(self):
         # Write a metadata file to test
@@ -247,7 +253,9 @@ class TestMetaData(unittest.TestCase):
         )
 
         metadata = MetaData(
-            sname, self.test_library_directory, **self.default_metadata_kwargs
+            sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
         assert metadata.sname == sname
         assert metadata.data["ParameterEstimation"]["Reviewers"] == ["Gregory Ashton"]
@@ -260,13 +268,17 @@ class TestMetaData(unittest.TestCase):
         shutil.copy(tgt, self.test_library_directory + f"/{sname}.json")
 
         metadata = MetaData(
-            sname, self.test_library_directory, **self.default_metadata_kwargs
+            sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
         metadata.data["ParameterEstimation"]["Reviewers"].append("michael.kiwanuka")
         metadata.write_to_library()
 
         metadata_mod = MetaData(
-            sname, self.test_library_directory, **self.default_metadata_kwargs
+            sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
         assert metadata.data == metadata_mod.data
 
@@ -274,8 +286,13 @@ class TestMetaData(unittest.TestCase):
         pass
 
     def test_update_metadata_with_json_add(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
         # Write out the update_json
 
@@ -286,9 +303,14 @@ class TestMetaData(unittest.TestCase):
         assert self.check_metadata_data == metadata.data
 
     def test_update_metadata_with_json_remove(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         # Start out the same as above
         metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
 
         # Perform the updates
@@ -332,11 +354,17 @@ class TestMetaData(unittest.TestCase):
         assert self.check_metadata_data == metadata.data
 
     def test_update_metadata_from_json(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         # Use the command line argument to modify directly from a json
         metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
         metadata.write_to_library()
+        logger.info(metadata.library.library)
         cmd_1 = [
             "cbcflow_from_file",
             "S190425z",
@@ -356,15 +384,22 @@ class TestMetaData(unittest.TestCase):
         ]
         subprocess.check_output(cmd_2)
         altered_metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
 
         assert altered_metadata.data == self.check_metadata_data
 
     def test_update_metadata_from_yaml(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         # now as above, just with yamls
         metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
         metadata.write_to_library()
         cmd_1 = [
@@ -386,14 +421,21 @@ class TestMetaData(unittest.TestCase):
         ]
         subprocess.check_output(cmd_2)
         altered_metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
 
         assert altered_metadata.data == self.check_metadata_data
 
     def test_update_with_flag_commands(self):
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
         metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
         metadata.write_to_library()
         base_cmd = [
@@ -569,7 +611,9 @@ class TestMetaData(unittest.TestCase):
         ]
         subprocess.check_output(cmd_11)
         altered_metadata = MetaData(
-            self.test_sname, self.test_library_directory, **self.default_metadata_kwargs
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
         )
 
         assert altered_metadata.data == self.check_metadata_data

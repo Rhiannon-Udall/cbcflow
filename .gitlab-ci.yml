@@ -6,6 +6,7 @@ include:
 stages:
   - initial
   - test
+  - pre-docs
   - docs
   - deploy
 
@@ -35,7 +36,7 @@ unit-test:
     - pytest --cov cbcflow --cov-report xml
 
 schema-html:
-  stage: docs
+  stage: pre-docs
   extends:
     - .python:base
   script:
@@ -44,9 +45,11 @@ schema-html:
     - cd schema/visualization/
     - generate-schema-doc ../cbc-meta-data-v1.schema cbc-meta-data-schema.html
     - cd ../..
+    - mkdir docs/schema_visualization/
+    - mv schema/visualization/* docs/schema_visualization/
   artifacts:
     paths:
-    - schema/visualization/*
+    - docs/schema_visualization/
 
 docs:
   stage: docs
@@ -66,7 +69,6 @@ pages:
   stage: deploy
   script:
     - mkdir public/
-    - mv schema/visualization/* public/
     - mv docs/_build/html/* public/
   artifacts:
     paths:
