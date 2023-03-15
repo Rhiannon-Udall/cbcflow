@@ -1,8 +1,6 @@
 import cbcflow
-import json
 
 from asimov.event import Event
-from asimov import config
 
 
 class Collector:
@@ -13,7 +11,7 @@ class Collector:
         "uploaded": "complete",
         "running": "ongoing",
     }
-    
+
     def __init__(self, ledger):
         """
         Collect data from the asimov ledger and write it to a CBCFlow library.
@@ -31,15 +29,19 @@ class Collector:
         for event in self.ledger.get_event():
             output = {}
             output[self.schema_section] = {}
-            pe = output[self.schema_section]['Results'] = []
-            metadata = cbcflow.get_superevent(event.meta['ligo']['sname'], library=self.library)
+            pe = output[self.schema_section]["Results"] = []
+            metadata = cbcflow.get_superevent(
+                event.meta["ligo"]["sname"], library=self.library
+            )
             for analysis in event.productions:
                 analysis_output = {}
                 analysis_output["UID"] = analysis.name
                 analysis_output["InferenceSoftware"] = str(analysis.pipeline)
                 if analysis.status.lower() in self.status_map.keys():
                     if analysis.status.lower() in {"complete", "running", "stuck"}:
-                        analysis_output["RunStatus"] = self.status_map[analysis.status.lower()]
+                        analysis_output["RunStatus"] = self.status_map[
+                            analysis.status.lower()
+                        ]
                 if "waveform" in analysis.meta:
                     if "approximant" in analysis.meta["waveform"]:
                         analysis_output["WaveformApproximant"] = str(
@@ -52,7 +54,6 @@ class Collector:
                 pe.append(analysis_output)
                 metadata.update(output)
                 metadata.write_to_library(message="Analysis run update by asimov")
-            
 
 
 class Applicator:
@@ -92,8 +93,6 @@ class Applicator:
         ligo["preferred event"] = grace["PreferredEvent"]
         ligo["sname"] = sid
         ligo["false alarm rate"] = grace["FAR"]
-
-        event_time = grace["GPSTime"]
 
         output = {
             "name": metadata.data["Sname"],
