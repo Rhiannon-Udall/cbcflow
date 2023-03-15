@@ -334,8 +334,8 @@
       "properties": {
         "UID": {
           "type": "string",
-          "description": "The unique name of the event"
-	  "pattern": "^G[0-9]{6}"
+          "description": "The unique name of the event",
+	        "pattern": "^G[0-9]{6}"
         },
         "Pipeline": {
           "type": "string",
