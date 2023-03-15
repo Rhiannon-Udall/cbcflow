@@ -355,7 +355,7 @@
           "type": "number"
         },
         "FAR": {
-          "description": "The event false alarm rate (/yr)",
+          "description": "The event false alarm rate (/sec)",
           "type": "number"
         },       
         "NetworkSNR": {
@@ -427,7 +427,7 @@
           "type": "string"
         },
         "SourceClassification": {
-          "description": "GraceDB link to the pipeline.pastro.json file",
+          "description": "GraceDB link to the pipeline.p_astro.json file",
           "type": "string"
         },
         "Skymap": {
