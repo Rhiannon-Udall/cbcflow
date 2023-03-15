@@ -346,9 +346,9 @@
           "enum": ["preferred", "neighbor"],
           "description": "State of the event"
         },
-        "Labels": {
+        "Label": {
           "type": "string",
-          "description": "Labels of the event. THE LABELS HAVE NOT BEEN DEFINED YET. THIS SHOULD BE FIXED WHEN LABELS ARE CHOSEN AND IMPLEMENTED IN GRACEDB."
+          "description": "Label of the event"
         },
         "GPSTime": {
           "description": "The event gps time",
