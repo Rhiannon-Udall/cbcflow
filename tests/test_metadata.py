@@ -138,6 +138,7 @@ class TestMetaData(unittest.TestCase):
                 "Results": [
                     {
                         "UID": "TestF1",
+                        "Deprecated": False,
                         "WaveformApproximant": "NRSur7dq4",
                         "ResultFile": {
                             "Path": get_cluster()
@@ -156,6 +157,7 @@ class TestMetaData(unittest.TestCase):
                     },
                     {
                         "UID": "TestF2",
+                        "Deprecated": False,
                         "ResultFile": {
                             "Path": get_cluster()
                             + ":"
@@ -172,6 +174,7 @@ class TestMetaData(unittest.TestCase):
                     },
                     {
                         "UID": "TestF3",
+                        "Deprecated": False,
                         "WaveformApproximant": "IMRPhenomXPHM",
                         "Notes": [],
                         "ReviewStatus": "unstarted",
@@ -188,6 +191,7 @@ class TestMetaData(unittest.TestCase):
                     {
                         "UID": "TestF1",
                         "WaveformApproximant": "SEOBNRv4PHM",
+                        "Deprecated": False,
                         "ResultFile": {
                             "Path": get_cluster()
                             + ":"
