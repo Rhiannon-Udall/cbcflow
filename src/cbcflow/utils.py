@@ -2,6 +2,7 @@ import hashlib
 import os
 import subprocess
 from datetime import datetime
+from jsondiff import Symbol
 
 
 def standardize_list(inlist: list) -> list:
@@ -109,3 +110,31 @@ def fill_out_linked_file(path: str, linked_file_dict: dict = dict()) -> dict:
     working_dict["DateLastModified"] = get_date_last_modified(path)
     linked_file_dict.update(working_dict)
     return linked_file_dict
+
+
+def get_dumpable_json_diff(diff: dict) -> dict:
+    """jsondiff produces dictionaries where some keys are instances of
+    jsondiff.symbols.Symbol, which json.dumps cannot parse.
+    This function converts these to a string representation so that they can be parsed.
+
+    Parameters
+    ==========
+    diff : dict
+        The output of jsondiff to parse
+
+    Returns
+    =======
+    dict
+        The output of jsondiff with all symbols parsed to their string representation
+    """
+    string_rep_diff = dict()
+    for key, val in diff.items():
+        if isinstance(val, dict):
+            val_to_write = get_dumpable_json_diff(val)
+        else:
+            val_to_write = val
+        if isinstance(key, Symbol):
+            string_rep_diff[key.label] = val_to_write
+        else:
+            string_rep_diff[key] = val_to_write
+    return string_rep_diff

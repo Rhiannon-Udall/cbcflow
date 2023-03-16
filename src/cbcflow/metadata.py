@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import subprocess
-import sys
 from typing import TYPE_CHECKING, Union
 
 import jsondiff
@@ -62,8 +61,10 @@ class MetaData(object):
         self.no_git_library = no_git_library
         self._loaded_data = None
 
+        logger.debug(f"Loading metadata object for superevent {self.sname}")
+
         if self.library_file_exists:
-            logger.info("Found existing library file: loading")
+            logger.debug("Found existing library file: loading")
             self.load_from_library()
         else:
             logger.info("No library file: creating defaults")
@@ -168,15 +169,15 @@ class MetaData(object):
             If true, this dictionary will treat all primitive list elements (i.e. not objects)
             as something to be removed, rather than added. Use sparingly.
         """
-        new_metadata = copy.deepcopy(self)
-        new_metadata.data = process_update_json(
+        new_metadata_data = copy.deepcopy(self.data)
+        new_metadata_data = process_update_json(
             update_dict,
-            new_metadata.data,
+            new_metadata_data,
             self.library._metadata_schema,
             is_removal=is_removal,
         )
-        self.library.validate(new_metadata.data)
-        self.data = new_metadata.data
+        self.library.validate(new_metadata_data)
+        self.data = new_metadata_data
 
     def load_from_library(self):
         """Load metadata from a library"""
@@ -206,30 +207,9 @@ class MetaData(object):
         with open(self.library_file, "w") as file:
             json.dump(self.data, file, indent=2)
         if self.no_git_library is False:
-            self.git_add_and_commit(message=message)
-
-    def git_add_and_commit(self, message: Union[str, None] = None):
-        """
-        Perform the git operations add and commit
-
-        Parameters
-        ==========
-        message : str | None
-            If passed, this message will be used in the git commit, rather than the default.
-        """
-        if not hasattr(self.library, "repo"):
-            self.library._initialize_library_git_repo()
-
-        self.library.repo.index.add(self.filename)
-        self.library.repo.index.write()
-        author = self.library._author_signature
-        if message is None:
-            message = f"Changes made to [{self.toplevel_diff}]"
-            message += f"\ncmd line: {' '.join(sys.argv)}"
-        tree = self.library.repo.index.write_tree()
-        self.library.repo.create_commit(
-            self.library.ref, author, author, message, tree, self.library.parents
-        )
+            self.library.git_add_and_commit(
+                filename=self.filename, message=message, sname=self.sname
+            )
 
     @property
     def is_updated(self):

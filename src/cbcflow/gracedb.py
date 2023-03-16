@@ -29,7 +29,6 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
 
         service_url = config_defaults["gracedb_service_url"]
         logger.info("Using configuration default GraceDB service_url")
-    logger.info(f"Using GraceDB service_url: {service_url}")
 
     data = dict(GraceDB=dict(Events=[]))
 
