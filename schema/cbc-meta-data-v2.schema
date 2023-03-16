@@ -24,6 +24,11 @@
             "type": "string"
            }
         },
+        "SchemaVersion": {
+          "description": "The schema which this metadata was written with",
+          "type": "string",
+          "default": "v2"
+        },
         "Notes": {
           "type": "array",
           "items": {"type": "string"},
@@ -335,7 +340,7 @@
         "UID": {
           "type": "string",
           "description": "The unique name of the event",
-	        "pattern": "^G[0-9]{6}"
+          "pattern": "^G[0-9]{6}"
         },
         "Pipeline": {
           "type": "string",
