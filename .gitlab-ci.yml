@@ -31,7 +31,6 @@ unit-test:
   extends:
     - .python:pytest
   script:
-    - pip install -r requirements.txt
     - pip install .
     - pytest --cov cbcflow --cov-report xml
 

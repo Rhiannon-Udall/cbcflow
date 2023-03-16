@@ -24,6 +24,11 @@
             "type": "string"
            }
         },
+        "SchemaVersion": {
+          "description": "The schema which this metadata was written with",
+          "type": "string",
+          "default": "v2"
+        },
         "Notes": {
           "type": "array",
           "items": {"type": "string"},
@@ -53,22 +58,16 @@
           "description": "The last time the GraceDB metadata was updated",
           "type": "string"
         },
-        "PreferredEvent": {
-          "description": "The preferred.event from GraceDB",
-          "type": "string",
-          "pattern": "^G[0-9]{6}"
-        },
-        "FAR": {
-          "description": "The event far from GraceDB",
-          "type": "number"
-        },
-        "GPSTime": {
-          "description": "The event gpstime from GraceDB",
-          "type": "number"
-        },
         "Instruments": {
           "description": "The event instruments from GraceDB",
           "type": "string"
+        },
+        "Events": {
+          "description": "A list of events. In case of multiple events uploaded by one pipeline on GraceDB, only the preferred event for that pipeline is used.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Events"
+          }
         }
       }
     },
@@ -332,6 +331,116 @@
   }
 },
   "$defs": {
+    "Events": {
+      "description": "An event associated to the S-event",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "UID" ],
+      "properties": {
+        "UID": {
+          "type": "string",
+          "description": "The unique name of the event",
+          "pattern": "^G[0-9]{6}"
+        },
+        "Pipeline": {
+          "type": "string",
+          "description": "The search pipeline name"
+        },
+        "State": {
+          "type": "string",
+          "enum": ["preferred", "neighbor"],
+          "description": "State of the event"
+        },
+        "Label": {
+          "type": "string",
+          "description": "Label of the event"
+        },
+        "GPSTime": {
+          "description": "The event gps time",
+          "type": "number"
+        },
+        "FAR": {
+          "description": "The event false alarm rate (/sec)",
+          "type": "number"
+        },       
+        "NetworkSNR": {
+          "description": "The recovered network SNR",
+          "type": "number"
+        },
+        "H1SNR": {
+          "description": "The individual SNR for the LIGO-Hanford detector (H1)",
+          "type": "number"
+        },
+        "L1SNR": {
+          "description": "The individual SNR for the LIGO-Livingston detector (L1)",
+          "type": "number"
+        },
+        "V1SNR": {
+          "description": "The individual SNR for the Virgo detector (V1)",
+          "type": "number"
+        },
+        "K1SNR": {
+          "description": "The individual SNR for KAGRA (K1)",
+          "type": "number"
+        },
+        "Pastro": {
+          "description": "The probability of astrophysical origin",
+          "type": "number"
+        },
+        "Pbns": {
+          "description": "The BNS membership probability",
+          "type": "number"
+        },
+        "Pnsbh": {
+          "description": "The NSBH membership probability",
+          "type": "number"
+        },
+        "Pbbh": {
+          "description": "The BBH membership probability",
+          "type": "number"
+        },
+        "Mass1": {
+          "description": "The redshifted template mass of the first binary component in solar masses",
+          "type": "number"
+        },
+        "Mass2": {
+          "description": "The redshifted template mass of the secondary binary component in solar masses",
+          "type": "number"
+        },
+        "Spin1z": {
+          "description": "The template aligned spin of the first binary component",
+          "type": "number"
+        },
+        "Spin2z": {
+          "description": "The template aligned spin of the secondary binary component",
+          "type": "number"
+        },
+        "HasNS": {
+          "description": "The probability, assuming the source is of astrophysical origin, that at least one of the compact objects is a neutron star",
+          "type": "number"
+        },
+        "HasRemnant": {
+          "description": "The probability, assuming the source is of astrophysical origin, that the system ejected a non-zero amount of neutron star matter",
+          "type": "number"
+        },
+        "HasMassGap": {
+          "description": "The probability, assuming the source is of astrophysical origin, that at least one of the compact objects has mass in the range 3-5 solar masses",
+          "type": "number"
+        },
+        "XML": {
+          "description": "GraceDB link to the coinc.xml file",
+          "type": "string"
+        },
+        "SourceClassification": {
+          "description": "GraceDB link to the pipeline.p_astro.json file",
+          "type": "string"
+        },
+        "Skymap": {
+          "description": "GraceDB link to the bayestar.multiorder.fits file",
+          "type": "string"
+        } 
+      }
+    },
     "PEResult": {
       "description": "A result of a PE run",
       "type": "object",

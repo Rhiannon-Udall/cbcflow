@@ -27,7 +27,7 @@ def get_schema_path(version, schema_type_designator="cbc"):
 def get_schema(args=None, index_schema: bool = False) -> dict:
     if args is None:
         args = sys.argv
-    VERSION = "v1"
+    VERSION = "v2"
 
     # Set up bootstrap variables
     fileflag = "--schema-file"
