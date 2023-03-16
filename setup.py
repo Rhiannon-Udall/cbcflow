@@ -21,7 +21,8 @@ if __name__ == "__main__":
         package_data={
             "cbcflow": [
                 "schema/cbc-meta-data-v1.schema",
-                "schema/cbc-meta-data-v2.schema" "schema/index-v1.schema",
+                "schema/cbc-meta-data-v2.schema",
+                "schema/index-v1.schema",
             ]
         },
         version=versioneer.get_version(),
