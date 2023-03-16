@@ -18,7 +18,12 @@ for file in files:
 
 if __name__ == "__main__":
     setuptools.setup(
-        package_data={"cbcflow": ["schema/cbc-meta-data-v1.schema"]},
+        package_data={
+            "cbcflow": [
+                "schema/cbc-meta-data-v1.schema",
+                "schema/cbc-meta-data-v2.schema" "schema/index-v1.schema",
+            ]
+        },
         version=versioneer.get_version(),
         cmdclass=versioneer.get_cmdclass(),
     )
