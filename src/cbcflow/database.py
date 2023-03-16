@@ -130,9 +130,9 @@ class LocalLibraryDatabase(object):
         """
         downselected_metadata_dict = dict()
         for sname, metadata in self.metadata_dict.items():
-            min_far_so_far = 1
             for event in metadata.data["GraceDB"]["Events"]:
-                min_far_so_far = min(min_far_so_far, event["FAR"])
+                if event["State"] == "Preferred":
+                    preferred_far = event["FAR"]
             if sname in self.library_config["Events"]["snames-to-include"]:
                 downselected_metadata_dict[sname] = metadata
             elif sname in self.library_config["Events"]["snames-to-exclude"]:
@@ -143,9 +143,7 @@ class LocalLibraryDatabase(object):
             # 2. adding p-astro
             # 3. possibly adding p_nsbh, p_bns, b_bbh
             # 4. possibly adding SNR
-            elif min_far_so_far <= float(
-                self.library_config["Events"]["far-threshold"]
-            ):
+            elif preferred_far <= float(self.library_config["Events"]["far-threshold"]):
                 downselected_metadata_dict[sname] = metadata
         return downselected_metadata_dict
 
