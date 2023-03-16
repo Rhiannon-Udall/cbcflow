@@ -58,15 +58,15 @@ class TestMetaData(unittest.TestCase):
         self.check_metadata_data["Cosmology"]["Counterparts"].append(
             {
                 "UID": "TestF1",
-                "RightAscension": 0.0,
-                "Declination": 0.0,
-                "Redshift": 1.0,
+                "RightAscension": 0,
+                "Declination": 0,
+                "Redshift": 1,
                 "RedshiftUncertainty": 0.5,
-                "PeculiarMotion": 100.0,
-                "UncertaintyPeculiarMotion": 50.0,
+                "PeculiarMotion": 100,
+                "UncertaintyPeculiarMotion": 50,
                 "GCN": "A sample GCN",
                 "Type": "GRB",
-                "TimeDelay": 2.0,
+                "TimeDelay": 2,
                 "Notes": [],
             }
         )
@@ -139,6 +139,7 @@ class TestMetaData(unittest.TestCase):
                     {
                         "UID": "TestF1",
                         "Deprecated": False,
+                        "Publications": [],
                         "WaveformApproximant": "NRSur7dq4",
                         "ResultFile": {
                             "Path": get_cluster()
@@ -158,6 +159,7 @@ class TestMetaData(unittest.TestCase):
                     {
                         "UID": "TestF2",
                         "Deprecated": False,
+                        "Publications": [],
                         "ResultFile": {
                             "Path": get_cluster()
                             + ":"
@@ -175,6 +177,7 @@ class TestMetaData(unittest.TestCase):
                     {
                         "UID": "TestF3",
                         "Deprecated": False,
+                        "Publications": [],
                         "WaveformApproximant": "IMRPhenomXPHM",
                         "Notes": [],
                         "ReviewStatus": "unstarted",
@@ -192,6 +195,7 @@ class TestMetaData(unittest.TestCase):
                         "UID": "TestF1",
                         "WaveformApproximant": "SEOBNRv4PHM",
                         "Deprecated": False,
+                        "Publications": [],
                         "ResultFile": {
                             "Path": get_cluster()
                             + ":"
