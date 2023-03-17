@@ -1055,7 +1055,7 @@
         }        
         }
       },
-    "bhmimicker": {
+    "BHM": {
       "description": "Black Hole Mimicker Analysis",
       "type": "object",
       "additionalProperties": false,
@@ -1102,6 +1102,159 @@
         "CutoffFrequency":{
           "description": "Cutoff Frequency used in the analysis",
           "type": "number"
+        }
+        }
+      },
+    "LOSA": {
+      "description": "Line-of-sight Acceleration Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "UpperAbyC":{
+          "description": "Maximum of the lambda_1 prior",
+          "type": "number"
+        },
+        "LowerAbyC":{
+          "description": "Maximum of the lambda_2 prior",
+          "type": "number"
+        }
+        }
+      },
+    "UnmodelledEchoes": {
+      "description": "Unmodelled Echoes Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "ForegroundTriggerTime":{
+          "description": "Trigger time for foreground run",
+          "type": "number"
+        }
+        "BackgroundTriggerTimes":{
+          "description": "Path to the list of background trigger times",
+          "type": "string"
+        }
+        }
+      },
+    "QNMRationalFilter": {
+      "description": "Ringdown analysis using the QNM Rational Filter",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "MinimumMass":{
+          "description": "Minimum mass in the analysis",
+          "type": "number"
+        },
+        "MaximumMass":{
+          "description": "Maximum mass in the analysis",
+          "type": "number"
+        },
+        "MinimumSpin":{
+          "description": "Minimum spin in the analysis",
+          "type": "number"
+        },
+        "MaximumSpin":{
+          "description": "Maximum spin in the analysis",
+          "type": "number"
+        },
+        "QNMList":{
+          "description": "Maximum spin in the analysis",
+          "type": "array"
+          "items": {
+            "type": "number"
+           }
         }
         }
       },
@@ -1530,7 +1683,7 @@
           "type": "number"
         }
       },
-    "pyRING": {
+    "PYRING": {
       "description": "pyRING ringdown analysis",
       "type": "object",
       "additionalProperties": false,
