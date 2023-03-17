@@ -250,6 +250,13 @@
             "$ref": "#/$defs/FTI"
             }
         },
+        "TIGERAnalyses": {
+          "description": "A list of Flexible Theory Independent analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FTI"
+            }
+        },
         "LOSAAnalyses": {
           "description": "A list of line-of-sight acceleration analyses",
           "type": "array",
