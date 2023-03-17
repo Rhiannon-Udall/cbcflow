@@ -1246,7 +1246,10 @@
         },
         "BasisModes":{
           "description": "A list of basis modes to construct the null projection matrix",
-          "type": "number"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "LowerRelAmp":{
           "description": "Lower bound of the relative amplitude prior of the polarization modes with respect to the basis modes",
