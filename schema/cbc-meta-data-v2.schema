@@ -249,6 +249,83 @@
             "$ref": "#/$defs/FTI"
             }
         },
+        "TIGERAnalyses": {
+          "description": "A list of Flexible Theory Independent analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FTI"
+            }
+        },
+        "LOSAAnalyses": {
+          "description": "A list of line-of-sight acceleration analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LOSA"
+            }
+        },
+        "UnmodeledEchoesAnalyses": {
+          "description": "A list of Unmodeled echoes analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnmodeledEchoes"
+            }
+        },
+        "QNMRationalFilterAnalyses": {
+          "description": "A list of QNM Rational Filter analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QNMRationalFilter"
+            }
+        },
+        "BHMAnalyses": {
+          "description": "A list of BH Mimicker analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BHM"
+            }
+        },
+        "SMAAnalyses": {
+          "description": "A list of Subdominant Mode Amplitude analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SMA"
+            }
+        },
+        "POLAnalyses": {
+          "description": "A list of Flexible Theory Independent analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/POL"
+            }
+        },
+        "PCATGRAnalyses": {
+          "description": "A list of PCA-TGR analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PCATGR"
+            }
+        },
+        "ResidualsAnalyses": {
+          "description": "A list of residuals analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Residuals"
+            }
+        },
+        "EchoesCWBAnalyses": {
+          "description": "A list of CWB echoes analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EchoesCWB"
+            }
+        },
+        "ModeledEchoesAnalyses": {
+                  "description": "A list of modeled analyses of echoes",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/PEResult"
+                    }
+        },
         "SIMAnalyses": {
           "description": "A list of spin-induced quadrupole moment analyses",
           "type": "array",
@@ -784,6 +861,368 @@
         }
       }
     },
+    "TIGER": {
+      "description": "TIGER Test",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "SafeLowerChirpMass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeUpperChirpMass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "LowerDchiMinus2":{
+          "description": "The lower limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "UpperDchiMinus2":{
+          "description": "The upper limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "LowerDchi0":{
+          "description": "The lower limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "UpperDchi0":{
+          "description": "The upper limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "LowerDchi1":{
+          "description": "The lower limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "UpperDchi1":{
+          "description": "The upper limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "LowerDchi2":{
+          "description": "The lower limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "UpperDchi2":{
+          "description": "The upper limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "LowerDchi3":{
+          "description": "The lower limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "UpperDchi3":{
+          "description": "The upper limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "LowerDchi4":{
+          "description": "The lower limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "UpperDchi4":{
+          "description": "The upper limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "LowerDchi5l":{
+          "description": "The lower limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "UpperDchi5l":{
+          "description": "The upper limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "LowerDchi6":{
+          "description": "The lower limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "UpperDchi6":{
+          "description": "The upper limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "LowerDchi6l":{
+          "description": "The lower limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "UpperDchi6l":{
+          "description": "The upper limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "LowerDchi7":{
+          "description": "The lower limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "UpperDchi7":{
+          "description": "The upper limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "UpperDB1":{
+          "description": "The upper limit on prior of db_1 parameter",
+          "type": "number"
+        },
+        "LowerDB1":{
+          "description": "The lower limit on prior of db_1 parameter",
+          "type": "number"
+        },
+        "UpperDB1":{
+          "description": "The lower limit on prior of db_1 parameter",
+          "type": "number"
+        },
+        "LowerDB2":{
+          "description": "The upper limit on prior of db_2 parameter",
+          "type": "number"
+        },
+        "UpperDB2":{
+          "description": "The lower limit on prior of db_2 parameter",
+          "type": "number"
+        },
+        "LowerDB3":{
+          "description": "The upper limit on prior of db_3 parameter",
+          "type": "number"
+        },
+        "UpperDB3":{
+          "description": "The lower limit on prior of db_3 parameter",
+          "type": "number"
+        },
+        "LowerDB4":{
+          "description": "The upper limit on prior of db_4 parameter",
+          "type": "number"
+        },
+        "UpperDB4":{
+          "description": "The lower limit on prior of db_4 parameter",
+          "type": "number"
+        },
+        "LowerDC1":{
+          "description": "The lower limit on prior of dc_1 parameter",
+          "type": "number"
+        },
+        "UpperDC1":{
+          "description": "The lower limit on prior of dc_1 parameter",
+          "type": "number"
+        },
+        "LowerDC2":{
+          "description": "The upper limit on prior of dc_2 parameter",
+          "type": "number"
+        },
+        "UpperDC2":{
+          "description": "The lower limit on prior of dc_2 parameter",
+          "type": "number"
+        },
+        "LowerDC3":{
+          "description": "The upper limit on prior of dc_3 parameter",
+          "type": "number"
+        },
+        "UpperDC3":{
+          "description": "The lower limit on prior of dc_3 parameter",
+          "type": "number"
+        },
+        "LowerDC4":{
+          "description": "The upper limit on prior of dc_4 parameter",
+          "type": "number"
+        },
+        "UpperDC4":{
+          "description": "The lower limit on prior of dc_4 parameter",
+          "type": "number"
+        },
+        "LowerDCL":{
+          "description": "The upper limit on prior of dc_l parameter",
+          "type": "number"
+        },
+        "UpperDCL":{
+          "description": "The lower limit on prior of dc_l parameter",
+          "type": "number"
+        }
+      }
+    },
+    "PCATGR": {
+      "description": "PCA-TGR Test",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "TestType": {
+          "description": "Either FTI or TIGER",
+          "type": "string"
+        },
+        "ModeList": {
+          "description": "List of Modes",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ParamsList": {
+          "description": "List of non-GR parameters simultaneously varied",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "SafeLowerChirpMass":{
+          "description": "A safe lower chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeUpperChirpMass":{
+          "description": "A safe upper chirp mass to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "LowerDchiMinus2":{
+          "description": "The lower limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "UpperDchiMinus2":{
+          "description": "The upper limit on prior of dchi_minus2 parameter",
+          "type": "number"
+        },
+        "LowerDchi0":{
+          "description": "The lower limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "UpperDchi0":{
+          "description": "The upper limit on prior of dchi_0 parameter",
+          "type": "number"
+        },
+        "LowerDchi1":{
+          "description": "The lower limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "UpperDchi1":{
+          "description": "The upper limit on prior of dchi_1 parameter",
+          "type": "number"
+        },
+        "LowerDchi2":{
+          "description": "The lower limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "UpperDchi2":{
+          "description": "The upper limit on prior of dchi_2 parameter",
+          "type": "number"
+        },
+        "LowerDchi3":{
+          "description": "The lower limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "UpperDchi3":{
+          "description": "The upper limit on prior of dchi_3 parameter",
+          "type": "number"
+        },
+        "LowerDchi4":{
+          "description": "The lower limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "UpperDchi4":{
+          "description": "The upper limit on prior of dchi_4 parameter",
+          "type": "number"
+        },
+        "LowerDchi5l":{
+          "description": "The lower limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "UpperDchi5l":{
+          "description": "The upper limit on prior of dchi_5l parameter",
+          "type": "number"
+        },
+        "LowerDchi6":{
+          "description": "The lower limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "UpperDchi6":{
+          "description": "The upper limit on prior of dchi_6 parameter",
+          "type": "number"
+        },
+        "LowerDchi6l":{
+          "description": "The lower limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "UpperDchi6l":{
+          "description": "The upper limit on prior of dchi_6l parameter",
+          "type": "number"
+        },
+        "LowerDchi7":{
+          "description": "The lower limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "UpperDchi7":{
+          "description": "The upper limit on prior of dchi_7 parameter",
+          "type": "number"
+        },
+        "LowerTaperingCycles":{
+          "description": "The lower limit on prior of tapering_cycles parameter",
+          "type": "number"
+        },
+        "UpperTaperingCycles":{
+          "description": "The upper limit on prior of tapering_cycles parameter",
+          "type": "number"
+        },
+        "LowerFTapering":{
+          "description": "The lower limit on prior of f_tapering parameter",
+          "type": "number"
+        },
+        "UpperFTapering":{
+          "description": "The upper limit on prior of f_tapering parameter",
+          "type": "number"
+        } 
+      }
+    },
     "MDR": {
       "description": "Modified Dispersion Relation Analysis",
       "type": "object",
@@ -960,6 +1399,432 @@
           "description": "The upper limit on the prior of the spacetime symmetry breaking coefficient, in meter^(ssb_dim - 4)",
           "type": "number"
         }        
+        }
+      },
+    "BHM": {
+      "description": "Black Hole Mimicker Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "UpperLambda1":{
+          "description": "Maximum of the lambda_1 prior",
+          "type": "number"
+        },
+        "UpperLambda2":{
+          "description": "Maximum of the lambda_2 prior",
+          "type": "number"
+        },
+        "CutoffFrequency":{
+          "description": "Cutoff Frequency used in the analysis",
+          "type": "number"
+        }
+        }
+      },
+    "LOSA": {
+      "description": "Line-of-sight Acceleration Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "UpperAbyC":{
+          "description": "Maximum of the lambda_1 prior",
+          "type": "number"
+        },
+        "LowerAbyC":{
+          "description": "Maximum of the lambda_2 prior",
+          "type": "number"
+        }
+        }
+      },
+    "POL": {
+      "description": "Polarization test",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "PolModel":{
+          "description": "Polarization model used in the analysis. Can be one of ['scalar', 'vector', 'tensor', 'scalar-vector', 'scalar-tensor', 'vector-tensor', 'scalar-vector-tensor']",
+          "type": "string"
+        },
+        "DOF":{
+          "description": "Number of degrees of freedom for the polarization modes",
+          "type": "number"
+        },
+        "BasisModes":{
+          "description": "A list of basis modes to construct the null projection matrix",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "LowerRelAmp":{
+          "description": "Lower bound of the relative amplitude prior of the polarization modes with respect to the basis modes",
+          "type": "number"
+        },
+        "UpperRelAmp":{
+          "description": "Upper bound of the relative amplitude prior of the polarization modes with respect to the basis modes",
+          "type": "number"
+        },
+        "LowerRelPhase":{
+          "description": "Lower bound of the relative phase prior of the polarization modes with respect to the basis modes",
+          "type": "number"
+        },
+        "UpperRelPhase":{
+          "description": "Upper bound of the relative phase prior of the polarization modes with respect to the basis modes",
+          "type": "number"
+        },
+        "DeltaF":{
+          "description": "Frequency resolution of the time-frequency transform",
+          "type": "number"
+        },
+        "ClusteringThreshold":{
+          "description": "Threshold to select pixels in time-frequency clustering. Can vary with in the range [0, 1]",
+          "type": "number"
+        }
+        }
+      },
+    "UnmodeledEchoes": {
+      "description": "Unmodeled Echoes Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "ForegroundTriggerTime":{
+          "description": "Trigger time for foreground run",
+          "type": "number"
+        },
+        "BackgroundTriggerTimes":{
+          "description": "Path to the list of background trigger times",
+          "type": "string"
+        }
+        }
+      },
+    "EchoesCWB": {
+      "description": "CWB Echoes Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "PESamples":{
+          "description": "Path to PE samples for the CBC event.",
+          "type": "string"
+        },
+        "CoalescenceTime":{
+          "description": "Coalescence time of the CBC event.",
+          "type": "number"
+        }
+        }
+      },
+    "Residuals": {
+      "description": "Residuals Test",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "ForegroundTriggerTime":{
+          "description": "Trigger time for foreground run",
+          "type": "number"
+        },
+        "BackgroundTriggerTimes":{
+          "description": "Path to the list of background trigger times",
+          "type": "string"
+        }
+        }
+      },
+    "QNMRationalFilter": {
+      "description": "Ringdown analysis using the QNM Rational Filter",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "MinimumMass":{
+          "description": "Minimum mass in the analysis",
+          "type": "number"
+        },
+        "MaximumMass":{
+          "description": "Maximum mass in the analysis",
+          "type": "number"
+        },
+        "MinimumSpin":{
+          "description": "Minimum spin in the analysis",
+          "type": "number"
+        },
+        "MaximumSpin":{
+          "description": "Maximum spin in the analysis",
+          "type": "number"
+        },
+        "QNMList":{
+          "description": "Maximum spin in the analysis",
+          "type": "array",
+          "items": {
+            "type": "number"
+           }
+        }
+        }
+      },
+    "SMA": {
+      "description": "The subdominant mode analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "LowerDamp21":{
+          "description": "Lower limit of the damp21 prior",
+          "type": "number"
+        },
+        "UpperDamp21":{
+          "description": "Upper limit of the damp21 prior",
+          "type": "number"
+        },
+        "LowerDamp33":{
+          "description": "Lower limit of the damp33 prior",
+          "type": "number"
+        },
+        "UpperDamp33":{
+          "description": "Upper limit of the damp33 prior",
+          "type": "number"
+        }
         }
       },
     "FTI": {
@@ -1332,7 +2197,117 @@
           "description": "The upper limit on prior of dnrdeltat55 parameter",
           "type": "number"
         }
+      },
+    "PYRING": {
+      "description": "pyRING ringdown analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "tStartIMRModel":{
+          "description": "GR baseline model used to compute the reconstructed waveform, from which the estimate of the start time is extracted.",
+          "type": "string"
+        },
+        "RingdownModel":{
+          "description": "Ringdown model used in the analysis. Can vary within the range: ['Damped-sinusoids', 'Kerr', 'MMRDNP', 'TEOBResumSPM']",
+          "type": "string"
+        },
+        "LowerLogA0DS":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 0 mode of the Damped-sinusoids model.",
+          "type": "number"
+        },
+        "UpperLogA0DS":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 0 mode of the Damped-sinusoids model.",
+          "type": "number"
+        },
+        "LowerLogA1DS":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 1 mode of the Damped-sinusoids model.",
+          "type": "number"
+        },
+        "UpperLogA1DS":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 1 mode of the Damped-sinusoids model.",
+          "type": "number"
+        },
+        "LowerA220Kerr":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 220 mode of the Kerr model.",
+          "type": "number"
+        },
+        "UpperA220Kerr":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 220 mode of the Kerr model.",
+          "type": "number"
+        },
+        "LowerA221Kerr":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 221 mode of the Kerr model.",
+          "type": "number"
+        },
+        "UpperA221Kerr":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 221 mode of the Kerr model.",
+          "type": "number"
+        },
+        "LowerA330Kerr":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 330 mode of the Kerr model.",
+          "type": "number"
+        },
+        "UpperA330Kerr":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 330 mode of the Kerr model.",
+          "type": "number"
+        },
+        "LowerA210Kerr":{
+          "description": "Lower bound [adimensional] of the amplitude prior for the 210 mode of the Kerr model.",
+          "type": "number"
+        },
+        "UpperA210Kerr":{
+          "description": "Upper bound [adimensional] of the amplitude prior for the 210 mode of the Kerr model.",
+          "type": "number"
+        },
+        "LowerLogDistanceMMRDNP":{
+          "description": "Lower bound [Mpc] of the distance prior for the MMRDNP model.",
+          "type": "number"
+        },
+        "UpperLogDistanceMMRDNP":{
+          "description": "Upper bound [Mpc] of the distance prior for the MMRDNP model.",
+          "type": "number"
+        },
+        "LowerLogDistanceTEOB":{
+          "description": "Lower bound [Mpc] of the distance prior for the TEOB model.",
+          "type": "number"
+        },
+        "UpperLogDistanceTEOB":{
+          "description": "Upper bound [Mpc] of the distance prior for the TEOB model.",
+          "type": "number"
         }
       }
     }
   }
+}
+}
