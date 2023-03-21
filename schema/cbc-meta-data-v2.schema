@@ -279,7 +279,7 @@
             }
         },
         "POLAnalyses": {
-          "description": "A list of Flexible Theory Independent analyses",
+          "description": "A list of polarization analyses",
           "type": "array",
           "items": {
             "$ref": "#/$defs/POL"
