@@ -2254,6 +2254,7 @@
           "description": "The upper limit on prior of dnrdeltat55 parameter",
           "type": "number"
         }
+      }  
       },
     "PYRING": {
       "description": "pyRING ringdown analysis",
