@@ -335,7 +335,7 @@
             }
         },
         "TIGERAnalyses": {
-          "description": "A list of Flexible Theory Independent analyses",
+          "description": "A list of TIGER analyses",
           "type": "array",
           "items": {
             "$ref": "#/$defs/TIGER"
