@@ -310,6 +310,14 @@
         "type": "number",
         "default": 4.0
       },
+      "RecommendedStartTime": {
+        "description": "The  validated safe start time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
+      },
+      "RecommendedEndTime": {
+        "description": "The validated safe end time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
+      },
       "Results": {
         "description": "A list of results",
         "type": "array",
