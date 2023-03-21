@@ -318,8 +318,8 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/SIM"
-            },
-          }
+            }
+        },
         "SMAAnalyses": {
           "description": "A list of Subdominant Mode Amplitude analyses",
           "type": "array",
