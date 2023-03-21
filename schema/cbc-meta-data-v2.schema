@@ -261,7 +261,14 @@
           "description": "A list of Flexible Theory Independent analyses",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/FTI"
+            "$ref": "#/$defs/TIGER"
+            }
+        },
+        "PyRINGAnalyses": {
+          "description": "A list of pyRING analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PyRING"
             }
         },
         "LOSAAnalyses": {
@@ -2248,7 +2255,7 @@
           "type": "number"
         }
       },
-    "PYRING": {
+    "PyRING": {
       "description": "pyRING ringdown analysis",
       "type": "object",
       "additionalProperties": false,
