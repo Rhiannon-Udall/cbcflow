@@ -292,11 +292,11 @@
             "$ref": "#/$defs/PSEOBRD"
             }
         },
-        "PyRINGAnalyses": {
+        "PYRINGAnalyses": {
           "description": "A list of pyRING analyses",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/PyRING"
+            "$ref": "#/$defs/PYRING"
             }
         },
         "QNMRationalFilterAnalyses": {
@@ -2255,7 +2255,7 @@
           "type": "number"
         }
       },
-    "PyRING": {
+    "PYRING": {
       "description": "pyRING ringdown analysis",
       "type": "object",
       "additionalProperties": false,
