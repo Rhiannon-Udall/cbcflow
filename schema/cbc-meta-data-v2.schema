@@ -142,9 +142,13 @@
           "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
           "default": "unstarted"
         },
-        "SafeGeocentTime": {
-          "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
-          "type": "number"
+        "IllustrativeResult": {
+          "description": "The UID of a PE Result which demonstrates the key features of this event. This is *not* the only result of interest, merely a representative result.",
+          "type": "string"
+        },
+        "SkymapReleaseResult": {
+          "description": "The UID of the result from which the updated skymap release is derived",
+          "type": "string"
         },
         "Results": {
           "description": "A list of results",
@@ -186,6 +190,10 @@
         },
         "SafeUpperLuminosityDistance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
+          "type": "number"
+        },
+        "SafeGeocentTime": {
+          "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
           "type": "number"
         },
         "Notes": {
@@ -354,8 +362,8 @@
           "type": "string"
          }
       },
-      "Detectors": {
-        "description": "The list of all detectors that should be analysed",
+      "ParticipatingDetectors": {
+        "description": "The list of all detectors which were judged to be participating",
         "type": "array",
         "items": {
           "type": "string"
@@ -371,23 +379,21 @@
         "description": "The list of all detectors that should be analysed in downstream analyses",
         "type": "array",
         "items": {
-          "type": "string"
+          "$ref": "#/$defs/DetcharDetector"
          }
-      },
-      "RecommendedMinimumFrequency": {
-        "description": "The  validated safe minimum frequency to set for downstream analyses to avoid data quality issues",
-        "type": "number",
-        "default": 20.0
-      },
-      "RecommendedMaximumFrequency": {
-        "description": "The  validated safe maximum frequency to set for downstream analyses to avoid data quality issues",
-        "type": "number",
-        "default": 2048.0
       },
       "RecommendedDuration": {
         "description": "The  validated safe maximum time duration to set for downstream analyses to avoid data quality issues",
         "type": "number",
         "default": 4.0
+      },
+      "RecommendedStartTime": {
+        "description": "The  validated safe start time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
+      },
+      "RecommendedEndTime": {
+        "description": "The validated safe end time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
       },
       "Results": {
         "description": "A list of results",
@@ -408,6 +414,31 @@
   }
 },
   "$defs": {
+    "LinkedFile": {
+      "description":"A stored file, including path, metadata, and webview if applicable",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Path", "MD5Sum", "DateLastModified"],
+      "properties": {
+        "Path": {
+          "type": "string",
+          "pattern": "^(CIT|LLO|LHO|IUCAA|PSU|CDF|NIK|UWM):\/",
+          "description": "The path to the file, of the form CLUSTER:/path/to/file"
+        },
+        "MD5Sum": {
+          "type": "string",
+          "description": "The md5sum of the file"
+        },
+        "DateLastModified":{
+          "type": "string",
+          "description": "The date of last modification"
+        },
+        "PublicHTML": {
+          "type": "string",
+          "description": "The url to access a browser acceptable version of the file, if possible"
+        }
+      }
+    },
     "Events": {
       "description": "An event associated to the S-event",
       "type": "object",
@@ -518,6 +549,69 @@
         } 
       }
     },
+    "DetcharDetector":{
+      "type": "object",
+      "additionalProperties" : false,
+      "required" : [ "UID" ],
+      "properties":{
+        "UID": {
+          "type" : "string",
+          "description": "The detector in question (e.g. H1)"
+        },
+        "RecommendedMinimumFrequency": {
+          "type": "number",
+          "description": "The recommended minimum frequency for analysis",
+          "default" : 20.0
+        },
+        "RecommendedMaximumFrequency": { 
+          "type": "number",
+          "description": "The recommended maximum frequency for the analysis - this may be set by the PE configurator rather than detchar"
+        },
+        "GlitchMitigationStatus": {
+          "type": "string",
+          "enum": ["not yet reviewed", "required", "not required", "complete"],
+          "default": "not yet reviewed"
+        },
+        "FrameLocation": {
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile",
+          "description": "The location of the frames on a cluster - CIT preferred by default. If no mitigation is required this will be the default given the time."
+        }
+      }
+    },
+    "DQRResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "UID" ],
+      "properties": {
+        "UID": {
+          "type": "string",
+          "description": "The name of the analysis"
+        },
+        "DQRFile": {
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile",
+          "description": "The relevant DQR file"
+        },
+        "ReviewStatus": {
+          "type": "string",
+          "enum": ["unstarted", "ongoing", "pass", "fail"],
+          "default":"unstarted",
+          "description": "Status of the review"
+        },
+        "ValidationResult": {
+          "type": "string",
+          "enum": ["pending", "pass", "fail"],
+          "default": "pending",
+          "description": "Result of event validation"
+        },
+        "ValidationNotes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous information about the event validation result"
+        }
+      }
+    },
     "PEResult": {
       "description": "A result of a PE run",
       "type": "object",
@@ -547,6 +641,10 @@
           "$ref": "#/$defs/LinkedFile",
           "description": "The path to the pesummary meta-data file"
         },
+        "PESummaryPageURL": {
+          "type": "string",
+          "description": "The URL where the summary pages may be found for this result, if available"
+        },
         "ReviewStatus": {
           "type": "string",
           "enum": ["unstarted", "pass", "fail", "ongoing"],
@@ -558,14 +656,24 @@
           "enum": ["complete", "running", "stuck"],
           "description": "Status of the run"
         },
+        "WaveformApproximant":{
+          "type": "string",
+          "description": "The waveform approximant being used for this analysis."
+        },
+        "Deprecated":{
+          "description":"If true, this analysis has been deprecated, either because a flaw was discovered or a more up to date analysis which supersedes it has been added. If this is true, do not use this result.",
+          "type": "boolean",
+          "default": false
+        },
+        "Publications":{
+          "description":"The LVK publications which use this result.",
+          "type":"array",
+          "items":{"type":"string"}
+        },
         "Notes": {
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
-        },
-        "WaveformApproximant":{
-          "type": "string",
-          "description": "The waveform approximant being used for this analysis."
         }
       }
     },
@@ -675,64 +783,6 @@
         "TimeDelay": {
           "description": "Time delay in s between the GW luminosity peak and a transient EM counterpart (Solar system barycenter)",
           "type": "number"
-        }
-      }
-    },
-    "DQRResult": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [ "UID" ],
-      "properties": {
-        "UID": {
-          "type": "string",
-          "description": "The name of the analysis"
-        },
-        "DQRFile": {
-          "type": "object",
-          "$ref": "#/$defs/LinkedFile",
-          "description": "The relevant DQR file"
-        },
-        "ReviewStatus": {
-          "type": "string",
-          "enum": ["unstarted", "ongoing", "pass", "fail"],
-          "default":"unstarted",
-          "description": "Status of the review"
-        },
-        "ValidationResult": {
-          "type": "string",
-          "enum": ["pending", "pass", "fail"],
-          "default": "pending",
-          "description": "Result of event validation"
-        },
-        "ValidationNotes": {
-          "type": "array",
-          "items": {"type": "string"},
-          "description": "An array containing strings with notes, comments, or other miscellaneous information about the event validation result"
-        }
-      }
-    },
-    "LinkedFile": {
-      "description":"A stored file, including path, metadata, and webview if applicable",
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["Path", "MD5Sum", "DateLastModified"],
-      "properties": {
-        "Path": {
-          "type": "string",
-          "pattern": "^(CIT|LLO|LHO|IUCAA|PSU|CDF|NIK|UWM):\/",
-          "description": "The path to the file, of the form CLUSTER:/path/to/file"
-        },
-        "MD5Sum": {
-          "type": "string",
-          "description": "The md5sum of the file"
-        },
-        "DateLastModified":{
-          "type": "string",
-          "description": "The date of last modification"
-        },
-        "PublicHTML": {
-          "type": "string",
-          "description": "The url to access a browser acceptable version of the file, if possible"
         }
       }
     },

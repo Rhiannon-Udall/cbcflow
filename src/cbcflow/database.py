@@ -131,7 +131,7 @@ class LocalLibraryDatabase(object):
         downselected_metadata_dict = dict()
         for sname, metadata in self.metadata_dict.items():
             for event in metadata.data["GraceDB"]["Events"]:
-                if event["State"] == "Preferred":
+                if event["State"] == "preferred":
                     preferred_far = event["FAR"]
             if sname in self.library_config["Events"]["snames-to-include"]:
                 downselected_metadata_dict[sname] = metadata
