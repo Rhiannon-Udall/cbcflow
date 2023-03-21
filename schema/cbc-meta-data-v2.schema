@@ -265,7 +265,7 @@
             }
         },
         "UnmodeledEchoesAnalyses": {
-          "description": "A list of Unmodelled echoes analyses",
+          "description": "A list of Unmodeled echoes analyses",
           "type": "array",
           "items": {
             "$ref": "#/$defs/UnmodeledEchoes"
@@ -1002,7 +1002,7 @@
           }
         },
         "ParamsList": {
-          "description": "List of params simultaneously varied",
+          "description": "List of non-GR parameters simultaneously varied",
           "type": "array",
           "items": {
             "type": "string"
@@ -1465,8 +1465,8 @@
         }
         }
       },
-    "UnmodelledEchoes": {
-      "description": "Unmodelled Echoes Analysis",
+    "UnmodeledEchoes": {
+      "description": "Unmodeled Echoes Analysis",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -1504,10 +1504,56 @@
         "ForegroundTriggerTime":{
           "description": "Trigger time for foreground run",
           "type": "number"
-        }
+        },
         "BackgroundTriggerTimes":{
           "description": "Path to the list of background trigger times",
           "type": "string"
+        }
+        }
+      },
+    "EchoesCWB": {
+      "description": "CWB Echoes Analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Description": {
+          "description": "A short and concise description of the analysis",
+          "type": "string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AnalysisSoftware": {
+          "description": "The analysis software program",
+          "type": "string"
+        },
+        "Results": {
+          "description": "A list of results",
+          "type": "array",
+          "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "PESamples":{
+          "description": "Path to PE samples for the CBC event.",
+          "type": "string"
+        },
+        "CoalescenceTime":{
+          "description": "Coalescence time of the CBC event.",
+          "type": "number"
         }
         }
       },
@@ -1550,7 +1596,7 @@
         "ForegroundTriggerTime":{
           "description": "Trigger time for foreground run",
           "type": "number"
-        }
+        },
         "BackgroundTriggerTimes":{
           "description": "Path to the list of background trigger times",
           "type": "string"
@@ -1611,7 +1657,7 @@
         },
         "QNMList":{
           "description": "Maximum spin in the analysis",
-          "type": "array"
+          "type": "array",
           "items": {
             "type": "number"
            }
