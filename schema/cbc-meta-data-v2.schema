@@ -100,6 +100,11 @@
           "items": {
             "$ref": "#/$defs/Counterparts"
           }
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
@@ -347,6 +352,11 @@
           "items": {
             "$ref": "#/$defs/UnmodeledEchoes"
             }
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
         }
     },
@@ -583,6 +593,11 @@
           "type": "object",
           "$ref": "#/$defs/LinkedFile",
           "description": "The location of the frames on a cluster - CIT preferred by default. If no mitigation is required this will be the default given the time."
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
@@ -616,6 +631,11 @@
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous information about the event validation result"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
@@ -782,15 +802,15 @@
           "description": "Type of EM counterpart, e.g. Kilonova, GRB",
           "type": "string"
         },
+        "TimeDelay": {
+          "description": "Time delay in s between the GW luminosity peak and a transient EM counterpart (Solar system barycenter)",
+          "type": "number"
+        },
         "Notes": {
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         },
-        "TimeDelay": {
-          "description": "Time delay in s between the GW luminosity peak and a transient EM counterpart (Solar system barycenter)",
-          "type": "number"
-        }
       }
     },
     "LensingAnalysis": {
@@ -846,6 +866,11 @@
           "description": "The path to the file containing analysis result",
           "type": "object",
           "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
@@ -862,6 +887,11 @@
           "description":"A linked file for this RnP Run",
           "type": "object",
           "$ref":"#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
@@ -920,6 +950,11 @@
         "CutoffFrequency":{       
           "description": "The IMRCT cutoff frequency",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
@@ -1122,6 +1157,11 @@
         "UpperDCL":{
           "description": "The lower limit on prior of dc_l parameter",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     },
@@ -1282,7 +1322,12 @@
         "UpperFTapering":{
           "description": "The upper limit on prior of f_tapering parameter",
           "type": "number"
-        } 
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+        }
       }
     },
     "MDR": {
@@ -1348,6 +1393,11 @@
         "MinimumAEff":{
           "description": "The lower limit on prior of effective MDR parameter, in peV^(2-alpha)",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }        
         }
       },
@@ -1410,6 +1460,11 @@
         "UpperDQuadMonS":{
           "description": "The upper limit on prior of symmetric QuadMon parameter",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }        
         }
       },
@@ -1460,7 +1515,12 @@
         "SSBKMax":{
           "description": "The upper limit on the prior of the spacetime symmetry breaking coefficient, in meter^(ssb_dim - 4)",
           "type": "number"
-        }        
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+        }       
         }
       },
     "BHM": {
@@ -1510,6 +1570,11 @@
         "CutoffFrequency":{
           "description": "Cutoff Frequency used in the analysis",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
         }
       },
@@ -1556,6 +1621,11 @@
         "LowerAbyC":{
           "description": "Maximum of the lambda_2 prior",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
         }
       },
@@ -1633,6 +1703,11 @@
         "ClusteringThreshold":{
           "description": "Threshold to select pixels in time-frequency clustering. Can vary with in the range [0, 1]",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
         }
       },
@@ -1679,6 +1754,11 @@
         "BackgroundTriggerTimes":{
           "description": "Path to the list of background trigger times",
           "type": "string"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
         }
       },
@@ -1725,6 +1805,11 @@
         "CoalescenceTime":{
           "description": "Coalescence time of the CBC event.",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
         }
       },
@@ -1771,6 +1856,11 @@
         "BackgroundTriggerTimes":{
           "description": "Path to the list of background trigger times",
           "type": "string"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
         }
       },
@@ -1832,6 +1922,11 @@
           "items": {
             "type": "number"
            }
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
         }
       },
@@ -1886,6 +1981,11 @@
         "UpperDamp33":{
           "description": "Upper limit of the damp33 prior",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
         }
       },
@@ -2044,6 +2144,11 @@
         "UpperFTapering":{
           "description": "The upper limit on prior of f_tapering parameter",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         } 
         }       
       },
@@ -2258,6 +2363,11 @@
         "UpperDnrdeltat55":{
           "description": "The upper limit on prior of dnrdeltat55 parameter",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }  
       },
@@ -2368,6 +2478,11 @@
         "UpperLogDistanceTEOB":{
           "description": "Upper bound [Mpc] of the distance prior for the TEOB model.",
           "type": "number"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         }
       }
     }
