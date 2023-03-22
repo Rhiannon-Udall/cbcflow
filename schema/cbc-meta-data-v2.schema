@@ -841,6 +841,11 @@
           "description": "The path to the configuration file",
           "type": "object",
           "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile": {
+          "description": "The path to the file containing analysis result",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
         }
       }
     },
