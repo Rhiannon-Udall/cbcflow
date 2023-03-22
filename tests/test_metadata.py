@@ -58,15 +58,15 @@ class TestMetaData(unittest.TestCase):
         self.check_metadata_data["Cosmology"]["Counterparts"].append(
             {
                 "UID": "TestF1",
-                "RightAscension": 0,
-                "Declination": 0,
-                "Redshift": 1,
+                "RightAscension": 0.0,
+                "Declination": 0.0,
+                "Redshift": 1.0,
                 "RedshiftUncertainty": 0.5,
                 "PeculiarMotion": 100,
-                "UncertaintyPeculiarMotion": 50,
+                "UncertaintyPeculiarMotion": 50.0,
                 "GCN": "A sample GCN",
                 "Type": "GRB",
-                "TimeDelay": 2,
+                "TimeDelay": 2.0,
                 "Notes": [],
             }
         )
@@ -183,6 +183,7 @@ class TestMetaData(unittest.TestCase):
                         "ReviewStatus": "unstarted",
                     },
                 ],
+                "Notes": [],
             }
         )
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"].append(
@@ -213,6 +214,7 @@ class TestMetaData(unittest.TestCase):
                     },
                 ],
                 "Reviewers": [],
+                "Notes": [],
             }
         )
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"].append(
@@ -221,6 +223,7 @@ class TestMetaData(unittest.TestCase):
                 "Analysts": ["Donald Knuth"],
                 "Results": [],
                 "Reviewers": [],
+                "Notes": [],
             }
         )
 
