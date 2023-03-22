@@ -810,7 +810,7 @@
           "type": "array",
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
-        },
+        }
       }
     },
     "LensingAnalysis": {
