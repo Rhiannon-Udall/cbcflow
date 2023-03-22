@@ -222,102 +222,11 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "IMRCTAnalyses": {
-          "description": "A list of Inspiral-merger-ringdown Consistency Test analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/IMRCT"
-            }
-        },
-        "SSBAnalyses": {
-          "description": "A list of Spacetime Symmetry Breaking analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/SSB"
-            }
-        },
-        "MDRAnalyses": {
-          "description": "A list of Modified Dispersion Relation analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/MDR"
-            }
-        },
-        "PSEOBRDAnalyses": {
-          "description": "A list of pSEOB Ringdown analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/PSEOBRD"
-            }
-        },
-        "FTIAnalyses": {
-          "description": "A list of Flexible Theory Independent analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/FTI"
-            }
-        },
-        "TIGERAnalyses": {
-          "description": "A list of Flexible Theory Independent analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/FTI"
-            }
-        },
-        "LOSAAnalyses": {
-          "description": "A list of line-of-sight acceleration analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/LOSA"
-            }
-        },
-        "UnmodeledEchoesAnalyses": {
-          "description": "A list of Unmodeled echoes analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/UnmodeledEchoes"
-            }
-        },
-        "QNMRationalFilterAnalyses": {
-          "description": "A list of QNM Rational Filter analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/QNMRationalFilter"
-            }
-        },
         "BHMAnalyses": {
           "description": "A list of BH Mimicker analyses",
           "type": "array",
           "items": {
             "$ref": "#/$defs/BHM"
-            }
-        },
-        "SMAAnalyses": {
-          "description": "A list of Subdominant Mode Amplitude analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/SMA"
-            }
-        },
-        "POLAnalyses": {
-          "description": "A list of Flexible Theory Independent analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/POL"
-            }
-        },
-        "PCATGRAnalyses": {
-          "description": "A list of PCA-TGR analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/PCATGR"
-            }
-        },
-        "ResidualsAnalyses": {
-          "description": "A list of residuals analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/Residuals"
             }
         },
         "EchoesCWBAnalyses": {
@@ -327,6 +236,34 @@
             "$ref": "#/$defs/EchoesCWB"
             }
         },
+        "FTIAnalyses": {
+          "description": "A list of Flexible Theory Independent analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FTI"
+            }
+        },
+        "IMRCTAnalyses": {
+          "description": "A list of Inspiral-merger-ringdown Consistency Test analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IMRCT"
+            }
+        },
+        "LOSAAnalyses": {
+          "description": "A list of line-of-sight acceleration analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LOSA"
+            }
+        },
+        "MDRAnalyses": {
+          "description": "A list of Modified Dispersion Relation analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MDR"
+            }
+        },
         "ModeledEchoesAnalyses": {
                   "description": "A list of modeled analyses of echoes",
                   "type": "array",
@@ -334,14 +271,84 @@
                     "$ref": "#/$defs/PEResult"
                     }
         },
+        "PCATGRAnalyses": {
+          "description": "A list of PCA-TGR analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PCATGR"
+            }
+        },
+        "POLAnalyses": {
+          "description": "A list of polarization analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/POL"
+            }
+        },
+        "PSEOBRDAnalyses": {
+          "description": "A list of pSEOB Ringdown analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PSEOBRD"
+            }
+        },
+        "PYRINGAnalyses": {
+          "description": "A list of pyRING analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PYRING"
+            }
+        },
+        "QNMRationalFilterAnalyses": {
+          "description": "A list of QNM Rational Filter analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QNMRationalFilter"
+            }
+        },
+        "ResidualsAnalyses": {
+          "description": "A list of residuals analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Residuals"
+            }
+        },
         "SIMAnalyses": {
           "description": "A list of spin-induced quadrupole moment analyses",
           "type": "array",
           "items": {
             "$ref": "#/$defs/SIM"
             }
+        },
+        "SMAAnalyses": {
+          "description": "A list of Subdominant Mode Amplitude analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SMA"
+            }
+        },
+        "SSBAnalyses": {
+          "description": "A list of Spacetime Symmetry Breaking analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SSB"
+            }
+        },
+        "TIGERAnalyses": {
+          "description": "A list of TIGER analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TIGER"
+            }
+        },
+        "UnmodeledEchoesAnalyses": {
+          "description": "A list of Unmodeled echoes analyses",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnmodeledEchoes"
+            }
         }
-      }
+        }
     },
   "DetectorCharacterization": {
     "description": "The detchar meta-data",
@@ -2247,6 +2254,7 @@
           "description": "The upper limit on prior of dnrdeltat55 parameter",
           "type": "number"
         }
+      }  
       },
     "PYRING": {
       "description": "pyRING ringdown analysis",
@@ -2359,5 +2367,4 @@
       }
     }
   }
-}
 }
