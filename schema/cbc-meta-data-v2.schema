@@ -1082,10 +1082,6 @@
           "description": "The upper limit on prior of dchi_7 parameter",
           "type": "number"
         },
-        "UpperDB1":{
-          "description": "The upper limit on prior of db_1 parameter",
-          "type": "number"
-        },
         "LowerDB1":{
           "description": "The lower limit on prior of db_1 parameter",
           "type": "number"
