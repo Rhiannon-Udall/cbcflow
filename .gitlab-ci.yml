@@ -39,7 +39,8 @@ schema-html:
   extends:
     - .python:base
   script:
-    - python -m pip install -r requirements.txt
+    - python -m pip install .
+    - python -m pip install json-schema-for-humans
     - mkdir schema/visualization
     - cd schema/visualization/
     - generate-schema-doc ../cbc-meta-data-v2.schema cbc-meta-data-schema.html
