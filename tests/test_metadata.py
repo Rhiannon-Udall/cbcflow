@@ -62,7 +62,7 @@ class TestMetaData(unittest.TestCase):
                 "Declination": 0.0,
                 "Redshift": 1.0,
                 "RedshiftUncertainty": 0.5,
-                "PeculiarMotion": 100.0,
+                "PeculiarMotion": 100,
                 "UncertaintyPeculiarMotion": 50.0,
                 "GCN": "A sample GCN",
                 "Type": "GRB",
@@ -138,6 +138,8 @@ class TestMetaData(unittest.TestCase):
                 "Results": [
                     {
                         "UID": "TestF1",
+                        "Deprecated": False,
+                        "Publications": [],
                         "WaveformApproximant": "NRSur7dq4",
                         "ResultFile": {
                             "Path": get_cluster()
@@ -156,6 +158,8 @@ class TestMetaData(unittest.TestCase):
                     },
                     {
                         "UID": "TestF2",
+                        "Deprecated": False,
+                        "Publications": [],
                         "ResultFile": {
                             "Path": get_cluster()
                             + ":"
@@ -172,11 +176,14 @@ class TestMetaData(unittest.TestCase):
                     },
                     {
                         "UID": "TestF3",
+                        "Deprecated": False,
+                        "Publications": [],
                         "WaveformApproximant": "IMRPhenomXPHM",
                         "Notes": [],
                         "ReviewStatus": "unstarted",
                     },
                 ],
+                "Notes": [],
             }
         )
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"].append(
@@ -188,6 +195,8 @@ class TestMetaData(unittest.TestCase):
                     {
                         "UID": "TestF1",
                         "WaveformApproximant": "SEOBNRv4PHM",
+                        "Deprecated": False,
+                        "Publications": [],
                         "ResultFile": {
                             "Path": get_cluster()
                             + ":"
@@ -205,6 +214,7 @@ class TestMetaData(unittest.TestCase):
                     },
                 ],
                 "Reviewers": [],
+                "Notes": [],
             }
         )
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"].append(
@@ -213,6 +223,7 @@ class TestMetaData(unittest.TestCase):
                 "Analysts": ["Donald Knuth"],
                 "Results": [],
                 "Reviewers": [],
+                "Notes": [],
             }
         )
 
