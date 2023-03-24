@@ -97,7 +97,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
                     try:
                         # All pipelines should provide source classification
                         pastro_data = gdb.files(
-                            gname, f"{pipeline}.p_astro.json"
+                            gname, f"{pipeline.lower()}.p_astro.json"
                         ).json()
 
                         event_data["Pastro"] = 1 - pastro_data["Terrestrial"]
@@ -110,10 +110,8 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
                         )
 
                     try:
-                        # Some pipelines will provide source classification, others will no
-                        embright_data = gdb.files(
-                            gname, f"{pipeline}.em_bright.json"
-                        ).json()
+                        # Here we get information from the general em_bright file
+                        embright_data = gdb.files(gname, "em_bright.json").json()
                         for key in embright_data:
                             if key == "HasNS":
                                 event_data["HasNS"] = embright_data[key]
@@ -123,6 +121,24 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
                                 event_data["HasMassGap"] = embright_data[key]
                     except HTTPError:
                         logger.info(f"No em bright provided for G-event {gname}")
+
+                    try:
+                        # Some pipelines will provide source classification, others will not
+                        # This is that information where available
+                        embright_data = gdb.files(
+                            gname, f"{pipeline}.em_bright.json"
+                        ).json()
+                        for key in embright_data:
+                            if key == "HasNS":
+                                event_data["PipelineHasNS"] = embright_data[key]
+                            elif key == "HasRemnant":
+                                event_data["PipelineHasRemnant"] = embright_data[key]
+                            elif key == "HasMassGap":
+                                event_data["PipelineHasMassGap"] = embright_data[key]
+                    except HTTPError:
+                        logger.info(
+                            f"No pipeline em bright provided for G-event {gname}"
+                        )
 
                     try:
                         # All pipelines should provide these 3 files
