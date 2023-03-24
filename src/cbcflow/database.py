@@ -148,7 +148,12 @@ class LocalLibraryDatabase(object):
         return downselected_metadata_dict
 
     def validate(self, data):
-        jsonschema.validate(data, self.metadata_schema)
+        try:
+            jsonschema.validate(data, self.metadata_schema)
+        except jsonschema.ValidationError as e:
+            raise jsonschema.ValidationError(e.message)
+        except jsonschema.SchemaError as e:
+            raise jsonschema.SchemaError(e.message)
 
     @cached_property
     def library_config(self):
