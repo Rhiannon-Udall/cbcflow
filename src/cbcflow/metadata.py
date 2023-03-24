@@ -207,6 +207,7 @@ class MetaData(object):
             return
 
         self.library.validate(self.data)
+        self.print_summary()
         self.print_diff()
 
         if check_changes:
@@ -244,6 +245,25 @@ class MetaData(object):
             The output of a json diff between the loaded data and the current data
         """
         return jsondiff.diff(self._loaded_data, self.data)
+
+    def print_summary(self):
+        """Print a short summary of the event"""
+        gdb = self.data["GraceDB"]
+        events = gdb["Events"]
+
+        # If no GraceDB events available fall back to None defaults
+        GPSTime = None
+        chirp_mass = None
+
+        # Find the preferred event GPSTime and chirp mass
+        for event in events:
+            if event["State"] == "preferred":
+                GPSTime = event["GPSTime"]
+                m1, m2 = event["Mass1"], event["Mass2"]
+                chirp_mass = round((m1 * m2) ** (3 / 5) / (m1 + m2) ** (1 / 5), 2)
+
+        # Print the message
+        logger.info(f"{self.sname}: GPSTime={GPSTime}, chirp_mass={chirp_mass}")
 
     def print_diff(self):
         """Cleanly print the output of get_diff"""
@@ -299,7 +319,7 @@ class MetaData(object):
         valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
         prompt = " [y/n] "
 
-        question = "Are the changes listed above correct?"
+        question = "Are the proposed changes as you expect?"
         while True:
             sys.stdout.write(question + prompt)
             choice = input().lower()
