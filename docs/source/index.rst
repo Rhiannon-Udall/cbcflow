@@ -8,11 +8,17 @@ Finally, we lay out future development goals (also reflected in the git issues),
 
 .. toctree::
    :maxdepth: 1
-   :caption: Users Guide
+   :caption: Getting Started
 
-   installation
+   configuration
    command-line-usage
    usage-for-scripting
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Expert Usage
+
+   development-setup
 
 .. toctree::
    :maxdepth: 1
