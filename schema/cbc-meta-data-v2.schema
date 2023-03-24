@@ -552,6 +552,18 @@
           "description": "The probability, assuming the source is of astrophysical origin, that at least one of the compact objects has mass in the range 3-5 solar masses",
           "type": "number"
         },
+        "PipelineHasNS": {
+          "description": "The probability given by the pipeline, assuming the source is of astrophysical origin, that at least one of the compact objects is a neutron star",
+          "type": "number"
+        },
+        "PipelineHasRemnant": {
+          "description": "The probability given by the pipeline, assuming the source is of astrophysical origin, that the system ejected a non-zero amount of neutron star matter",
+          "type": "number"
+        },
+        "PipelineHasMassGap": {
+          "description": "The probability given by the pipeline, assuming the source is of astrophysical origin, that at least one of the compact objects has mass in the range 3-5 solar masses",
+          "type": "number"
+        },
         "XML": {
           "description": "GraceDB link to the coinc.xml file",
           "type": "string"
