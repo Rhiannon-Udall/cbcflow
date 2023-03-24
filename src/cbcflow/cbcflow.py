@@ -74,7 +74,11 @@ def update():
         )
     else:
         process_user_input(args, metadata)
-        metadata.write_to_library(check_changes=True)
+        if args.yes:
+            check_changes = False
+        else:
+            check_changes = True
+        metadata.write_to_library(check_changes=check_changes)
 
 
 def print():

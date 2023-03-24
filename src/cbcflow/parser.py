@@ -147,6 +147,11 @@ def get_parser_and_default_data(schema):
         help="The GraceDb service url",
         default=config_defaults["gracedb_service_url"],
     )
+    parser.add_argument(
+        "--yes",
+        help="Do not ask for confirmation",
+        action="store_true",
+    )
 
     parser, default_data = build_parser_from_schema(parser, schema)
     argcomplete.autocomplete(parser)
