@@ -13,7 +13,6 @@ Finally, we lay out future development goals (also reflected in the git issues),
    installation
    command-line-usage
    usage-for-scripting
-   libraries
 
 .. toctree::
    :maxdepth: 1
@@ -21,6 +20,9 @@ Finally, we lay out future development goals (also reflected in the git issues),
 
    metadata
    schema-visualization
+
+API
+===
 
 .. autosummary::
    :toctree: api
