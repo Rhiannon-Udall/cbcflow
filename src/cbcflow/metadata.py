@@ -73,48 +73,11 @@ class MetaData(object):
             self.library.validate(default_data)
             self.data = default_data
 
-    @staticmethod
-    def from_file(
-        filename: str,
-        schema: Union[dict, None] = None,
-        default_data: Union[dict, None] = None,
-        local_library: Union["LocalLibraryDatabase", None] = None,
-    ) -> MetaData:
-        """Load a metadata object given a file path
-
-        Parameters
-        ==========
-        filename : str
-            The path to the file to load from
-        schema : dict | None, optional
-            If passed, the schema to use for the file, if None then use the configuration default
-        default_data : dict | None, optional
-            If passed, use this default data for loading the schema, if None then use the default for the schema
-        local_library : `cbcflow.database.LocalLibrayDatabase`, optional
-            If passed, load the MetaData with this backend library.
-            If None, it will load the library using the file path.
-
-        Returns
-        =======
-        MetaData
-            The metadata object for this file\
-        """
-        sname = os.path.basename(filename).split("-")[0]
-        if local_library is None:
-            local_library_path = os.path.dirname(filename)
-            return MetaData(
-                sname,
-                default_data=default_data,
-                schema=schema,
-                local_library_path=local_library_path,
-            )
-        else:
-            return MetaData(
-                sname,
-                default_data=default_data,
-                schema=schema,
-                local_library=local_library,
-            )
+    ############################################################################
+    ############################################################################
+    ####                  System Properties and Operations                  ####
+    ############################################################################
+    ############################################################################
 
     @property
     def library(self) -> "LocalLibraryDatabase":
@@ -158,6 +121,90 @@ class MetaData(object):
     def library_file(self) -> None:
         """The full metadata's file path, found in its corresponding library"""
         return os.path.join(self.library.library, self.filename)
+
+    @property
+    def library_file_exists(self):
+        """Does a file for this superevent exist in this library"""
+        return os.path.exists(self.library_file)
+
+    def get_date_of_last_commit(self):
+        """Get the date of the last commit including the metadata file for sname
+
+        Parameters
+        ==========
+        sname : str
+            The sname corresponding to the superevent whose metadata we are checking.
+
+        Returns
+        =======
+        str
+            The date and time last modified in iso standard (yyyy-MM-dd hh:mm:ss)
+        """
+        # What this function seeks to do is bizarrely difficult with pygit
+        # So I will just use subprocess instead.
+        # However, this remains as a mechanism by which one would start the process
+        # if not hasattr(self.library, "repo"):
+        #     self.library._initialize_library_git_repo()
+
+        cwd = os.getcwd()
+        os.chdir(self.library.library)
+        date, time = str(
+            subprocess.check_output(
+                ["git", "log", "-1", "--date=iso", "--format=%cd", self.library_file]
+            )
+        ).split(" ")[:-1]
+        datetime = date.strip("b'") + " " + time
+        os.chdir(cwd)
+        return datetime
+
+    ############################################################################
+    ############################################################################
+    ####                   Read Write and Update Methods                    ####
+    ############################################################################
+    ############################################################################
+
+    @staticmethod
+    def from_file(
+        filename: str,
+        schema: Union[dict, None] = None,
+        default_data: Union[dict, None] = None,
+        local_library: Union["LocalLibraryDatabase", None] = None,
+    ) -> MetaData:
+        """Load a metadata object given a file path
+
+        Parameters
+        ==========
+        filename : str
+            The path to the file to load from
+        schema : dict | None, optional
+            If passed, the schema to use for the file, if None then use the configuration default
+        default_data : dict | None, optional
+            If passed, use this default data for loading the schema, if None then use the default for the schema
+        local_library : `cbcflow.database.LocalLibrayDatabase`, optional
+            If passed, load the MetaData with this backend library.
+            If None, it will load the library using the file path.
+
+        Returns
+        =======
+        MetaData
+            The metadata object for this file\
+        """
+        sname = os.path.basename(filename).split("-")[0]
+        if local_library is None:
+            local_library_path = os.path.dirname(filename)
+            return MetaData(
+                sname,
+                default_data=default_data,
+                schema=schema,
+                local_library_path=local_library_path,
+            )
+        else:
+            return MetaData(
+                sname,
+                default_data=default_data,
+                schema=schema,
+                local_library=local_library,
+            )
 
     def update(self, update_dict: dict, is_removal: bool = False) -> None:
         """Update the metadata with new elements
@@ -226,15 +273,31 @@ class MetaData(object):
         else:
             logger.info(f"No changes made to {self.library_file}")
 
+    def confirm_changes(self):
+        valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+        prompt = " [y/n] "
+
+        question = "Are the proposed changes as you expect?"
+        while True:
+            sys.stdout.write(question + prompt)
+            choice = input().lower()
+            if choice in valid:
+                return valid[choice]
+            else:
+                sys.stdout.write(
+                    "Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n"
+                )
+
+    ############################################################################
+    ############################################################################
+    ####                Status Updates and Printing Methods                 ####
+    ############################################################################
+    ############################################################################
+
     @property
     def is_updated(self):
         """Has the library been updated since it was loaded"""
         return self._loaded_data != self.data
-
-    @property
-    def library_file_exists(self):
-        """Does a file for this superevent exist in this library"""
-        return os.path.exists(self.library_file)
 
     def get_diff(self):
         """Give the difference between the loaded data and the updated data
@@ -286,48 +349,3 @@ class MetaData(object):
         """Prettily print the contents of the data"""
         logger.info(f"Metadata contents for {self.sname}:")
         logger.info(json.dumps(self.data, indent=4))
-
-    def get_date_of_last_commit(self):
-        """Get the date of the last commit including the metadata file for sname
-
-        Parameters
-        ==========
-        sname : str
-            The sname corresponding to the superevent whose metadata we are checking.
-
-        Returns
-        =======
-        str
-            The date and time last modified in iso standard (yyyy-MM-dd hh:mm:ss)
-        """
-        # What this function seeks to do is bizarrely difficult with pygit
-        # So I will just use subprocess instead.
-        # However, this remains as a mechanism by which one would start the process
-        # if not hasattr(self.library, "repo"):
-        #     self.library._initialize_library_git_repo()
-
-        cwd = os.getcwd()
-        os.chdir(self.library.library)
-        date, time = str(
-            subprocess.check_output(
-                ["git", "log", "-1", "--date=iso", "--format=%cd", self.library_file]
-            )
-        ).split(" ")[:-1]
-        datetime = date.strip("b'") + " " + time
-        os.chdir(cwd)
-        return datetime
-
-    def confirm_changes(self):
-        valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
-        prompt = " [y/n] "
-
-        question = "Are the proposed changes as you expect?"
-        while True:
-            sys.stdout.write(question + prompt)
-            choice = input().lower()
-            if choice in valid:
-                return valid[choice]
-            else:
-                sys.stdout.write(
-                    "Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n"
-                )
