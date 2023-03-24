@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import subprocess
+import sys
 from typing import TYPE_CHECKING, Union
 
 import jsondiff
@@ -188,7 +189,9 @@ class MetaData(object):
         self.data = data
         self._loaded_data = copy.deepcopy(data)
 
-    def write_to_library(self, message: Union[str, None] = None) -> None:
+    def write_to_library(
+        self, message: Union[str, None] = None, check_changes: bool = False
+    ) -> None:
         """
         Write loaded metadata back to library, and stage/commit if the library is a git repository
 
@@ -196,6 +199,8 @@ class MetaData(object):
         ==========
         message : str | None, optional
             If passed, this message will be used for the git commit instead of the default.
+        check_changes : bool | True, False
+            If true, ask the user to confirm the changes before changing the information on disk.
         """
         if self.is_updated is False:
             logger.info("No changes made, exiting")
@@ -203,13 +208,22 @@ class MetaData(object):
 
         self.library.validate(self.data)
         self.print_diff()
-        logger.info(f"Writing file {self.library_file}")
-        with open(self.library_file, "w") as file:
-            json.dump(self.data, file, indent=2)
-        if self.no_git_library is False:
-            self.library.git_add_and_commit(
-                filename=self.filename, message=message, sname=self.sname
-            )
+
+        if check_changes:
+            commit_changes = self.confirm_changes()
+        else:
+            commit_changes = True
+
+        if commit_changes:
+            logger.info(f"Writing file {self.library_file}")
+            with open(self.library_file, "w") as file:
+                json.dump(self.data, file, indent=2)
+            if self.no_git_library is False:
+                self.library.git_add_and_commit(
+                    filename=self.filename, message=message, sname=self.sname
+                )
+        else:
+            logger.info(f"No changes made to {self.library_file}")
 
     @property
     def is_updated(self):
@@ -280,3 +294,18 @@ class MetaData(object):
         datetime = date.strip("b'") + " " + time
         os.chdir(cwd)
         return datetime
+
+    def confirm_changes(self):
+        valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+        prompt = " [y/n] "
+
+        question = "Are the changes listed above correct?"
+        while True:
+            sys.stdout.write(question + prompt)
+            choice = input().lower()
+            if choice in valid:
+                return valid[choice]
+            else:
+                sys.stdout.write(
+                    "Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n"
+                )
