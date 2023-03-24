@@ -120,7 +120,6 @@ def build_parser_from_schema(
         )
         arg = f"{group}"
         default_data[group] = {}
-        print(subschema)
         for key, value in subschema["properties"].items():
             process_property(key, value, arg, arg_group, default_data[group], schema)
     return parser, default_data
