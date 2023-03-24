@@ -263,7 +263,9 @@ class MetaData(object):
                 chirp_mass = round((m1 * m2) ** (3 / 5) / (m1 + m2) ** (1 / 5), 2)
 
         # Print the message
-        logger.info(f"{self.sname}: GPSTime={GPSTime}, chirp_mass={chirp_mass}")
+        logger.info(
+            f"Super event: {self.sname}, GPSTime={GPSTime}, chirp_mass={chirp_mass}"
+        )
 
     def print_diff(self):
         """Cleanly print the output of get_diff"""

@@ -469,7 +469,7 @@ def process_user_input(args: argparse.Namespace, metadata: MetaData):
     # Form the add and remove jsons from arguments
     # Adding and subtraction should be done separately
     update_json_add = form_update_json_from_args(args)
-    logger.info(json.dumps(update_json_add, indent=4))
+    logger.debug(json.dumps(update_json_add, indent=4))
     update_json_remove = form_update_json_from_args(args, removal_json=True)
 
     metadata.update(update_json_add)
