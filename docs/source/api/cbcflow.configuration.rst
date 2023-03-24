@@ -1,7 +1,7 @@
-cbcflow.cbcflow
-===============
+cbcflow.configuration
+=====================
 
-.. automodule:: cbcflow.cbcflow
+.. automodule:: cbcflow.configuration
   
    
    
@@ -14,8 +14,7 @@ cbcflow.cbcflow
    .. autosummary::
       :toctree:                                          
    
-      from_file
-      main
+      get_cbcflow_config
    
    
 

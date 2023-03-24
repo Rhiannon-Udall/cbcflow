@@ -1,7 +1,7 @@
-cbcflow.cbcflow
+cbcflow.monitor
 ===============
 
-.. automodule:: cbcflow.cbcflow
+.. automodule:: cbcflow.monitor
   
    
    
@@ -14,8 +14,8 @@ cbcflow.cbcflow
    .. autosummary::
       :toctree:                                          
    
-      from_file
-      main
+      generate_crondor
+      run_monitor
    
    
 

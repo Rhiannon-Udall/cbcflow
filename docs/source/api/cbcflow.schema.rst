@@ -1,7 +1,7 @@
-cbcflow.cbcflow
-===============
+cbcflow.schema
+==============
 
-.. automodule:: cbcflow.cbcflow
+.. automodule:: cbcflow.schema
   
    
    
@@ -14,8 +14,8 @@ cbcflow.cbcflow
    .. autosummary::
       :toctree:                                          
    
-      from_file
-      main
+      get_schema
+      get_schema_path
    
    
 

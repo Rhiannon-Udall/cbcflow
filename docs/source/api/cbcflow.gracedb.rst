@@ -1,7 +1,7 @@
-cbcflow.cbcflow
+cbcflow.gracedb
 ===============
 
-.. automodule:: cbcflow.cbcflow
+.. automodule:: cbcflow.gracedb
   
    
    
@@ -14,8 +14,7 @@ cbcflow.cbcflow
    .. autosummary::
       :toctree:                                          
    
-      from_file
-      main
+      fetch_gracedb_information
    
    
 

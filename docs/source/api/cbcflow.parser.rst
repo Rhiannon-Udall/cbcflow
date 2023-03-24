@@ -1,7 +1,7 @@
-cbcflow.cbcflow
-===============
+cbcflow.parser
+==============
 
-.. automodule:: cbcflow.cbcflow
+.. automodule:: cbcflow.parser
   
    
    
@@ -14,8 +14,9 @@ cbcflow.cbcflow
    .. autosummary::
       :toctree:                                          
    
-      from_file
-      main
+      build_parser_from_schema
+      get_parser_and_default_data
+      process_property
    
    
 
