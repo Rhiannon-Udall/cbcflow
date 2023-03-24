@@ -97,7 +97,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
                     try:
                         # All pipelines should provide source classification
                         pastro_data = gdb.files(
-                            gname, f"{pipeline}.p_astro.json"
+                            gname, f"{pipeline.lower()}.p_astro.json"
                         ).json()
 
                         event_data["Pastro"] = 1 - pastro_data["Terrestrial"]
