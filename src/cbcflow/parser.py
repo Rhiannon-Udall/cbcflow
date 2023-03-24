@@ -149,19 +149,6 @@ def get_parser_and_default_data(schema):
         default=config_defaults["gracedb_service_url"],
     )
 
-    actions = parser.add_mutually_exclusive_group(required=True)
-    actions.add_argument(
-        "--update", action="store_true", help="Update the metadata for the event"
-    )
-    actions.add_argument(
-        "--print", action="store_true", help="Print the metadata for the event"
-    )
-    actions.add_argument(
-        "--pull-from-gracedb",
-        action="store_true",
-        help="Pull changes to the metadata from GraceDB",
-    )
-
     parser, default_data = build_parser_from_schema(parser, schema)
     argcomplete.autocomplete(parser)
     return parser, default_data
