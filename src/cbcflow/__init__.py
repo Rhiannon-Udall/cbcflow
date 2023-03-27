@@ -1,7 +1,7 @@
 from typing import Union
 
 from . import _version
-from .cbcflow import from_file, main
+from .cbcflow import from_file, setup_logger, setup_args_metadata
 from .configuration import get_cbcflow_config
 from .metadata import MetaData
 from .monitor import generate_crondor, run_monitor

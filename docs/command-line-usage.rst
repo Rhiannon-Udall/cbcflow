@@ -22,7 +22,7 @@ be done by running
 
 .. code-block::
 
-   $ eval "$(register-python-argcomplete cbcflow)"
+   $ eval "$(register-python-argcomplete cbcflow_update)"
 
 Note, this command requires that you have installed ``argcomplete``.
 
