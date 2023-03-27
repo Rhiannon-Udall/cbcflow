@@ -450,7 +450,7 @@ class TestMetaData(unittest.TestCase):
         )
         metadata.write_to_library()
         base_cmd = [
-            "cbcflow_update",
+            "cbcflow_update_from_flags",
             "S190425z",
             "--library",
             self.test_library_directory,
