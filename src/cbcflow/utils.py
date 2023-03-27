@@ -16,9 +16,6 @@ def get_cluster() -> str:
     """
     Get the cluster this is running on
     """
-    # TODO if a better api is implemented use it
-    # Also maybe add NIK?
-    # I can't even access that cluster to test, so...
     hostname = str(subprocess.check_output(["hostname", "-f"]))
     if "ligo-wa" in hostname:
         return "LHO"
@@ -40,7 +37,8 @@ def get_cluster() -> str:
         # gitlab CIs anyways
         return "UWM"
     else:
-        raise ValueError("Could not identify cluster from `hostname -f` call")
+        print("Could not identify cluster from `hostname -f` call, using fallback")
+        return "UNKNOWN"
 
 
 def get_date_last_modified(path: str) -> str:
