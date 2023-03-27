@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import subprocess
+import sys
 from typing import TYPE_CHECKING, Union
 
 import jsondiff
@@ -72,48 +73,11 @@ class MetaData(object):
             self.library.validate(default_data)
             self.data = default_data
 
-    @staticmethod
-    def from_file(
-        filename: str,
-        schema: Union[dict, None] = None,
-        default_data: Union[dict, None] = None,
-        local_library: Union["LocalLibraryDatabase", None] = None,
-    ) -> MetaData:
-        """Load a metadata object given a file path
-
-        Parameters
-        ==========
-        filename : str
-            The path to the file to load from
-        schema : dict | None, optional
-            If passed, the schema to use for the file, if None then use the configuration default
-        default_data : dict | None, optional
-            If passed, use this default data for loading the schema, if None then use the default for the schema
-        local_library : `cbcflow.database.LocalLibrayDatabase`, optional
-            If passed, load the MetaData with this backend library.
-            If None, it will load the library using the file path.
-
-        Returns
-        =======
-        MetaData
-            The metadata object for this file\
-        """
-        sname = os.path.basename(filename).split("-")[0]
-        if local_library is None:
-            local_library_path = os.path.dirname(filename)
-            return MetaData(
-                sname,
-                default_data=default_data,
-                schema=schema,
-                local_library_path=local_library_path,
-            )
-        else:
-            return MetaData(
-                sname,
-                default_data=default_data,
-                schema=schema,
-                local_library=local_library,
-            )
+    ############################################################################
+    ############################################################################
+    ####                  System Properties and Operations                  ####
+    ############################################################################
+    ############################################################################
 
     @property
     def library(self) -> "LocalLibraryDatabase":
@@ -158,98 +122,10 @@ class MetaData(object):
         """The full metadata's file path, found in its corresponding library"""
         return os.path.join(self.library.library, self.filename)
 
-    def update(self, update_dict: dict, is_removal: bool = False) -> None:
-        """Update the metadata with new elements
-
-        Parameters
-        ==========
-        update_dict : dict
-            The dictionary containing instructions to update with
-        is_removal : bool, optional
-            If true, this dictionary will treat all primitive list elements (i.e. not objects)
-            as something to be removed, rather than added. Use sparingly.
-        """
-        new_metadata_data = copy.deepcopy(self.data)
-        new_metadata_data = process_update_json(
-            update_dict,
-            new_metadata_data,
-            self.library._metadata_schema,
-            is_removal=is_removal,
-        )
-        self.library.validate(new_metadata_data)
-        self.data = new_metadata_data
-
-    def load_from_library(self):
-        """Load metadata from a library"""
-        with open(self.library_file, "r") as file:
-            data = json.load(file)
-
-        self.library.validate(data)
-        self.data = data
-        self._loaded_data = copy.deepcopy(data)
-
-    def write_to_library(self, message: Union[str, None] = None) -> None:
-        """
-        Write loaded metadata back to library, and stage/commit if the library is a git repository
-
-        Parameters
-        ==========
-        message : str | None, optional
-            If passed, this message will be used for the git commit instead of the default.
-        """
-        if self.is_updated is False:
-            logger.info("No changes made, exiting")
-            return
-
-        self.library.validate(self.data)
-        self.print_diff()
-        logger.info(f"Writing file {self.library_file}")
-        with open(self.library_file, "w") as file:
-            json.dump(self.data, file, indent=2)
-        if self.no_git_library is False:
-            self.library.git_add_and_commit(
-                filename=self.filename, message=message, sname=self.sname
-            )
-
-    @property
-    def is_updated(self):
-        """Has the library been updated since it was loaded"""
-        return self._loaded_data != self.data
-
     @property
     def library_file_exists(self):
         """Does a file for this superevent exist in this library"""
         return os.path.exists(self.library_file)
-
-    def get_diff(self):
-        """Give the difference between the loaded data and the updated data
-
-        Returns
-        =======
-        dict
-            The output of a json diff between the loaded data and the current data
-        """
-        return jsondiff.diff(self._loaded_data, self.data)
-
-    def print_diff(self):
-        """Cleanly print the output of get_diff"""
-        if self._loaded_data is None:
-            return
-
-        diff = self.get_diff()
-        if diff:
-            logger.info("Changes between loaded and current data:")
-            logger.info(diff)
-
-    @property
-    def toplevel_diff(self):
-        """Get a clean string representation of the output of get_diff"""
-        return ",".join([str(k) for k in self.get_diff().keys()])
-
-    def pretty_print(self):
-        """Prettily print the contents of the data"""
-        logger.info(f"Metadata contents for {self.sname}:")
-        logger.info(json.dumps(self.data, indent=4))
 
     def get_date_of_last_commit(self):
         """Get the date of the last commit including the metadata file for sname
@@ -280,3 +156,196 @@ class MetaData(object):
         datetime = date.strip("b'") + " " + time
         os.chdir(cwd)
         return datetime
+
+    ############################################################################
+    ############################################################################
+    ####                   Read Write and Update Methods                    ####
+    ############################################################################
+    ############################################################################
+
+    @staticmethod
+    def from_file(
+        filename: str,
+        schema: Union[dict, None] = None,
+        default_data: Union[dict, None] = None,
+        local_library: Union["LocalLibraryDatabase", None] = None,
+    ) -> MetaData:
+        """Load a metadata object given a file path
+
+        Parameters
+        ==========
+        filename : str
+            The path to the file to load from
+        schema : dict | None, optional
+            If passed, the schema to use for the file, if None then use the configuration default
+        default_data : dict | None, optional
+            If passed, use this default data for loading the schema, if None then use the default for the schema
+        local_library : `cbcflow.database.LocalLibrayDatabase`, optional
+            If passed, load the MetaData with this backend library.
+            If None, it will load the library using the file path.
+
+        Returns
+        =======
+        MetaData
+            The metadata object for this file\
+        """
+        sname = os.path.basename(filename).split("-")[0]
+        if local_library is None:
+            local_library_path = os.path.dirname(filename)
+            return MetaData(
+                sname,
+                default_data=default_data,
+                schema=schema,
+                local_library_path=local_library_path,
+            )
+        else:
+            return MetaData(
+                sname,
+                default_data=default_data,
+                schema=schema,
+                local_library=local_library,
+            )
+
+    def update(self, update_dict: dict, is_removal: bool = False) -> None:
+        """Update the metadata with new elements
+
+        Parameters
+        ==========
+        update_dict : dict
+            The dictionary containing instructions to update with
+        is_removal : bool, optional
+            If true, this dictionary will treat all primitive list elements (i.e. not objects)
+            as something to be removed, rather than added. Use sparingly.
+        """
+        new_metadata_data = copy.deepcopy(self.data)
+        new_metadata_data = process_update_json(
+            update_dict,
+            new_metadata_data,
+            self.library._metadata_schema,
+            is_removal=is_removal,
+        )
+        self.library.validate(new_metadata_data)
+        self.data = new_metadata_data
+
+    def load_from_library(self):
+        """Load metadata from a library"""
+        with open(self.library_file, "r") as file:
+            data = json.load(file)
+
+        self.library.validate(data)
+        self.data = data
+        self._loaded_data = copy.deepcopy(data)
+
+    def write_to_library(
+        self, message: Union[str, None] = None, check_changes: bool = False
+    ) -> None:
+        """
+        Write loaded metadata back to library, and stage/commit if the library is a git repository
+
+        Parameters
+        ==========
+        message : str | None, optional
+            If passed, this message will be used for the git commit instead of the default.
+        check_changes : bool | True, False
+            If true, ask the user to confirm the changes before changing the information on disk.
+        """
+        if self.is_updated is False:
+            logger.info("No changes made, exiting")
+            return
+
+        self.library.validate(self.data)
+        self.print_summary()
+        self.print_diff()
+
+        if check_changes:
+            commit_changes = self.confirm_changes()
+        else:
+            commit_changes = True
+
+        if commit_changes:
+            logger.info(f"Writing file {self.library_file}")
+            with open(self.library_file, "w") as file:
+                json.dump(self.data, file, indent=2)
+            if self.no_git_library is False:
+                self.library.git_add_and_commit(
+                    filename=self.filename, message=message, sname=self.sname
+                )
+        else:
+            logger.info(f"No changes made to {self.library_file}")
+
+    def confirm_changes(self):
+        valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+        prompt = " [y/n] "
+
+        question = "Are the proposed changes as you expect?"
+        while True:
+            sys.stdout.write(question + prompt)
+            choice = input().lower()
+            if choice in valid:
+                return valid[choice]
+            else:
+                sys.stdout.write(
+                    "Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n"
+                )
+
+    ############################################################################
+    ############################################################################
+    ####                Status Updates and Printing Methods                 ####
+    ############################################################################
+    ############################################################################
+
+    @property
+    def is_updated(self):
+        """Has the library been updated since it was loaded"""
+        return self._loaded_data != self.data
+
+    def get_diff(self):
+        """Give the difference between the loaded data and the updated data
+
+        Returns
+        =======
+        dict
+            The output of a json diff between the loaded data and the current data
+        """
+        return jsondiff.diff(self._loaded_data, self.data)
+
+    def print_summary(self):
+        """Print a short summary of the event"""
+        gdb = self.data["GraceDB"]
+        events = gdb["Events"]
+
+        # If no GraceDB events available fall back to None defaults
+        GPSTime = None
+        chirp_mass = None
+
+        # Find the preferred event GPSTime and chirp mass
+        for event in events:
+            if event["State"] == "preferred":
+                GPSTime = event["GPSTime"]
+                m1, m2 = event["Mass1"], event["Mass2"]
+                chirp_mass = round((m1 * m2) ** (3 / 5) / (m1 + m2) ** (1 / 5), 2)
+
+        # Print the message
+        logger.info(
+            f"Super event: {self.sname}, GPSTime={GPSTime}, chirp_mass={chirp_mass}"
+        )
+
+    def print_diff(self):
+        """Cleanly print the output of get_diff"""
+        if self._loaded_data is None:
+            return
+
+        diff = self.get_diff()
+        if diff:
+            logger.info("Changes between loaded and current data:")
+            logger.info(diff)
+
+    @property
+    def toplevel_diff(self):
+        """Get a clean string representation of the output of get_diff"""
+        return ",".join([str(k) for k in self.get_diff().keys()])
+
+    def pretty_print(self):
+        """Prettily print the contents of the data"""
+        logger.info(f"Metadata contents for {self.sname}:")
+        logger.info(json.dumps(self.data, indent=4))
