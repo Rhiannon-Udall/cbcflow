@@ -965,7 +965,8 @@
         },
         "SafeLowerMassRatio":{
           "description": "A safe lower mass ratio to set in the prior, to prevent railing",
-          "type": "number"
+          "type": "number",
+          "default": "0.05"
         },
         "SafeUpperLuminosityDistance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
