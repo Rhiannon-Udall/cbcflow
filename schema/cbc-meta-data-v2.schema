@@ -60,7 +60,8 @@
         },
         "Instruments": {
           "description": "The event instruments from GraceDB",
-          "type": "string"
+          "type": "string",
+          "pattern":"^((H|L|V|K|G)1)+(,((H|L|V|K|G)1)+)*$"
         },
         "Events": {
           "description": "A list of events. In case of multiple events uploaded by one pipeline on GraceDB, only the preferred event for that pipeline is used.",
@@ -191,7 +192,8 @@
         },
         "SafeLowerMassRatio":{
           "description": "A safe lower mass ratio to set in the prior, to prevent railing",
-          "type": "number"
+          "type": "number",
+          "default": 0.05
         },
         "SafeUpperLuminosityDistance":{
           "description": "A safe upper luminosity distance to set in the prior, to prevent railing",
@@ -383,7 +385,8 @@
         "description": "The list of all detectors which were judged to be participating",
         "type": "array",
         "items": {
-          "type": "string"
+          "type": "string",
+          "pattern":"^(H|L|V|K|G)1$"
          }
       },
       "Status": {
@@ -416,11 +419,6 @@
         "description": "A list of results",
         "type": "array",
         "items": {"$ref": "#/$defs/DQRResult"}
-      },
-      "RecommendedChannels":{
-        "type": "array",
-        "items":{"type":"string"},
-        "description": "The channels to use in the analysis - should have 1-1 mapping with detectors to analyze"
       },
       "Notes": {
         "type": "array",
@@ -508,6 +506,10 @@
           "description": "The individual SNR for KAGRA (K1)",
           "type": "number"
         },
+        "G1SNR": {
+          "description" : "The individual SNR for GEO (G1)",
+          "type": "number"
+        },
         "Pastro": {
           "description": "The probability of astrophysical origin",
           "type": "number"
@@ -585,7 +587,8 @@
       "properties":{
         "UID": {
           "type" : "string",
-          "description": "The detector in question (e.g. H1)"
+          "description": "The detector in question (e.g. H1)",
+          "pattern":"^(H|L|V|K|G)1$"
         },
         "RecommendedMinimumFrequency": {
           "type": "number",
@@ -605,6 +608,11 @@
           "type": "object",
           "$ref": "#/$defs/LinkedFile",
           "description": "The location of the frames on a cluster - CIT preferred by default. If no mitigation is required this will be the default given the time."
+        },
+        "RecommendedChannel":{
+          "description": "The channels to use in the analysis for this detector",
+          "type":"string",
+          "pattern":"^(H|L|V|K|G)1:*"
         },
         "Notes": {
           "type": "array",
@@ -784,18 +792,23 @@
         },
         "RightAscension": {
           "description": "The right ascension of the EM counterpart (rad)",
-          "type": "number"
+          "type": "number",
+          "minimum": 0,
+          "maximum": 6.29
         },
         "Declination": {
           "description": "The declination of the EM counterpart (rad)",
-          "type": "number"
+          "type": "number",
+          "minimum": -1.58,
+          "maximum": 1.58
         },
         "Redshift": {
           "description": "Cosmological redshift",
-          "type": "number"
+          "type": "number",
+          "minimum":0
         },
         "RedshiftUncertainty": {
-          "description": "The redshift uncertainty of the EM counterpart (rad)",
+          "description": "The redshift uncertainty of the EM counterpart",
           "type": "number"
         },
         "PeculiarMotion": {
