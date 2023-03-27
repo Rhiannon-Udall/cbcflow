@@ -439,7 +439,7 @@
       "properties": {
         "Path": {
           "type": "string",
-          "pattern": "^(CIT|LLO|LHO|IUCAA|PSU|CDF|NIK|UWM):\/",
+          "pattern": "^(CIT|LLO|LHO|IUCAA|PSU|CDF|NIK|UWM|UNKNOWN):\/",
           "description": "The path to the file, of the form CLUSTER:/path/to/file"
         },
         "MD5Sum": {
