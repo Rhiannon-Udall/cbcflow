@@ -56,6 +56,7 @@ class Collector:
                             analysis.meta["waveform"]["approximant"]
                         )
                 if "ini" in analysis.meta:
+                    analysis_output["ConfigFile"] = {}
                     analysis_output["ConfigFile"]["Path"] = analysis.meta["ini"]
                 analysis_output["Notes"] = [analysis.comment]
                 if analysis.finished:
@@ -63,12 +64,17 @@ class Collector:
                     results = analysis.pipeline.collect_assets()
                     if str(analysis.pipeline).lower() == "bayeswave":
                         # If the pipeline is Bayeswave, we slot each psd into its designated spot
+                        analysis_output["BayeswaveResults"] = {}
                         for ifo, psd in results["psds"].items():
                             analysis_output["BayeswaveResults"][f"{ifo}PSD"][
                                 "Path"
                             ] = psd
+                        if analysis_output["BayeswaveResults"] == {}:
+                            # Cleanup if we fail to write any results
+                            analysis_output.pop("BayeswaveResults")
                     elif str(analysis.pipeline).lower() == "bilby":
                         # If it's bilby, we need to parse out which of possibly multiple merge results we want
+                        analysis_output["ResultFile"] = {}
                         if len(results["samples"]) == 0:
                             logger.warning(
                                 "Could not get samples from Bilby analysis, even though run is nominally finished!"
@@ -103,11 +109,19 @@ class Collector:
                                 )
                             # This has treated the case of >1 json and only 1 hdf5 as being fine
                             # Maybe it should throw a warning for this too?
+                            if analysis_output["ResultFile"] == {}:
+                                # Cleanup if we fail to get any results
+                                analysis_output.pop("ResultFile")
                     elif str(analysis.pipeline).lower() == "rift":
                         # RIFT should only ever return one result file - extrinsic_posterior_samples.dat
-                        analysis_output["ResultFile"][
-                            "Path"
-                        ] = analysis.pipeline.collect_assets()[0]
+                        results = analysis.pipeline.collect_assets()
+                        if len(results) == 1:
+                            analysis_output["ResultFile"] = {}
+                            analysis_output["ResultFile"]["Path"] = results[0]
+                        else:
+                            logger.warning(
+                                "Could not get results from RIFT run - to many or too few outputs"
+                            )
                     else:
                         logger.warning(
                             f"Method to obtain result file for pipeline {str(analysis.pipeline)} is not implemented"
@@ -124,12 +138,37 @@ class Collector:
                     )
                     sample_h5s = glob.glob(f"{pesummary_pages_dir}/pesummary/samples/")
                     if len(sample_h5s) == 1:
+                        # If there is only one samples h5, we're good!
+                        # This *should* be true, and it should normally be called "posterior_samples.h5"
+                        # But this may not be universal?
+                        analysis_output["PESummaryResultFile"] = {}
                         analysis_output["PESummaryResultFile"]["Path"] = sample_h5s[0]
                     else:
                         logger.warning(
                             "Could not uniquely determine location of PESummary result samples"
                         )
-                    # TODO can we infer the HTMLs for the pages and the result given this information?
+                    if pesummary_pages_dir.split("/")[2] == "public_html":
+                        # This is the case where files are being written directly into public html
+                        # First get the stuff that comes after public_html - this structure will stay the same
+                        pesummary_pages_url_extension = "/".join(
+                            pesummary_pages_dir.split("/")[3:]
+                        )
+                        # next get the user in ldas form
+                        url_user = f"~{pesummary_pages_dir.split('/')}"
+                        # Combine them
+                        pesummary_pages_url_dir = f"https://ldas-jobs.ligo.caltech.edu/\
+                            {url_user}/{pesummary_pages_url_extension}"
+                        # If we've written a result file, infer its url
+                        if "PESummaryResultFile" in analysis_output.keys():
+                            # We want to get whatever the name we previously decided was
+                            # This will only run if we did make that decision before, so we can use similar logic
+                            analysis_output["PESummaryResultFile"][
+                                "PublicHTML"
+                            ] = f"{pesummary_pages_url_dir}/pesummary/samples/{sample_h5s[0].split('/')[-1]}"
+                        # Infer the summary pages URL
+                        analysis_output[
+                            "PESummaryPageURL"
+                        ] = f"{pesummary_pages_url_dir}/pesummary/home.html"
 
                 pe.append(analysis_output)
                 metadata.update(output)
