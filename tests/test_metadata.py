@@ -80,8 +80,8 @@ class TestMetaData(unittest.TestCase):
             {
                 "UID": "TestF1",
                 "Description": "A fake analysis",
-                "Reviewers": ["Gregory Ashton", "Jonah Kanner"],
-                "Analysts": ["Rhiannon Udall"],
+                "Reviewers": ["Prospero", "Alonso"],
+                "Analysts": ["Miranda"],
                 "AnalysisSoftware": "A fake software",
                 "AnalysisStatus": "ongoing",
                 "ResultFile": {
@@ -133,7 +133,7 @@ class TestMetaData(unittest.TestCase):
             {
                 "UID": "TestF1",
                 "Description": "A fake analysis",
-                "Analysts": ["Rhiannon Udall", "Mr C++"],
+                "Analysts": ["Miranda", "Caliban"],
                 "Reviewers": [],
                 "Results": [
                     {
@@ -190,7 +190,7 @@ class TestMetaData(unittest.TestCase):
             {
                 "UID": "TestF2",
                 "Description": "Another fake analysis",
-                "Analysts": ["Rhiannon Udall"],
+                "Analysts": ["Miranda"],
                 "Results": [
                     {
                         "UID": "TestF1",
@@ -220,7 +220,7 @@ class TestMetaData(unittest.TestCase):
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"].append(
             {
                 "UID": "TestF3",
-                "Analysts": ["Donald Knuth"],
+                "Analysts": ["Gonzalo"],
                 "Results": [],
                 "Reviewers": [],
                 "Notes": [],
@@ -269,7 +269,7 @@ class TestMetaData(unittest.TestCase):
             **self.default_metadata_kwargs,
         )
         assert metadata.sname == sname
-        assert metadata.data["ParameterEstimation"]["Reviewers"] == ["Gregory Ashton"]
+        assert metadata.data["ParameterEstimation"]["Reviewers"] == ["Prospero"]
 
     def test_modify_metadata_from_file(self):
         # Write a metadata file to test
@@ -283,7 +283,7 @@ class TestMetaData(unittest.TestCase):
             local_library_path=self.test_library_directory,
             **self.default_metadata_kwargs,
         )
-        metadata.data["ParameterEstimation"]["Reviewers"].append("michael.kiwanuka")
+        metadata.data["ParameterEstimation"]["Reviewers"].append("Ariel")
         metadata.write_to_library()
 
         metadata_mod = MetaData(
@@ -292,9 +292,6 @@ class TestMetaData(unittest.TestCase):
             **self.default_metadata_kwargs,
         )
         assert metadata.data == metadata_mod.data
-
-    def test_parsing_of_user_inputs(self):
-        pass
 
     def test_update_metadata_with_json_add(self):
         if not os.path.exists(self.test_library_directory):
@@ -336,13 +333,13 @@ class TestMetaData(unittest.TestCase):
                 "Labels": ["A test label, showing that appending works"],
             },
             "ExtremeMatter": {
-                "Analyses": [{"UID": "TestF1", "Reviewers": ["Gregory Ashton"]}]
+                "Analyses": [{"UID": "TestF1", "Reviewers": ["Prospero"]}]
             },
             "TestingGR": {
                 "IMRCTAnalyses": [
                     {
                         "UID": "TestF1",
-                        "Analysts": ["Rhiannon Udall"],
+                        "Analysts": ["Miranda"],
                         "Results": [{"UID": "TestF1", "Notes": ["A note"]}],
                     }
                 ]
@@ -353,10 +350,10 @@ class TestMetaData(unittest.TestCase):
 
         self.check_metadata_data["Info"]["Labels"] = ["A second test label"]
         self.check_metadata_data["ExtremeMatter"]["Analyses"][0]["Reviewers"] = [
-            "Jonah Kanner"
+            "Alonso"
         ]
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"][0]["Analysts"] = [
-            "Mr C++"
+            "Caliban"
         ]
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"][0]["Results"][0][
             "Notes"
@@ -498,9 +495,9 @@ class TestMetaData(unittest.TestCase):
             "--ExtremeMatter-Analyses-AnalysisSoftware-set",
             "A fake software",
             "--ExtremeMatter-Analyses-Analysts-add",
-            "Rhiannon Udall",
+            "Miranda",
             "--ExtremeMatter-Analyses-Reviewers-add",
-            "Gregory Ashton",
+            "Prospero",
             "--ExtremeMatter-Analyses-Description-set",
             "A fake analysis",
             "--ExtremeMatter-Analyses-ResultFile-Path-set",
@@ -536,7 +533,7 @@ class TestMetaData(unittest.TestCase):
             "--TestingGR-IMRCTAnalyses-UID-set",
             "TestF1",
             "--TestingGR-IMRCTAnalyses-Analysts-add",
-            "Rhiannon Udall",
+            "Miranda",
             "--TestingGR-IMRCTAnalyses-Description-set",
             "A fake analysis",
             "--TestingGR-IMRCTAnalyses-Results-UID-set",
@@ -568,7 +565,7 @@ class TestMetaData(unittest.TestCase):
             "--TestingGR-IMRCTAnalyses-UID-set",
             "TestF2",
             "--TestingGR-IMRCTAnalyses-Analysts-add",
-            "Rhiannon Udall",
+            "Miranda",
             "--TestingGR-IMRCTAnalyses-Description-set",
             "Another fake analysis",
             "--TestingGR-IMRCTAnalyses-Results-UID-set",
@@ -588,11 +585,11 @@ class TestMetaData(unittest.TestCase):
             "--ExtremeMatter-Analyses-ResultFile-Path-set",
             "tests/test-file-for-linking-2.txt",
             "--ExtremeMatter-Analyses-Reviewers-add",
-            "Jonah Kanner",
+            "Alonso",
             "--TestingGR-IMRCTAnalyses-UID-set",
             "TestF1",
             "--TestingGR-IMRCTAnalyses-Analysts-add",
-            "Mr C++",
+            "Caliban",
             "--TestingGR-IMRCTAnalyses-Results-UID-set",
             "TestF1",
             "--TestingGR-IMRCTAnalyses-Results-Notes-add",
@@ -618,7 +615,7 @@ class TestMetaData(unittest.TestCase):
             "--TestingGR-IMRCTAnalyses-UID-set",
             "TestF3",
             "--TestingGR-IMRCTAnalyses-Analysts-add",
-            "Donald Knuth",
+            "Gonzalo",
         ]
         subprocess.check_output(cmd_11)
         altered_metadata = MetaData(
