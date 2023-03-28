@@ -1,6 +1,7 @@
 import cbcflow
 import logging
 import os
+import numpy as np
 import glob
 
 from asimov.event import Event
@@ -196,9 +197,18 @@ class Applicator:
         channels = data["channels"] = {}
         data["segment length"] = detchar["RecommendedDuration"]
         # We want to check these quantities, which should line up, actually do
-        # start_end_delta = (
-        #    detchar["RecommendedEndTime"] - detchar["RecommendedStartTime"]
-        # )
+        start_end_delta = (
+            detchar["RecommendedEndTime"] - detchar["RecommendedStartTime"]
+        )
+        if not np.isclose(start_end_delta, detchar["RecommendedDuration"], atol=0.1):
+            # This is a guess at how close these have to be to be ~the same
+            # it doesn't matter if they vary by a decisecond
+            # it does matter if they vary by a factor of 2
+            logger.warning(
+                "The values for RecommendedStart/EndTime do not line up with\
+                           the value of RecommendedDuration.\
+                           Please check that both are up to date!"
+            )
 
         for ifo in ifos:
             # Grab IFO specific quantities
@@ -219,16 +229,19 @@ class Applicator:
 
         # GraceDB Settings
         ligo = {}
-        ligo["preferred event"] = grace["PreferredEvent"]
+        for event in grace["Events"]:
+            if event["State"] == "preferred":
+                ligo["preferred event"] = event["UID"]
+                ligo["false alarm rate"] = event["FAR"]
+                event_time = event["GPSTime"]
         ligo["sname"] = sid
-        ligo["false alarm rate"] = grace["FAR"]
 
         output = {
             "name": metadata.data["Sname"],
             "quality": quality,
             "ligo": ligo,
             "data": data,
-            "event time": grace["GPSTime"],
+            "event time": event_time,
         }
 
         event = Event.from_dict(output)
