@@ -3,14 +3,14 @@ ExtremeMatter:
   - ResultFile:
       Path: tests/test-file-for-linking-2.txt
     Reviewers:
-    - Jonah Kanner
+    - Alonso
     UID: TestF1
   - Description: Yet another fake analysis
     UID: TestF3
 TestingGR:
   IMRCTAnalyses:
   - Analysts:
-    - Mr C++
+    - Caliban
     Results:
     - Notes:
       - Another note
@@ -22,5 +22,5 @@ TestingGR:
       WaveformApproximant: IMRPhenomXPHM
     UID: TestF1
   - Analysts:
-    - Donald Knuth
+    - Gonzalo
     UID: TestF3

@@ -30,8 +30,8 @@
             {
                 "UID":"TestF1",
                 "Description":"A fake analysis",
-                "Reviewers":["Gregory Ashton"],
-                "Analysts":["Rhiannon Udall"],
+                "Reviewers":["Prospero"],
+                "Analysts":["Miranda"],
                 "AnalysisSoftware":"A fake software",
                 "AnalysisStatus":"ongoing",
                 "ResultFile":{
@@ -53,7 +53,7 @@
             {
                 "UID":"TestF1",
                 "Description":"A fake analysis",
-                "Analysts":["Rhiannon Udall"],
+                "Analysts":["Miranda"],
                 "Results":[
                     {
                         "UID":"TestF1",
@@ -76,7 +76,7 @@
             {
                 "UID":"TestF2",
                 "Description":"Another fake analysis",
-                "Analysts":["Rhiannon Udall"],
+                "Analysts":["Miranda"],
                 "Results":[
                     {
                         "UID":"TestF1",
