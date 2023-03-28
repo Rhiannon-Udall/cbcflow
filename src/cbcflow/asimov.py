@@ -4,6 +4,7 @@ import os
 import glob
 
 from asimov.event import Event
+from asimov import config
 
 logger = logging.getLogger(__name__)
 
@@ -129,14 +130,13 @@ class Collector:
 
                 if analysis.status == "uploaded":
                     # Next, try to get PESummary information
-                    # I've guessed this form based on
-                    # https://git.ligo.org/asimov/asimov/-/blob/review/asimov/pipelines/bilby.py#L428
-                    # TODO is that correct?
                     pesummary_pages_dir = os.path.join(
-                        event.pipeline.production.event.name,
-                        event.pipeline.production.name,
+                        config.get("general", "webroot"),
+                        analysis.subject.name,
+                        analysis.name,
+                        "pesummary",
                     )
-                    sample_h5s = glob.glob(f"{pesummary_pages_dir}/pesummary/samples/")
+                    sample_h5s = glob.glob(f"{pesummary_pages_dir}/samples/*.h5")
                     if len(sample_h5s) == 1:
                         # If there is only one samples h5, we're good!
                         # This *should* be true, and it should normally be called "posterior_samples.h5"
@@ -148,27 +148,24 @@ class Collector:
                             "Could not uniquely determine location of PESummary result samples"
                         )
                     if pesummary_pages_dir.split("/")[2] == "public_html":
-                        # This is the case where files are being written directly into public html
-                        # First get the stuff that comes after public_html - this structure will stay the same
-                        pesummary_pages_url_extension = "/".join(
-                            pesummary_pages_dir.split("/")[3:]
+                        # Currently, we do the bit of trying to guess the URL ourselves
+                        # In the future there may be an asimov config value for this
+                        pesummary_pages_url_dir = (
+                            cbcflow.utils.get_url_from_public_html_dir(
+                                pesummary_pages_dir
+                            )
                         )
-                        # next get the user in ldas form
-                        url_user = f"~{pesummary_pages_dir.split('/')}"
-                        # Combine them
-                        pesummary_pages_url_dir = f"https://ldas-jobs.ligo.caltech.edu/\
-                            {url_user}/{pesummary_pages_url_extension}"
                         # If we've written a result file, infer its url
                         if "PESummaryResultFile" in analysis_output.keys():
                             # We want to get whatever the name we previously decided was
                             # This will only run if we did make that decision before, so we can use similar logic
                             analysis_output["PESummaryResultFile"][
                                 "PublicHTML"
-                            ] = f"{pesummary_pages_url_dir}/pesummary/samples/{sample_h5s[0].split('/')[-1]}"
+                            ] = f"{pesummary_pages_url_dir}/samples/{sample_h5s[0].split('/')[-1]}"
                         # Infer the summary pages URL
                         analysis_output[
                             "PESummaryPageURL"
-                        ] = f"{pesummary_pages_url_dir}/pesummary/home.html"
+                        ] = f"{pesummary_pages_url_dir}/home.html"
 
                 pe.append(analysis_output)
                 metadata.update(output)
@@ -189,23 +186,36 @@ class Applicator:
         detchar = metadata.data["DetectorCharacterization"]
         grace = metadata.data["GraceDB"]
         ifos = detchar["RecommendedDetectors"]
-        if len(ifos) == 0:
-            ifos = grace["Instruments"].split(",")
+        participating_detectors = detchar["ParticipatingDetectors"].split(",")
         quality = {}
         max_f = quality["maximum frequency"] = {}
         min_f = quality["minimum frequency"] = {}
 
-        for ifo in ifos:
-            max_f[ifo] = detchar["RecommendedMaximumFrequency"]
-            min_f[ifo] = detchar["RecommendedMinimumFrequency"]
-
         # Data settings
         data = {}
         channels = data["channels"] = {}
-        if len(detchar["RecommendedChannels"]) > 0:
-            for i, ifo in enumerate(ifos):
-                channels[ifo] = detchar["RecommendedChannels"][i]
         data["segment length"] = detchar["RecommendedDuration"]
+        # We want to check these quantities, which should line up, actually do
+        # start_end_delta = (
+        #    detchar["RecommendedEndTime"] - detchar["RecommendedStartTime"]
+        # )
+
+        for ifo in ifos:
+            # Grab IFO specific quantities
+            ifo_name = ifo["UID"]
+            if ifo_name in participating_detectors:
+                # Tracking which detectors are participating and also recommended
+                participating_detectors.remove(ifo_name)
+            max_f[ifo_name] = ifo["RecommendedMaximumFrequency"]
+            min_f[ifo_name] = ifo["RecommendedMinimumFrequency"]
+            channels[ifo_name] = ifo["RecommendedChannel"]
+
+        if len(participating_detectors) != 0:
+            logger.info(
+                f"Detectors {participating_detectors} were not in recommended list\
+                        either because validation is still pending\
+                        or because they are rejected upon validation"
+            )
 
         # GraceDB Settings
         ligo = {}

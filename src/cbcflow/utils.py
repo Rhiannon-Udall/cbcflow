@@ -3,6 +3,9 @@ import os
 import subprocess
 from datetime import datetime
 from jsondiff import Symbol
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def standardize_list(inlist: list) -> list:
@@ -136,3 +139,22 @@ def get_dumpable_json_diff(diff: dict) -> dict:
         else:
             string_rep_diff[key] = val_to_write
     return string_rep_diff
+
+
+def get_url_from_public_html_dir(dirpath):
+    """Given a path to a directory in public_html, get the corresponding URL (on CIT)"""
+    if dirpath.split("/")[2] == "public_html":
+        # This is the case where files are being written directly into public html
+        # First get the stuff that comes after public_html - this structure will stay the same
+        url_extension = "/".join(dirpath.split("/")[3:])
+        # next get the user in ldas form
+        url_user = f"~{dirpath.split('/')}"
+        # Combine them
+        dir_url = f"https://ldas-jobs.ligo.caltech.edu/\
+            {url_user}/{url_extension}"
+        return dir_url
+    else:
+        logger.info(
+            "Given directory path was not in public HTML, so URL cannot be extrapolated from it"
+        )
+        return None
