@@ -707,6 +707,38 @@
           "type": "string",
           "description": "The waveform approximant being used for this analysis."
         },
+        "BayeswaveResults":{
+          "type": "object",
+          "description": "A special object for when the analysis was Bayeswave, such that there are multiple files which constitute results.",
+          "additionalProperties": false,
+          "properties": {
+            "H1PSD" : {
+              "type": "object",
+              "description": "The output PSD for the Hanford detector.",
+              "$ref": "#/$defs/LinkedFile"
+            },
+            "L1PSD" : {
+              "type": "object",
+              "description": "The output PSD for the Livingston detector.",
+              "$ref": "#/$defs/LinkedFile"
+            },
+            "V1PSD" : {
+              "type": "object",
+              "description": "The output PSD for the Virgo detector.",
+              "$ref": "#/$defs/LinkedFile"
+            },
+            "K1PSD" : {
+              "type": "object",
+              "description": "The output PSD for the KAGRA detector.",
+              "$ref": "#/$defs/LinkedFile"
+            },
+            "G1PSD" : {
+              "type": "object",
+              "description": "The output PSD for the GEO detector.",
+              "$ref": "#/$defs/LinkedFile"
+            }
+          }
+        },
         "Deprecated":{
           "description":"If true, this analysis has been deprecated, either because a flaw was discovered or a more up to date analysis which supersedes it has been added. If this is true, do not use this result.",
           "type": "boolean",
