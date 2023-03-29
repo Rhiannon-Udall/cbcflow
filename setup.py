@@ -25,10 +25,6 @@ if __name__ == "__main__":
                 "schema/index-v1.schema",
             ]
         },
-        entry_points={
-            "asimov.hooks.postmonitor": ["cbcflow = cbcflow.asimov:Collector"],
-            "asimov.hooks.applicator": ["cbcflow = cbcflow.asimov:Applicator"],
-        },
         version=versioneer.get_version(),
         cmdclass=versioneer.get_cmdclass(),
     )
