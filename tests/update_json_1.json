@@ -6,7 +6,7 @@
         ]
     },
     "Cosmology": {
-        "PreferredSkymap": "A sample preferred skymap, showing that setting works correctly",
+        "PreferredLowLatencySkymap": "A sample preferred skymap, showing that setting works correctly",
         "Counterparts": [
             {
                 "UID": "TestF1",

@@ -53,7 +53,7 @@ class TestMetaData(unittest.TestCase):
         self.check_metadata_data["Info"]["Labels"].append("A second test label")
 
         self.check_metadata_data["Cosmology"][
-            "PreferredSkymap"
+            "PreferredLowLatencySkymap"
         ] = "A sample preferred skymap, showing that setting works correctly"
         self.check_metadata_data["Cosmology"]["Counterparts"].append(
             {
@@ -482,7 +482,7 @@ class TestMetaData(unittest.TestCase):
         cmd_2 += [
             "--Cosmology-Counterparts-UID-set",
             "TestF2",
-            "--Cosmology-PreferredSkymap-set",
+            "--Cosmology-PreferredLowLatencySkymap-set",
             "A sample preferred skymap, showing that setting works correctly",
         ]
         subprocess.check_output(cmd_2)

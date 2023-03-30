@@ -11,7 +11,7 @@ Cosmology:
     UID: TestF1
     UncertaintyPeculiarMotion: 50
   - UID: TestF2
-  PreferredSkymap: A sample preferred skymap, showing that setting works correctly
+  PreferredLowLatencySkymap: A sample preferred skymap, showing that setting works correctly
 ExtremeMatter:
   Analyses:
   - AnalysisSoftware: A fake software
