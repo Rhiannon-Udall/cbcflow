@@ -14,6 +14,7 @@ from jsondiff import diff
 import jsonschema
 import pygit2
 from ligo.gracedb.rest import GraceDb
+from ligo.gracedb.exceptions import HTTPError
 
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
@@ -307,9 +308,14 @@ class LocalLibraryDatabase(object):
     def index_from_file(self) -> dict:
         """Fetch the info from the index json as it currently exists"""
         if os.path.exists(self.index_file_path):
-            with open(self.index_file_path, "r") as f:
-                current_index_data = json.load(f)
-            return current_index_data
+            try:
+                with open(self.index_file_path, "r") as f:
+                    current_index_data = json.load(f)
+                jsonschema.validate(current_index_data, self.library_index_schema)
+                return current_index_data
+            except jsonschema.ValidationError:
+                logger.warning("Present index data failed validation!")
+                return dict()
         else:
             logger.info("No index file currently present")
             return dict()
@@ -369,11 +375,12 @@ class LocalLibraryDatabase(object):
         if index_delta != dict():
             with open(self.index_file_path, "w") as f:
                 json.dump(self.generated_index, f, indent=2)
-            self.git_add_and_commit(
-                filename=self.index_file_name,
-                message=f"Updating index with changes:\n\
-                    {pformat(get_dumpable_json_diff(index_delta))}",
-            )
+            if self.is_git_repository:
+                self.git_add_and_commit(
+                    filename=self.index_file_name,
+                    message=f"Updating index with changes:\n\
+                        {pformat(get_dumpable_json_diff(index_delta))}",
+                )
 
 
 class LibraryParent(object):
@@ -524,8 +531,15 @@ class GraceDbDatabase(LibraryParent):
                     logger.info(json.dumps(string_rep_changes, indent=2))
                     metadata.write_to_library()
                 except jsonschema.exceptions.ValidationError:
-                    logger.info(
+                    logger.warning(
                         f"For superevent {superevent_id}, GraceDB generated metadata failed validation\
+                        Writing backup data (either default or pre-loaded) to library instead\n"
+                    )
+                    metadata.update(backup_data)
+                    metadata.write_to_library()
+                except HTTPError:
+                    logger.warning(
+                        f"For superevent {superevent_id}, failed to obtain data from GraceDB\
                         Writing backup data (either default or pre-loaded) to library instead\n"
                     )
                     metadata.update(backup_data)
@@ -564,7 +578,14 @@ class GraceDbDatabase(LibraryParent):
         query = f"created: {event_config['created-since']} .. {now_str} \
         FAR <= {event_config['far-threshold']}"
         logger.info(f"Constructed query {query} from library config")
-        self.superevents_to_propagate = self.query_superevents(query)
+        try:
+            self.superevents_to_propagate = self.query_superevents(query)
+        except HTTPError:
+            self.superevents_to_propagate = []
+            logger.warning(
+                "Query to GraceDB for superevents unsuccessful \
+                           - falling back on superevents already in library only"
+            )
 
         logger.info(
             f"Querying based on library configuration returned {len(self.superevents_to_propagate)} superevents"
