@@ -91,7 +91,7 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "PreferredSkymap": {
+        "PreferredLowLatencySkymap": {
           "description": "The link to the preferred skymap on GRACEDB",
           "type": "string"
         },
