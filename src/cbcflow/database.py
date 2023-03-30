@@ -25,8 +25,6 @@ from .utils import get_dumpable_json_diff
 
 logger = logging.getLogger(__name__)
 
-# from .process import populate_defaults_if_necessary
-
 
 class LocalLibraryDatabase(object):
     def __init__(
