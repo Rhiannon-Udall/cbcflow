@@ -42,7 +42,7 @@
       "type": "object",
       "properties": {
         "Papers": {
-          "description": "The papers this trigger appears in",
+          "description": "The papers this trigger appears in - use pubplan keys as unique identifier",
           "type": "array",
           "items": {
             "type": "string"
@@ -713,7 +713,7 @@
           "default": false
         },
         "Publications":{
-          "description":"The LVK publications which use this result.",
+          "description":"The LVK publications which use this result - use pubplan keys as unique identifier.",
           "type":"array",
           "items":{"type":"string"}
         },
