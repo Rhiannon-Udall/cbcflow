@@ -44,6 +44,8 @@ class LocalLibraryDatabase(object):
         self.library = library_path
         self.metadata_schema = schema
 
+        self.metadata_dict = dict()
+
         logger.debug(
             f"Library initialized with {len(self.filelist)} superevents stored"
         )
@@ -93,6 +95,12 @@ class LocalLibraryDatabase(object):
         return glob.glob(os.path.join(self.library, "*cbc-metadata.json"))
 
     @property
+    def superevents_in_library(self):
+        """Get a list of superevent names which are present in the library"""
+        superevent_names = [x.split("/")[-1].split("-")[0] for x in self.filelist]
+        return superevent_names
+
+    @property
     def metadata_schema(self) -> dict:
         """The schema for the metadata jsons in this library"""
         return self._metadata_schema
@@ -110,8 +118,17 @@ class LocalLibraryDatabase(object):
         _, default_data = get_parser_and_default_data(self.metadata_schema)
         return default_data
 
-    @cached_property
+    @property
     def metadata_dict(self) -> dict:
+        """A dictionary of the metadata loaded for a library"""
+        return self._metadata_dict
+
+    @metadata_dict.setter
+    def metadata_dict(self, new_dict) -> None:
+        self._metadata_dict = new_dict
+
+    def load_library_metadata_dict(self) -> None:
+        """Load all of the metadata in a given library"""
         metadata_dict = dict()
         metadata_list = [
             MetaData.from_file(
@@ -121,14 +138,11 @@ class LocalLibraryDatabase(object):
         ]
         for md in metadata_list:
             metadata_dict[md.sname] = md
-        return metadata_dict
+        self.metadata_dict.update(metadata_dict)
 
-    @cached_property
+    @property
     def downselected_metadata_dict(self) -> dict:
-        """Get the snames of events which satisfy library inclusion criteria
-
-        Returns
-        """
+        """Get the snames of events which satisfy library inclusion criteria"""
         downselected_metadata_dict = dict()
         for sname, metadata in self.metadata_dict.items():
             for event in metadata.data["GraceDB"]["Events"]:

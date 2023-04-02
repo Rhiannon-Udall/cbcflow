@@ -73,6 +73,8 @@ class MetaData(object):
             self.library.validate(default_data)
             self.data = default_data
 
+        self.library.metadata_dict[sname] = self
+
     ############################################################################
     ############################################################################
     ####                  System Properties and Operations                  ####
