@@ -20,14 +20,14 @@ ExtremeMatter:
     - Miranda
     Description: A fake analysis
     ResultFile:
-      Path: tests/test-file-for-linking-1.txt
+      Path: tests/files_for_testing/test-file-for-linking-1.txt
       PublicHTML: fake-url.org
     Reviewers:
     - Prospero
     UID: TestF1
   - Description: Another fake analysis
     ResultFile:
-      Path: tests/test-file-for-linking-1.txt
+      Path: tests/files_for_testing/test-file-for-linking-1.txt
     UID: TestF2
 Info:
   Labels:
@@ -42,14 +42,14 @@ TestingGR:
     - Notes:
       - A note
       ResultFile:
-        Path: tests/test-file-for-linking-1.txt
+        Path: tests/files_for_testing/test-file-for-linking-1.txt
         PublicHTML: a-fake-url.org
       UID: TestF1
       WaveformApproximant: IMRPhenomXPHM
     - Notes:
       - A note
       ResultFile:
-        Path: tests/test-file-for-linking-1.txt
+        Path: tests/files_for_testing/test-file-for-linking-1.txt
       UID: TestF2
     UID: TestF1
   - Analysts:
@@ -57,7 +57,7 @@ TestingGR:
     Description: Another fake analysis
     Results:
     - ResultFile:
-        Path: tests/test-file-for-linking-1.txt
+        Path: tests/files_for_testing/test-file-for-linking-1.txt
         PublicHTML: a-fake-url.org
       UID: TestF1
       WaveformApproximant: SEOBNRv4PHM

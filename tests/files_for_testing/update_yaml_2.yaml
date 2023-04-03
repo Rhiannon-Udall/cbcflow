@@ -1,7 +1,7 @@
 ExtremeMatter:
   Analyses:
   - ResultFile:
-      Path: tests/test-file-for-linking-2.txt
+      Path: tests/files_for_testing/test-file-for-linking-2.txt
     Reviewers:
     - Alonso
     UID: TestF1
@@ -15,7 +15,7 @@ TestingGR:
     - Notes:
       - Another note
       ResultFile:
-        Path: tests/test-file-for-linking-2.txt
+        Path: tests/files_for_testing/test-file-for-linking-2.txt
       UID: TestF1
       WaveformApproximant: NRSur7dq4
     - UID: TestF3
