@@ -17,13 +17,13 @@ ExtremeMatter:
   - AnalysisSoftware: A fake software
     AnalysisStatus: ongoing
     Analysts:
-    - Rhiannon Udall
+    - Miranda
     Description: A fake analysis
     ResultFile:
       Path: tests/test-file-for-linking-1.txt
       PublicHTML: fake-url.org
     Reviewers:
-    - Gregory Ashton
+    - Prospero
     UID: TestF1
   - Description: Another fake analysis
     ResultFile:
@@ -36,7 +36,7 @@ Info:
 TestingGR:
   IMRCTAnalyses:
   - Analysts:
-    - Rhiannon Udall
+    - Miranda
     Description: A fake analysis
     Results:
     - Notes:
@@ -53,7 +53,7 @@ TestingGR:
       UID: TestF2
     UID: TestF1
   - Analysts:
-    - Rhiannon Udall
+    - Miranda
     Description: Another fake analysis
     Results:
     - ResultFile:

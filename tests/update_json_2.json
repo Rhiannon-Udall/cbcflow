@@ -3,7 +3,7 @@
         "Analyses":[
             {
                 "UID":"TestF1",
-                "Reviewers":["Jonah Kanner"],
+                "Reviewers":["Alonso"],
                 "ResultFile":{
                     "Path":"tests/test-file-for-linking-2.txt"
                 }
@@ -18,7 +18,7 @@
         "IMRCTAnalyses":[
             {
                 "UID":"TestF1",
-                "Analysts":["Mr C++"],
+                "Analysts":["Caliban"],
                 "Results":[
                     {
                         "UID":"TestF1",
@@ -36,7 +36,7 @@
             },
             {
                 "UID":"TestF3",
-                "Analysts":["Donald Knuth"]
+                "Analysts":["Gonzalo"]
             }
         ]
     }
