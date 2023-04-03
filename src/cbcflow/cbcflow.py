@@ -3,6 +3,7 @@
 
 import argparse
 import copy
+import glob
 import json
 import logging
 
@@ -11,6 +12,7 @@ import jsonschema
 from .configuration import config_defaults
 from .gracedb import fetch_gracedb_information
 from .metadata import MetaData
+from .database import LocalLibraryDatabase
 from .parser import get_parser_and_default_data
 from .process import process_user_input
 from .schema import get_schema
@@ -81,7 +83,7 @@ def update():
         metadata.write_to_library(check_changes=check_changes)
 
 
-def print():
+def print_metadata():
     # Read in command line arguments
     schema = get_schema()
     _, default_data = get_parser_and_default_data(schema)
@@ -183,3 +185,36 @@ def from_file():
 
     logger.info("Writing to library")
     metadata.write_to_library()
+
+
+def validate_library():
+    # Read in command line arguments
+    schema = get_schema()
+    _, default_data = get_parser_and_default_data(schema)
+
+    # Set up argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("library", help="The library to validate")
+    args = parser.parse_args()
+
+    # Glob for all files in the library
+    metadata_files = glob.glob(f"{args.library}/S*json")
+    if len(metadata_files) == 0:
+        raise ValidationError(f"No metadata files found in library {args.library}")
+
+    # Load the library
+    library = LocalLibraryDatabase(
+        args.library, schema=schema, default_data=default_data
+    )
+
+    for fname in metadata_files:
+        # Load the metadata: if it is not valid it will fail
+        MetaData.from_file(
+            fname,
+            schema=schema,
+            local_library=library,
+        )
+
+
+class ValidationError(Exception):
+    pass
