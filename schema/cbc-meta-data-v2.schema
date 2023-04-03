@@ -407,14 +407,6 @@
         "type": "number",
         "default": 4.0
       },
-      "RecommendedStartTime": {
-        "description": "The  validated safe start time to set for downstream analyses to avoid data quality issues",
-        "type": "number"
-      },
-      "RecommendedEndTime": {
-        "description": "The validated safe end time to set for downstream analyses to avoid data quality issues",
-        "type": "number"
-      },
       "Results": {
         "description": "A list of results",
         "type": "array",
@@ -599,6 +591,14 @@
           "type": "number",
           "description": "The recommended maximum frequency for the analysis - this may be set by the PE configurator rather than detchar"
         },
+      "RecommendedStartTime": {
+        "description": "The  validated safe start time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
+      },
+      "RecommendedEndTime": {
+        "description": "The validated safe end time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
+      },
         "GlitchMitigationStatus": {
           "type": "string",
           "enum": ["not yet reviewed", "required", "not required", "complete"],
