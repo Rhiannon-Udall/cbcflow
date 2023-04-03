@@ -13,12 +13,15 @@ Finally, we lay out future development goals (also reflected in the git issues),
    configuration
    command-line-usage
    usage-for-scripting
+   gwosc
 
 .. toctree::
    :maxdepth: 1
    :caption: Expert Usage
 
    development-setup
+   library-setup
+   monitor-usage
 
 .. toctree::
    :maxdepth: 1
