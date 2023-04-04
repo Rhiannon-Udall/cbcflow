@@ -7,7 +7,7 @@ import os
 from functools import cached_property
 import sys
 from pprint import pformat
-from typing import Union
+from typing import Union, Dict
 
 import dateutil.parser as dp
 from jsondiff import diff
@@ -15,6 +15,7 @@ import jsonschema
 import pygit2
 from ligo.gracedb.rest import GraceDb
 from ligo.gracedb.exceptions import HTTPError
+from gwpy.time import to_gps
 
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
@@ -141,23 +142,31 @@ class LocalLibraryDatabase(object):
         self.metadata_dict.update(metadata_dict)
 
     @property
-    def downselected_metadata_dict(self) -> dict:
+    def downselected_metadata_dict(self) -> Dict[str, MetaData]:
         """Get the snames of events which satisfy library inclusion criteria"""
         downselected_metadata_dict = dict()
+        self.load_library_metadata_dict()
         for sname, metadata in self.metadata_dict.items():
+            library_created_earliest = to_gps(
+                self.library_config["Events"]["created-since"]
+            )
+            library_created_latest = to_gps(
+                self.library_config["Events"]["created-before"]
+            )
             for event in metadata.data["GraceDB"]["Events"]:
                 if event["State"] == "preferred":
                     preferred_far = event["FAR"]
+                    preferred_time = to_gps(event["GPSTime"])
             if sname in self.library_config["Events"]["snames-to-include"]:
                 downselected_metadata_dict[sname] = metadata
             elif sname in self.library_config["Events"]["snames-to-exclude"]:
                 pass
-            # TODO prepare for how this will work with the all-sky schema changes
-            # This will include:
-            # 1. adapting to G-eventwise values
-            # 2. adding p-astro
-            # 3. possibly adding p_nsbh, p_bns, b_bbh
-            # 4. possibly adding SNR
+            elif (
+                preferred_time < library_created_earliest
+                or preferred_time > library_created_latest
+            ):
+                continue
+            # Right now we *only* check date, FAR threshold, and specific inclusion
             elif preferred_far <= float(self.library_config["Events"]["far-threshold"]):
                 downselected_metadata_dict[sname] = metadata
         return downselected_metadata_dict
@@ -354,7 +363,7 @@ class LocalLibraryDatabase(object):
             # Fill out basic info
             superevent_meta = copy.deepcopy(superevent_default)
             superevent_meta["Sname"] = sname
-            superevent_meta["LastUpdated"] = metadata.get_date_of_last_commit()
+            superevent_meta["LastUpdated"] = metadata.get_date_last_modified()
             new_index["Superevents"].append(superevent_meta)
             # Get the datetime of the most recent change
             if dp.parse(superevent_meta["LastUpdated"]) > dp.parse(current_most_recent):

@@ -1,0 +1,68 @@
+{
+  "Sname": "S190425z",
+  "Info": {
+    "Labels": [],
+    "SchemaVersion": "v2",
+    "Notes": []
+  },
+  "Publications": {
+    "Papers": []
+  },
+  "GraceDB": {
+    "Events": []
+  },
+  "ExtremeMatter": {
+    "Analyses": []
+  },
+  "Cosmology": {
+    "Counterparts": [],
+    "CosmologyRunsUsingThisSuperevent": [],
+    "Notes": []
+  },
+  "RatesAndPopulations": {
+    "RnPRunsUsingThisSuperevent": []
+  },
+  "ParameterEstimation": {
+    "Analysts": [],
+    "Reviewers": [],
+    "Status": "unstarted",
+    "Results": [],
+    "SafeSamplingRate": 4096.0,
+    "SafeLowerMassRatio": 0.05,
+    "Notes": []
+  },
+  "Lensing": {
+    "Analyses": []
+  },
+  "TestingGR": {
+    "BHMAnalyses": [],
+    "EchoesCWBAnalyses": [],
+    "FTIAnalyses": [],
+    "IMRCTAnalyses": [],
+    "LOSAAnalyses": [],
+    "MDRAnalyses": [],
+    "ModeledEchoesAnalyses": [],
+    "PCATGRAnalyses": [],
+    "POLAnalyses": [],
+    "PSEOBRDAnalyses": [],
+    "PYRINGAnalyses": [],
+    "QNMRationalFilterAnalyses": [],
+    "ResidualsAnalyses": [],
+    "SIMAnalyses": [],
+    "SMAAnalyses": [],
+    "SSBAnalyses": [],
+    "TIGERAnalyses": [],
+    "UnmodeledEchoesAnalyses": [],
+    "Notes": []
+  },
+  "DetectorCharacterization": {
+    "Analysts": [],
+    "Reviewers": [],
+    "ParticipatingDetectors": [],
+    "Status": "unstarted",
+    "RecommendedDetectors": [],
+    "RecommendedDuration": 4.0,
+    "Results": [],
+    "Notes": []
+  }
+}
