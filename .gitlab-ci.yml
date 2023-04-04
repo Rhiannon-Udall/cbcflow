@@ -24,7 +24,7 @@ integration-test:
     - .python:base
   script:
     - pip install jsonschema
-    - jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data-v2.schema
+    - jsonschema -i tests/files_for_testing/cbc-meta-data-example.json schema/cbc-meta-data-v2.schema
 
 unit-test:
   stage: test
