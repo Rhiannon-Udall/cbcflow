@@ -4,11 +4,11 @@ Command Line Interface
 Getting help
 ------------
 
-Run
+For all cbcflow programs, one may run e.g.
 
 .. code:: console
 
-   $ cbcflow --help
+   $ cbcflow_update_from_flags --help
 
 for help in how to use the program.
 
@@ -22,7 +22,7 @@ be done by running
 
 .. code-block::
 
-   $ eval "$(register-python-argcomplete cbcflow_update)"
+   $ eval "$(register-python-argcomplete cbcflow_update_from_flags)"
 
 Note, this command requires that you have installed ``argcomplete``.
 
@@ -31,7 +31,7 @@ of the metadata. For example,
 
 .. code-block::
 
-   $ cbcflow SXXYYZZabc --info-[TAB]
+   $ cbcflow_update_from_flags SXXYYZZabc --info-[TAB]
 
 will either auto complete all the ``--info-`` options, or print a list
 of available options.
@@ -44,7 +44,7 @@ However, if it is necessary to do manually (such as for testing), then it may be
 
 .. code-block::
 
-   $ cbcflow SXXYYZZabc --pull-from-gracedb
+   $ cbcflow_pull SXXYYZZabc 
 
 
 Updating Metadata Manually
@@ -57,7 +57,7 @@ Updating from command line may be done in two ways. In the first, each flag corr
 
 .. code-block::
 
-   $ cbcflow SXXYYZZabc --update --ParameterEstimation-Status-set "ongoing" \
+   $ cbcflow_update_from_flags SXXYYZZabc --ParameterEstimation-Status-set "ongoing" \
    --ParameterEstimation-Analysts-add "Albert Einstein" \
    --ParameterEstimation-Reviewers-remove "Kip Thorne"
 
@@ -71,14 +71,14 @@ For example, to set the waveform used in the ParameterEstimation-Result "ProdF1"
 
 .. code-block::
 
-   $ cbcflow SXXYYZZabc --update --ParameterEstimation-Results-UID-set ProdF1 \
+   $ cbcflow_update_from_flags SXXYYZZabc --ParameterEstimation-Results-UID-set ProdF1 \
    --ParameterEstimation-Results-WaveformApproximant-set IMRPhenomXPHM
 
 In some cases (especially with TGR), this occurs in a nested fashion, in which case a UID is needed for each hierarchy which requires specification. For example
 
 .. code-block::
 
-   $ cbcflow SXXYYZZabc --update --TestingGR-IMRCTAnalyses-UID-set IMRCT1 \
+   $ cbcflow_update_from_flags SXXYYZZabc --TestingGR-IMRCTAnalyses-UID-set IMRCT1 \
    --TestingGR-IMRCTAnalyses-SafeLowerMassRatio-set 2 \
    --TestingGR-IMRCTAnalyses-Results-UID-set ProdF1 \
    --TestingGR-IMRCTAnalyses-Results-WaveformApproximant IMRPhenomXPHM
