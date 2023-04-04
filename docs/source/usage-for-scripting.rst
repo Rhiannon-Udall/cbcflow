@@ -13,9 +13,8 @@ Prototypically, this may be done with:
     >>> import cbcflow
     >>> import json
 
-    >>> metadata = cbcflow.get_superevent("S190521q")
+    >>> metadata = cbcflow.get_superevent("S230331h")
     INFO:cbcflow.schema:Using schema file /home/rhiannon.udall/meta-data/meta-data/src/cbcflow/schema/cbc-meta-data-v2.schema
-    INFO:cbcflow.metadata:No library file: creating defaults
     INFO:cbcflow.metadata:No library file: creating defaults
 
 If a specific library argument is not passed, then the default library will be used (see :doc:`configuration`), 
@@ -120,7 +119,7 @@ The first command fetches the data in question from GraceDB,
 while the second updates the metadata with this new information. 
 
 Note that this event was pulled from playground data (https://gracedb-playground.ligo.org/api/),
-as set in the test `~/.cbcflow.cfg` in use.
+as set in the test ``~/.cbcflow.cfg`` in use.
 
 Then the GraceDB data entry now looks like:
 
