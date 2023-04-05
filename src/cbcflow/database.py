@@ -7,7 +7,7 @@ import os
 from functools import cached_property
 import sys
 from pprint import pformat
-from typing import Union, Dict
+from typing import Union, Dict, Type, TypeVar
 
 import dateutil.parser as dp
 from jsondiff import diff
@@ -27,7 +27,126 @@ from .utils import get_dumpable_json_diff
 logger = logging.getLogger(__name__)
 
 
+class Labeller(object):
+    """A generic parent class for labellers,
+    which apply labels to the index entry
+    for events based on the contents of the metadata"""
+
+    def __init__(self, library: "LocalLibraryDatabase") -> None:
+        """Setup the labeller
+
+        Parameters
+        ==========
+        library : `LocalLibraryDatabase`
+            A library object to access for index and metadata
+        """
+        self.library = library
+
+    def label_event(self, event_metadata: "MetaData") -> list:
+        """Generate index labels given an event's metadata.
+        This is the workhorse of the labeller, and should be redefined by child classes
+
+        Parameters
+        ==========
+        event_metadata : `cbcflow.metadata.MetaData`
+            The metadata for a given event, to generate labels with
+
+        Returns
+        =======
+        list
+            The list of labels from the event metadata
+        """
+        return list()
+
+    def populate_working_index_with_labels(self):
+        """Loop over all events in the index, and apply labels to them based on their metadata"""
+        for superevent in self.library.working_index["Superevents"]:
+            sname = superevent["Sname"]
+            labels = self.label_event(self.library.metadata_dict[sname])
+            superevent["Labels"] = labels
+
+
+LabellerType = TypeVar("LabellerType", bound=Labeller)
+
+
+class LibraryParent(object):
+    """A generic parent class for LibraryParent objects"""
+
+    def __init__(self, source_path: str, library: "LocalLibraryDatabase") -> None:
+        """Setup a LibraryParent object
+
+        Parameters
+        ==========
+        source_path : str
+            A path to the parent's source.
+            This can be a GraceDB service URL, a git repo url,
+            or the path to a git repo on the shared filesystem.
+        """
+        self.source_path = source_path
+        self.superevents_to_propagate = dict()
+        self.library = library
+        logger.info(
+            f"Parent of library {self.library} initialized with source path {self.source_path}"
+        )
+
+    def pull(self, sname: str) -> dict():
+        """A method for pulling superevent metadata from this parent source.
+        Child classes should overwrite this method.
+
+        Parameters
+        ==========
+        sname : str
+            The superevent sname
+
+        Returns
+        =======
+        dict
+            A dict containing pulled information about the superevent
+        """
+        return dict()
+
+    @property
+    def superevents_to_propagate(self) -> list:
+        """Superevents which should be propagated from this parent"""
+        return self._superevents_to_propagate
+
+    @superevents_to_propagate.setter
+    def superevents_to_propagate(self, new_superevents: list) -> None:
+        if not hasattr(self, "_superevents_to_propagage"):
+            self._superevents_to_propagate = list()
+        self._superevents_to_propagate += new_superevents
+
+    def query_superevents(self, query: str) -> list:
+        """A method for fetching new superevents according to some query
+        This should be overwritten by child classes
+
+        Parameters
+        ==========
+        query : str
+            A query for a collection of superevents (which may be empty or have only one element)
+
+        Returns
+        =======
+        list
+            The collection of superevents (represented by their sname) satisfying the query
+        """
+        return list()
+
+    def pull_library_updates(self) -> None:
+        """Propagates metadata in superevents_to_propagate into the library.
+        Should be overwritten by the child class.
+        """
+        return None
+
+    def sync_library(self) -> None:
+        """A method for syncing the library, using the query specified in the library config.
+        This should be overwritten by the child class."""
+        return None
+
+
 class LocalLibraryDatabase(object):
+    """An object reflecting the contents of a local library, and offering methods to interact with it"""
+
     def __init__(
         self,
         library_path: str,
@@ -278,6 +397,7 @@ class LocalLibraryDatabase(object):
     ############################################################################
 
     @property
+    @property
     def index_file_name(self) -> str:
         """The name of the index file, given the library name"""
         library_name = self.library_config["Library Info"]["library-name"]
@@ -311,8 +431,19 @@ class LocalLibraryDatabase(object):
             logger.info("No index file currently present")
             return dict()
 
-    @cached_property
-    def generated_index(self) -> dict:
+    @property
+    def working_index(self) -> dict:
+        """The working index for the library,
+        probably generated from current metadata,
+        potentially modified afterwards"""
+
+        return self._working_index
+
+    @working_index.setter
+    def working_index(self, input_dict) -> None:
+        self._working_index = input_dict
+
+    def generate_index_from_metadata(self) -> dict:
         """The index generated to reflect the current state of the library
 
         Returns
@@ -353,7 +484,9 @@ class LocalLibraryDatabase(object):
             The output of jsondiff between the current index file
             and the index generated presently
         """
-        index_diff = diff(self.index_from_file, self.generated_index)
+        if not hasattr(self, "working_index"):
+            self.working_index = self.generate_index_from_metadata()
+        index_diff = diff(self.index_from_file, self.working_index)
         if index_diff != {}:
             logger.info("Index data has changed since it was last written")
             string_rep_diff = get_dumpable_json_diff(index_diff)
@@ -365,7 +498,7 @@ class LocalLibraryDatabase(object):
         index_delta = self.check_for_index_update()
         if index_delta != dict():
             with open(self.index_file_path, "w") as f:
-                json.dump(self.generated_index, f, indent=2)
+                json.dump(self.working_index, f, indent=2)
             if self.is_git_repository:
                 self.git_add_and_commit(
                     filename=self.index_file_name,
@@ -373,81 +506,18 @@ class LocalLibraryDatabase(object):
                         {pformat(get_dumpable_json_diff(index_delta))}",
                 )
 
+    def label_index_file(self, labeller_class: Type[LabellerType]) -> None:
+        """Apply labels to the working index file"""
+        if not hasattr(self, "working_index"):
+            self.working_index = self.generate_index_from_metadata()
 
-class LibraryParent(object):
-    def __init__(self, source_path: str, library: LocalLibraryDatabase) -> None:
-        """Setup a LibraryParent object
-
-        Parameters
-        ==========
-        source_path : str
-            A path to the parent's source.
-            This can be a GraceDB service URL, a git repo url,
-            or the path to a git repo on the shared filesystem.
-        """
-        self.source_path = source_path
-        self.superevents_to_propagate = dict()
-        self.library = library
-        logger.info(
-            f"Parent of library {self.library} initialized with source path {self.source_path}"
-        )
-
-    def pull(self, sname: str) -> dict():
-        """A method for pulling superevent metadata from this parent source.
-        Child classes should overwrite this method.
-
-        Parameters
-        ==========
-        sname : str
-            The superevent sname
-
-        Returns
-        =======
-        dict
-            A dict containing pulled information about the superevent
-        """
-        return dict()
-
-    @property
-    def superevents_to_propagate(self) -> list:
-        """Superevents which should be propagated from this parent"""
-        return self._superevents_to_propagate
-
-    @superevents_to_propagate.setter
-    def superevents_to_propagate(self, new_superevents: list) -> None:
-        if not hasattr(self, "_superevents_to_propagage"):
-            self._superevents_to_propagate = list()
-        self._superevents_to_propagate += new_superevents
-
-    def query_superevents(self, query: str) -> list:
-        """A method for fetching new superevents according to some query
-        This should be overwritten by child classes
-
-        Parameters
-        ==========
-        query : str
-            A query for a collection of superevents (which may be empty or have only one element)
-
-        Returns
-        =======
-        list
-            The collection of superevents (represented by their sname) satisfying the query
-        """
-        return list()
-
-    def pull_library_updates(self) -> None:
-        """Propagates metadata in superevents_to_propagate into the library.
-        Should be overwritten by the child class.
-        """
-        return None
-
-    def sync_library(self) -> None:
-        """A method for syncing the library, using the query specified in the library config.
-        This should be overwritten by the child class."""
-        return None
+        labeller_instance = labeller_class(self)
+        labeller_instance.populate_working_index_with_labels()
 
 
 class GraceDbDatabase(LibraryParent):
+    """The LibraryParent class to use when the parent is GraceDB"""
+
     def __init__(self, service_url: str, library: LocalLibraryDatabase) -> None:
         """Setup the GraceDbDatabase that this library pairs to
 
@@ -591,3 +661,48 @@ class GraceDbDatabase(LibraryParent):
                 )
 
         self.pull_library_updates()
+
+
+class StandardLabeller(Labeller):
+    """The default labeller, for use with the main CBC library"""
+
+    def __init__(self, library) -> None:
+        super(StandardLabeller, self).__init__(library)
+
+    def label_event(self, event_metadata: "MetaData") -> list:
+        """Generate standard CBC library labels for this event
+
+        Parameters
+        ==========
+        event_metadata : `cbcflow.metadata.MetaData`
+            The metadata for a given event, to generate labels with
+
+        Returns
+        =======
+        list
+            The list of labels from the event metadata
+        """
+        # Get preferred event
+        preferred_event = None
+        for event in event_metadata["GraceDB"]["Events"]:
+            if event["State"] == "preferred":
+                preferred_event = event
+
+        labels = []
+        if preferred_event:
+            # Add PE significance labels
+            pe_high_significance_threshold = 1e-30
+            pe_medium_significance_threshold = 1e-10
+            if preferred_event["FAR"] < pe_high_significance_threshold:
+                labels.append("PE::high-significance")
+
+            elif preferred_event["FAR"] < pe_medium_significance_threshold:
+                labels.append("PE::medium-significance")
+            else:
+                labels.append("PE::below-threshold")
+
+            # Add PE status labels
+            status = event_metadata["ParameterEstimation"]["Status"]
+            labels.append(f"PE-status::{status}")
+
+        return labels
