@@ -6,9 +6,10 @@ If you have not already done so, please see :doc:`configuration` and :doc:`libra
 
 To run the monitor, we execute the command ``cbcflow_monitor_make``, which sets up the ``monitor.sub`` file and submits it to htcondor. The flags we will use are:
 
-```
-cbcflow_monitor_make --config-file review-monitor.cfg --ligo-user-name rhiannon.udall --ligo-accounting ligo.dev.o4.cbc.explore.test --rundir `pwd` --monitor-interval 1 --monitor-minute {}
-```
+.. code-block::
+    
+    cbcflow_monitor_make --config-file review-monitor.cfg --ligo-user-name rhiannon.udall \
+    --ligo-accounting ligo.dev.o4.cbc.explore.test --rundir `pwd` --monitor-interval 1 --monitor-minute {}
 
 The ``config-file`` points to the configuration file being used, in case it differs from the default configuration,
 and ``--ligo-user-name`` and ``ligo-accounting`` have their standard meaning.
