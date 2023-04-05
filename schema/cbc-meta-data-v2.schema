@@ -210,6 +210,18 @@
           "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
           "type": "number"
         },
+        "ConfiguratorDuration": {
+          "description": "The analysis duration requested by the configurator",
+          "type": "number"
+        },
+        "ConfiguratorMinimumFrequency": {
+          "description": "The analysis minimum frequency requested by the configurator",
+          "type": "number"
+        },
+        "ConfiguratorMaximumFrequency": {
+          "description": "The analysis maximum frequency requested by the configurator",
+          "type": "number"
+        },
         "Notes": {
           "type": "array",
           "items": {"type": "string"},
