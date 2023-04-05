@@ -49,7 +49,7 @@ schema-html:
     - mv schema/visualization/* docs/source/schema_visualization/
   artifacts:
     paths:
-    - docs/schema_visualization/
+    - docs/source/schema_visualization/
 
 docs:
   stage: docs
