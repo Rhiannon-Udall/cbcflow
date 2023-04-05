@@ -101,10 +101,10 @@ def run_monitor():
 
     config_values = get_cbcflow_config(args.cbcflowconfig)
     local_library = LocalLibraryDatabase(library_path=config_values["library"])
-    logging.info("CBCFlow monitor is beginning sweep")
-    logging.info(f"Config values are {config_values}")
+    logger.info("CBCFlow monitor is beginning sweep")
+    logger.info(f"Config values are {config_values}")
     local_library.initialize_parent(source_path=config_values["gracedb_service_url"])
     local_library.library_parent.sync_library()
     logger.info("Updating index file for library")
     local_library.write_index_file()
-    logging.info("Sweep completed, resting")
+    logger.info("Sweep completed, resting")
