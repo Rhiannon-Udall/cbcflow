@@ -69,6 +69,51 @@ class Labeller(object):
 LabellerType = TypeVar("LabellerType", bound=Labeller)
 
 
+class StandardLabeller(Labeller):
+    """The default labeller, for use with the main CBC library"""
+
+    def __init__(self, library) -> None:
+        super(StandardLabeller, self).__init__(library)
+
+    def label_event(self, event_metadata: "MetaData") -> list:
+        """Generate standard CBC library labels for this event
+
+        Parameters
+        ==========
+        event_metadata : `cbcflow.metadata.MetaData`
+            The metadata for a given event, to generate labels with
+
+        Returns
+        =======
+        list
+            The list of labels from the event metadata
+        """
+        # Get preferred event
+        preferred_event = None
+        for event in event_metadata.data["GraceDB"]["Events"]:
+            if event["State"] == "preferred":
+                preferred_event = event
+
+        labels = []
+        if preferred_event:
+            # Add PE significance labels
+            pe_high_significance_threshold = 1e-30
+            pe_medium_significance_threshold = 1e-10
+            if preferred_event["FAR"] < pe_high_significance_threshold:
+                labels.append("PE::high-significance")
+
+            elif preferred_event["FAR"] < pe_medium_significance_threshold:
+                labels.append("PE::medium-significance")
+            else:
+                labels.append("PE::below-threshold")
+
+            # Add PE status labels
+            status = event_metadata.data["ParameterEstimation"]["Status"]
+            labels.append(f"PE-status::{status}")
+
+        return labels
+
+
 class LibraryParent(object):
     """A generic parent class for LibraryParent objects"""
 
@@ -142,6 +187,154 @@ class LibraryParent(object):
         """A method for syncing the library, using the query specified in the library config.
         This should be overwritten by the child class."""
         return None
+
+
+class GraceDbDatabase(LibraryParent):
+    """The LibraryParent class to use when the parent is GraceDB"""
+
+    def __init__(self, service_url: str, library: "LocalLibraryDatabase") -> None:
+        """Setup the GraceDbDatabase that this library pairs to
+
+        Parameters
+        ==========
+        service_url : str
+            The http address for the gracedb instance that this library pairs to
+        """
+        super(GraceDbDatabase, self).__init__(source_path=service_url, library=library)
+
+    def pull(self, sname: str) -> dict:
+        """Pull information on the superevent with this sname from GraceDB
+
+        Parameters
+        ==========
+        sname : str
+            The sname for the superevent in question
+
+        Returns
+        =======
+        dict
+            The GraceDB data for the superevent
+        """
+        return fetch_gracedb_information(sname, service_url=self.source_path)
+
+    def query_superevents(self, query: str) -> list:
+        """Queries superevents in GraceDb, according to a given query
+
+        Parameters
+        ==========
+        query : str
+            a GraceDb query string to query for superevents
+            see https://gracedb.ligo.org/documentation/queries.html
+
+        Returns
+        =======
+        list
+            The superevents which satisfy the query
+        """
+        queried_superevents = []
+        with GraceDb(service_url=self.source_path) as gdb:
+            superevent_iterator = gdb.superevents(query)
+            for superevent in superevent_iterator:
+                queried_superevents.append(superevent["superevent_id"])
+        return queried_superevents
+
+    def pull_library_updates(self) -> None:
+        """Pulls updates from GraceDb and writes them to library, creates default data as required"""
+        if hasattr(self, "superevents_to_propagate"):
+            for superevent_id in self.superevents_to_propagate:
+                if superevent_id in self.library.metadata_dict.keys():
+                    metadata = self.library.metadata_dict[superevent_id]
+                else:
+                    metadata = MetaData(
+                        superevent_id,
+                        local_library=self.library,
+                        schema=self.library.metadata_schema,
+                        default_data=self.library.metadata_default_data,
+                    )
+                try:
+                    backup_data = copy.deepcopy(metadata.data)
+                    database_data = self.pull(superevent_id)
+                    metadata.update(database_data)
+                    changes = metadata.get_diff()
+                    if "GraceDB" in changes.keys() and len(changes.keys()) == 1:
+                        if len(changes["GraceDB"].keys()) == 1:
+                            continue
+                        # This is a hack to make it not update if the only update would be "LastUpdate"
+                        # It may have to change in further schema versions
+                    logger.info(f"Updates to supervent {superevent_id}")
+                    string_rep_changes = get_dumpable_json_diff(changes)
+                    logger.info(json.dumps(string_rep_changes, indent=2))
+                    metadata.write_to_library()
+                except jsonschema.exceptions.ValidationError:
+                    logger.warning(
+                        f"For superevent {superevent_id}, GraceDB generated metadata failed validation\
+                        Writing backup data (either default or pre-loaded) to library instead\n"
+                    )
+                    metadata.update(backup_data)
+                    metadata.write_to_library()
+                except HTTPError:
+                    logger.warning(
+                        f"For superevent {superevent_id}, failed to obtain data from GraceDB\
+                        Writing backup data (either default or pre-loaded) to library instead\n"
+                    )
+                    metadata.update(backup_data)
+                    metadata.write_to_library()
+        else:
+            logger.info(
+                "This GraceDbDatabase instance has not assigned any superevents to propagate yet\
+                 please do so before attempting to pull them."
+            )
+
+    def sync_library(self) -> None:
+        """Attempts to sync library and GraceDb,
+        pulling any new events and changes to GraceDB data.
+
+        Parameters:
+        ===========
+        library
+            As in metadata.MetaData
+
+        """
+        # setup defaults
+        # monitor_config = local_library.library_config["Monitor"]
+        event_config = self.library.library_config["Events"]
+
+        # annying hack due to gracedb query bug
+        import datetime
+
+        if event_config["created-before"] == "now":
+            now = datetime.datetime.utcnow()
+            now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            now_str = event_config["created-before"]
+
+        logging.info(f"Syncing with GraceDB at time UTC:{now_str}")
+        # make query and defaults, query
+        query = f"created: {event_config['created-since']} .. {now_str} \
+        FAR <= {event_config['far-threshold']}"
+        logger.info(f"Constructed query {query} from library config")
+        try:
+            self.superevents_to_propagate = self.query_superevents(query)
+        except HTTPError:
+            self.superevents_to_propagate = []
+            logger.warning(
+                "Query to GraceDB for superevents unsuccessful \
+                           - falling back on superevents already in library only"
+            )
+
+        logger.info(
+            f"Querying based on library configuration returned {len(self.superevents_to_propagate)} superevents"
+        )
+        # for superevents not in the query parameters, but already in the library
+        for superevent_id in self.library.metadata_dict.keys():
+            if superevent_id not in self.superevents_to_propagate:
+                self.superevents_to_propagate.append(superevent_id)
+                logging.info(
+                    f"Also querying superevent {superevent_id} which was in the library\
+                \n but which did not meet query parameters"
+                )
+
+        self.pull_library_updates()
 
 
 class LocalLibraryDatabase(object):
@@ -397,7 +590,6 @@ class LocalLibraryDatabase(object):
     ############################################################################
 
     @property
-    @property
     def index_file_name(self) -> str:
         """The name of the index file, given the library name"""
         library_name = self.library_config["Library Info"]["library-name"]
@@ -506,203 +698,12 @@ class LocalLibraryDatabase(object):
                         {pformat(get_dumpable_json_diff(index_delta))}",
                 )
 
-    def label_index_file(self, labeller_class: Type[LabellerType]) -> None:
+    def label_index_file(
+        self, labeller_class: Type[LabellerType] = StandardLabeller
+    ) -> None:
         """Apply labels to the working index file"""
         if not hasattr(self, "working_index"):
             self.working_index = self.generate_index_from_metadata()
 
         labeller_instance = labeller_class(self)
         labeller_instance.populate_working_index_with_labels()
-
-
-class GraceDbDatabase(LibraryParent):
-    """The LibraryParent class to use when the parent is GraceDB"""
-
-    def __init__(self, service_url: str, library: LocalLibraryDatabase) -> None:
-        """Setup the GraceDbDatabase that this library pairs to
-
-        Parameters
-        ==========
-        service_url : str
-            The http address for the gracedb instance that this library pairs to
-        """
-        super(GraceDbDatabase, self).__init__(source_path=service_url, library=library)
-
-    def pull(self, sname: str) -> dict:
-        """Pull information on the superevent with this sname from GraceDB
-
-        Parameters
-        ==========
-        sname : str
-            The sname for the superevent in question
-
-        Returns
-        =======
-        dict
-            The GraceDB data for the superevent
-        """
-        return fetch_gracedb_information(sname, service_url=self.source_path)
-
-    def query_superevents(self, query: str) -> list:
-        """Queries superevents in GraceDb, according to a given query
-
-        Parameters
-        ==========
-        query : str
-            a GraceDb query string to query for superevents
-            see https://gracedb.ligo.org/documentation/queries.html
-
-        Returns
-        =======
-        list
-            The superevents which satisfy the query
-        """
-        queried_superevents = []
-        with GraceDb(service_url=self.source_path) as gdb:
-            superevent_iterator = gdb.superevents(query)
-            for superevent in superevent_iterator:
-                queried_superevents.append(superevent["superevent_id"])
-        return queried_superevents
-
-    def pull_library_updates(self) -> None:
-        """Pulls updates from GraceDb and writes them to library, creates default data as required"""
-        if hasattr(self, "superevents_to_propagate"):
-            for superevent_id in self.superevents_to_propagate:
-                if superevent_id in self.library.metadata_dict.keys():
-                    metadata = self.library.metadata_dict[superevent_id]
-                else:
-                    metadata = MetaData(
-                        superevent_id,
-                        local_library=self.library,
-                        schema=self.library.metadata_schema,
-                        default_data=self.library.metadata_default_data,
-                    )
-                try:
-                    backup_data = copy.deepcopy(metadata.data)
-                    database_data = self.pull(superevent_id)
-                    metadata.update(database_data)
-                    changes = metadata.get_diff()
-                    if "GraceDB" in changes.keys() and len(changes.keys()) == 1:
-                        if len(changes["GraceDB"].keys()) == 1:
-                            continue
-                        # This is a hack to make it not update if the only update would be "LastUpdate"
-                        # It may have to change in further schema versions
-                    logger.info(f"Updates to supervent {superevent_id}")
-                    string_rep_changes = get_dumpable_json_diff(changes)
-                    logger.info(json.dumps(string_rep_changes, indent=2))
-                    metadata.write_to_library()
-                except jsonschema.exceptions.ValidationError:
-                    logger.warning(
-                        f"For superevent {superevent_id}, GraceDB generated metadata failed validation\
-                        Writing backup data (either default or pre-loaded) to library instead\n"
-                    )
-                    metadata.update(backup_data)
-                    metadata.write_to_library()
-                except HTTPError:
-                    logger.warning(
-                        f"For superevent {superevent_id}, failed to obtain data from GraceDB\
-                        Writing backup data (either default or pre-loaded) to library instead\n"
-                    )
-                    metadata.update(backup_data)
-                    metadata.write_to_library()
-        else:
-            logger.info(
-                "This GraceDbDatabase instance has not assigned any superevents to propagate yet\
-                 please do so before attempting to pull them."
-            )
-
-    def sync_library(self) -> None:
-        """Attempts to sync library and GraceDb,
-        pulling any new events and changes to GraceDB data.
-
-        Parameters:
-        ===========
-        library
-            As in metadata.MetaData
-
-        """
-        # setup defaults
-        # monitor_config = local_library.library_config["Monitor"]
-        event_config = self.library.library_config["Events"]
-
-        # annying hack due to gracedb query bug
-        import datetime
-
-        if event_config["created-before"] == "now":
-            now = datetime.datetime.utcnow()
-            now_str = now.strftime("%Y-%m-%d %H:%M:%S")
-        else:
-            now_str = event_config["created-before"]
-
-        logging.info(f"Syncing with GraceDB at time UTC:{now_str}")
-        # make query and defaults, query
-        query = f"created: {event_config['created-since']} .. {now_str} \
-        FAR <= {event_config['far-threshold']}"
-        logger.info(f"Constructed query {query} from library config")
-        try:
-            self.superevents_to_propagate = self.query_superevents(query)
-        except HTTPError:
-            self.superevents_to_propagate = []
-            logger.warning(
-                "Query to GraceDB for superevents unsuccessful \
-                           - falling back on superevents already in library only"
-            )
-
-        logger.info(
-            f"Querying based on library configuration returned {len(self.superevents_to_propagate)} superevents"
-        )
-        # for superevents not in the query parameters, but already in the library
-        for superevent_id in self.library.metadata_dict.keys():
-            if superevent_id not in self.superevents_to_propagate:
-                self.superevents_to_propagate.append(superevent_id)
-                logging.info(
-                    f"Also querying superevent {superevent_id} which was in the library\
-                \n but which did not meet query parameters"
-                )
-
-        self.pull_library_updates()
-
-
-class StandardLabeller(Labeller):
-    """The default labeller, for use with the main CBC library"""
-
-    def __init__(self, library) -> None:
-        super(StandardLabeller, self).__init__(library)
-
-    def label_event(self, event_metadata: "MetaData") -> list:
-        """Generate standard CBC library labels for this event
-
-        Parameters
-        ==========
-        event_metadata : `cbcflow.metadata.MetaData`
-            The metadata for a given event, to generate labels with
-
-        Returns
-        =======
-        list
-            The list of labels from the event metadata
-        """
-        # Get preferred event
-        preferred_event = None
-        for event in event_metadata["GraceDB"]["Events"]:
-            if event["State"] == "preferred":
-                preferred_event = event
-
-        labels = []
-        if preferred_event:
-            # Add PE significance labels
-            pe_high_significance_threshold = 1e-30
-            pe_medium_significance_threshold = 1e-10
-            if preferred_event["FAR"] < pe_high_significance_threshold:
-                labels.append("PE::high-significance")
-
-            elif preferred_event["FAR"] < pe_medium_significance_threshold:
-                labels.append("PE::medium-significance")
-            else:
-                labels.append("PE::below-threshold")
-
-            # Add PE status labels
-            status = event_metadata["ParameterEstimation"]["Status"]
-            labels.append(f"PE-status::{status}")
-
-        return labels
