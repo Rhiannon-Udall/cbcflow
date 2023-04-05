@@ -107,4 +107,5 @@ def run_monitor():
     local_library.library_parent.sync_library()
     logger.info("Updating index file for library")
     local_library.write_index_file()
+    local_library.git_push()
     logger.info("Sweep completed, resting")

@@ -12,7 +12,7 @@ from typing import Union, Dict
 import dateutil.parser as dp
 from jsondiff import diff
 import jsonschema
-import pygit2
+import git
 from ligo.gracedb.rest import GraceDb
 from ligo.gracedb.exceptions import HTTPError
 from gwpy.time import to_gps
@@ -224,29 +224,7 @@ class LocalLibraryDatabase(object):
                 so you can't initialize pygit information for it."
             )
 
-        self.repo = pygit2.init_repository(self.library)
-
-        try:
-            self.ref = self.repo.head.name
-        except pygit2.GitError:
-            # If the git repo is empty
-            raise ValueError(
-                f"The git library directory {self.library} is empty ."
-                "Please initialise with a commit"
-            )
-
-    @property
-    def git_parents(self):
-        """The parents (in the git sense) for the repository"""
-        if hasattr(self, "repo"):
-            return [self.repo.head.target]
-        else:
-            try:
-                self._initialize_library_git_repo()
-            except ValueError:
-                raise AttributeError(
-                    "Cannot get git parents for this repo, since it is not a git repo!"
-                )
+        self.repo = git.Repo(self.library)
 
     def git_add_and_commit(
         self, filename, message: Union[str, None] = None, sname: Union[str, None] = None
@@ -268,10 +246,6 @@ class LocalLibraryDatabase(object):
             # If necessary, initialize git information for this library
             self._initialize_library_git_repo()
 
-        # Add the file to the index
-        self.repo.index.add(filename)
-        self.repo.index.write()
-        author = self._author_signature
         if message is None:
             # If no message is given, make a default
             if sname is not None:
@@ -283,23 +257,19 @@ class LocalLibraryDatabase(object):
                 else:
                     # If we are creating a new metadata file
                     message = f"Committing metadata for new superevent {sname}"
-            message += f"cmd line: {' '.join(sys.argv)}"
-        # Write the index to the working tree
-        tree = self.repo.index.write_tree()
-        # Commit the tree
-        self.repo.create_commit(
-            self.ref, author, author, message, tree, self.git_parents
-        )
+            if sys.argv is not [""]:
+                if message is None:
+                    message = ""
+                message += f"cmd line: {' '.join(sys.argv)}"
+            if message is None:
+                message = "No information provided about this commit, and could not infer from context"
 
-    @cached_property
-    def _author_signature(self):
-        gitconfig = os.path.expanduser("~/.gitconfig")
-        config = configparser.ConfigParser()
-        config.sections()
-        config.read(gitconfig)
-        name = config["user"]["name"]
-        email = config["user"]["email"]
-        return pygit2.Signature(name, email)
+        self.repo.git.add(filename)
+        self.repo.git.commit("-m", message)
+
+    def git_push(self):
+        """Push changes made to the library to the tracking remote"""
+        self.repo.git.push()
 
     ############################################################################
     ############################################################################
