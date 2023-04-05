@@ -22,6 +22,7 @@ Finally, we lay out future development goals (also reflected in the git issues),
    development-setup
    library-setup
    monitor-usage
+   library-indices
 
 .. toctree::
    :maxdepth: 1
