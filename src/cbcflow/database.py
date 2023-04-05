@@ -358,6 +358,7 @@ class LocalLibraryDatabase(object):
         self.metadata_schema = schema
 
         self.metadata_dict = dict()
+        self.working_index = dict()
 
         logger.debug(
             f"Library initialized with {len(self.filelist)} superevents stored"

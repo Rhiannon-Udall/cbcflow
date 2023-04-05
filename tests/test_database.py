@@ -25,9 +25,12 @@ class TestDatabase(unittest.TestCase):
 
     def test_index_generation(self):
         """Check whether the index generates correctly"""
-        test_index = self.working_library.generated_index
-        print(test_index)
-        superevents_in_index = self._check_events_in_library_json(test_index)
+        self.working_library.working_index = (
+            self.working_library.generate_index_from_metadata()
+        )
+        superevents_in_index = self._check_events_in_library_json(
+            self.working_library.working_index
+        )
         assert superevents_in_index == self.superevents_satisfying_conditions
 
     @staticmethod
