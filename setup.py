@@ -6,8 +6,6 @@ import shutil
 
 import setuptools
 
-import versioneer
-
 files = glob.glob("schema/*schema")
 tdir = "src/cbcflow/schema/"
 if os.path.exists(tdir) is False:
@@ -25,6 +23,4 @@ if __name__ == "__main__":
                 "schema/index-v1.schema",
             ]
         },
-        version=versioneer.get_version(),
-        cmdclass=versioneer.get_cmdclass(),
     )

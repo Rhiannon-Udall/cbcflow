@@ -8,7 +8,7 @@ from .monitor import generate_crondor, run_monitor
 from .parser import get_parser_and_default_data
 from .schema import get_schema
 
-__version__ = _version.get_versions()["version"]
+__version__ = _version.__version__
 
 
 def get_superevent(
