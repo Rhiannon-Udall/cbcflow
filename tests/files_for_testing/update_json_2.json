@@ -5,7 +5,7 @@
                 "UID":"TestF1",
                 "Reviewers":["Alonso"],
                 "ResultFile":{
-                    "Path":"tests/test-file-for-linking-2.txt"
+                    "Path":"tests/files_for_testing/test-file-for-linking-2.txt"
                 }
             },
             {
@@ -24,7 +24,7 @@
                         "UID":"TestF1",
                         "WaveformApproximant":"NRSur7dq4",
                         "ResultFile":{
-                            "Path":"tests/test-file-for-linking-2.txt"
+                            "Path":"tests/files_for_testing/test-file-for-linking-2.txt"
                         },
                         "Notes":["Another note"]
                     },

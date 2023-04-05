@@ -56,7 +56,8 @@
         "TimeDelay": 2.0
       }
     ],
-    "PreferredSkymap": "A skymap"
+    "PreferredLowLatencySkymap": "A skymap",
+    "CosmologyRunsUsingThisSuperevent":[]
   },
   "ParameterEstimation": {
     "Analysts": [

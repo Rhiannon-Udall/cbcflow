@@ -7,13 +7,15 @@ import os
 from functools import cached_property
 import sys
 from pprint import pformat
-from typing import Union
+from typing import Union, Dict
 
 import dateutil.parser as dp
 from jsondiff import diff
 import jsonschema
 import pygit2
 from ligo.gracedb.rest import GraceDb
+from ligo.gracedb.exceptions import HTTPError
+from gwpy.time import to_gps
 
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
@@ -23,8 +25,6 @@ from .gracedb import fetch_gracedb_information
 from .utils import get_dumpable_json_diff
 
 logger = logging.getLogger(__name__)
-
-# from .process import populate_defaults_if_necessary
 
 
 class LocalLibraryDatabase(object):
@@ -44,6 +44,8 @@ class LocalLibraryDatabase(object):
 
         self.library = library_path
         self.metadata_schema = schema
+
+        self.metadata_dict = dict()
 
         logger.debug(
             f"Library initialized with {len(self.filelist)} superevents stored"
@@ -94,6 +96,12 @@ class LocalLibraryDatabase(object):
         return glob.glob(os.path.join(self.library, "*cbc-metadata.json"))
 
     @property
+    def superevents_in_library(self):
+        """Get a list of superevent names which are present in the library"""
+        superevent_names = [x.split("/")[-1].split("-")[0] for x in self.filelist]
+        return superevent_names
+
+    @property
     def metadata_schema(self) -> dict:
         """The schema for the metadata jsons in this library"""
         return self._metadata_schema
@@ -111,8 +119,17 @@ class LocalLibraryDatabase(object):
         _, default_data = get_parser_and_default_data(self.metadata_schema)
         return default_data
 
-    @cached_property
+    @property
     def metadata_dict(self) -> dict:
+        """A dictionary of the metadata loaded for a library"""
+        return self._metadata_dict
+
+    @metadata_dict.setter
+    def metadata_dict(self, new_dict) -> None:
+        self._metadata_dict = new_dict
+
+    def load_library_metadata_dict(self) -> None:
+        """Load all of the metadata in a given library"""
         metadata_dict = dict()
         metadata_list = [
             MetaData.from_file(
@@ -122,29 +139,34 @@ class LocalLibraryDatabase(object):
         ]
         for md in metadata_list:
             metadata_dict[md.sname] = md
-        return metadata_dict
+        self.metadata_dict.update(metadata_dict)
 
-    @cached_property
-    def downselected_metadata_dict(self) -> dict:
-        """Get the snames of events which satisfy library inclusion criteria
-
-        Returns
-        """
+    @property
+    def downselected_metadata_dict(self) -> Dict[str, MetaData]:
+        """Get the snames of events which satisfy library inclusion criteria"""
         downselected_metadata_dict = dict()
+        self.load_library_metadata_dict()
         for sname, metadata in self.metadata_dict.items():
+            library_created_earliest = to_gps(
+                self.library_config["Events"]["created-since"]
+            )
+            library_created_latest = to_gps(
+                self.library_config["Events"]["created-before"]
+            )
             for event in metadata.data["GraceDB"]["Events"]:
                 if event["State"] == "preferred":
                     preferred_far = event["FAR"]
+                    preferred_time = to_gps(event["GPSTime"])
             if sname in self.library_config["Events"]["snames-to-include"]:
                 downselected_metadata_dict[sname] = metadata
             elif sname in self.library_config["Events"]["snames-to-exclude"]:
                 pass
-            # TODO prepare for how this will work with the all-sky schema changes
-            # This will include:
-            # 1. adapting to G-eventwise values
-            # 2. adding p-astro
-            # 3. possibly adding p_nsbh, p_bns, b_bbh
-            # 4. possibly adding SNR
+            elif (
+                preferred_time < library_created_earliest
+                or preferred_time > library_created_latest
+            ):
+                continue
+            # Right now we *only* check date, FAR threshold, and specific inclusion
             elif preferred_far <= float(self.library_config["Events"]["far-threshold"]):
                 downselected_metadata_dict[sname] = metadata
         return downselected_metadata_dict
@@ -307,9 +329,14 @@ class LocalLibraryDatabase(object):
     def index_from_file(self) -> dict:
         """Fetch the info from the index json as it currently exists"""
         if os.path.exists(self.index_file_path):
-            with open(self.index_file_path, "r") as f:
-                current_index_data = json.load(f)
-            return current_index_data
+            try:
+                with open(self.index_file_path, "r") as f:
+                    current_index_data = json.load(f)
+                jsonschema.validate(current_index_data, self.library_index_schema)
+                return current_index_data
+            except jsonschema.ValidationError:
+                logger.warning("Present index data failed validation!")
+                return dict()
         else:
             logger.info("No index file currently present")
             return dict()
@@ -336,7 +363,7 @@ class LocalLibraryDatabase(object):
             # Fill out basic info
             superevent_meta = copy.deepcopy(superevent_default)
             superevent_meta["Sname"] = sname
-            superevent_meta["LastUpdated"] = metadata.get_date_of_last_commit()
+            superevent_meta["LastUpdated"] = metadata.get_date_last_modified()
             new_index["Superevents"].append(superevent_meta)
             # Get the datetime of the most recent change
             if dp.parse(superevent_meta["LastUpdated"]) > dp.parse(current_most_recent):
@@ -369,11 +396,12 @@ class LocalLibraryDatabase(object):
         if index_delta != dict():
             with open(self.index_file_path, "w") as f:
                 json.dump(self.generated_index, f, indent=2)
-            self.git_add_and_commit(
-                filename=self.index_file_name,
-                message=f"Updating index with changes:\n\
-                    {pformat(get_dumpable_json_diff(index_delta))}",
-            )
+            if self.is_git_repository:
+                self.git_add_and_commit(
+                    filename=self.index_file_name,
+                    message=f"Updating index with changes:\n\
+                        {pformat(get_dumpable_json_diff(index_delta))}",
+                )
 
 
 class LibraryParent(object):
@@ -524,8 +552,15 @@ class GraceDbDatabase(LibraryParent):
                     logger.info(json.dumps(string_rep_changes, indent=2))
                     metadata.write_to_library()
                 except jsonschema.exceptions.ValidationError:
-                    logger.info(
+                    logger.warning(
                         f"For superevent {superevent_id}, GraceDB generated metadata failed validation\
+                        Writing backup data (either default or pre-loaded) to library instead\n"
+                    )
+                    metadata.update(backup_data)
+                    metadata.write_to_library()
+                except HTTPError:
+                    logger.warning(
+                        f"For superevent {superevent_id}, failed to obtain data from GraceDB\
                         Writing backup data (either default or pre-loaded) to library instead\n"
                     )
                     metadata.update(backup_data)
@@ -564,7 +599,14 @@ class GraceDbDatabase(LibraryParent):
         query = f"created: {event_config['created-since']} .. {now_str} \
         FAR <= {event_config['far-threshold']}"
         logger.info(f"Constructed query {query} from library config")
-        self.superevents_to_propagate = self.query_superevents(query)
+        try:
+            self.superevents_to_propagate = self.query_superevents(query)
+        except HTTPError:
+            self.superevents_to_propagate = []
+            logger.warning(
+                "Query to GraceDB for superevents unsuccessful \
+                           - falling back on superevents already in library only"
+            )
 
         logger.info(
             f"Querying based on library configuration returned {len(self.superevents_to_propagate)} superevents"

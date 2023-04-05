@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Union
 import jsondiff
 
 from .process import process_update_json
+from .utils import get_date_last_modified
 
 if TYPE_CHECKING:
     from .database import LocalLibraryDatabase
@@ -73,6 +74,8 @@ class MetaData(object):
             self.library.validate(default_data)
             self.data = default_data
 
+        self.library.metadata_dict[sname] = self
+
     ############################################################################
     ############################################################################
     ####                  System Properties and Operations                  ####
@@ -130,11 +133,6 @@ class MetaData(object):
     def get_date_of_last_commit(self):
         """Get the date of the last commit including the metadata file for sname
 
-        Parameters
-        ==========
-        sname : str
-            The sname corresponding to the superevent whose metadata we are checking.
-
         Returns
         =======
         str
@@ -156,6 +154,16 @@ class MetaData(object):
         datetime = date.strip("b'") + " " + time
         os.chdir(cwd)
         return datetime
+
+    def get_date_last_modified(self):
+        """Get the datetime of the last modification of this file *on this filesystem*
+
+        Returns
+        =======
+        str
+            The date and time last modified in iso standard (yyyy-MM-dd hh:mm:ss)
+        """
+        return get_date_last_modified(self.library_file)
 
     ############################################################################
     ############################################################################
