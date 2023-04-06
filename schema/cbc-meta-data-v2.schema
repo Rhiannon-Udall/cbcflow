@@ -210,6 +210,18 @@
           "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
           "type": "number"
         },
+        "ConfiguratorDuration": {
+          "description": "The analysis duration requested by the configurator",
+          "type": "number"
+        },
+        "ConfiguratorMinimumFrequency": {
+          "description": "The analysis minimum frequency requested by the configurator",
+          "type": "number"
+        },
+        "ConfiguratorMaximumFrequency": {
+          "description": "The analysis maximum frequency requested by the configurator",
+          "type": "number"
+        },
         "Notes": {
           "type": "array",
           "items": {"type": "string"},
@@ -414,15 +426,7 @@
         "type": "number",
         "default": 4.0
       },
-      "RecommendedStartTime": {
-        "description": "The  validated safe start time to set for downstream analyses to avoid data quality issues",
-        "type": "number"
-      },
-      "RecommendedEndTime": {
-        "description": "The validated safe end time to set for downstream analyses to avoid data quality issues",
-        "type": "number"
-      },
-      "Results": {
+      "DQRResults": {
         "description": "A list of results",
         "type": "array",
         "items": {"$ref": "#/$defs/DQRResult"}
@@ -606,6 +610,14 @@
           "type": "number",
           "description": "The recommended maximum frequency for the analysis - this may be set by the PE configurator rather than detchar"
         },
+      "RecommendedStartTime": {
+        "description": "The  validated safe start time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
+      },
+      "RecommendedEndTime": {
+        "description": "The validated safe end time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
+      },
         "GlitchMitigationStatus": {
           "type": "string",
           "enum": ["not yet reviewed", "required", "not required", "complete"],

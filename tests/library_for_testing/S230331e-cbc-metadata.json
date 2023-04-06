@@ -136,7 +136,7 @@
     "Status": "unstarted",
     "RecommendedDetectors": [],
     "RecommendedDuration": 4.0,
-    "Results": [],
+    "DQRResults": [],
     "Notes": []
   }
 }
