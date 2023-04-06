@@ -426,7 +426,7 @@
         "type": "number",
         "default": 4.0
       },
-      "Results": {
+      "DQRResults": {
         "description": "A list of results",
         "type": "array",
         "items": {"$ref": "#/$defs/DQRResult"}
