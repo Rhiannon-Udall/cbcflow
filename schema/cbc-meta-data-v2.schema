@@ -42,7 +42,7 @@
       "type": "object",
       "properties": {
         "Papers": {
-          "description": "The papers this trigger appears in",
+          "description": "The papers this trigger appears in - use pubplan keys as unique identifier",
           "type": "array",
           "items": {
             "type": "string"
@@ -91,7 +91,7 @@
       "additionalProperties": false,
       "type": "object",
       "properties": {
-        "PreferredSkymap": {
+        "PreferredLowLatencySkymap": {
           "description": "The link to the preferred skymap on GRACEDB",
           "type": "string"
         },
@@ -100,6 +100,13 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/Counterparts"
+          }
+        },
+        "CosmologyRunsUsingThisSuperevent":{
+          "description":"The Cosmology runs which use this superevent",
+          "type":"array",
+          "items":{
+            "$ref": "#/$defs/CosmologyRun"
           }
         },
         "Notes": {
@@ -201,6 +208,18 @@
         },
         "SafeGeocentTime": {
           "description": "The  validated safe trigger time to pass to parameter inference engines as the central time of the analysis window",
+          "type": "number"
+        },
+        "ConfiguratorDuration": {
+          "description": "The analysis duration requested by the configurator",
+          "type": "number"
+        },
+        "ConfiguratorMinimumFrequency": {
+          "description": "The analysis minimum frequency requested by the configurator",
+          "type": "number"
+        },
+        "ConfiguratorMaximumFrequency": {
+          "description": "The analysis maximum frequency requested by the configurator",
           "type": "number"
         },
         "Notes": {
@@ -407,15 +426,7 @@
         "type": "number",
         "default": 4.0
       },
-      "RecommendedStartTime": {
-        "description": "The  validated safe start time to set for downstream analyses to avoid data quality issues",
-        "type": "number"
-      },
-      "RecommendedEndTime": {
-        "description": "The validated safe end time to set for downstream analyses to avoid data quality issues",
-        "type": "number"
-      },
-      "Results": {
+      "DQRResults": {
         "description": "A list of results",
         "type": "array",
         "items": {"$ref": "#/$defs/DQRResult"}
@@ -599,6 +610,14 @@
           "type": "number",
           "description": "The recommended maximum frequency for the analysis - this may be set by the PE configurator rather than detchar"
         },
+      "RecommendedStartTime": {
+        "description": "The  validated safe start time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
+      },
+      "RecommendedEndTime": {
+        "description": "The validated safe end time to set for downstream analyses to avoid data quality issues",
+        "type": "number"
+      },
         "GlitchMitigationStatus": {
           "type": "string",
           "enum": ["not yet reviewed", "required", "not required", "complete"],
@@ -718,7 +737,7 @@
           "default": false
         },
         "Publications":{
-          "description":"The LVK publications which use this result.",
+          "description":"The LVK publications which use this result - use pubplan keys as unique identifier.",
           "type":"array",
           "items":{"type":"string"}
         },
@@ -945,8 +964,79 @@
           "description":"A UID which identifies the analysis",
           "type":"string"
         },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ReviewStatus": {
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "description": "Status of the review",
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "type": "string",
+          "enum": ["complete", "running", "stuck"],
+          "description": "Status of the run"
+        },
         "RunFile":{
           "description":"A linked file for this RnP Run",
+          "type": "object",
+          "$ref":"#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+        }
+      }
+    },
+    "CosmologyRun": {
+      "description": "A Cosmology analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "UID":{
+          "description":"A UID which identifies the analysis",
+          "type":"string"
+        },
+        "Analysts": {
+          "description": "The name of analysts involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Reviewers": {
+          "description": "The name of reviewers involved",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ReviewStatus": {
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "description": "Status of the review",
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "type": "string",
+          "enum": ["complete", "running", "stuck"],
+          "description": "Status of the run"
+        },
+        "RunFile":{
+          "description":"A linked file for this Cosmology Run",
           "type": "object",
           "$ref":"#/$defs/LinkedFile"
         },

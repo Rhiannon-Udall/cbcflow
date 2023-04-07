@@ -24,7 +24,7 @@ integration-test:
     - .python:base
   script:
     - pip install jsonschema
-    - jsonschema -i tests/cbc-meta-data-example.json schema/cbc-meta-data-v1.schema
+    - jsonschema -i tests/files_for_testing/cbc-meta-data-example.json schema/cbc-meta-data-v2.schema
 
 unit-test:
   stage: test
@@ -45,11 +45,11 @@ schema-html:
     - cd schema/visualization/
     - generate-schema-doc ../cbc-meta-data-v2.schema cbc-meta-data-schema.html
     - cd ../..
-    - mkdir docs/schema_visualization/
-    - mv schema/visualization/* docs/schema_visualization/
+    - mkdir docs/source/schema_visualization/
+    - mv schema/visualization/* docs/source/schema_visualization/
   artifacts:
     paths:
-    - docs/schema_visualization/
+    - docs/source/schema_visualization/
 
 docs:
   stage: docs

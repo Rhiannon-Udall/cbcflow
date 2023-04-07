@@ -6,7 +6,7 @@
         ]
     },
     "Cosmology": {
-        "PreferredSkymap": "A sample preferred skymap, showing that setting works correctly",
+        "PreferredLowLatencySkymap": "A sample preferred skymap, showing that setting works correctly",
         "Counterparts": [
             {
                 "UID": "TestF1",
@@ -30,12 +30,12 @@
             {
                 "UID":"TestF1",
                 "Description":"A fake analysis",
-                "Reviewers":["Gregory Ashton"],
-                "Analysts":["Rhiannon Udall"],
+                "Reviewers":["Prospero"],
+                "Analysts":["Miranda"],
                 "AnalysisSoftware":"A fake software",
                 "AnalysisStatus":"ongoing",
                 "ResultFile":{
-                    "Path":"tests/test-file-for-linking-1.txt",
+                    "Path":"tests/files_for_testing/test-file-for-linking-1.txt",
                     "PublicHTML":"fake-url.org"
                 }
             },
@@ -43,7 +43,7 @@
                 "UID":"TestF2",
                 "Description":"Another fake analysis",
                 "ResultFile":{
-                    "Path":"tests/test-file-for-linking-1.txt"
+                    "Path":"tests/files_for_testing/test-file-for-linking-1.txt"
                 }
             }
         ]
@@ -53,13 +53,13 @@
             {
                 "UID":"TestF1",
                 "Description":"A fake analysis",
-                "Analysts":["Rhiannon Udall"],
+                "Analysts":["Miranda"],
                 "Results":[
                     {
                         "UID":"TestF1",
                         "WaveformApproximant":"IMRPhenomXPHM",
                         "ResultFile":{
-                            "Path":"tests/test-file-for-linking-1.txt",
+                            "Path":"tests/files_for_testing/test-file-for-linking-1.txt",
                             "PublicHTML":"a-fake-url.org"
                         },
                         "Notes":["A note"]
@@ -67,7 +67,7 @@
                     {
                         "UID":"TestF2",
                         "ResultFile":{
-                            "Path":"tests/test-file-for-linking-1.txt"
+                            "Path":"tests/files_for_testing/test-file-for-linking-1.txt"
                         },
                         "Notes":["A note"]
                     }
@@ -76,13 +76,13 @@
             {
                 "UID":"TestF2",
                 "Description":"Another fake analysis",
-                "Analysts":["Rhiannon Udall"],
+                "Analysts":["Miranda"],
                 "Results":[
                     {
                         "UID":"TestF1",
                         "WaveformApproximant":"SEOBNRv4PHM",
                         "ResultFile":{
-                            "Path":"tests/test-file-for-linking-1.txt",
+                            "Path":"tests/files_for_testing/test-file-for-linking-1.txt",
                             "PublicHTML":"a-fake-url.org"
                         }
                     }

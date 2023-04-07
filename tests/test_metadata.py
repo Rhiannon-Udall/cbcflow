@@ -21,7 +21,7 @@ class TestMetaData(unittest.TestCase):
             shutil.rmtree(self.test_library_directory)
 
     def setUp(self):
-        self.test_library_directory = "tests/test_library"
+        self.test_library_directory = "tests/files_for_testing/test_library"
         self.test_sname = "S190425z"
         self.schema = get_schema()
         _, default_data = get_parser_and_default_data(self.schema)
@@ -31,11 +31,15 @@ class TestMetaData(unittest.TestCase):
             schema=self.schema, default_data=self.default_data, no_git_library=True
         )
         self.clean_up()
-        self.path_to_testing_linked_file_1 = "tests/test-file-for-linking-1.txt"
-        self.path_to_testing_linked_file_2 = "tests/test-file-for-linking-2.txt"
-        with open("tests/update_json_1.json", "r") as f:
+        self.path_to_testing_linked_file_1 = (
+            "tests/files_for_testing/test-file-for-linking-1.txt"
+        )
+        self.path_to_testing_linked_file_2 = (
+            "tests/files_for_testing/test-file-for-linking-2.txt"
+        )
+        with open("tests/files_for_testing/update_json_1.json", "r") as f:
             self.update_json_1 = json.load(f)
-        with open("tests/update_json_2.json", "r") as f:
+        with open("tests/files_for_testing/update_json_2.json", "r") as f:
             self.update_json_2 = json.load(f)
 
         self.check_metadata_data = copy.deepcopy(
@@ -53,7 +57,7 @@ class TestMetaData(unittest.TestCase):
         self.check_metadata_data["Info"]["Labels"].append("A second test label")
 
         self.check_metadata_data["Cosmology"][
-            "PreferredSkymap"
+            "PreferredLowLatencySkymap"
         ] = "A sample preferred skymap, showing that setting works correctly"
         self.check_metadata_data["Cosmology"]["Counterparts"].append(
             {
@@ -80,8 +84,8 @@ class TestMetaData(unittest.TestCase):
             {
                 "UID": "TestF1",
                 "Description": "A fake analysis",
-                "Reviewers": ["Gregory Ashton", "Jonah Kanner"],
-                "Analysts": ["Rhiannon Udall"],
+                "Reviewers": ["Prospero", "Alonso"],
+                "Analysts": ["Miranda"],
                 "AnalysisSoftware": "A fake software",
                 "AnalysisStatus": "ongoing",
                 "ResultFile": {
@@ -133,7 +137,7 @@ class TestMetaData(unittest.TestCase):
             {
                 "UID": "TestF1",
                 "Description": "A fake analysis",
-                "Analysts": ["Rhiannon Udall", "Mr C++"],
+                "Analysts": ["Miranda", "Caliban"],
                 "Reviewers": [],
                 "Results": [
                     {
@@ -190,7 +194,7 @@ class TestMetaData(unittest.TestCase):
             {
                 "UID": "TestF2",
                 "Description": "Another fake analysis",
-                "Analysts": ["Rhiannon Udall"],
+                "Analysts": ["Miranda"],
                 "Results": [
                     {
                         "UID": "TestF1",
@@ -220,7 +224,7 @@ class TestMetaData(unittest.TestCase):
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"].append(
             {
                 "UID": "TestF3",
-                "Analysts": ["Donald Knuth"],
+                "Analysts": ["Gonzalo"],
                 "Results": [],
                 "Reviewers": [],
                 "Notes": [],
@@ -256,7 +260,7 @@ class TestMetaData(unittest.TestCase):
 
     def test_metadata_from_file(self):
         # Write a metadata file to test
-        tgt = "tests/cbc-meta-data-example.json"
+        tgt = "tests/files_for_testing/cbc-meta-data-example.json"
         sname = "S220331b"
         os.makedirs(self.test_library_directory)
         shutil.copy(
@@ -269,11 +273,11 @@ class TestMetaData(unittest.TestCase):
             **self.default_metadata_kwargs,
         )
         assert metadata.sname == sname
-        assert metadata.data["ParameterEstimation"]["Reviewers"] == ["Gregory Ashton"]
+        assert metadata.data["ParameterEstimation"]["Reviewers"] == ["Prospero"]
 
     def test_modify_metadata_from_file(self):
         # Write a metadata file to test
-        tgt = "tests/cbc-meta-data-example.json"
+        tgt = "tests/files_for_testing/cbc-meta-data-example.json"
         sname = "S220331b"
         os.makedirs(self.test_library_directory)
         shutil.copy(tgt, self.test_library_directory + f"/{sname}.json")
@@ -283,7 +287,7 @@ class TestMetaData(unittest.TestCase):
             local_library_path=self.test_library_directory,
             **self.default_metadata_kwargs,
         )
-        metadata.data["ParameterEstimation"]["Reviewers"].append("michael.kiwanuka")
+        metadata.data["ParameterEstimation"]["Reviewers"].append("Ariel")
         metadata.write_to_library()
 
         metadata_mod = MetaData(
@@ -292,9 +296,6 @@ class TestMetaData(unittest.TestCase):
             **self.default_metadata_kwargs,
         )
         assert metadata.data == metadata_mod.data
-
-    def test_parsing_of_user_inputs(self):
-        pass
 
     def test_update_metadata_with_json_add(self):
         if not os.path.exists(self.test_library_directory):
@@ -336,13 +337,13 @@ class TestMetaData(unittest.TestCase):
                 "Labels": ["A test label, showing that appending works"],
             },
             "ExtremeMatter": {
-                "Analyses": [{"UID": "TestF1", "Reviewers": ["Gregory Ashton"]}]
+                "Analyses": [{"UID": "TestF1", "Reviewers": ["Prospero"]}]
             },
             "TestingGR": {
                 "IMRCTAnalyses": [
                     {
                         "UID": "TestF1",
-                        "Analysts": ["Rhiannon Udall"],
+                        "Analysts": ["Miranda"],
                         "Results": [{"UID": "TestF1", "Notes": ["A note"]}],
                     }
                 ]
@@ -353,10 +354,10 @@ class TestMetaData(unittest.TestCase):
 
         self.check_metadata_data["Info"]["Labels"] = ["A second test label"]
         self.check_metadata_data["ExtremeMatter"]["Analyses"][0]["Reviewers"] = [
-            "Jonah Kanner"
+            "Alonso"
         ]
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"][0]["Analysts"] = [
-            "Mr C++"
+            "Caliban"
         ]
         self.check_metadata_data["TestingGR"]["IMRCTAnalyses"][0]["Results"][0][
             "Notes"
@@ -379,7 +380,7 @@ class TestMetaData(unittest.TestCase):
         cmd_1 = [
             "cbcflow_update_from_file",
             "S190425z",
-            "tests/update_json_1.json",
+            "tests/files_for_testing/update_json_1.json",
             "--library",
             self.test_library_directory,
             "--no-git-library",
@@ -388,7 +389,7 @@ class TestMetaData(unittest.TestCase):
         cmd_2 = [
             "cbcflow_update_from_file",
             "S190425z",
-            "tests/update_json_2.json",
+            "tests/files_for_testing/update_json_2.json",
             "--library",
             self.test_library_directory,
             "--no-git-library",
@@ -416,7 +417,7 @@ class TestMetaData(unittest.TestCase):
         cmd_1 = [
             "cbcflow_update_from_file",
             "S190425z",
-            "tests/update_yaml_1.yaml",
+            "tests/files_for_testing/update_yaml_1.yaml",
             "--library",
             self.test_library_directory,
             "--no-git-library",
@@ -425,7 +426,7 @@ class TestMetaData(unittest.TestCase):
         cmd_2 = [
             "cbcflow_update_from_file",
             "S190425z",
-            "tests/update_yaml_2.yaml",
+            "tests/files_for_testing/update_yaml_2.yaml",
             "--library",
             self.test_library_directory,
             "--no-git-library",
@@ -485,7 +486,7 @@ class TestMetaData(unittest.TestCase):
         cmd_2 += [
             "--Cosmology-Counterparts-UID-set",
             "TestF2",
-            "--Cosmology-PreferredSkymap-set",
+            "--Cosmology-PreferredLowLatencySkymap-set",
             "A sample preferred skymap, showing that setting works correctly",
         ]
         subprocess.check_output(cmd_2)
@@ -498,13 +499,13 @@ class TestMetaData(unittest.TestCase):
             "--ExtremeMatter-Analyses-AnalysisSoftware-set",
             "A fake software",
             "--ExtremeMatter-Analyses-Analysts-add",
-            "Rhiannon Udall",
+            "Miranda",
             "--ExtremeMatter-Analyses-Reviewers-add",
-            "Gregory Ashton",
+            "Prospero",
             "--ExtremeMatter-Analyses-Description-set",
             "A fake analysis",
             "--ExtremeMatter-Analyses-ResultFile-Path-set",
-            "tests/test-file-for-linking-1.txt",
+            "tests/files_for_testing/test-file-for-linking-1.txt",
             "--ExtremeMatter-Analyses-ResultFile-PublicHTML-set",
             "fake-url.org",
         ]
@@ -514,7 +515,7 @@ class TestMetaData(unittest.TestCase):
             "--ExtremeMatter-Analyses-UID-set",
             "TestF2",
             "--ExtremeMatter-Analyses-ResultFile-Path-set",
-            "tests/test-file-for-linking-1.txt",
+            "tests/files_for_testing/test-file-for-linking-1.txt",
             "--ExtremeMatter-Analyses-Description-set",
             "Another fake analysis",
             "--Info-Labels-add",
@@ -536,7 +537,7 @@ class TestMetaData(unittest.TestCase):
             "--TestingGR-IMRCTAnalyses-UID-set",
             "TestF1",
             "--TestingGR-IMRCTAnalyses-Analysts-add",
-            "Rhiannon Udall",
+            "Miranda",
             "--TestingGR-IMRCTAnalyses-Description-set",
             "A fake analysis",
             "--TestingGR-IMRCTAnalyses-Results-UID-set",
@@ -544,7 +545,7 @@ class TestMetaData(unittest.TestCase):
             "--TestingGR-IMRCTAnalyses-Results-Notes-add",
             "A note",
             "--TestingGR-IMRCTAnalyses-Results-ResultFile-Path-set",
-            "tests/test-file-for-linking-1.txt",
+            "tests/files_for_testing/test-file-for-linking-1.txt",
             "--TestingGR-IMRCTAnalyses-Results-ResultFile-PublicHTML-set",
             "a-fake-url.org",
             "--TestingGR-IMRCTAnalyses-Results-WaveformApproximant-set",
@@ -560,7 +561,7 @@ class TestMetaData(unittest.TestCase):
             "--TestingGR-IMRCTAnalyses-Results-Notes-add",
             "A note",
             "--TestingGR-IMRCTAnalyses-Results-ResultFile-Path-set",
-            "tests/test-file-for-linking-1.txt",
+            "tests/files_for_testing/test-file-for-linking-1.txt",
         ]
         subprocess.check_output(cmd_7)
         cmd_8 = copy.copy(base_cmd)
@@ -568,13 +569,13 @@ class TestMetaData(unittest.TestCase):
             "--TestingGR-IMRCTAnalyses-UID-set",
             "TestF2",
             "--TestingGR-IMRCTAnalyses-Analysts-add",
-            "Rhiannon Udall",
+            "Miranda",
             "--TestingGR-IMRCTAnalyses-Description-set",
             "Another fake analysis",
             "--TestingGR-IMRCTAnalyses-Results-UID-set",
             "TestF1",
             "--TestingGR-IMRCTAnalyses-Results-ResultFile-Path-set",
-            "tests/test-file-for-linking-1.txt",
+            "tests/files_for_testing/test-file-for-linking-1.txt",
             "--TestingGR-IMRCTAnalyses-Results-ResultFile-PublicHTML-set",
             "a-fake-url.org",
             "--TestingGR-IMRCTAnalyses-Results-WaveformApproximant-set",
@@ -586,19 +587,19 @@ class TestMetaData(unittest.TestCase):
             "--ExtremeMatter-Analyses-UID-set",
             "TestF1",
             "--ExtremeMatter-Analyses-ResultFile-Path-set",
-            "tests/test-file-for-linking-2.txt",
+            "tests/files_for_testing/test-file-for-linking-2.txt",
             "--ExtremeMatter-Analyses-Reviewers-add",
-            "Jonah Kanner",
+            "Alonso",
             "--TestingGR-IMRCTAnalyses-UID-set",
             "TestF1",
             "--TestingGR-IMRCTAnalyses-Analysts-add",
-            "Mr C++",
+            "Caliban",
             "--TestingGR-IMRCTAnalyses-Results-UID-set",
             "TestF1",
             "--TestingGR-IMRCTAnalyses-Results-Notes-add",
             "Another note",
             "--TestingGR-IMRCTAnalyses-Results-ResultFile-Path-set",
-            "tests/test-file-for-linking-2.txt",
+            "tests/files_for_testing/test-file-for-linking-2.txt",
             "--TestingGR-IMRCTAnalyses-Results-WaveformApproximant-set",
             "NRSur7dq4",
         ]
@@ -618,7 +619,7 @@ class TestMetaData(unittest.TestCase):
             "--TestingGR-IMRCTAnalyses-UID-set",
             "TestF3",
             "--TestingGR-IMRCTAnalyses-Analysts-add",
-            "Donald Knuth",
+            "Gonzalo",
         ]
         subprocess.check_output(cmd_11)
         altered_metadata = MetaData(

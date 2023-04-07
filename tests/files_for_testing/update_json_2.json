@@ -3,9 +3,9 @@
         "Analyses":[
             {
                 "UID":"TestF1",
-                "Reviewers":["Jonah Kanner"],
+                "Reviewers":["Alonso"],
                 "ResultFile":{
-                    "Path":"tests/test-file-for-linking-2.txt"
+                    "Path":"tests/files_for_testing/test-file-for-linking-2.txt"
                 }
             },
             {
@@ -18,13 +18,13 @@
         "IMRCTAnalyses":[
             {
                 "UID":"TestF1",
-                "Analysts":["Mr C++"],
+                "Analysts":["Caliban"],
                 "Results":[
                     {
                         "UID":"TestF1",
                         "WaveformApproximant":"NRSur7dq4",
                         "ResultFile":{
-                            "Path":"tests/test-file-for-linking-2.txt"
+                            "Path":"tests/files_for_testing/test-file-for-linking-2.txt"
                         },
                         "Notes":["Another note"]
                     },
@@ -36,7 +36,7 @@
             },
             {
                 "UID":"TestF3",
-                "Analysts":["Donald Knuth"]
+                "Analysts":["Gonzalo"]
             }
         ]
     }

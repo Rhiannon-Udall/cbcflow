@@ -18,10 +18,10 @@
     "Analyses": [
       {
         "Reviewers": [
-          "gregory.ashton"
+          "Prospero"
         ],
         "Analysts": [
-          "rhiannon.udall"
+          "Miranda"
         ],
         "AnalysisStatus": "ongoing",
         "ReviewStatus": "fail",
@@ -56,14 +56,15 @@
         "TimeDelay": 2.0
       }
     ],
-    "PreferredSkymap": "A skymap"
+    "PreferredLowLatencySkymap": "A skymap",
+    "CosmologyRunsUsingThisSuperevent":[]
   },
   "ParameterEstimation": {
     "Analysts": [
-      "Rhiannon Udall"
+      "Miranda"
     ],
     "Reviewers": [
-      "Gregory Ashton"
+      "Prospero"
     ],
     "Status": "ongoing",
     "Results": [
@@ -114,10 +115,10 @@
     "Analyses": [
       {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [
-          "Gregory Ashton"
+          "Prospero"
         ],
         "AnalysisStatus": "ongoing",
         "ReviewStatus": "fail",
@@ -137,10 +138,10 @@
     "IMRCTAnalyses": [
       {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [
-          "Gregory Ashton"
+          "Prospero"
         ],
         "Results": [
           {
@@ -193,7 +194,7 @@
         },
       {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [],
         "Results": [
@@ -229,10 +230,10 @@
   "SSBAnalyses": [
        {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [
-          "Gregory Ashton"
+          "Prospero"
         ],
         "Results": [
           {
@@ -283,7 +284,7 @@
         },
       {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [],
         "Results": [
@@ -319,10 +320,10 @@
   "PSEOBRDAnalyses": [
        {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [
-          "Gregory Ashton"
+          "Prospero"
         ],
         "Results": [
           {
@@ -372,7 +373,7 @@
         },
       {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [],
         "Results": [
@@ -408,10 +409,10 @@
   "SIMAnalyses": [
        {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [
-          "Gregory Ashton"
+          "Prospero"
         ],
         "Results": [
           {
@@ -461,7 +462,7 @@
         },
       {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [],
         "Results": [
@@ -497,10 +498,10 @@
   "MDRAnalyses": [
        {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [
-          "Gregory Ashton"
+          "Prospero"
         ],
         "Results": [
           {
@@ -551,7 +552,7 @@
         },
       {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [],
         "Results": [
@@ -587,10 +588,10 @@
   "FTIAnalyses": [
        {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [
-          "Gregory Ashton"
+          "Prospero"
         ],
         "Results": [
           {
@@ -640,7 +641,7 @@
         },
       {
         "Analysts": [
-          "Rhiannon Udall"
+          "Miranda"
         ],
         "Reviewers": [],
         "Results": [

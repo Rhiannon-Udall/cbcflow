@@ -1,0 +1,118 @@
+{
+  "Sname": "S230403ae",
+  "Info": {
+    "Labels": [],
+    "SchemaVersion": "v2",
+    "Notes": []
+  },
+  "Publications": {
+    "Papers": []
+  },
+  "GraceDB": {
+    "Events": [
+      {
+        "State": "preferred",
+        "UID": "G975363",
+        "Pipeline": "pycbc",
+        "GPSTime": 1364560127.017578,
+        "FAR": 3.167545842243851e-10,
+        "NetworkSNR": 22.12495414055165,
+        "V1SNR": 7.149065,
+        "Mass1": 85.004354,
+        "Mass2": 12.780298,
+        "Spin1z": 0.33071242,
+        "Spin2z": 0.31516039,
+        "H1SNR": 20.93811,
+        "Pastro": 0.9975690192915394,
+        "Pbbh": 0.9975690192915394,
+        "Pbns": 0.0,
+        "Pnsbh": 0.0,
+        "HasNS": 0.0,
+        "HasRemnant": 0.0,
+        "HasMassGap": 0.006493506493506493,
+        "PipelineHasMassGap": 0.0,
+        "XML": "https://gracedb-playground.ligo.org/api/events/G975363/files/coinc.xml",
+        "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G975363/files/pycbc.p_astro.json",
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G975363/files/bayestar.multiorder.fits"
+      },
+      {
+        "State": "neighbor",
+        "UID": "G975357",
+        "Pipeline": "spiir",
+        "GPSTime": 1364560127.030762,
+        "FAR": 3.103569482200343e-16,
+        "NetworkSNR": 21.35371599332236,
+        "H1SNR": 20.067564,
+        "Mass1": 56.687302,
+        "Mass2": 29.810541,
+        "Spin1z": 0.89728695,
+        "Spin2z": -0.59333128,
+        "V1SNR": 7.2989082,
+        "Pastro": 0.9999999839405965,
+        "Pbbh": 0.9999999839405964,
+        "Pbns": 0.0,
+        "Pnsbh": 0.0,
+        "HasNS": 0.0,
+        "HasRemnant": 0.0,
+        "HasMassGap": 0.0,
+        "XML": "https://gracedb-playground.ligo.org/api/events/G975357/files/coinc.xml",
+        "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G975357/files/spiir.p_astro.json",
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G975357/files/bayestar.multiorder.fits"
+      }
+    ],
+    "Instruments": "H1,V1",
+    "LastUpdate": "2023-04-03 20:39:53.264978"
+  },
+  "ExtremeMatter": {
+    "Analyses": []
+  },
+  "Cosmology": {
+    "PreferredLowLatencySkymap": "https://gracedb-playground.ligo.org/api/events/G975363/files/bayestar.multiorder.fits"
+  },
+  "RatesAndPopulations": {
+    "RnPRunsUsingThisSuperevent": []
+  },
+  "ParameterEstimation": {
+    "Analysts": [],
+    "Reviewers": [],
+    "Status": "unstarted",
+    "Results": [],
+    "SafeSamplingRate": 4096.0,
+    "SafeLowerMassRatio": 0.05,
+    "Notes": []
+  },
+  "Lensing": {
+    "Analyses": []
+  },
+  "TestingGR": {
+    "BHMAnalyses": [],
+    "EchoesCWBAnalyses": [],
+    "FTIAnalyses": [],
+    "IMRCTAnalyses": [],
+    "LOSAAnalyses": [],
+    "MDRAnalyses": [],
+    "ModeledEchoesAnalyses": [],
+    "PCATGRAnalyses": [],
+    "POLAnalyses": [],
+    "PSEOBRDAnalyses": [],
+    "PYRINGAnalyses": [],
+    "QNMRationalFilterAnalyses": [],
+    "ResidualsAnalyses": [],
+    "SIMAnalyses": [],
+    "SMAAnalyses": [],
+    "SSBAnalyses": [],
+    "TIGERAnalyses": [],
+    "UnmodeledEchoesAnalyses": [],
+    "Notes": []
+  },
+  "DetectorCharacterization": {
+    "Analysts": [],
+    "Reviewers": [],
+    "ParticipatingDetectors": [],
+    "Status": "unstarted",
+    "RecommendedDetectors": [],
+    "RecommendedDuration": 4.0,
+    "DQRResults": [],
+    "Notes": []
+  }
+}

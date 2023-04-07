@@ -13,12 +13,8 @@ Prototypically, this may be done with:
     >>> import cbcflow
     >>> import json
 
-    >>> metadata = cbcflow.get_superevent("S190521q")
-    INFO:cbcflow.schema:Using schema file /home/rhiannon.udall/meta-data/meta-data/src/cbcflow/schema/cbc-meta-data-v1.schema
-    INFO:cbcflow.metadata:Found existing library file: loading
-    INFO:cbcflow.metadata:Found existing library file: loading
-    INFO:cbcflow.metadata:Found existing library file: loading
-    INFO:cbcflow.metadata:Found existing library file: loading
+    >>> metadata = cbcflow.get_superevent("S230331h")
+    INFO:cbcflow.schema:Using schema file /home/rhiannon.udall/meta-data/meta-data/src/cbcflow/schema/cbc-meta-data-v2.schema
     INFO:cbcflow.metadata:No library file: creating defaults
 
 If a specific library argument is not passed, then the default library will be used (see :doc:`configuration`), 
@@ -35,22 +31,27 @@ To see what these defaults look like, we can do:
 .. code-block::
 
     >>> metadata.pretty_print()
-    INFO:cbcflow.metadata:Metadata contents for S190521q:
+    INFO:cbcflow.metadata:Metadata contents for S230331h:
     INFO:cbcflow.metadata:{
-        "Sname": "S190521q",
+        "Sname": "S230331h",
         "Info": {
             "Labels": [],
+            "SchemaVersion": "v2",
             "Notes": []
         },
         "Publications": {
             "Papers": []
         },
-        "GraceDB": {},
+        "GraceDB": {
+            "Events": []
+        },
         "ExtremeMatter": {
             "Analyses": []
         },
         "Cosmology": {
-            "Counterparts": []
+            "Counterparts": [],
+            "CosmologyRunsUsingThisSuperevent": [],
+            "Notes": []
         },
         "RatesAndPopulations": {
             "RnPRunsUsingThisSuperevent": []
@@ -61,30 +62,41 @@ To see what these defaults look like, we can do:
             "Status": "unstarted",
             "Results": [],
             "SafeSamplingRate": 4096.0,
+            "SafeLowerMassRatio": 0.05,
             "Notes": []
         },
         "Lensing": {
             "Analyses": []
         },
         "TestingGR": {
-            "IMRCTAnalyses": [],
-            "SSBAnalyses": [],
-            "MDRAnalyses": [],
-            "PSEOBRDAnalyses": [],
+            "BHMAnalyses": [],
+            "EchoesCWBAnalyses": [],
             "FTIAnalyses": [],
-            "SIMAnalyses": []
+            "IMRCTAnalyses": [],
+            "LOSAAnalyses": [],
+            "MDRAnalyses": [],
+            "ModeledEchoesAnalyses": [],
+            "PCATGRAnalyses": [],
+            "POLAnalyses": [],
+            "PSEOBRDAnalyses": [],
+            "PYRINGAnalyses": [],
+            "QNMRationalFilterAnalyses": [],
+            "ResidualsAnalyses": [],
+            "SIMAnalyses": [],
+            "SMAAnalyses": [],
+            "SSBAnalyses": [],
+            "TIGERAnalyses": [],
+            "UnmodeledEchoesAnalyses": [],
+            "Notes": []
         },
         "DetectorCharacterization": {
             "Analysts": [],
             "Reviewers": [],
-            "Detectors": [],
+            "ParticipatingDetectors": [],
             "Status": "unstarted",
             "RecommendedDetectors": [],
-            "RecommendedMinimumFrequency": 20.0,
-            "RecommendedMaximumFrequency": 2048.0,
             "RecommendedDuration": 4.0,
             "Results": [],
-            "RecommendedChannels": [],
             "Notes": []
         }
     }
@@ -98,13 +110,16 @@ However, if we want to add GraceDB data manually, we can do:
 
 .. code-block::
 
-    >>> gracedb_info = cbcflow.gracedb.fetch_gracedb_information("S190521q")
+    >>> gracedb_info = cbcflow.gracedb.fetch_gracedb_information("S230331h")
     INFO:cbcflow.gracedb:Using configuration default GraceDB service_url
-    INFO:cbcflow.gracedb:Using GraceDB service_url: https://gracedb.ligo.org/api/
+    INFO:cbcflow.gracedb:No pipeline em bright provided for G-event G971096
     >>> metadata.update(gracedb_info)
 
 The first command fetches the data in question from GraceDB,
 while the second updates the metadata with this new information. 
+
+Note that this event was pulled from playground data (https://gracedb-playground.ligo.org/api/),
+as set in the test ``~/.cbcflow.cfg`` in use.
 
 Then the GraceDB data entry now looks like:
 
@@ -112,15 +127,62 @@ Then the GraceDB data entry now looks like:
 
     ...
        "GraceDB": {
-            "PreferredEvent": "G333655",
-            "FAR": 0.00027038072585128,
-            "GPSTime": 1242457621.830566,
-            "Instruments": "H1,L1",
-            "LastUpdate": "2023-02-27 15:08:21.085697"
-        },
+        "Events": [
+            {
+                "State": "preferred",
+                "UID": "G971096",
+                "Pipeline": "MBTA",
+                "GPSTime": 1364258362.641068,
+                "FAR": 8.958288e-10,
+                "NetworkSNR": 13.871603,
+                "H1SNR": 8.876039,
+                "Mass1": 2.080816,
+                "Mass2": 1.009446,
+                "Spin1z": -0.163851,
+                "Spin2z": 0.0,
+                "L1SNR": 10.66008,
+                "Pastro": 1,
+                "Pbbh": 0.05551,
+                "Pbns": 0.94449,
+                "Pnsbh": 0,
+                "HasNS": 1.0,
+                "HasRemnant": 1.0,
+                "HasMassGap": 0.0,
+                "XML": "https://gracedb-playground.ligo.org/api/events/G971096/files/coinc.xml",
+                "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971096/files/mbta.p_astro.json",
+                "Skymap": "https://gracedb-playground.ligo.org/api/events/G971096/files/bayestar.multiorder.fits"
+            },
+            {
+                "State": "neighbor",
+                "UID": "G971095",
+                "Pipeline": "pycbc",
+                "GPSTime": 1364258362.651855,
+                "FAR": 6.556819893444771e-08,
+                "NetworkSNR": 13.79529107668657,
+                "H1SNR": 8.9814978,
+                "Mass1": 2.0248501,
+                "Mass2": 1.0336896,
+                "Spin1z": -0.18489327,
+                "Spin2z": 0.0,
+                "L1SNR": 10.471044,
+                "Pastro": 0.05422397259151246,
+                "Pbbh": 0.0,
+                "Pbns": 0.05422397259151248,
+                "Pnsbh": 0.0,
+                "HasNS": 1.0,
+                "HasRemnant": 1.0,
+                "HasMassGap": 0.0,
+                "PipelineHasMassGap": 0.0,
+                "XML": "https://gracedb-playground.ligo.org/api/events/G971095/files/coinc.xml",
+                "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971095/files/pycbc.p_astro.json",
+                "Skymap": "https://gracedb-playground.ligo.org/api/events/G971095/files/bayestar.multiorder.fits"
+            }
+        ],
+        "Instruments": "H1,L1",
+        "LastUpdate": "2023-04-04 16:36:21.565798"
+    }
     ...
 
-As one may see, this is not a significant event, hence why you've never heard of it before!
 The LastUpdate element reflects not the date of the GraceDB entry's last update, but rather the last time at which
 this GraceDB entry of the metadata was updated. 
 
@@ -154,6 +216,7 @@ Then the ParameterEstimation section should now look like:
             "Status": "ongoing",
             "Results": [],
             "SafeSamplingRate": 4096.0,
+            "SafeLowerMassRatio": 0.05,
             "Notes": []
         },
     ...
@@ -189,6 +252,7 @@ So that ParameterEstimation now looks like:
             "Status": "ongoing",
             "Results": [],
             "SafeSamplingRate": 4096.0,
+            "SafeLowerMassRatio": 0.05,
             "Notes": []
         },
     ...
@@ -240,8 +304,9 @@ Once we are happy with our changes to the metadata, we can write it back to the 
 
 .. code-block::
 
-   >>> metadata.write_to_library(message="A git commit message")
-   INFO:cbcflow.metadata:Writing file /home/rhiannon.udall/meta-data/testing_libraries/cbcflow-gwosc-integration-testbed-library/S190521q-cbc-metadata.json
+    >>> metadata.write_to_library(message="A git commit message")
+    INFO:cbcflow.metadata:Super event: S230331h, GPSTime=1364258362.641068, chirp_mass=1.25
+    INFO:cbcflow.metadata:Writing file /home/rhiannon.udall/meta-data/testing_libraries/ru-cbcflow-test-library/S230331h-cbc-metadata.json
 
 If the library is a git repository (and our example implicitly is - this is flagged when making the MetaData object, and is default True),
 then writing to it will also automatically commit the changes. If no commit message is given then a default message will be used. 

@@ -30,7 +30,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
         service_url = config_defaults["gracedb_service_url"]
         logger.info("Using configuration default GraceDB service_url")
 
-    data = dict(GraceDB=dict(Events=[]))
+    data = dict(GraceDB=dict(Events=[]), Cosmology=dict())
 
     with GraceDb(service_url=service_url) as gdb:
         try:
@@ -149,6 +149,14 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
                             f"{pipeline.lower()}.p_astro.json"
                         ]
                         event_data["Skymap"] = file_links["bayestar.multiorder.fits"]
+                        # If this is the preferred event,
+                        # Populate the cosmology low latency skymap with this skymap
+                        # NOTE: this means that users *cannot* override this definition, since
+                        # the monitor will automatically rewrite it this way each time
+                        if event_data["State"] == "preferred":
+                            data["Cosmology"]["PreferredLowLatencySkymap"] = file_links[
+                                "bayestar.multiorder.fits"
+                            ]
                     except HTTPError:
                         logger.warning(
                             f"Could not fetch file links for G-event {gname}"

@@ -1,0 +1,142 @@
+{
+  "Sname": "S230331e",
+  "Info": {
+    "Labels": [],
+    "SchemaVersion": "v2",
+    "Notes": []
+  },
+  "Publications": {
+    "Papers": []
+  },
+  "GraceDB": {
+    "Events": [
+      {
+        "State": "neighbor",
+        "UID": "G971087",
+        "Pipeline": "pycbc",
+        "GPSTime": 1364257166.523438,
+        "FAR": 3.167545842243851e-10,
+        "NetworkSNR": 26.57350903740324,
+        "H1SNR": 13.902425,
+        "Mass1": 3.1406737,
+        "Mass2": 1.521571,
+        "Spin1z": 0.74565341,
+        "Spin2z": -0.41594437,
+        "L1SNR": 22.646721,
+        "Pastro": 0.9197303861918011,
+        "Pbbh": 0.0,
+        "Pbns": 0.37836694170003854,
+        "Pnsbh": 0.5413634444917627,
+        "HasNS": 1.0,
+        "HasRemnant": 0.965532455353504,
+        "HasMassGap": 0.6559305670175235,
+        "PipelineHasMassGap": 0.5820175514384481,
+        "XML": "https://gracedb-playground.ligo.org/api/events/G971087/files/coinc.xml",
+        "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971087/files/pycbc.p_astro.json",
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G971087/files/bayestar.multiorder.fits"
+      },
+      {
+        "State": "neighbor",
+        "UID": "G971083",
+        "Pipeline": "MBTA",
+        "GPSTime": 1364257166.519903,
+        "FAR": 2.151054e-08,
+        "NetworkSNR": 26.726592,
+        "H1SNR": 14.208775,
+        "Mass1": 4.995095,
+        "Mass2": 1.046403,
+        "Spin1z": 0.629061,
+        "Spin2z": 0.0,
+        "L1SNR": 22.636728,
+        "Pastro": 1,
+        "Pbbh": 0.018564,
+        "Pbns": 0.673687,
+        "Pnsbh": 0.307749,
+        "HasNS": 1.0,
+        "HasRemnant": 0.7294672395390934,
+        "HasMassGap": 0.10979304029304027,
+        "XML": "https://gracedb-playground.ligo.org/api/events/G971083/files/coinc.xml",
+        "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971083/files/mbta.p_astro.json",
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G971083/files/bayestar.multiorder.fits"
+      },
+      {
+        "State": "preferred",
+        "UID": "G971082",
+        "Pipeline": "spiir",
+        "GPSTime": 1364257166.52002,
+        "FAR": 4.832821905926411e-27,
+        "NetworkSNR": 26.73024633977357,
+        "H1SNR": 14.629796,
+        "Mass1": 2.687444,
+        "Mass2": 1.7477221,
+        "Spin1z": 0.60494167,
+        "Spin2z": -0.0018465323,
+        "L1SNR": 22.371302,
+        "Pastro": 1.0,
+        "Pbbh": 0.0,
+        "Pbns": 0.4107019364407024,
+        "Pnsbh": 0.5892980635592976,
+        "HasNS": 1.0,
+        "HasRemnant": 1.0,
+        "HasMassGap": 0.2032563605984658,
+        "XML": "https://gracedb-playground.ligo.org/api/events/G971082/files/coinc.xml",
+        "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971082/files/spiir.p_astro.json",
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G971082/files/bayestar.multiorder.fits"
+      }
+    ],
+    "Instruments": "H1,L1",
+    "LastUpdate": "2023-04-04 11:49:17.006481"
+  },
+  "ExtremeMatter": {
+    "Analyses": []
+  },
+  "Cosmology": {
+    "PreferredLowLatencySkymap": "https://gracedb-playground.ligo.org/api/events/G971082/files/bayestar.multiorder.fits"
+  },
+  "RatesAndPopulations": {
+    "RnPRunsUsingThisSuperevent": []
+  },
+  "ParameterEstimation": {
+    "Analysts": [],
+    "Reviewers": [],
+    "Status": "unstarted",
+    "Results": [],
+    "SafeSamplingRate": 4096.0,
+    "SafeLowerMassRatio": 0.05,
+    "Notes": []
+  },
+  "Lensing": {
+    "Analyses": []
+  },
+  "TestingGR": {
+    "BHMAnalyses": [],
+    "EchoesCWBAnalyses": [],
+    "FTIAnalyses": [],
+    "IMRCTAnalyses": [],
+    "LOSAAnalyses": [],
+    "MDRAnalyses": [],
+    "ModeledEchoesAnalyses": [],
+    "PCATGRAnalyses": [],
+    "POLAnalyses": [],
+    "PSEOBRDAnalyses": [],
+    "PYRINGAnalyses": [],
+    "QNMRationalFilterAnalyses": [],
+    "ResidualsAnalyses": [],
+    "SIMAnalyses": [],
+    "SMAAnalyses": [],
+    "SSBAnalyses": [],
+    "TIGERAnalyses": [],
+    "UnmodeledEchoesAnalyses": [],
+    "Notes": []
+  },
+  "DetectorCharacterization": {
+    "Analysts": [],
+    "Reviewers": [],
+    "ParticipatingDetectors": [],
+    "Status": "unstarted",
+    "RecommendedDetectors": [],
+    "RecommendedDuration": 4.0,
+    "DQRResults": [],
+    "Notes": []
+  }
+}
