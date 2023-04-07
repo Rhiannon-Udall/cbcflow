@@ -16,7 +16,31 @@ group_shorthands = dict(
 )
 
 
-def process_property(key, value, arg, parser, default_data, schema):
+def process_property(
+    key: str,
+    value: dict,
+    arg: str,
+    parser: argparse.ArgumentParser,
+    default_data: dict,
+    schema: dict,
+) -> None:
+    """Recursively process a schema into parser elements and default data
+
+    Parameters
+    ==========
+    key : str
+        The next key in the recursive chain to construct the property's hierarchy
+    value : dict
+        The branches of the tree associated with the key
+    arg : str
+        The recursively constructed argument flag, to add to the parser once a leaf is reached
+    parser : `argparser.ArgumentParser`
+        The parser which is being built up
+    default_data : dict
+        The default data which is being built up
+    schema : dict
+        The schema used in the construction
+    """
     arg = arg + f"-{key}"
     if value["type"] == "object":
         if "$ref" in value.keys():
@@ -110,6 +134,23 @@ def process_property(key, value, arg, parser, default_data, schema):
 def build_parser_from_schema(
     parser: argparse.ArgumentParser, schema: dict
 ) -> Tuple[argparse.ArgumentParser, dict]:
+    """Adds schema specific arguments to a parser
+
+    Parameters
+    ==========
+    parser : `argparse.ArgumentParser`
+        The initial parser to modify
+    schema : dict
+        The schema to use in modifying the parser
+
+    Returns
+    =======
+    `argparse.ArgumentParser`
+        The parser with new arguments added based on the schema
+    dict
+        The default data generated from the schema
+
+    """
     default_data = {"Sname": None}
     ignore_groups = ["Sname"]
     for group, subschema in schema["properties"].items():
@@ -125,7 +166,21 @@ def build_parser_from_schema(
     return parser, default_data
 
 
-def get_parser_and_default_data(schema):
+def get_parser_and_default_data(schema: dict):
+    """Get a filled out parser, and default data, given a schema
+
+    Parameters
+    ==========
+    schema : dict
+        The schema file to parse through
+
+    Returns
+    =======
+    `argparse.ArgumentParser`
+        A parser object, associated with this schema
+    dict
+        The default data associated with this schema
+    """
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("sname", help="The superevent SNAME")
     parser.add_argument(

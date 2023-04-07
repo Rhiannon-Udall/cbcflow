@@ -58,7 +58,7 @@ class Labeller(object):
         """
         return list()
 
-    def populate_working_index_with_labels(self):
+    def populate_working_index_with_labels(self) -> None:
         """Loop over all events in the index, and apply labels to them based on their metadata"""
         for superevent in self.library.working_index["Superevents"]:
             sname = superevent["Sname"]
@@ -72,7 +72,14 @@ LabellerType = TypeVar("LabellerType", bound=Labeller)
 class StandardLabeller(Labeller):
     """The default labeller, for use with the main CBC library"""
 
-    def __init__(self, library) -> None:
+    def __init__(self, library: "LocalLibraryDatabase") -> None:
+        """Setup the labeller
+
+        Parameters
+        ==========
+        library : `LocalLibraryDatabase`
+            A library object to access for index and metadata
+        """
         super(StandardLabeller, self).__init__(library)
 
     def label_event(self, event_metadata: "MetaData") -> list:
@@ -126,6 +133,8 @@ class LibraryParent(object):
             A path to the parent's source.
             This can be a GraceDB service URL, a git repo url,
             or the path to a git repo on the shared filesystem.
+        library : `LocalLibraryDatabase`
+            The library for which this is serving as a parent
         """
         self.source_path = source_path
         self.superevents_to_propagate = dict()
@@ -199,6 +208,8 @@ class GraceDbDatabase(LibraryParent):
         ==========
         service_url : str
             The http address for the gracedb instance that this library pairs to
+        library : `LocalLibraryDatabase`
+            The library for which this serves as a parent.
         """
         super(GraceDbDatabase, self).__init__(source_path=service_url, library=library)
 
@@ -288,12 +299,6 @@ class GraceDbDatabase(LibraryParent):
     def sync_library(self) -> None:
         """Attempts to sync library and GraceDb,
         pulling any new events and changes to GraceDB data.
-
-        Parameters:
-        ===========
-        library
-            As in metadata.MetaData
-
         """
         # setup defaults
         # monitor_config = local_library.library_config["Monitor"]
@@ -345,7 +350,7 @@ class LocalLibraryDatabase(object):
         library_path: str,
         schema: Union[dict, None] = None,
         default_data: Union[dict, None] = None,
-    ):
+    ) -> None:
         """A class to handle operations on the local library (git) database
 
         Parameters
@@ -359,6 +364,7 @@ class LocalLibraryDatabase(object):
 
         self.metadata_dict = dict()
         self.working_index = dict()
+        self.remote_has_merge_conflict = False
 
         logger.debug(
             f"Library initialized with {len(self.filelist)} superevents stored"
@@ -375,7 +381,7 @@ class LocalLibraryDatabase(object):
         """The parent to this library"""
         return self._library_parent
 
-    def initialize_parent(self, source_path=None):
+    def initialize_parent(self, source_path=None) -> None:
         """Get the LibraryParent object which will act as parent to this library
 
         Parameters
@@ -404,12 +410,12 @@ class LocalLibraryDatabase(object):
             )
 
     @property
-    def filelist(self):
+    def filelist(self) -> list:
         """The list of cbc metadata jsons in this library"""
         return glob.glob(os.path.join(self.library, "*cbc-metadata.json"))
 
     @property
-    def superevents_in_library(self):
+    def superevents_in_library(self) -> list:
         """Get a list of superevent names which are present in the library"""
         superevent_names = [x.split("/")[-1].split("-")[0] for x in self.filelist]
         return superevent_names
@@ -420,7 +426,7 @@ class LocalLibraryDatabase(object):
         return self._metadata_schema
 
     @metadata_schema.setter
-    def metadata_schema(self, schema: Union[dict, None] = None):
+    def metadata_schema(self, schema: Union[dict, None] = None) -> None:
         if schema is None:
             self._metadata_schema = get_schema()
         else:
@@ -456,7 +462,7 @@ class LocalLibraryDatabase(object):
 
     @property
     def downselected_metadata_dict(self) -> Dict[str, MetaData]:
-        """Get the snames of events which satisfy library inclusion criteria"""
+        """The metadata of events that satisfy library inclusion criteria, labelled by sname"""
         downselected_metadata_dict = dict()
         self.load_library_metadata_dict()
         for sname, metadata in self.metadata_dict.items():
@@ -484,7 +490,14 @@ class LocalLibraryDatabase(object):
                 downselected_metadata_dict[sname] = metadata
         return downselected_metadata_dict
 
-    def validate(self, data):
+    def validate(self, data) -> None:
+        """Check that data satisfies the metadata schema
+
+        Parameters
+        ==========
+        data : dict
+            The data to validate
+        """
         try:
             jsonschema.validate(data, self.metadata_schema)
         except jsonschema.ValidationError as e:
@@ -493,7 +506,7 @@ class LocalLibraryDatabase(object):
             raise jsonschema.SchemaError(e.message)
 
     @cached_property
-    def library_config(self):
+    def library_config(self) -> dict:
         """The configuration information for this library"""
         config = configparser.ConfigParser()
         config_file = os.path.join(self.library, "library.cfg")
@@ -529,7 +542,7 @@ class LocalLibraryDatabase(object):
         """Whether this library is a git repository"""
         return os.path.exists(os.path.join(self.library, ".git"))
 
-    def _initialize_library_git_repo(self):
+    def _initialize_library_git_repo(self) -> None:
         """Initialize the pygit repository object for this library"""
         if not self.is_git_repository:
             raise ValueError(
@@ -541,7 +554,7 @@ class LocalLibraryDatabase(object):
 
     def git_add_and_commit(
         self, filename, message: Union[str, None] = None, sname: Union[str, None] = None
-    ):
+    ) -> None:
         """
         Perform the git operations add and commit
 
@@ -580,9 +593,24 @@ class LocalLibraryDatabase(object):
         self.repo.git.add(filename)
         self.repo.git.commit("-m", message)
 
-    def git_push(self):
+    def git_push_to_remote(self) -> None:
         """Push changes made to the library to the tracking remote"""
+        if not hasattr(self, "repo"):
+            self._initialize_library_git_repo()
         self.repo.git.push()
+
+    def git_pull_from_remote(self) -> None:
+        """Attempt to pull from the remote"""
+        if not hasattr(self, "repo"):
+            self._initialize_library_git_repo()
+        try:
+            self.repo.git.pull()
+        except Exception as e:
+            logger.info("Pull failed:")
+            logger.info(e)
+            self.remote_has_merge_conflict = True
+            logger.info("Resetting to pre-merge state")
+            self.repo.git.reset("--merge")
 
     ############################################################################
     ############################################################################
@@ -604,7 +632,7 @@ class LocalLibraryDatabase(object):
         return index_file
 
     @property
-    def library_index_schema(self):
+    def library_index_schema(self) -> dict:
         """The schema being used for this library's index"""
         return get_schema(index_schema=True, args=["--schema-version", "v1"])
 
@@ -637,13 +665,14 @@ class LocalLibraryDatabase(object):
         self._working_index = input_dict
 
     def generate_index_from_metadata(self) -> dict:
-        """The index generated to reflect the current state of the library
+        """Generate the index reflect the current state of the library
 
         Returns
         =======
-        dict:
+        dict
             The new index contents, based on the contents of the library
         """
+        self.load_library_metadata_dict()
         # We need a starting date, and GW150914 seems appropriate
         current_most_recent = "2015-09-14 00:00:00"
         # Get a basic index
@@ -677,7 +706,7 @@ class LocalLibraryDatabase(object):
             The output of jsondiff between the current index file
             and the index generated presently
         """
-        if not hasattr(self, "working_index"):
+        if self.working_index == dict():
             self.working_index = self.generate_index_from_metadata()
         index_diff = diff(self.index_from_file, self.working_index)
         if index_diff != {}:
@@ -686,7 +715,7 @@ class LocalLibraryDatabase(object):
             logger.info(json.dumps(string_rep_diff, indent=2))
         return index_diff
 
-    def write_index_file(self):
+    def write_index_file(self) -> None:
         """Writes the new index to the library"""
         index_delta = self.check_for_index_update()
         if index_delta != dict():
@@ -703,7 +732,7 @@ class LocalLibraryDatabase(object):
         self, labeller_class: Type[LabellerType] = StandardLabeller
     ) -> None:
         """Apply labels to the working index file"""
-        if not hasattr(self, "working_index"):
+        if self.working_index == dict():
             self.working_index = self.generate_index_from_metadata()
 
         labeller_instance = labeller_class(self)

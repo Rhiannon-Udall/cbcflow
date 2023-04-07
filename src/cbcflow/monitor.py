@@ -12,11 +12,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def generate_crondor():
-    """
-    Creates a periodic condor to run the monitor action.
-    """
-
+def generate_crondor() -> None:
+    """Creates a periodic condor to run the monitor action."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--config-file",
@@ -25,6 +22,7 @@ def generate_crondor():
     )
     parser.add_argument(
         "--monitor-interval",
+        type=int,
         default=2,
         help="The interval in hours between runs of the monitoring job",
     )
@@ -86,7 +84,7 @@ def generate_crondor():
     os.system(f"condor_submit {sub_path}")
 
 
-def run_monitor():
+def run_monitor() -> None:
     """
     Pulls all superevents created within the past 30 days, creates metadata if necessary,
     then pushes back any changes made in this process
@@ -102,10 +100,22 @@ def run_monitor():
     config_values = get_cbcflow_config(args.cbcflowconfig)
     local_library = LocalLibraryDatabase(library_path=config_values["library"])
     logger.info("CBCFlow monitor is beginning sweep")
+    logger.info("Attempting to pull from remote")
+    local_library.git_pull_from_remote()
+    if local_library.remote_has_merge_conflict:
+        logger.info(
+            "Could not pull from remote, continuing with standard sync sequence\n\
+                    Before these changes can be propagated to the remote, this merge conflict\n\
+                    must be resolved manually."
+        )
     logger.info(f"Config values are {config_values}")
     local_library.initialize_parent(source_path=config_values["gracedb_service_url"])
     local_library.library_parent.sync_library()
     logger.info("Updating index file for library")
+    # In the future labelling can happen via monitor, but for now do it in gitlab
+    local_library.label_index_file()
     local_library.write_index_file()
-    local_library.git_push()
+    if not local_library.remote_has_merge_conflict:
+        logger.info("Pushing to remote")
+        local_library.git_push_to_remote()
     logger.info("Sweep completed, resting")

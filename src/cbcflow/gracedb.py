@@ -8,7 +8,7 @@ from ligo.gracedb.rest import GraceDb
 logger = logging.getLogger(__name__)
 
 
-def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None):
+def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) -> dict:
     """Get the standard GraceDB metadata contents for this superevent
 
     Parameters

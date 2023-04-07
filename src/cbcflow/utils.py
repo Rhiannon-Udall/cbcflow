@@ -68,7 +68,7 @@ def get_date_last_modified(path: str) -> str:
 
     Returns
     =======
-    date_last_modified : str
+    str
         The string formatting of the datetime this file was last modified
 
     """
@@ -88,7 +88,7 @@ def get_md5sum(path: str) -> str:
 
     Returns
     =======
-    md5sum : str
+    str
         A string of the md5sum for the file at the path location
     """
     # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
@@ -106,7 +106,7 @@ def fill_out_linked_file(path: str, linked_file_dict: dict = dict()) -> dict:
     ==========
     path : str
         A path - absolute or relative - to the file on the cluster.
-    linked_file_dict : dict
+    linked_file_dict : dict, optional
         A pre-existing object to modify, if applicable
 
     Returns

@@ -19,7 +19,7 @@ from .process import process_user_input
 from .schema import get_schema
 
 
-def setup_logger():
+def setup_logger() -> "logging.Logger":
     """Setup a logger for CBCFlow"""
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ def setup_args_metadata() -> Tuple[argparse.Namespace, "MetaData"]:
     return args, metadata
 
 
-def pull():
+def pull() -> None:
     """Pull updates from GraceDB to the library"""
     logger = setup_logger()
     args, metadata = setup_args_metadata()
@@ -78,7 +78,7 @@ def pull():
             default_metadata.write_to_library()
 
 
-def update():
+def update() -> None:
     """Update the library metadata according to input arguments"""
     args, metadata = setup_args_metadata()
     if metadata.library_file_exists is False:
@@ -95,7 +95,7 @@ def update():
         metadata.write_to_library(check_changes=check_changes)
 
 
-def print_metadata():
+def print_metadata() -> None:
     """Print the metadata for a given event in a given library, as passed in args"""
     # Read in command line arguments
     schema = get_schema()
@@ -122,7 +122,7 @@ def print_metadata():
     metadata.pretty_print()
 
 
-def from_file():
+def from_file() -> None:
     """Given a superevent and an update file, apply the updates"""
     logger = setup_logger()
 
@@ -201,7 +201,8 @@ def from_file():
     metadata.write_to_library()
 
 
-def validate_library():
+def validate_library() -> None:
+    """Go through the library, validating that all metadata files satisfy the schema"""
     # Read in command line arguments
     schema = get_schema()
     _, default_data = get_parser_and_default_data(schema)
@@ -231,4 +232,6 @@ def validate_library():
 
 
 class ValidationError(Exception):
+    """An error in schema validation"""
+
     pass
