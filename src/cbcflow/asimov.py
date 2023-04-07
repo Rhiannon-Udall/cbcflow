@@ -1,7 +1,6 @@
 import cbcflow
 import logging
 import os
-import numpy as np
 import glob
 
 from asimov.event import Event
@@ -196,19 +195,8 @@ class Applicator:
         data = {}
         channels = data["channels"] = {}
         data["segment length"] = detchar["RecommendedDuration"]
-        # We want to check these quantities, which should line up, actually do
-        start_end_delta = (
-            detchar["RecommendedEndTime"] - detchar["RecommendedStartTime"]
-        )
-        if not np.isclose(start_end_delta, detchar["RecommendedDuration"], atol=0.1):
-            # This is a guess at how close these have to be to be ~the same
-            # it doesn't matter if they vary by a decisecond
-            # it does matter if they vary by a factor of 2
-            logger.warning(
-                "The values for RecommendedStart/EndTime do not line up with\
-                           the value of RecommendedDuration.\
-                           Please check that both are up to date!"
-            )
+        # NOTE there are also detector specific quantities "RecommendedStart/EndTime"
+        # but it is not clear how these should be reconciled with
 
         for ifo in ifos:
             # Grab IFO specific quantities
