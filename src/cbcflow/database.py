@@ -137,13 +137,13 @@ class LibraryParent(object):
             The library for which this is serving as a parent
         """
         self.source_path = source_path
-        self.superevents_to_propagate = dict()
+        self.superevents_to_propagate = list()
         self.library = library
         logger.info(
             f"Parent of library {self.library} initialized with source path {self.source_path}"
         )
 
-    def pull(self, sname: str) -> dict():
+    def pull(self, sname: str) -> dict:
         """A method for pulling superevent metadata from this parent source.
         Child classes should overwrite this method.
 
@@ -472,10 +472,17 @@ class LocalLibraryDatabase(object):
             library_created_latest = to_gps(
                 self.library_config["Events"]["created-before"]
             )
+            preferred_far = 1
+            preferred_time = 0
             for event in metadata.data["GraceDB"]["Events"]:
                 if event["State"] == "preferred":
                     preferred_far = event["FAR"]
                     preferred_time = to_gps(event["GPSTime"])
+            if preferred_far == 1 or preferred_time == 0:
+                raise ValueError(
+                    "No preferred event was identified,\
+                                 something is seriously wrong!"
+                )
             if sname in self.library_config["Events"]["snames-to-include"]:
                 downselected_metadata_dict[sname] = metadata
             elif sname in self.library_config["Events"]["snames-to-exclude"]:

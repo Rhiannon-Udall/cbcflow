@@ -12,6 +12,8 @@ import jsondiff
 
 from .process import process_update_json
 from .utils import get_date_last_modified
+from .parser import get_parser_and_default_data
+from .schema import get_schema
 
 if TYPE_CHECKING:
     from .database import LocalLibraryDatabase
@@ -63,6 +65,11 @@ class MetaData(object):
         self.no_git_library = no_git_library
         self._loaded_data = None
 
+        if schema is None:
+            schema = get_schema()
+        if default_data is None:
+            _, default_data = get_parser_and_default_data(schema=schema)
+
         logger.debug(f"Loading metadata object for superevent {self.sname}")
 
         if self.library_file_exists:
@@ -81,6 +88,15 @@ class MetaData(object):
     ####                  System Properties and Operations                  ####
     ############################################################################
     ############################################################################
+
+    @property
+    def data(self) -> dict:
+        """The MetaData object's actual data dict"""
+        return self._data
+
+    @data.setter
+    def data(self, new_dict: dict) -> None:
+        self._data = new_dict
 
     @property
     def library(self) -> "LocalLibraryDatabase":
@@ -121,7 +137,7 @@ class MetaData(object):
         return self.get_filename(self.sname)
 
     @property
-    def library_file(self) -> None:
+    def library_file(self) -> str:
         """The full metadata's file path, found in its corresponding library"""
         return os.path.join(self.library.library, self.filename)
 
