@@ -70,7 +70,8 @@ LabellerType = TypeVar("LabellerType", bound=Labeller)
 
 
 class StandardLabeller(Labeller):
-    """The default labeller, for use with the main CBC library"""
+    """The default labeller. NOTE this is presently considered an example of barebones usage only!
+    For ongoing development, please write an analogous Labeller, within the library's git CI."""
 
     def __init__(self, library: "LocalLibraryDatabase") -> None:
         """Setup the labeller
