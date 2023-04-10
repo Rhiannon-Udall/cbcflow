@@ -151,7 +151,7 @@ We present our example (as of time of writing) of how to implement a python scri
             library : `LocalLibraryDatabase`
                 A library object to access for index and metadata
             """
-            super(StandardLabeller, self).__init__(library)
+            super(DevelopmentLibraryLabeller, self).__init__(library)
 
         def label_event(self, event_metadata: "cbcflow.metadata.MetaData") -> list:
             """Generate the labels we want for this event
@@ -231,7 +231,7 @@ We present our example (as of time of writing) of how to implement a python scri
     repo = library.repo
 
     # Extract last message
-    message = library.repo[library.repo.head.target].message
+    message = library.repo.head.commit.message
 
     # Extract changes
     for element in message.split(" "):
