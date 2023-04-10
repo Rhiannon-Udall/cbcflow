@@ -1,3 +1,4 @@
+"""Methods for fetching cbcflow configuration information"""
 import configparser
 import logging
 import os
@@ -5,7 +6,19 @@ import os
 logger = logging.getLogger(__name__)
 
 
-def get_cbcflow_config(config_file="~/.cbcflow.cfg"):
+def get_cbcflow_config(config_file: str = "~/.cbcflow.cfg") -> dict:
+    """Get the configuration information for cbcflow
+
+    Parameters
+    ==========
+    config_file : str, optional
+        The path to the configuration file, defaults to ~/.cbcflow.cfg
+
+    Returns
+    =======
+    dict
+        The configuration data, from defaults and the proferred configuration file
+    """
     config = configparser.ConfigParser()
     cfile = os.path.expanduser(config_file)
     config_defaults = dict(

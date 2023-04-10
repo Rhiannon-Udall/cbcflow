@@ -24,6 +24,7 @@ Finally, we provide autobuilt API documentation.
    library-setup
    monitor-usage
    library-indices
+   library-index-labelling
 
 .. toctree::
    :maxdepth: 1

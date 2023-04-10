@@ -1,3 +1,4 @@
+"""Miscellaneous functions, especially relating to OS I/O"""
 import hashlib
 import os
 import subprocess
@@ -6,7 +7,18 @@ from jsondiff import Symbol
 
 
 def standardize_list(inlist: list) -> list:
-    """Creates a list sorted in a standard way"""
+    """Creates a list sorted in a standard way
+
+    Parameters
+    ==========
+    inlist : list
+        The input list
+
+    Returns
+    =======
+    list
+        inlist sorted in a way - how doesn't matter, just that it's consistent
+    """
     inlist = list(set(inlist))
     inlist = sorted(inlist)
     return inlist
@@ -15,6 +27,11 @@ def standardize_list(inlist: list) -> list:
 def get_cluster() -> str:
     """
     Get the cluster this is running on
+
+    Returns
+    =======
+    str
+        The cluster name, in quasi-conventional form
     """
     hostname = str(subprocess.check_output(["hostname", "-f"]))
     if "ligo-wa" in hostname:
@@ -46,13 +63,13 @@ def get_date_last_modified(path: str) -> str:
     Get the date this file was last modified
 
     Parameters
-    -------------
+    ==========
     path
         A path to the file (on this filesystem)
 
     Returns
-    -------------
-    date_last_modified : str
+    =======
+    str
         The string formatting of the datetime this file was last modified
 
     """
@@ -66,13 +83,13 @@ def get_md5sum(path: str) -> str:
     Get the md5sum of the file given the path
 
     Parameters
-    ----------
+    ==========
     path : str
         A path to the file (on this filesystem)
 
     Returns
-    --------------
-    md5sum : str
+    =======
+    str
         A string of the md5sum for the file at the path location
     """
     # https://stackoverflow.com/questions/16874598/how-do-i-calculate-the-md5-checksum-of-a-file-in-python
@@ -90,7 +107,7 @@ def fill_out_linked_file(path: str, linked_file_dict: dict = dict()) -> dict:
     ==========
     path : str
         A path - absolute or relative - to the file on the cluster.
-    linked_file_dict : dict
+    linked_file_dict : dict, optional
         A pre-existing object to modify, if applicable
 
     Returns
