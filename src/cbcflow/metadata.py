@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 class MetaData(object):
+    """The core object for superevent level metadata, connecting to stored json information"""
+
     def __init__(
         self,
         sname: str,
@@ -32,7 +34,7 @@ class MetaData(object):
         default_data: Union[dict, None] = None,
         no_git_library: bool = False,
     ) -> None:
-        """A object to store and interact with a metadata object
+        """Setup the code level representation of the metadata
 
         Parameters
         ----------
