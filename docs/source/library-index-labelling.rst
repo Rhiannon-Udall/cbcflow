@@ -1,6 +1,8 @@
-# Index Labelling
+Index Labelling
+===============
 
-## Understanding Labelling
+Understanding Labelling
+-----------------------
 
 The CBCFlow labeller exists principally for usage with the gitlab CI, but can be extended in the future.
 The central concept is that we want a way to flexibly apply labels to index entries based on the metadata of superevents.
@@ -13,7 +15,8 @@ the new Labeller subclass to the method ``label_index_file`` method of a ``Local
 That instance will then have an index where for each ``Superevent`` element there is a field ``Labels`` which contains all 
 of the labels assigned according to the desired algorithm. 
 
-## Writing Your Own ``Labeller`` Child Class
+Writing Your Own ``Labeller`` Child Class
+-----------------------------------------
 
 We will go over how one would construct the ``StandardLabeller`` as an example.
 The standard incantation to subclass in the desired way is:
@@ -90,7 +93,8 @@ One thing worth noting is the peculiar format of these labels: chosen to fit wit
 For more details on how that works, see below, though note that there is more flexibility, since that is not directly part of ``cbcflow``.
 
 
-## Using the Labeller
+Using the Labeller
+------------------
 
 To use the labeller, assuming we have a library with populated metadata, we do (assuming we have already defined a ``Labeller`` as described above):
 
@@ -114,7 +118,8 @@ That's all!
 For practical purposes, you will also want to write code for handling the gitlab CI, which is more involved, but from the CBCFlow side this is it.
 All user development is about the logic in ``label_event``, which can be made to reflect whatever purposes you have. 
 
-## Gitlab CI Usage
+Gitlab CI Usage
+---------------
 
 Much of the integration with the gitlab CI depends more on the gitlab python API than cbcflow per se,
 and so it's encouraged to use that documentation for further information.
