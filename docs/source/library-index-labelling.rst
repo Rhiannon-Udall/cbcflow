@@ -116,3 +116,137 @@ All user development is about the logic in ``label_event``, which can be made to
 
 ## Gitlab CI Usage
 
+Much of the integration with the gitlab CI depends more on the gitlab python API than cbcflow per se,
+and so it's encouraged to use that documentation for further information.
+We present our example (as of time of writing) of how to implement a python script which may be called in the CI to apply labels and read those labels into corresponding issues for each event.
+
+.. code-block::
+
+    import cbcflow
+    import gitlab
+    import os
+    import re
+    import logging
+    import json
+
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(level=logging.INFO)
+
+    # Modification on original script at
+    # https://git.ligo.org/cbc/projects/cbc-workflow-test-library-a/-/blob/main/update_issue_tracker.py
+
+    # Read in the local library and metadata_dict
+    library = cbcflow.database.LocalLibraryDatabase(
+        library_path=".",
+    )
+
+    class DevelopmentLibraryLabeller(cbcflow.database.Labeller):
+        """This is a labeller being used for test development, defined within the library to allow rapid development"""
+
+        def __init__(self, library: "cbcflow.database.LocalLibraryDatabase") -> None:
+            """Setup the labeller
+
+            Parameters
+            ==========
+            library : `LocalLibraryDatabase`
+                A library object to access for index and metadata
+            """
+            super(StandardLabeller, self).__init__(library)
+
+        def label_event(self, event_metadata: "cbcflow.metadata.MetaData") -> list:
+            """Generate the labels we want for this event
+
+            Parameters
+            ==========
+            event_metadata : `cbcflow.metadata.MetaData`
+                The metadata for a given event, to generate labels with
+
+            Returns
+            =======
+            list
+                The list of labels from the event metadata
+            """
+            # Get preferred event
+            preferred_event = None
+            for event in event_metadata.data["GraceDB"]["Events"]:
+                if event["State"] == "preferred":
+                    preferred_event = event
+
+            labels = []
+            if preferred_event:
+                # Add PE significance labels
+                pe_high_significance_threshold = 1e-30
+                pe_medium_significance_threshold = 1e-10
+                if preferred_event["FAR"] < pe_high_significance_threshold:
+                    labels.append("PE::high-significance")
+
+                elif preferred_event["FAR"] < pe_medium_significance_threshold:
+                    labels.append("PE::medium-significance")
+                else:
+                    labels.append("PE::below-threshold")
+
+                # Add PE status labels
+                status = event_metadata.data["ParameterEstimation"]["Status"]
+                labels.append(f"PE-status::{status}")
+
+            return labels
+
+    # Generate an index for our library
+    # This is technically unneceessary since it's done by label_index_file
+    # But included here for demonstration purposes
+    library.generate_index_from_metadata()
+
+    # Get the labelling using the Labeller we wrote
+    library.label_index_file(DevelopmentLibraryLabeller)
+
+    # A convenience object
+    labelled_index_superevents = {x["Sname"]:x for x in library.working_index["Superevents"]}
+
+    # Set up the gitlab project
+    gl = gitlab.Gitlab(os.environ['CI_SERVER_URL'], private_token=os.environ['PRIVATE_TOKEN'])
+    project = gl.projects.get(os.environ['CI_PROJECT_ID'])
+
+
+    # Get a list of existing issues
+    issues = project.issues.list(get_all=True, state="opened")
+    issue_dict = {issue.title: issue for issue in issues}
+
+    logger.info(issue_dict.keys())
+
+    # Check all events have issues
+    for sname in labelled_index_superevents.keys():
+        if sname not in issue_dict.keys():
+            issue_details = {
+                'title': sname,
+                'description': f'Discussion of {sname}',
+            }
+            issue = project.issues.create(issue_details)
+
+
+    # Pull latest set of issues
+    issue_dict = {issue.title: issue for issue in issues}
+
+    # Extract git repo
+    library._initialize_library_git_repo()
+    repo = library.repo
+
+    # Extract last message
+    message = library.repo[library.repo.head.target].message
+
+    # Extract changes
+    for element in message.split(" "):
+        if re.match("^S[0-9]{6}[a-z]+", element):
+            sname = element
+            issue_dict[sname].discussions.create({'body': message})
+
+    # Set the labels for all issues
+    for sname, issue in issue_dict.items():
+        if sname in labelled_index_superevents.keys():
+            issue = issue_dict[sname]
+            superevent_data = labelled_index_superevents[sname]
+
+            for label_string in superevent_data["Labels"]:
+                label = project.labels.get(label_string)
+                issue.labels.append(label.name)
+
+            issue.save()

@@ -480,10 +480,11 @@ class LocalLibraryDatabase(object):
                     preferred_far = event["FAR"]
                     preferred_time = to_gps(event["GPSTime"])
             if preferred_far == 1 or preferred_time == 0:
-                raise ValueError(
-                    "No preferred event was identified,\
-                                 something is seriously wrong!"
+                logger.warning(
+                    f"No preferred event was identified for superevent {sname}: something is seriously wrong!\n\
+                        Accordingly, this event will not be included in downselected_metadata_dict"
                 )
+                continue
             if sname in self.library_config["Events"]["snames-to-include"]:
                 downselected_metadata_dict[sname] = metadata
             elif sname in self.library_config["Events"]["snames-to-exclude"]:
