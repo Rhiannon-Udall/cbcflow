@@ -18,7 +18,7 @@ of the labels assigned according to the desired algorithm.
 Writing Your Own ``Labeller`` Child Class
 -----------------------------------------
 
-We will go over how one would construct the ``StandardLabeller`` as an example.
+We will go over how one would construct a Labeller called ``MyLabeller`` as an example.
 The standard incantation to subclass in the desired way is:
 
 .. code-block::
@@ -26,8 +26,7 @@ The standard incantation to subclass in the desired way is:
     from cbcflow.database import Labeller
 
     class MyLabeller(Labeller):
-        """The default labeller. NOTE this is presently considered an example of barebones usage only!
-        For ongoing development, please write an analogous Labeller, within the library's git CI."""
+        """An example of writing our own labeller"""
 
         def __init__(self, library: "LocalLibraryDatabase") -> None:
             """Setup the labeller
@@ -37,7 +36,7 @@ The standard incantation to subclass in the desired way is:
             library : `LocalLibraryDatabase`
                 A library object to access for index and metadata
             """
-            super(StandardLabeller, self).__init__(library)
+            super(MyLabeller, self).__init__(library)
 
 Now, most of the functionality is taken care of by subclassing ``Labeller``.
 The only thing we need to define is ``label_event`` which will take in superevent metadata and put out a list of labels.
