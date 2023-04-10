@@ -1,3 +1,4 @@
+"""Class object for core metadata"""
 from __future__ import annotations
 
 import copy

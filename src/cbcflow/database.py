@@ -1,3 +1,4 @@
+"""Class objects for databases, and for providing supplemental database behavior"""
 import configparser
 import copy
 import glob

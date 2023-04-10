@@ -1,3 +1,4 @@
+"""Methods for setting up and running monitors through htcondor"""
 import argparse
 import logging
 import os

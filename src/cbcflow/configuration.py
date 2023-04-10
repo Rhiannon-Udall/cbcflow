@@ -1,3 +1,4 @@
+"""Methods for fetching cbcflow configuration information"""
 import configparser
 import logging
 import os

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # PYTHON_ARGCOMPLETE_OK
 
+"""Client level methods for cbcflow (i.e. those that use argument parsing)"""
+
 import argparse
 import copy
 import glob

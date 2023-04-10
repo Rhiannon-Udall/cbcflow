@@ -1,3 +1,4 @@
+"""Miscellaneous functions, especially relating to OS I/O"""
 import hashlib
 import os
 import subprocess

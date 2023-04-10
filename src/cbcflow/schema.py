@@ -1,3 +1,4 @@
+"""Methods for fetching schema information"""
 import importlib.resources as importlib_resources
 import json
 import logging

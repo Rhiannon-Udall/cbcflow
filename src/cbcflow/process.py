@@ -1,3 +1,4 @@
+"""Low level methods for intelligently updating json dictionaries"""
 from __future__ import annotations
 
 import argparse
