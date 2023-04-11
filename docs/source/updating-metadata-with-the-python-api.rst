@@ -1,10 +1,10 @@
 Python Metadata Interface
 =========================
 
-Core Usage
-----------
+Reading Metadata
+----------------
 
-In addition to the :doc:`command-line-usage`, python scripts may conveniently edit metadata. 
+One of the most common interactions we may have with ``cbcflow`` metadata is to read it programmatically.
 To do this, we start by loading in metadata for usage.
 Prototypically, this may be done with: 
 
@@ -103,9 +103,14 @@ To see what these defaults look like, we can do:
 
 Notably, this default data *does not* include the GraceDB information
 - updating the superevent with this information requires specifically fetching that data from GraceDB.
+
+
+Updating From GraceDB
+---------------------
+
 When interacting with the central CBC library or it's derivatives
 (which are directly or indirectly kept up to date with GraceDB)
-this should not be an issue. 
+GraceDB information should be automatically kept up to date.
 However, if we want to add GraceDB data manually, we can do:
 
 .. code-block::
@@ -185,6 +190,9 @@ Then the GraceDB data entry now looks like:
 
 The LastUpdate element reflects not the date of the GraceDB entry's last update, but rather the last time at which
 this GraceDB entry of the metadata was updated. 
+
+Updating Metadata
+-----------------
 
 Now that metadata has been loaded, we may edit it.
 We can borrow an example from :doc:`command-line-usage`, by defining our update json: 
@@ -299,6 +307,9 @@ For example, the last yaml update method would be rendered as:
 
 These do get rather complicated to construct, and it is strongly recommended that when rendering them one should use the ``json.dumps`` method with an indent of at least 2.
 However, for automated scripts this should be substantially easier to interact with. 
+
+Writing Our Changes to the File
+-------------------------------
 
 Once we are happy with our changes to the metadata, we can write it back to the library:
 
