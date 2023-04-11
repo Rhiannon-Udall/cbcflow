@@ -4,7 +4,7 @@ Basics of Metadata
 Why Metadata
 ------------
 
-The central purpose of ``CBCFlow`` is to provide a central database for the relevant information about all CBC analyses.
+The central purpose of ``cbcflow`` is to provide a central database for the relevant information about all CBC analyses.
 However, we do not want to store these data themselves, due to both size and usability constraints.
 Instead, we store the metadata about these analyses which is important for downstream users and internal communication.
 For example, we do not store the full configuration of a parameter estimation run, but we do store the path to where one may found it.
@@ -15,15 +15,55 @@ What Does Metadata Look Like
 
 Metadata takes the form of json files, governed by a schema.
 In python terms, they are nested combinations of dictionaries and lists, with the lowest level elements being primitive objects like strings or numbers.
-This structure is fixed ahead of time, so that, for example, the list of key words that may go into the parameter estimation section of the schema is immutable.
-That structure can be read in :doc:`schema-visualization`, and in order to accommodate all the possible inputs, it is very complex. However, the structural elements which can go into it are more limited.
-For guidance on how to understand it, check out :doc:`reading-the-schema`
+For example, say I am trying to describe a book in terms of some useful metadata:
+
+.. code-block::
+
+    {
+        "PublicationInformation":{
+            "Author": "Joan Oates",
+            "CopyrightYears": [1979, 1986],
+            "PublisherInfo": {
+                "Name" : "Thames and Hudson",
+                "City" : "London, UK" 
+            }
+        },
+        "Content":{
+            "Summary" : "The history of Babylonia",
+            "Topics" : [
+                {
+                    "UID":"Old Babylon",
+                    "YearsRelevant": "c. 1900 BCE - 1600 BCE",
+                    "Language": "Akkadian"
+                },
+                {
+                    "UID": "Neo-Babylon",
+                    "YearsRelevant": "c. 626 BCE - 539 BCE",
+                    "Language": "Aramaic"
+                }
+            ]
+        }
+    }
+
+Here we have two pieces of information about a book: publication information and content.
+The publication information includes some natural elements like the author, the publisher, and years of publication.
+The content include a "Summary" field, as well as a "Topics" array that contains a number of "Topic" objects, each with a unique ID ("UID") and some information.
+
+This structure is fixed ahead of time, so for example the keys in "PublisherInfo", the type of "CopyrightYears", and the template for "Topic" objects are all fixed.
+For guidance on how to read and understand these structures, check out :doc:`reading-the-schema`, which establishes an example schema corresponding to our example metadata here. 
+For actual CBC metadata, that structure can be read in :doc:`schema-visualization`, and in order to accommodate all the possible inputs, it is very complex.
+However, the structural elements which can go into it are more limited, and once these basic building blocks are understood one may infer the meaning of each field.
 
 How to Interact With Metadata
 -----------------------------
 
 In essentially all cases, interacting with metadata means one of two things: reading it or updating it.
-If you only want to look at a single value for a field, it is likely easiest to read it in the GWOSC visualization :doc`gwosc`.
-However, if you want to harvest data in bulk, you will likely want to do so via the python API, basic usage of which is detailed at :doc:`updating-metadata-with-the-python-api`
+If you only want to look at a single value for a field, it is likely easiest to read it in the GWOSC visualization :doc:`gwosc`.
+However, if you want to harvest data in bulk, you will likely want to do so via the python API, basic usage of which is detailed at :doc:`updating-metadata-with-the-python-api`.
+
+To update the metadata, you similarly have a couple options. 
+If you wish to manually change the data, ``cbcflow`` provides command line options, with details here :doc:`updating-metadata-from-the-command-line`.
+If you wish to change the data programmatically with ``python``, basics can be found here :doc:`updating-metadata-with-the-python-api`, and the details of the api are found at :doc:`api/cbcflow`
+
 
 
