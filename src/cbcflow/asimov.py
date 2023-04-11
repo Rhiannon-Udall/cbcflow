@@ -14,10 +14,10 @@ class Collector:
         "ready": "unstarted",
         "processing": "ongoing",
         "running": "ongoing",
-        "stuck": "hold",
-        "restart": "hold",
+        "stuck": "ongoing",
+        "restart": "ongoing",
         "stopped": "cancelled",
-        "finished": "complete",
+        "finished": "ongoing",
         "uploaded": "complete",
     }
 
@@ -56,9 +56,14 @@ class Collector:
                         analysis_output["WaveformApproximant"] = str(
                             analysis.meta["waveform"]["approximant"]
                         )
-                if "ini" in analysis.meta:
+                try:
+                    ini = analysis.pipeline.production.event.repository.find_prods(
+                        analysis.pipeline.production.name, analysis.pipeline.category
+                    )[0]
                     analysis_output["ConfigFile"] = {}
-                    analysis_output["ConfigFile"]["Path"] = analysis.meta["ini"]
+                    analysis_output["ConfigFile"]["Path"] = ini
+                except IndexError:
+                    logger.warning("Could not find ini file for this analysis")
                 analysis_output["Notes"] = [analysis.comment]
                 if analysis.finished:
                     # Get the results
@@ -87,7 +92,11 @@ class Collector:
                             ]
                         else:
                             # If greater than one, we will try to prefer the hdf5 results
-                            hdf_results = [x for x in results["samples"] if "hdf5" in x]
+                            hdf_results = [
+                                x
+                                for x in results["samples"]
+                                if "hdf5" in x or "h5" in x
+                            ]
                             if len(hdf_results) == 0:
                                 # If there aren't any, this implies we have more than one result, and they are all jsons
                                 # This is a bad situation, because it implies CBCFlow
