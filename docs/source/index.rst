@@ -13,6 +13,7 @@ Finally, we provide autobuilt API documentation.
 
    configuration
    what-is-metadata
+   reading-the-schema
    updating-metadata-from-the-command-line
    updating-metadata-with-the-python-api
    gwosc
@@ -31,7 +32,6 @@ Finally, we provide autobuilt API documentation.
    :maxdepth: 1
    :caption: Schema Information:
 
-   reading-the-schema
    schema-visualization
    adding-to-the-schema
 

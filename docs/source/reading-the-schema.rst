@@ -2,6 +2,8 @@ How To Read The Schema
 ======================
 
 In order to use ``cbcflow`` effectively, it is critical to understand how to read the schema. 
+This will go over how to do so, using a simple example schema.
+It will also discuss the core building blocks of the schema, and some details of how to interact with them.
 
 Important Concepts
 ------------------
@@ -16,7 +18,8 @@ From the example in :doc:`what-is-metadata`, this is something like
 .. code-block::
 
     "PublicationInformation":{
-        "Author": "Joan Oates",
+        "Title": "Babylon",
+        "Author": "Joan Oates"
     }
 
 We can make that one more step complicated by making some values arrays of primitive objects, such as:
@@ -24,8 +27,9 @@ We can make that one more step complicated by making some values arrays of primi
 .. code-block::
 
     "PublicationInformation":{
+        "Title": "Babylon",
         "Author": "Joan Oates",
-        "CopyrightYears": [1979, 1986],
+        "CopyrightYears": [1979, 1986]
     }
 
 Furthermore, we can have dictionaries within dictionaries, building up to:
@@ -33,6 +37,7 @@ Furthermore, we can have dictionaries within dictionaries, building up to:
 .. code-block::
 
     "PublicationInformation":{
+        "Title": "Babylon",
         "Author": "Joan Oates",
         "CopyrightYears": [1979, 1986],
         "PublisherInfo": {
@@ -75,6 +80,13 @@ For an example of how this works in practice, we can look back at our example sc
         ]
     }
 
+Linked Files
+^^^^^^^^^^^^
+
+There's one special concept which exists only in ``cbcflow`` meta-data: linked files.
+These are files which exist in the cluster - importantly, they consist not only of a path, but also other information.
+What's special about them is how they are populated: when updating, you need only specify a valid path within the cluster you are on: ``cbcflow`` takes care of the rest.
+Optionally, you may also point to a url for convenience, but these are not required.
 
 Dissecting an Example Schema
 ----------------------------
@@ -83,3 +95,14 @@ Now, lets look at the schema which describes the above example metadata.
 
 .. raw:: html
     :file: example_mini_schema/schema_doc.html
+
+Each element can be expanded to learn more about it.
+If it's a leaf node in the schema's tree, then you'll get information about the values.
+If it branches out, you will also see more collapsible elements, and so on in turn.
+For objects in arrays such as "Topics", you can learn about the properties of that object template.
+
+The Real Schema
+---------------
+
+Now that we understand how to read the schema, we can proceed to updating metadata.
+For this, you will want to have a copy of the true schema open - you can find this at :doc:`schema-visualization`.

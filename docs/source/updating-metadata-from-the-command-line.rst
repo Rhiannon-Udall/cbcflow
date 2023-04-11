@@ -1,6 +1,14 @@
 Command Line Interface
 ==========================
 
+For many users, the main tool for interacting with ``cbcflow`` metadata are the suite of command line tools.
+These allow you to:
+* Print the contents of a metadata file
+* Pull GraceDB information into a metadata file
+* Update a metadata file using a series of flags
+* Update a metadata file by writing a file containing many changes
+This documentation will go over how to use each of those, and also provide an introduction to updating metadata in general.
+
 Pulling From GraceDB
 --------------------
 

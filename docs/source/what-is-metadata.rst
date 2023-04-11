@@ -1,6 +1,9 @@
 Basics of Metadata
 ==================
 
+This page covers the basics of metadata: what it is, how to read it, and pointers to the pages that show how to interact with it. 
+If you're new to ``cbcflow``, this is the place to start!
+
 Why Metadata
 ------------
 
@@ -22,6 +25,7 @@ For example, say I am trying to describe a book in terms of some useful metadata
     {
         "PublicationInformation":{
             "Author": "Joan Oates",
+            "Title":"Babylon"
             "CopyrightYears": [1979, 1986],
             "PublisherInfo": {
                 "Name" : "Thames and Hudson",
@@ -46,7 +50,7 @@ For example, say I am trying to describe a book in terms of some useful metadata
     }
 
 Here we have two pieces of information about a book: publication information and content.
-The publication information includes some natural elements like the author, the publisher, and years of publication.
+The publication information includes some natural elements like the title, author, the publisher, and years of publication.
 The content include a "Summary" field, as well as a "Topics" array that contains a number of "Topic" objects, each with a unique ID ("UID") and some information.
 
 This structure is fixed ahead of time, so for example the keys in "PublisherInfo", the type of "CopyrightYears", and the template for "Topic" objects are all fixed.
@@ -58,12 +62,21 @@ How to Interact With Metadata
 -----------------------------
 
 In essentially all cases, interacting with metadata means one of two things: reading it or updating it.
-If you only want to look at a single value for a field, it is likely easiest to read it in the GWOSC visualization :doc:`gwosc`.
+If you only want to look at a single value for a field, it is likely easiest to read it in :doc:`gwosc`.
 However, if you want to harvest data in bulk, you will likely want to do so via the python API, basic usage of which is detailed at :doc:`updating-metadata-with-the-python-api`.
 
 To update the metadata, you similarly have a couple options. 
-If you wish to manually change the data, ``cbcflow`` provides command line options, with details here :doc:`updating-metadata-from-the-command-line`.
-If you wish to change the data programmatically with ``python``, basics can be found here :doc:`updating-metadata-with-the-python-api`, and the details of the api are found at :doc:`api/cbcflow`
+If you wish to manually change the data, ``cbcflow`` provides command line options, with details at :doc:`updating-metadata-from-the-command-line`.
+If you wish to change the data programmatically with ``python``, basics can be found at :doc:`updating-metadata-with-the-python-api`, and the details of the api are found at :doc:`api/cbcflow`
 
+Where Do You Find Real Metadata?
+--------------------------------
+
+In ``cbcflow`` itself, metadata is stored in libraries, which are git repositories containing metadata jsons, along with a bit of scaffolding.
+More detail on various aspects of libraries can be found in the expert usage section, specifically :doc:`library-setup` and :doc:`library-indices`.
+For now though, let's assume that there already exists a library, and you just want to modify it. 
+You first want to make a fork of the library, and clone the fork: the central CBC library will be protected, so only automated users can push directly.
+Everyone else should update their forks, then submit and MR which will be approved by an expert user.
+Once you have a clone of your fork, make sure you have gotten ``cbcflow`` configured according to the instructions in :doc:`configuration`, then you can proceed onwards to being updating metadata!
 
 
