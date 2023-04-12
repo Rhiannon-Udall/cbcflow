@@ -195,7 +195,7 @@ class Applicator:
         detchar = metadata.data["DetectorCharacterization"]
         grace = metadata.data["GraceDB"]
         ifos = detchar["RecommendedDetectors"]
-        participating_detectors = detchar["ParticipatingDetectors"].split(",")
+        participating_detectors = detchar["ParticipatingDetectors"]
         quality = {}
         max_f = quality["maximum frequency"] = {}
         min_f = quality["minimum frequency"] = {}
@@ -203,6 +203,7 @@ class Applicator:
         # Data settings
         data = {}
         channels = data["channels"] = {}
+        frame_types = data["frame types"] = {}
         data["segment length"] = detchar["RecommendedDuration"]
         # NOTE there are also detector specific quantities "RecommendedStart/EndTime"
         # but it is not clear how these should be reconciled with
@@ -213,9 +214,14 @@ class Applicator:
             if ifo_name in participating_detectors:
                 # Tracking which detectors are participating and also recommended
                 participating_detectors.remove(ifo_name)
-            max_f[ifo_name] = ifo["RecommendedMaximumFrequency"]
-            min_f[ifo_name] = ifo["RecommendedMinimumFrequency"]
-            channels[ifo_name] = ifo["RecommendedChannel"]
+            if "RecommendedMaximumFrequency" in ifo.keys():
+                max_f[ifo_name] = ifo["RecommendedMaximumFrequency"]
+            if "RecommendedMinimumFrequency" in ifo.keys():
+                min_f[ifo_name] = ifo["RecommendedMinimumFrequency"]
+            if "RecommendedChannel" in ifo.keys():
+                channels[ifo_name] = ifo["RecommendedChannel"]
+            if "FrameType" in ifo.keys():
+                frame_types[ifo_name] = ifo["FrameType"]
 
         if len(participating_detectors) != 0:
             logger.info(

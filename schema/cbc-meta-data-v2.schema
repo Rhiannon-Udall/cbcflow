@@ -422,9 +422,8 @@
          }
       },
       "RecommendedDuration": {
-        "description": "The  validated safe maximum time duration to set for downstream analyses to avoid data quality issues",
-        "type": "number",
-        "default": 4.0
+        "description": "The  validated safe maximum time duration to set for downstream analyses to avoid data quality issues - this may be empty if defaults should be used",
+        "type": "number"
       },
       "DQRResults": {
         "description": "A list of results",
@@ -603,12 +602,11 @@
         },
         "RecommendedMinimumFrequency": {
           "type": "number",
-          "description": "The recommended minimum frequency for analysis",
-          "default" : 20.0
+          "description": "The recommended minimum frequency for analysis - this may be empty if defaults should be used"
         },
         "RecommendedMaximumFrequency": { 
           "type": "number",
-          "description": "The recommended maximum frequency for the analysis - this may be set by the PE configurator rather than detchar"
+          "description": "The recommended maximum frequency for the analysis - this may be empty if defaults should be used"
         },
       "RecommendedStartTime": {
         "description": "The  validated safe start time to set for downstream analyses to avoid data quality issues",
@@ -623,13 +621,12 @@
           "enum": ["not yet reviewed", "required", "not required", "complete"],
           "default": "not yet reviewed"
         },
-        "FrameLocation": {
-          "type": "object",
-          "$ref": "#/$defs/LinkedFile",
-          "description": "The location of the frames on a cluster - CIT preferred by default. If no mitigation is required this will be the default given the time."
+        "FrameType": {
+          "type": "string",
+          "description": "The type of frame to use - this may be empty if defaults should be used."
         },
         "RecommendedChannel":{
-          "description": "The channels to use in the analysis for this detector",
+          "description": "The channels to use in the analysis for this detector - this may be empty if defaults should be used",
           "type":"string",
           "pattern":"^(H|L|V|K|G)1:*"
         },
