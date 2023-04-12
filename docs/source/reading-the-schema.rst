@@ -4,6 +4,8 @@ How To Read The Schema
 In order to use ``cbcflow`` effectively, it is critical to understand how to read the schema. 
 This will go over how to do so, using a simple example schema.
 It will also discuss the core building blocks of the schema, and some details of how to interact with them.
+This page assumes you have already read :doc:`what-is-metadata` - 
+if you haven't done so yet it is strongly advised that you read that first.
 
 Important Concepts
 ------------------

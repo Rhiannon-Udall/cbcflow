@@ -9,69 +9,91 @@ These allow you to:
 * Update a metadata file by writing a file containing many changes
 This documentation will go over how to use each of those, and also provide an introduction to updating metadata in general.
 
+This page assumes that you have read :doc:`what-is-metadata` and :doc:`reading-the-schema` already -
+if you haven't it is strongly encouraged that you do so first.
 
+The Tutorial Library
+--------------------
 
+If you would like to follow along with this documentation, you can check out the tutorial library at 
+https://git.ligo.org/rhiannon.udall/cbcflow-tutorial-library.
+To follow along, fork this library and clone it, then configure it as your default library.
+If you aren't sure how to configure this as a default, check out :doc:`configuration`.
 
+This library contains a few events from April 9th, as well as some other example contents.
 
+Printing File Contents
+----------------------
 
+The simplest action one can take with metadata is to view it's contents. 
+To do this for an event in our tutorial library, simply do:
 
+.. code-block::
 
+  cbcflow_print S230409dx
 
-
-
-
-
-
-
+This will print out the contents of this superevent.
+If you scroll up to read these, you will notice that a few fields have been given example values.
+You can also see that the GraceDB data has been pre-populated.
 
 Pulling From GraceDB
 --------------------
 
-Pulling from GraceDB should be handled automatically by a central monitor.
-However, if it is necessary to do manually (such as for testing), then it may be done with
+In most cases, pulling directly from GraceDB should not be necessary, because the library will be kept up to date with GraceDB by a monitor.
+These monitors follow configuration set in the library (see :doc:`library-setup` for details) - in our case the configuration targets events with FAR<1e-30 which occurred in the MDC on April 9th.
+Let's grab a new event, ``S230410x``, from GraceDB:
 
 .. code-block::
 
-   $ cbcflow_pull SXXYYZZabc 
+   $ cbcflow_pull S230410x
+
+Now, you can print the contents as above, and see that the GraceDB section has quite a bit of content filled in!
+
+Updating Metadata
+-----------------
+
+Figuring Out What to Update
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The biggest challenge in figuring out how to update metadata, is figuring out what field you're actually trying to change!
+For this reason, unless you already know what you want to edit (probably by having made the same edit a dozen times before),
+you should probably open :doc:`schema-visualization` and keep it close at hand.
+
+Now, let's consider some examples. 
+Firstly, say you have participated in parameter estimation for some event, and want to mark down that you were one of the analysts.
+What should we try to modify?
+Well, first we go to the schema visualization, and see the over-arching section headers.
+We know we are changing something about parameter estimation, and there is a section header ``ParameterEstimation``, so we can expand that one out.
+There are a lot of properties under this header, but one seems appropriate - ``Analysts`` certainly seems like what we are looking for.
+To make sure, we can expand it out, and read the description: it says that it is an array, described as "The names of all analysts involved", so this is probably what should be modified!
+To describe the field we've just chosen, let's write it like this: ``ParameterEstimation-Analysts``.
+That corresponds to the the field ``Analysts``, in the field ``ParameterEstimation`` - an important distinction since ``Analysts`` is a field that also occurs in other places!
+Remember this notation, because it will come in handy shortly.
+
+Now, lets say we want to do something a bit more complicated. 
+Having done a parameter estimation analysis, we want to record some information about that analysis.
+Looking back at the ``ParameterEstimation`` section, we see there are a couple things with "Result" in their name.
+However, checking out the contents of ``IllustrativeResult`` and ``SkymapReleaseResult`` we see they are both just strings that name a certain result to use in some situation, which isn't quite right.
+In contrast, ``Results`` is a collection of ``PEResult`` objects, which seems more like what we are looking for.
+Let's take a moment to note that our path *so far* is ``ParameterEstimation-Results``.
+Now, ``Result`` objects have a lot of different elements, but one is marked as required, so lets start there.
+If you've read :doc:`reading-the-schema` this field should be familiar: it's the unique ID that identifies the result.
+We'll definitely want to set this, so let's mark down that ``ParameterEstimation-Results-UID`` is one of the paths we will want to modify.
+
+Now, we'll also want to change some other fields in this analysis too. 
+Keep in mind that in order to specify *which analysis* we're talking about, we will need the UID path from before - we'll see how exactly to use it shortly.
+So, let's say we just want to record what waveform approximant we used, and where to find the result.
+Scrolling through the ``ParameterEstimation-Results``, we see ``WaveformApproximant``, which seems like an answer for the first.
+For the second, we also see the field ``ResultFile``, which is probably what we want for the second.
+Expanding it out though, this field also has sub-fields!
+However, this is actually another one our special cases: this is a ``LinkedFile``, 
 
 
-Updating Metadata Manually
---------------------------
 
 Flag by Flag
 ^^^^^^^^^^^^
 
-Updating from command line may be done in two ways. In the first, each flag corresponds to one change to an element. For example:
 
-.. code-block::
-
-   $ cbcflow_update_from_flags SXXYYZZabc --ParameterEstimation-Status-set "ongoing" \
-   --ParameterEstimation-Analysts-add "Albert Einstein" \
-   --ParameterEstimation-Reviewers-remove "Kip Thorne"
-
-This will take three actions: the status (an element which is a string with a fixed set of possible values) will be set to ongoing (hence the set keyword).
-The list of analysts (a list of strings) will have Albert Einstein added to it; if he is already there, this will add a second copy.
-The list of reviewers (also a list of strings) will have Kip Thorne removed from it (assuming he is there, and if not nothing will happen). 
-
-In some cases it may occur that you wish to edit the properties of an object instance. For example, there may be multiple ParameterEstimation-Results objects.
-In this case, the UID should be used to designate which result will be modified. 
-For example, to set the waveform used in the ParameterEstimation-Result "ProdF1", one would do:
-
-.. code-block::
-
-   $ cbcflow_update_from_flags SXXYYZZabc --ParameterEstimation-Results-UID-set ProdF1 \
-   --ParameterEstimation-Results-WaveformApproximant-set IMRPhenomXPHM
-
-In some cases (especially with TGR), this occurs in a nested fashion, in which case a UID is needed for each hierarchy which requires specification. For example
-
-.. code-block::
-
-   $ cbcflow_update_from_flags SXXYYZZabc --TestingGR-IMRCTAnalyses-UID-set IMRCT1 \
-   --TestingGR-IMRCTAnalyses-SafeLowerMassRatio-set 2 \
-   --TestingGR-IMRCTAnalyses-Results-UID-set ProdF1 \
-   --TestingGR-IMRCTAnalyses-Results-WaveformApproximant IMRPhenomXPHM
-
-Importantly, this means that only one UID may be modified at a time, so if e.g. you want to modify ProdF2, that must be a separate call.
 
 From a File
 ^^^^^^^^^^^
