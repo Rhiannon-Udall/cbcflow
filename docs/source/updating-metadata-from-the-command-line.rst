@@ -180,8 +180,92 @@ then update it with another attribute:
 But no matter what we always *have* to specify the UID.
 This also means that we can't modify more than one analysis with the same call:
 if we want to also add an analysis "Tutorial2", it will need to be done in a separate call to the command.
+Also, as you may notice, when we have a lot of data these commands can start to get very complicated, and difficult to read or edit.
+In that case, we want to be able to write the changes into a file, then update all at once, and so for that we can introduce a new command.
+
+Before we do though, there are a few edge cases which may come up and which are worth noting:
+
+#. To add multiple elements to an array at the same time (e.g. two different analysts), the ``add`` command must be passed once for each new element.
+#. When updating nested UID structures (a phenomena which principally applies for TGR sections of the schema), you must specify the UID at each layer.
+So, there will be two commands ending with ``-UID-set``, the first specifying the top layer, and the next specifying the next layer, etc.
 
 From a File
 ^^^^^^^^^^^
 
-TODO
+Within the machinery of ``cbcflow``, the process of updating is actually one of writing out a dictionary full of changes, 
+then merging it with what already exists in some intelligent way.
+``cbcflow_update_from_flags`` as a tool constructrs that dictionary then applies it,
+but if we are updating a lot of data we can skip the middle step and just write the dictionary ourselves into a file.
+Then, we can use ``cbcflow_update_from_file`` to apply all those changes at once.
+
+``cbcflow`` supports two file formats for writing out update dictionaries in this way: ``json`` and ``yaml``.
+They are equivalent, and which you use is a matter of personal choice: ``json`` more closely tracks ``python`` data formatting,
+while ``yaml`` is generally more readable but has some syntax of its own.
+We'll give an example of each, but ultimately which you use (or indeed, whether to use ``cbcflow_update_from_file``) is up to you.
+
+Starting with ``json``, lets make use of the operations we chose above.
+Previously, we wrote out our paths with "-" separated keys, but now we can reflect that nesting via dictionary.
+So for example, "--ParameterEstimation-Analysts" becomes:
+
+.. code-block::
+
+  {"ParameterEstimation": {
+    "Analysts": ["Name"]
+    }
+  }
+
+Note here that since we are modifying an array field (``Analysts``), the leaf must be written as an array.
+Assuming we wrote this into a file "tutorial_update_1.json", we can apply this update by:
+
+.. code-block::
+
+  cbcflow_update_from_file S230409it tutorial_update_1.json
+
+And this will yield the same effect as updating with flags before.
+In this case, it's more trouble than it's worth, but for information dense updates it becomes useful.
+
+To write out the ``UID`` specified situation, things are now a little cleaner. 
+We can write this as:
+
+.. code-block::
+
+  {"ParameterEstimation":{
+    "Results":[
+        {
+          "UID":"Tutorial1",
+          "WaveformApproximant": "MyAwesomeWaveform",
+          "ResultFile":{
+            "Path" : /path/to/a/file
+          }
+        }
+      ]
+    }
+  }
+
+Here the connection between the ``UID`` field and the others is very clear - each element in the list has exactly one ``UID`` to distinguish it.
+
+Now, one may notice that this is an annoyingly large number of brackets.
+``yaml`` files help with that, at the cost of having some extra syntax to learn.
+We'll leave that off, and simply say that the equivalent ``yaml``s to the above are:
+
+.. code-block::
+
+  ParameterEstimation:
+    Analysts:
+    - Name
+
+.. code-block::
+
+  ParameterEstimation
+    Results
+    - UID: Tutorial1
+      WaveformApproximant: MyAwesomeWaveform
+      ResultFile:
+      - Path: /path/to/a/file
+
+These can be applied by the same command.
+
+Finally, one may notice one last detail: how can we remove array elements with this?
+For this we can write a negative image file. 
+When applied with the extra flag ``--removal-file``, any element in the array will be removed instead of being added. 
+So, applying the first file above will *remove* the analyst with "Name", instead of adding them.
