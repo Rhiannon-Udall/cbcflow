@@ -56,7 +56,6 @@ docs:
   extends:
     - .python:base
   script:
-    - python -m pip install -r requirements.txt
     - pip install .
     - cd docs/
     - python -m pip install -r requirements.txt

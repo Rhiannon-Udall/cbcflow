@@ -1,7 +1,9 @@
+"""Methods for fetching schema information"""
 import importlib.resources as importlib_resources
 import json
 import logging
 import sys
+from typing import Union
 from pathlib import Path
 
 from .configuration import get_cbcflow_config
@@ -10,6 +12,21 @@ logger = logging.getLogger(__name__)
 
 
 def get_schema_path(version, schema_type_designator="cbc"):
+    """Get the path to the schema file
+
+    Parameters
+    ==========
+    version : str
+        The version to search for, e.g. v1 or v2
+    schema_type_designator : str, optional
+        The type of schema to be grabbed defaulting to cbc for superevent metadata.
+        For the index schema, this would be passed as index
+
+    Returns
+    =======
+    str
+        The path to the appropriate schema file
+    """
     ddir = importlib_resources.files("cbcflow") / "schema"
     files = ddir.glob(f"{schema_type_designator}*schema")
     matches = []
@@ -24,7 +41,21 @@ def get_schema_path(version, schema_type_designator="cbc"):
         raise ValueError("Too many matching schema files found")
 
 
-def get_schema(args=None, index_schema: bool = False) -> dict:
+def get_schema(args: Union[list, None] = None, index_schema: bool = False) -> dict:
+    """Get the schema json
+
+    Parameters
+    ==========
+    args : Union[list, None], optional
+        The arguments to use in grabbing the schema. If none are passed defaults to sys.argv
+    index_schema : bool, optional
+        Whether to grab the index schema instead of the cbc schema, defaults False
+
+    Returns
+    =======
+    dict
+        The schema dict loaded from the appropriate file.
+    """
     if args is None:
         args = sys.argv
     VERSION = "v2"

@@ -1,3 +1,4 @@
+"""Low level methods for intelligently updating json dictionaries"""
 from __future__ import annotations
 
 import argparse
@@ -112,6 +113,8 @@ def recurse_add_array_merge_options(
         The schema to which the merge options will be added
     is_removal_dict : bool, default=False
         Whether this will be used for performing a removal operation
+    idRef : str, optional
+        The key to use as a unique ID reference, defaulting to UID
     """
     if schema["type"] == "array":
         if "$ref" in schema["items"]:
@@ -160,6 +163,7 @@ def get_merger(schema: dict, for_removal: bool = False) -> Merger:
             merge_schema["$defs"][ref], is_removal_dict=for_removal
         )
 
+    # Some hackery to get the very specific behavior we want for negative images.
     class RemoveStrategy(ArrayStrategy):
         def _merge(
             self, walk, base, head, schema, sortByRef=None, sortReverse=None, **kwargs
@@ -335,12 +339,12 @@ def populate_defaults_if_necessary(
 
     Parameters
     ==========
-    base : dict
-        The dictionary which will be updated.
-        When used recursively, a sub-dict of that dict.
-    head : dict
-        The update json, before defaults are set.
-        When used recursively, a sub-dict of that dict.
+    base : Union[dict, list]
+        The object which will be updated.
+        The list case may occur in case of recursion
+    head : Union[dict, list]
+        The update json, or a component array, before defaults are set.
+        The list case may occur in case of recursion.
     schema_defaults : dict
         A set of keypaths which specify defaults for various objects.
     key_path : str, default=""
@@ -430,6 +434,19 @@ def populate_defaults_if_necessary(
 
 
 def fill_linked_files_if_necessary(head):
+    """Go through a dictionary, and if a LinkedFile is spotted,
+    fill out md5sum and date of last modification based on Path.
+
+    Parameters
+    ==========
+    head : dict
+        The dictionary to pass through
+
+    Returns
+    =======
+    dict
+        The head with any LinkedFile objects filled out
+    """
     if isinstance(head, dict):
         if "Path" in head.keys():
             temp_head = copy.deepcopy(head)

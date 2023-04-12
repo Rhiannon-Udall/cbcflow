@@ -1,3 +1,4 @@
+"""Class object for core metadata"""
 from __future__ import annotations
 
 import copy
@@ -12,6 +13,8 @@ import jsondiff
 
 from .process import process_update_json
 from .utils import get_date_last_modified
+from .parser import get_parser_and_default_data
+from .schema import get_schema
 
 if TYPE_CHECKING:
     from .database import LocalLibraryDatabase
@@ -20,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 class MetaData(object):
+    """The core object for superevent level metadata, connecting to stored json information"""
+
     def __init__(
         self,
         sname: str,
@@ -29,13 +34,13 @@ class MetaData(object):
         default_data: Union[dict, None] = None,
         no_git_library: bool = False,
     ) -> None:
-        """A object to store and interact with a metadata object
+        """Setup the code level representation of the metadata
 
         Parameters
         ----------
         sname: str
             The GraceDB assigned SNAME of the event.
-        local_library : cbcflow.database.LocalLibraryDatabase, optional
+        local_library :`cbcflow.database.LocalLibraryDatabase`, optional
             A directory to store cached copies of the metadata.
         local_library_path : str, optional
             The path
@@ -63,6 +68,11 @@ class MetaData(object):
         self.no_git_library = no_git_library
         self._loaded_data = None
 
+        if schema is None:
+            schema = get_schema()
+        if default_data is None:
+            _, default_data = get_parser_and_default_data(schema=schema)
+
         logger.debug(f"Loading metadata object for superevent {self.sname}")
 
         if self.library_file_exists:
@@ -81,6 +91,15 @@ class MetaData(object):
     ####                  System Properties and Operations                  ####
     ############################################################################
     ############################################################################
+
+    @property
+    def data(self) -> dict:
+        """The MetaData object's actual data dict"""
+        return self._data
+
+    @data.setter
+    def data(self, new_dict: dict) -> None:
+        self._data = new_dict
 
     @property
     def library(self) -> "LocalLibraryDatabase":
@@ -121,16 +140,16 @@ class MetaData(object):
         return self.get_filename(self.sname)
 
     @property
-    def library_file(self) -> None:
+    def library_file(self) -> str:
         """The full metadata's file path, found in its corresponding library"""
         return os.path.join(self.library.library, self.filename)
 
     @property
-    def library_file_exists(self):
+    def library_file_exists(self) -> bool:
         """Does a file for this superevent exist in this library"""
         return os.path.exists(self.library_file)
 
-    def get_date_of_last_commit(self):
+    def get_date_of_last_commit(self) -> str:
         """Get the date of the last commit including the metadata file for sname
 
         Returns
@@ -155,7 +174,7 @@ class MetaData(object):
         os.chdir(cwd)
         return datetime
 
-    def get_date_last_modified(self):
+    def get_date_last_modified(self) -> str:
         """Get the datetime of the last modification of this file *on this filesystem*
 
         Returns
@@ -194,7 +213,7 @@ class MetaData(object):
 
         Returns
         =======
-        MetaData
+        `MetaData`
             The metadata object for this file\
         """
         sname = os.path.basename(filename).split("-")[0]
@@ -235,7 +254,7 @@ class MetaData(object):
         self.library.validate(new_metadata_data)
         self.data = new_metadata_data
 
-    def load_from_library(self):
+    def load_from_library(self) -> None:
         """Load metadata from a library"""
         with open(self.library_file, "r") as file:
             data = json.load(file)
@@ -281,7 +300,14 @@ class MetaData(object):
         else:
             logger.info(f"No changes made to {self.library_file}")
 
-    def confirm_changes(self):
+    def confirm_changes(self) -> bool:
+        """Get input from the user that draft changes should be adopted
+
+        Returns
+        =======
+        bool
+            Whether the changes should be adopted
+        """
         valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
         prompt = " [y/n] "
 
@@ -303,11 +329,11 @@ class MetaData(object):
     ############################################################################
 
     @property
-    def is_updated(self):
+    def is_updated(self) -> bool:
         """Has the library been updated since it was loaded"""
         return self._loaded_data != self.data
 
-    def get_diff(self):
+    def get_diff(self) -> dict:
         """Give the difference between the loaded data and the updated data
 
         Returns
@@ -317,7 +343,7 @@ class MetaData(object):
         """
         return jsondiff.diff(self._loaded_data, self.data)
 
-    def print_summary(self):
+    def print_summary(self) -> None:
         """Print a short summary of the event"""
         gdb = self.data["GraceDB"]
         events = gdb["Events"]
@@ -338,7 +364,7 @@ class MetaData(object):
             f"Super event: {self.sname}, GPSTime={GPSTime}, chirp_mass={chirp_mass}"
         )
 
-    def print_diff(self):
+    def print_diff(self) -> None:
         """Cleanly print the output of get_diff"""
         if self._loaded_data is None:
             return
@@ -349,11 +375,11 @@ class MetaData(object):
             logger.info(diff)
 
     @property
-    def toplevel_diff(self):
-        """Get a clean string representation of the output of get_diff"""
+    def toplevel_diff(self) -> str:
+        """A clean string representation of the output of get_diff"""
         return ",".join([str(k) for k in self.get_diff().keys()])
 
-    def pretty_print(self):
+    def pretty_print(self) -> None:
         """Prettily print the contents of the data"""
         logger.info(f"Metadata contents for {self.sname}:")
         logger.info(json.dumps(self.data, indent=4))
