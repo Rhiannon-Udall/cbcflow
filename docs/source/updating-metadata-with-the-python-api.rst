@@ -11,11 +11,9 @@ Prototypically, this may be done with:
 .. code-block::
 
     >>> import cbcflow
-    >>> import json
 
-    >>> metadata = cbcflow.get_superevent("S230331h")
-    INFO:cbcflow.schema:Using schema file /home/rhiannon.udall/meta-data/meta-data/src/cbcflow/schema/cbc-meta-data-v2.schema
-    INFO:cbcflow.metadata:No library file: creating defaults
+    >>> metadata = cbcflow.get_superevent("S230409lg")
+    INFO:cbcflow.schema:Using schema file /home/rhiannon.udall/.conda/envs/cbcflow_development/lib/python3.10/site-packages/cbcflow/schema/cbc-meta-data-v2.schema
 
 If a specific library argument is not passed, then the default library will be used (see :doc:`configuration`), 
 as has occurred in this example. 
@@ -24,16 +22,15 @@ To pass a specific library, one may add the keyword argument ``library=/a/path/t
 If the library already contains metadata for the superevent described by ``sname``,
 then that metadata will be loaded.
 Otherwise, this superevent will start with default data.
-We can see that for this library we are creating defaults for this supervent,
-since it has not been previously initialized.
-To see what these defaults look like, we can do:
+
+To see what our metadata looks like, we can use the ``pretty_print()`` method:
 
 .. code-block::
 
     >>> metadata.pretty_print()
-    INFO:cbcflow.metadata:Metadata contents for S230331h:
+    INFO:cbcflow.metadata:Metadata contents for S230409lg:
     INFO:cbcflow.metadata:{
-        "Sname": "S230331h",
+        "Sname": "S230409lg",
         "Info": {
             "Labels": [],
             "SchemaVersion": "v2",
@@ -43,7 +40,111 @@ To see what these defaults look like, we can do:
             "Papers": []
         },
         "GraceDB": {
-            "Events": []
+            "Events": [
+                {
+                    "State": "neighbor",
+                    "UID": "G991768",
+                    "Pipeline": "pycbc",
+                    "GPSTime": 1365062495.063965,
+                    "FAR": 2.223779464140237e-06,
+                    "NetworkSNR": 16.22064184905374,
+                    "V1SNR": 4.3057876,
+                    "Mass1": 2.0122149,
+                    "Mass2": 1.3525492,
+                    "Spin1z": 0.23247161,
+                    "Spin2z": -0.21646233,
+                    "H1SNR": 11.750094,
+                    "L1SNR": 10.320111,
+                    "Pastro": 0.005880358839495448,
+                    "Pbbh": 0.0,
+                    "Pbns": 0.005880358839495448,
+                    "Pnsbh": 0.0,
+                    "HasNS": 1.0,
+                    "HasRemnant": 1.0,
+                    "HasMassGap": 0.0,
+                    "PipelineHasMassGap": 0.0,
+                    "XML": "https://gracedb-playground.ligo.org/api/events/G991768/files/coinc.xml",
+                    "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G991768/files/pycbc.p_astro.json",
+                    "Skymap": "https://gracedb-playground.ligo.org/api/events/G991768/files/bayestar.multiorder.fits"
+                },
+                {
+                    "State": "neighbor",
+                    "UID": "G991767",
+                    "Pipeline": "MBTA",
+                    "GPSTime": 1365062495.074961,
+                    "FAR": 1.501446e-09,
+                    "NetworkSNR": 15.872046,
+                    "V1SNR": 2.175341,
+                    "Mass1": 2.76463,
+                    "Mass2": 1.026004,
+                    "Spin1z": 0.262998,
+                    "Spin2z": 0.0,
+                    "H1SNR": 12.018019,
+                    "L1SNR": 10.13691,
+                    "Pastro": 1.0,
+                    "Pbbh": 0.0,
+                    "Pbns": 0.924042,
+                    "Pnsbh": 0.075958,
+                    "HasNS": 1.0,
+                    "HasRemnant": 1.0,
+                    "HasMassGap": 0.0,
+                    "XML": "https://gracedb-playground.ligo.org/api/events/G991767/files/coinc.xml",
+                    "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G991767/files/mbta.p_astro.json",
+                    "Skymap": "https://gracedb-playground.ligo.org/api/events/G991767/files/bayestar.multiorder.fits"
+                },
+                {
+                    "State": "preferred",
+                    "UID": "G991765",
+                    "Pipeline": "gstlal",
+                    "GPSTime": 1365062495.091802,
+                    "FAR": 2.900794989032493e-36,
+                    "NetworkSNR": 16.56542135029717,
+                    "H1SNR": 12.060055,
+                    "Mass1": 1.7551488,
+                    "Mass2": 1.540255,
+                    "Spin1z": 0.04640625,
+                    "Spin2z": 0.04640625,
+                    "L1SNR": 10.567706,
+                    "V1SNR": 4.1583471,
+                    "Pastro": 1.0,
+                    "Pbbh": 3.347659662210488e-57,
+                    "Pbns": 1.0,
+                    "Pnsbh": 5.433561263857133e-56,
+                    "HasNS": 1.0,
+                    "HasRemnant": 1.0,
+                    "HasMassGap": 0.0,
+                    "XML": "https://gracedb-playground.ligo.org/api/events/G991765/files/coinc.xml",
+                    "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G991765/files/gstlal.p_astro.json",
+                    "Skymap": "https://gracedb-playground.ligo.org/api/events/G991765/files/bayestar.multiorder.fits"
+                },
+                {
+                    "State": "neighbor",
+                    "UID": "G991763",
+                    "Pipeline": "spiir",
+                    "GPSTime": 1365062495.087402,
+                    "FAR": 2.197285962424614e-27,
+                    "NetworkSNR": 16.38410099714992,
+                    "H1SNR": 12.11474,
+                    "Mass1": 2.1702261,
+                    "Mass2": 1.2627214,
+                    "Spin1z": 0.10948601,
+                    "Spin2z": 0.042859491,
+                    "L1SNR": 10.236156,
+                    "V1SNR": 4.1101012,
+                    "Pastro": 1.0,
+                    "Pbbh": 0.0,
+                    "Pbns": 1.0,
+                    "Pnsbh": 0.0,
+                    "HasNS": 1.0,
+                    "HasRemnant": 1.0,
+                    "HasMassGap": 0.0,
+                    "XML": "https://gracedb-playground.ligo.org/api/events/G991763/files/coinc.xml",
+                    "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G991763/files/spiir.p_astro.json",
+                    "Skymap": "https://gracedb-playground.ligo.org/api/events/G991763/files/bayestar.multiorder.fits"
+                }
+            ],
+            "Instruments": "H1,L1,V1",
+            "LastUpdate": "2023-04-11 18:27:52.777929"
         },
         "ExtremeMatter": {
             "Analyses": []
@@ -51,7 +152,8 @@ To see what these defaults look like, we can do:
         "Cosmology": {
             "Counterparts": [],
             "CosmologyRunsUsingThisSuperevent": [],
-            "Notes": []
+            "Notes": [],
+            "PreferredLowLatencySkymap": "https://gracedb-playground.ligo.org/api/events/G991765/files/bayestar.multiorder.fits"
         },
         "RatesAndPopulations": {
             "RnPRunsUsingThisSuperevent": []
@@ -96,14 +198,12 @@ To see what these defaults look like, we can do:
             "Status": "unstarted",
             "RecommendedDetectors": [],
             "RecommendedDuration": 4.0,
-            "Results": [],
+            "DQRResults": [],
             "Notes": []
         }
     }
 
-Notably, this default data *does not* include the GraceDB information
-- updating the superevent with this information requires specifically fetching that data from GraceDB.
-
+Since this event has already been initialized from gracedb, we can see a lot of gracedb information already.
 
 Updating From GraceDB
 ---------------------
@@ -111,85 +211,25 @@ Updating From GraceDB
 When interacting with the central CBC library or it's derivatives
 (which are directly or indirectly kept up to date with GraceDB)
 GraceDB information should be automatically kept up to date.
-However, if we want to add GraceDB data manually, we can do:
+To see what this might look like, we can do:
 
 .. code-block::
 
-    >>> gracedb_info = cbcflow.gracedb.fetch_gracedb_information("S230331h")
+    >>> metadata_pull_manually = cbcflow.get_superevent("S230410cb")
+    INFO:cbcflow.schema:Using schema file /home/rhiannon.udall/.conda/envs/cbcflow_development/lib/python3.10/site-packages/cbcflow/schema/cbc-meta-data-v2.schema
+    INFO:cbcflow.metadata:No library file: creating defaults
+    >>> gracedb_info = cbcflow.gracedb.fetch_gracedb_information("S230410cb")
     INFO:cbcflow.gracedb:Using configuration default GraceDB service_url
-    INFO:cbcflow.gracedb:No pipeline em bright provided for G-event G971096
-    >>> metadata.update(gracedb_info)
+    INFO:cbcflow.gracedb:No pipeline em bright provided for G-event G995755
+    INFO:cbcflow.gracedb:Could not load event data for G995752 because it was from the pipeline
+                                cwb which is not supported
+    INFO:cbcflow.gracedb:No pipeline em bright provided for G-event G995750
+    INFO:cbcflow.gracedb:No pipeline em bright provided for G-event G995747
+    >>> metadata_pull_manually.update(gracedb_info)
 
-The first command fetches the data in question from GraceDB,
-while the second updates the metadata with this new information. 
-
+The command ``gracedb.fetch_gracedb_information`` pulls information from gracedb, while ``update`` updates the metadata with this new information. 
 Note that this event was pulled from playground data (https://gracedb-playground.ligo.org/api/),
 as set in the test ``~/.cbcflow.cfg`` in use.
-
-Then the GraceDB data entry now looks like:
-
-.. code-block::
-
-    ...
-       "GraceDB": {
-        "Events": [
-            {
-                "State": "preferred",
-                "UID": "G971096",
-                "Pipeline": "MBTA",
-                "GPSTime": 1364258362.641068,
-                "FAR": 8.958288e-10,
-                "NetworkSNR": 13.871603,
-                "H1SNR": 8.876039,
-                "Mass1": 2.080816,
-                "Mass2": 1.009446,
-                "Spin1z": -0.163851,
-                "Spin2z": 0.0,
-                "L1SNR": 10.66008,
-                "Pastro": 1,
-                "Pbbh": 0.05551,
-                "Pbns": 0.94449,
-                "Pnsbh": 0,
-                "HasNS": 1.0,
-                "HasRemnant": 1.0,
-                "HasMassGap": 0.0,
-                "XML": "https://gracedb-playground.ligo.org/api/events/G971096/files/coinc.xml",
-                "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971096/files/mbta.p_astro.json",
-                "Skymap": "https://gracedb-playground.ligo.org/api/events/G971096/files/bayestar.multiorder.fits"
-            },
-            {
-                "State": "neighbor",
-                "UID": "G971095",
-                "Pipeline": "pycbc",
-                "GPSTime": 1364258362.651855,
-                "FAR": 6.556819893444771e-08,
-                "NetworkSNR": 13.79529107668657,
-                "H1SNR": 8.9814978,
-                "Mass1": 2.0248501,
-                "Mass2": 1.0336896,
-                "Spin1z": -0.18489327,
-                "Spin2z": 0.0,
-                "L1SNR": 10.471044,
-                "Pastro": 0.05422397259151246,
-                "Pbbh": 0.0,
-                "Pbns": 0.05422397259151248,
-                "Pnsbh": 0.0,
-                "HasNS": 1.0,
-                "HasRemnant": 1.0,
-                "HasMassGap": 0.0,
-                "PipelineHasMassGap": 0.0,
-                "XML": "https://gracedb-playground.ligo.org/api/events/G971095/files/coinc.xml",
-                "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971095/files/pycbc.p_astro.json",
-                "Skymap": "https://gracedb-playground.ligo.org/api/events/G971095/files/bayestar.multiorder.fits"
-            }
-        ],
-        "Instruments": "H1,L1",
-        "LastUpdate": "2023-04-04 16:36:21.565798"
-    }
-    ...
-
-The LastUpdate element reflects not the date of the GraceDB entry's last update, but rather the last time at which
-this GraceDB entry of the metadata was updated. 
 
 Updating Metadata
 -----------------
@@ -199,13 +239,18 @@ We can borrow an example from :doc:`command-line-usage`, by defining our update 
 
 .. code-block:: 
 
-    >>> update_add_json = {
-        "ParameterEstimation":{
-            "Status":"ongoing",
-            "Analysts":["Albert Einstein"],
-            "Reviewers":["Kip Thorne", "Karl Schwarzschild"]
+    >>> update_add_json = {"ParameterEstimation":{
+            "Results":[
+                {
+                "UID":"Tutorial1",
+                "WaveformApproximant": "MyAwesomeWaveform",
+                "ResultFile":{
+                    "Path" : "/home/rhiannon.udall/meta-data/testing_libraries/cbcflow-tutorial-library/example_linking_file.txt"
+                    }
+                }
+            ]
+            }
         }
-    }
     >>> metadata.update(update_add_json)
 
 Then the ParameterEstimation section should now look like:
@@ -214,99 +259,29 @@ Then the ParameterEstimation section should now look like:
     
     ...
         "ParameterEstimation": {
-            "Analysts": [
-            "Albert Einstein"
-            ],
-            "Reviewers": [
-            "Kip Thorne",
-            "Karl Schwarzschild"
-            ],
-            "Status": "ongoing",
-            "Results": [],
-            "SafeSamplingRate": 4096.0,
-            "SafeLowerMassRatio": 0.05,
-            "Notes": []
-        },
-    ...
-
-Similar to before, if one wants to remove an array element, one should construct a negative image JSON:
-
-.. code-block::
-
-    >>> update_remove_json = {
-        "ParameterEstimation":{
-            "Reviewers":["Kip Thorne"]
-        }
-    }
-
-and then apply it in removal mode:
-
-.. code-block::
-
-    metadata.update(update_remove_json, is_removal=True)
-
-So that ParameterEstimation now looks like:
-
-.. code-block::
-
-    ...
-        "ParameterEstimation": {
-            "Analysts": [
-            "Albert Einstein"
-            ],
-            "Reviewers": [
-            "Karl Schwarzschild"
-            ],
-            "Status": "ongoing",
-            "Results": [],
-            "SafeSamplingRate": 4096.0,
-            "SafeLowerMassRatio": 0.05,
-            "Notes": []
-        },
-    ...
-
-The same examples from before also work to arbitrary complexity.
-For example, the last yaml update method would be rendered as:
-
-.. code-block::
-
-    >>> update_add_json_2 = {
-        "TestingGR":{
-            "IMRCTAnalyses":[
+            "Analysts": [],
+            "Reviewers": [],
+            "Status": "unstarted",
+            "Results": [
                 {
-                    "UID":"IMRCT1",
-                    "SafeLowerMassRatio":2,
-                    "Results":[
-                        {
-                            "UID":"ProdF1",
-                            "WaveformApproximant":"IMRPhenomXPHM"
-                        },
-                        {
-                            "UID":"ProdF2",
-                            "WaveformApproximant":"SEOBNRv4PHM"
-                        }
-                    ]
-                },
-                {
-                    "UID":"IMRCT2",
-                    "SafeLowerMassRatio":3,
-                    "Results":[
-                        {
-                            "UID":"ProdF1",
-                            "WaveformApproximant":"SEOBNRv4PHM"
-                        },
-                        {
-                            "UID":"ProdF2",
-                            "WaveformApproximant":"IMRPhenomXPHM"
-                        }
-                    ]
+                    "ReviewStatus": "unstarted",
+                    "Deprecated": false,
+                    "Publications": [],
+                    "Notes": [],
+                    "UID": "Tutorial1",
+                    "WaveformApproximant": "MyAwesomeWaveform",
+                    "ResultFile": {
+                        "Path": "CIT:/home/rhiannon.udall/meta-data/testing_libraries/cbcflow-tutorial-library/example_linking_file.txt",
+                        "MD5Sum": "5b24b3bea9381f64fa7cce695507bba7",
+                        "DateLastModified": "2023/04/11 18:27:11"
+                    }
                 }
-            ]
-        }
-    }
-
-These do get rather complicated to construct, and it is strongly recommended that when rendering them one should use the ``json.dumps`` method with an indent of at least 2.
-However, for automated scripts this should be substantially easier to interact with. 
+            ],
+            "SafeSamplingRate": 4096.0,
+            "SafeLowerMassRatio": 0.05,
+            "Notes": []
+        },
+    ...
 
 Writing Our Changes to the File
 -------------------------------

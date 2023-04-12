@@ -235,7 +235,7 @@ We can write this as:
           "UID":"Tutorial1",
           "WaveformApproximant": "MyAwesomeWaveform",
           "ResultFile":{
-            "Path" : /path/to/a/file
+            "Path" : "/path/to/a/file"
           }
         }
       ]
