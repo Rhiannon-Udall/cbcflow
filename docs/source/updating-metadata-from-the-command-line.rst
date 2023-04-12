@@ -186,8 +186,8 @@ In that case, we want to be able to write the changes into a file, then update a
 Before we do though, there are a few edge cases which may come up and which are worth noting:
 
 #. To add multiple elements to an array at the same time (e.g. two different analysts), the ``add`` command must be passed once for each new element.
-#. When updating nested UID structures (a phenomena which principally applies for TGR sections of the schema), you must specify the UID at each layer.
-So, there will be two commands ending with ``-UID-set``, the first specifying the top layer, and the next specifying the next layer, etc.
+#. When updating nested UID structures (a phenomena which principally applies for TGR sections of the schema), you must specify the UID at each layer. So, there will be two commands ending with ``-UID-set``, the first specifying the top layer, and the next specifying the next layer, etc.
+
 
 From a File
 ^^^^^^^^^^^
