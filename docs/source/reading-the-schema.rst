@@ -62,7 +62,7 @@ Whenever you want to modify an object within an array in ``cbcflow``, you *must*
 If the object doesn't exist yet, this will create it, and if it does exist this will tell ``cbcflow`` the path to follow.
 Furthermore, in ``cbcflow``, unique IDs will *always* be designated as "UID", even when they may have a more intuitive meaning (e.g. the IFO name).
 This is a restriction on the methods by which ``cbcflow`` updates jsons, but it is also convenient: if you see "UID" in an object, you know it *must* be this sort of templated object, living in an array.
-For an example of how this works in practice, we can look back at our example schema:
+For an example of how this works in practice, we can look back at our example metadata:
 
 .. code-block::
 
@@ -81,6 +81,9 @@ For an example of how this works in practice, we can look back at our example sc
             }
         ]
     }
+
+We see that "Topics" contains multiple dictionaries, and each has a "UID" to identify it, as well as some extra information.
+If we wanted, we could nest these further, for example giving each "Topic" a field that is an array of objects, and so on.
 
 Linked Files
 ^^^^^^^^^^^^
