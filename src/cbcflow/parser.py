@@ -2,6 +2,7 @@
 import argparse
 import logging
 from typing import Tuple
+import re
 
 import argcomplete
 
@@ -183,7 +184,7 @@ def get_parser_and_default_data(schema: dict):
         The default data associated with this schema
     """
     parser = argparse.ArgumentParser(allow_abbrev=False)
-    parser.add_argument("sname", help="The superevent SNAME")
+    parser.add_argument("sname", help="The superevent SNAME", type=sname_string)
     parser.add_argument(
         "--library", default=config_defaults["library"], help="The library"
     )
@@ -212,3 +213,30 @@ def get_parser_and_default_data(schema: dict):
     parser, default_data = build_parser_from_schema(parser, schema)
     argcomplete.autocomplete(parser)
     return parser, default_data
+
+
+def sname_string(sname):
+    """ Sanitize and check the given sname string
+
+    This will check there is one unique sname in the given string. Other text
+    is ignored (allowing the meta-data filename to be passed) while no match
+    or multiple matches will raise an error
+
+    Parameters
+    ==========
+    sname : str
+        The input sname it sanitize and check
+
+    Returns
+    =======
+    sname
+        The unique sname
+
+    """
+    matches = re.findall("S[0-9]{6}[a-z]+", sname)
+    if len(matches) == 0:
+        raise TypeError("Given sname invalid")
+    elif len(matches) > 1:
+        raise TypeError("Multiple snames given, we can only handle one at a time")
+    else:
+        return matches[0]
