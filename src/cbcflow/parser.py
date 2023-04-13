@@ -216,7 +216,7 @@ def get_parser_and_default_data(schema: dict):
 
 
 def sname_string(sname):
-    """ Sanitize and check the given sname string
+    """Sanitize and check the given sname string
 
     This will check there is one unique sname in the given string. Other text
     is ignored (allowing the meta-data filename to be passed) while no match
