@@ -3,10 +3,12 @@ Command Line Interface
 
 For many users, the main tool for interacting with ``cbcflow`` metadata are the suite of command line tools.
 These allow you to:
+
 #. Print the contents of a metadata file
 #. Pull GraceDB information into a metadata file
 #. Update a metadata file using a series of flags
 #. Update a metadata file by writing a file containing many changes
+
 This documentation will go over how to use each of those, and also provide an introduction to updating metadata in general.
 
 This page assumes that you have read :doc:`what-is-metadata` and :doc:`reading-the-schema` already -
@@ -139,6 +141,8 @@ Putting what we have so far together, this command will look like:
   cbcflow_update_from_flags S230409it --ParameterEstimation-Analysts-add "Name"
 
 where naturally "Name" is your name!
+
+Note: the commands get be quite long and cumbersome. To help, if you follow the :doc:`configuration` guide and set up ``argcomplete``, you can use the <TAB> key to help when you can't recmember the full command.
 
 Now, we also want to make some changes to a result.
 All of these are modifying a field that's not an array, so all of them will use ``set``.
