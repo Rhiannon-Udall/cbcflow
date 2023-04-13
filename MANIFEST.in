@@ -1,2 +1,4 @@
-include versioneer.py
+include README.md
+include LICENSE.md
 include src/cbcflow/_version.py
+recursive-include test *.py *.yaml *.json *.txt *.cfg
