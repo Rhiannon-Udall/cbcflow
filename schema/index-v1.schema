@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://git.ligo.org/cbc/projects/meta-data/-/raw/main/schema/cbc-meta-data-v1.schema",
+    "$id": "https://git.ligo.org/cbc/projects/meta-data/-/raw/main/schema/index-v1.schema",
     "title": "library-meta-data",
     "description": "The meta-data for a library of CBC triggers",
     "additionalProperties": false,

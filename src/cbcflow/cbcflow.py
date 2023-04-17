@@ -16,7 +16,7 @@ from .configuration import config_defaults
 from .gracedb import fetch_gracedb_information
 from .metadata import MetaData
 from .database import LocalLibraryDatabase
-from .parser import get_parser_and_default_data
+from .parser import get_parser_and_default_data, sname_string
 from .process import process_user_input
 from .schema import get_schema
 
@@ -104,7 +104,7 @@ def print_metadata() -> None:
     _, default_data = get_parser_and_default_data(schema)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("sname", help="The superevent SNAME")
+    parser.add_argument("sname", help="The superevent SNAME", type=sname_string)
     parser.add_argument(
         "--library", default=config_defaults["library"], help="The library"
     )
@@ -133,7 +133,7 @@ def from_file() -> None:
     _, default_data = get_parser_and_default_data(schema)
 
     file_parser = argparse.ArgumentParser()
-    file_parser.add_argument("sname", help="The superevent SNAME")
+    file_parser.add_argument("sname", help="The superevent SNAME", type=sname_string)
     file_parser.add_argument(
         "update_file",
         help="The file to update from, either a json or a yaml.\
