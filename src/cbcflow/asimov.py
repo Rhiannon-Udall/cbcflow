@@ -65,6 +65,20 @@ class Collector:
                 except IndexError:
                     logger.warning("Could not find ini file for this analysis")
                 analysis_output["Notes"] = [analysis.comment]
+                if analysis.review.status:
+                    if analysis.review.status.lower() == "approved":
+                        analysis_output["ReviewStatus"] = "pass"
+                    elif analysis.review.status.lower() == "rejected":
+                        analysis_output["ReviewStatus"] = "fail"
+                    elif analysis.review.status.lower() == "deprecated":
+                        analysis_output["Deprecated"] = True
+                    messages = sorted(
+                        analysis.review.messages, key=lambda k: k.timestamp
+                    )
+                    if len(messages) > 0:
+                        analysis_output["Notes"].append(
+                            f"{messages[0].timestamp:%Y-%m-%d}: {messages[0].message}"
+                        )
                 if analysis.finished:
                     # Get the results
                     results = analysis.pipeline.collect_assets()
