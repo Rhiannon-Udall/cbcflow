@@ -12,8 +12,10 @@ Finally, we provide autobuilt API documentation.
    :caption: Getting Started
 
    configuration
-   command-line-usage
-   usage-for-scripting
+   what-is-metadata
+   reading-the-schema
+   updating-metadata-from-the-command-line
+   updating-metadata-with-the-python-api
    gwosc
 
 .. toctree::
@@ -30,8 +32,8 @@ Finally, we provide autobuilt API documentation.
    :maxdepth: 1
    :caption: Schema Information:
 
-   metadata
    schema-visualization
+   adding-to-the-schema
 
 API
 ---

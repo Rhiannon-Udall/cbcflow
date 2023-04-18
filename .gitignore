@@ -5,7 +5,7 @@ src/cbcflow/_version.py
 *.egg-info/
 *.egg
 *.pyc
-__pycache__	
+__pycache__
 build/
 docs/_build/*
 docs/source/schema_visualization/*

@@ -1,0 +1,80 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://git.ligo.org/cbc/projects/meta-data/-/raw/main/docs/source/example_mini_schema/example.schema",
+    "title": "Example Metadata",
+    "description": "A prototypical example of describing json data with a schema",
+    "additionalProperties": false,
+    "type":"object",
+    "properties":{
+        "PublicationInformation":{
+            "description":"Information about the books publication",
+            "type": "object",
+            "additionalProperties": false,
+            "properties":{
+                "Author":{
+                    "type":"string",
+                    "description": "The author of the book"
+                },
+                "CopyrightYears":{
+                    "type":"array",
+                    "description":"Years when the book's copyright was renewed",
+                    "items":{"type":"number"}
+                },
+                "PublisherInfo":{
+                    "type":"object",
+                    "description":"Information about the publisher",
+                    "additionalProperties": false,
+                    "properties":{
+                        "Name": {
+                            "description":"The name of the publisher",
+                            "type": "string"
+                        },
+                        "City": {
+                            "description": "The city the publisher is based in",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "Content":{
+            "type":"object",
+            "description": "The contents of the book",
+            "additionalProperties":false,
+            "properties":{
+                "Summary":{
+                    "description": "A summary of the contents of the book",
+                    "type": "string"
+                },
+                "Topics":{
+                    "description": "Topics discussed in the book",
+                    "type":"array",
+                    "items":{"$ref":"#/$defs/Topic"}
+                }
+            }
+        }
+    },
+    "$defs":{
+        "Topic":{
+            "type":"object",
+            "description": "Information about a topic in the book",
+            "additionalProperties":false,
+            "required":"UID",
+            "properties":{
+                "UID":
+                {
+                    "type":"string",
+                    "description":"A unique ID identifying this topic"
+                },
+                "YearsRelevant":{
+                    "type":"string",
+                    "description":"The years over which this topic was relevant"
+                },
+                "Language":{
+                    "type":"string",
+                    "description":"The language associated with this historical topic"
+                }
+            }
+        }
+    }
+}

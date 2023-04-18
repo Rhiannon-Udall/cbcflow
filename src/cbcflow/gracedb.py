@@ -162,10 +162,15 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                         logger.warning(
                             f"Could not fetch file links for G-event {gname}"
                         )
+                    except KeyError:
+                        logger.warning(
+                            f"Some or all file links were missing for G-event {gname}"
+                        )
 
                     # Add the final event data to the array
                     data["GraceDB"]["Events"].append(event_data)
-                except KeyError:
+                except KeyError as err:
+                    logger.info(f"Failed with key error {err}")
                     if "graceid" in event.keys():
                         logger.warning(
                             f"Failed to load data for event {event['graceid']}"
