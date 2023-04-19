@@ -222,12 +222,12 @@ class Applicator:
         # NOTE there are also detector specific quantities "RecommendedStart/EndTime"
         # but it is not clear how these should be reconciled with
 
+        ifo_list = []
+
         for ifo in ifos:
             # Grab IFO specific quantities
             ifo_name = ifo["UID"]
-            if ifo_name in participating_detectors:
-                # Tracking which detectors are participating and also recommended
-                participating_detectors.remove(ifo_name)
+            ifo_list.append(ifo_name)
             if "RecommendedMaximumFrequency" in ifo.keys():
                 max_f[ifo_name] = ifo["RecommendedMaximumFrequency"]
             if "RecommendedMinimumFrequency" in ifo.keys():
@@ -237,11 +237,12 @@ class Applicator:
             if "FrameType" in ifo.keys():
                 frame_types[ifo_name] = ifo["FrameType"]
 
-        if len(participating_detectors) != 0:
+        if ifo_list != []:
+            data["interferometers"] = ifo_list
+        else:
+            data["interferometers"] = participating_detectors
             logger.info(
-                f"Detectors {participating_detectors} were not in recommended list\
-                        either because validation is still pending\
-                        or because they are rejected upon validation"
+                "No detchar recommended IFOs provided, falling back to participating detectors"
             )
 
         # GraceDB Settings
