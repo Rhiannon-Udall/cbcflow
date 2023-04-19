@@ -12,12 +12,12 @@ logger = logging.getLogger(__name__)
 class Collector:
     status_map = {
         "ready": "unstarted",
-        "processing": "ongoing",
-        "running": "ongoing",
-        "stuck": "ongoing",
-        "restart": "ongoing",
+        "processing": "running",
+        "running": "running",
+        "stuck": "running",
+        "restart": "running",
         "stopped": "cancelled",
-        "finished": "ongoing",
+        "finished": "running",
         "uploaded": "complete",
     }
 

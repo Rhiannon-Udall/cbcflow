@@ -716,7 +716,7 @@
         },
         "RunStatus": {
           "type": "string",
-          "enum": ["complete", "running", "stuck"],
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
           "description": "Status of the run"
         },
         "WaveformApproximant":{
