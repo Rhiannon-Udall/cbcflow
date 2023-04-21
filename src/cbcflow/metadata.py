@@ -377,7 +377,11 @@ class MetaData(object):
     @property
     def toplevel_diff(self) -> str:
         """A clean string representation of the output of get_diff"""
-        return ",".join([str(k) for k in self.get_diff().keys()])
+        diff_keys = [k for k in self.get_diff().keys()]
+        if len(diff_keys) == 1 and list(diff_keys)[0] == jsondiff.replace:
+            return "New file"
+        else:
+            return ",".join([str(k) for k in diff_keys])
 
     def pretty_print(self) -> None:
         """Prettily print the contents of the data"""
