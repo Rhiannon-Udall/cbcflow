@@ -589,7 +589,11 @@ class LocalLibraryDatabase(object):
                 if sname in self.metadata_dict:
                     # If we are updating an extant bit of metadata
                     metadata = self.metadata_dict[sname]
-                    message = f"Changes made to [{metadata.toplevel_diff}]\n"
+                    diff = metadata.toplevel_diff
+                    if "New file" in diff:
+                        message = f"New file created for {metadata.sname}\n"
+                    else:
+                        message = f"Changes made to {metadata.toplevel_diff} for {metadata.sname}\n"
                 else:
                     # If we are creating a new metadata file
                     message = f"Committing metadata for new superevent {sname}"
