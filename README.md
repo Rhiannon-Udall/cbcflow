@@ -4,7 +4,7 @@ This is the repository for the CBC Workflow project ("CBCFlow").
 This consists of two parts - a metadata schema which governs the structure of the json files in which data is stored,
 and a code base which provides tools to interact with those files. 
 
-## [Documentation](https://cbc.docs.ligo.org/projects/meta-data/index.html)
+## [Documentation](https://cbc.docs.ligo.org/projects/cbcflow/index.html)
 
 This should be the first point of reference for usage and API of cbcflow.
 If you would like something to be added to the documentation, please contact the developers.
@@ -13,7 +13,7 @@ If you would like something to be added to the documentation, please contact the
 
 CBC meta-data for O4 will be stored in structured json files, as recommended by an investigatory committee [here](https://dcc.ligo.org/LIGO-T2100502).
 The second version (v2) of this schema is nearing completion, and will be used for the first part of the fourth observing run (O4a).
-For more information on the schema, please see [the appropriate section of the documentation](https://cbc.docs.ligo.org/projects/meta-data/metadata.html). 
+For more information on the schema, please see [the appropriate section of the documentation](https://cbc.docs.ligo.org/projects/cbcflow/metadata.html). 
 
 ## CBCFlow
 

@@ -30,5 +30,5 @@ dynamic = ["version"]
 version = {attr = "cbcflow._version.__version__"}
 
 [project.urls]
-"Homepage" = "https://git.ligo.org/cbc/projects/meta-data"
-"Bug Tracker" = "https://git.ligo.org/cbc/projects/meta-data/-/issues"
+"Homepage" = "https://git.ligo.org/cbc/projects/cbcflow"
+"Bug Tracker" = "https://git.ligo.org/cbc/projects/cbcflow/-/issues"
