@@ -38,7 +38,9 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
             # Get the json of metadata for the superevent
             superevent = gdb.superevent(sname).json()
         except HTTPError:
-            raise ValueError(f"Superevent {sname} not found on {service_url}")
+            msg = f"Superevent {sname} not found on {service_url}. "
+            msg += "Either it does not exist, or you may need to run ligo-proxy-init."
+            raise ValueError(msg)
         # We want the one best event per pipeline
         for pipeline, event in superevent["pipeline_preferred_events"].items():
             if pipeline.lower().strip() in ["spiir", "mbta", "gstlal", "pycbc"]:

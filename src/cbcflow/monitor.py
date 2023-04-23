@@ -64,10 +64,9 @@ def generate_crontab() -> None:
 
     cron = CronTab(user=args.user_name)
     job = cron.new(command=f'{monitor_exe} {monitor_args} >> {log_file} 2>&1')
+    job.hour.every(args.monitor_interval)
     if args.monitor_minute != 0:
         job.minute.every(args.monitor_minute)
-    else:
-        job.hour.every(args.monitor_interval)
     cron.write()
 
 
