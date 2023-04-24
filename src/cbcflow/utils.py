@@ -159,9 +159,9 @@ def get_dumpable_json_diff(diff: dict) -> dict:
 def setup_logger() -> "logging.Logger":
     """Setup a logger for CBCFlow"""
     logging.basicConfig(
-        format='%(asctime)s CBCFlow %(levelname)s: %(message)s',
+        format="%(asctime)s CBCFlow %(levelname)s: %(message)s",
         level=logging.INFO,
-        datefmt='%Y-%m-%d %H:%M:%S'
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
     logger = logging.getLogger(__name__)
     return logger
