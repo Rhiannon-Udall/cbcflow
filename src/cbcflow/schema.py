@@ -1,14 +1,14 @@
 """Methods for fetching schema information"""
 import importlib.resources as importlib_resources
 import json
-import logging
 import sys
 from typing import Union
 from pathlib import Path
 
 from .configuration import get_cbcflow_config
+from .utils import setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 
 def get_schema_path(version, schema_type_designator="cbc"):
@@ -85,7 +85,7 @@ def get_schema(args: Union[list, None] = None, index_schema: bool = False) -> di
             VERSION, schema_type_designator=schema_type_designator
         )
 
-    logger.info(f"Using schema file {schema_file}")
+    logger.info(f"Using {schema_type_designator} schema file {schema_file}")
     with Path(schema_file).open("r") as file:
         schema = json.load(file)
 

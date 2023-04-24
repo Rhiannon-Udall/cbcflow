@@ -3,7 +3,6 @@ import configparser
 import copy
 import glob
 import json
-import logging
 import os
 from functools import cached_property
 import sys
@@ -17,15 +16,16 @@ import git
 from ligo.gracedb.rest import GraceDb
 from ligo.gracedb.exceptions import HTTPError
 from gwpy.time import to_gps
+import tqdm
 
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
 from .process import get_all_schema_def_defaults, get_simple_schema_defaults
 from .schema import get_schema
 from .gracedb import fetch_gracedb_information
-from .utils import get_dumpable_json_diff
+from .utils import get_dumpable_json_diff, setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 
 class Labeller(object):
@@ -254,7 +254,7 @@ class GraceDbDatabase(LibraryParent):
     def pull_library_updates(self) -> None:
         """Pulls updates from GraceDb and writes them to library, creates default data as required"""
         if hasattr(self, "superevents_to_propagate"):
-            for superevent_id in self.superevents_to_propagate:
+            for superevent_id in tqdm.tqdm(self.superevents_to_propagate):
                 if superevent_id in self.library.metadata_dict.keys():
                     metadata = self.library.metadata_dict[superevent_id]
                 else:
@@ -276,7 +276,7 @@ class GraceDbDatabase(LibraryParent):
                         # It may have to change in further schema versions
                     logger.info(f"Updates to supervent {superevent_id}")
                     string_rep_changes = get_dumpable_json_diff(changes)
-                    logger.info(json.dumps(string_rep_changes, indent=2))
+                    logger.debug(json.dumps(string_rep_changes, indent=2))
                     metadata.write_to_library()
                 except jsonschema.exceptions.ValidationError:
                     logger.warning(
@@ -315,7 +315,7 @@ class GraceDbDatabase(LibraryParent):
         else:
             now_str = event_config["created-before"]
 
-        logging.info(f"Syncing with GraceDB at time UTC:{now_str}")
+        logger.info(f"Syncing with GraceDB at time UTC:{now_str}")
         # make query and defaults, query
         query = f"created: {event_config['created-since']} .. {now_str} \
         FAR <= {event_config['far-threshold']}"
@@ -336,7 +336,7 @@ class GraceDbDatabase(LibraryParent):
         for superevent_id in self.library.metadata_dict.keys():
             if superevent_id not in self.superevents_to_propagate:
                 self.superevents_to_propagate.append(superevent_id)
-                logging.info(
+                logger.info(
                     f"Also querying superevent {superevent_id} which was in the library\
                 \n but which did not meet query parameters"
                 )
@@ -726,7 +726,7 @@ class LocalLibraryDatabase(object):
         if index_diff != {}:
             logger.info("Index data has changed since it was last written")
             string_rep_diff = get_dumpable_json_diff(index_diff)
-            logger.info(json.dumps(string_rep_diff, indent=2))
+            logger.debug(json.dumps(string_rep_diff, indent=2))
         return index_diff
 
     def write_index_file(self) -> None:

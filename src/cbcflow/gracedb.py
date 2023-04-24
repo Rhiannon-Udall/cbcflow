@@ -1,12 +1,13 @@
 """Methods for interacting with gracedb"""
-import logging
 from datetime import datetime
 from typing import Union
 
 from ligo.gracedb.exceptions import HTTPError
 from ligo.gracedb.rest import GraceDb
 
-logger = logging.getLogger(__name__)
+from .utils import setup_logger
+
+logger = setup_logger()
 
 
 def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) -> dict:
@@ -38,7 +39,9 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
             # Get the json of metadata for the superevent
             superevent = gdb.superevent(sname).json()
         except HTTPError:
-            raise ValueError(f"Superevent {sname} not found on {service_url}")
+            msg = f"Superevent {sname} not found on {service_url}. "
+            msg += "Either it does not exist, or you may need to run ligo-proxy-init."
+            raise ValueError(msg)
         # We want the one best event per pipeline
         for pipeline, event in superevent["pipeline_preferred_events"].items():
             if pipeline.lower().strip() in ["spiir", "mbta", "gstlal", "pycbc"]:
@@ -121,7 +124,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                             elif key == "HasMassGap":
                                 event_data["HasMassGap"] = embright_data[key]
                     except HTTPError:
-                        logger.info(f"No em bright provided for G-event {gname}")
+                        logger.debug(f"No em bright provided for G-event {gname}")
 
                     try:
                         # Some pipelines will provide source classification, others will not
@@ -137,7 +140,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                             elif key == "HasMassGap":
                                 event_data["PipelineHasMassGap"] = embright_data[key]
                     except HTTPError:
-                        logger.info(
+                        logger.debug(
                             f"No pipeline em bright provided for G-event {gname}"
                         )
 
@@ -181,7 +184,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                                     and could not return the event's id"
                         )
             else:
-                logger.info(
+                logger.debug(
                     f"Could not load event data for {event['graceid']} because it was from the pipeline\n\
                             {pipeline.lower().strip()} which is not supported"
                 )

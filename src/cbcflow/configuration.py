@@ -1,9 +1,10 @@
 """Methods for fetching cbcflow configuration information"""
 import configparser
-import logging
 import os
 
-logger = logging.getLogger(__name__)
+from .utils import setup_logger
+
+logger = setup_logger()
 
 
 def get_cbcflow_config(config_file: str = "~/.cbcflow.cfg") -> dict:

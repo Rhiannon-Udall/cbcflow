@@ -1,20 +1,19 @@
 """Methods for setting up and running monitors through htcondor"""
 import argparse
-import logging
 import os
 from shutil import which
 
 from glue import pipeline
+from crontab import CronTab
 
+from .utils import setup_logger
 from .configuration import get_cbcflow_config
 from .database import LocalLibraryDatabase
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 
-def generate_crondor() -> None:
-    """Creates a periodic condor to run the monitor action."""
+def get_base_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--config-file",
@@ -33,21 +32,55 @@ def generate_crondor() -> None:
         help="The directory in which to produce sub and output files",
     )
     parser.add_argument(
-        "--ligo-accounting",
-        default=os.environ["LIGO_ACCOUNTING"],
-        help="The LIGO accounting group for the job to be tagged with",
-    )
-    parser.add_argument(
-        "--ligo-user-name",
-        default=os.environ["LIGO_USER_NAME"],
-        help="The LIGO accounting user for the job to be tagged with",
-    )
-    parser.add_argument(
         "--monitor-minute",
         type=int,
         default=0,
         help="If passed, sets the minute to run the job, so that one can get quick feedback"
         "Defaults to 0 for normal operation",
+    )
+    return parser
+
+
+def generate_crontab() -> None:
+    parser = get_base_parser()
+    parser.add_argument(
+        "--user-name",
+        default=os.environ.get("USER", "N/A"),
+        help="The LIGO accounting user for the job to be tagged with",
+    )
+
+    args = parser.parse_args()
+
+    if args.rundir is None:
+        rundir = os.getcwd()
+    else:
+        rundir = args.rundir
+
+    monitor_exe = which("cbcflow_monitor_run")
+    monitor_args = f" {os.path.expanduser(args.config_file)} "
+
+    log_file = f"{rundir}/monitor.log"
+
+    cron = CronTab(user=args.user_name)
+    job = cron.new(command=f"{monitor_exe} {monitor_args} >> {log_file} 2>&1")
+    job.hour.every(args.monitor_interval)
+    job.minute.on(args.monitor_minute)
+    cron.write()
+
+
+def generate_crondor() -> None:
+    """Creates a periodic condor to run the monitor action."""
+
+    parser = get_base_parser()
+    parser.add_argument(
+        "--ligo-accounting",
+        default=os.environ.get("LIGO_ACCOUNTING", "N/A"),
+        help="The LIGO accounting group for the job to be tagged with",
+    )
+    parser.add_argument(
+        "--ligo-user-name",
+        default=os.environ.get("LIGO_USER_NAME", "N/A"),
+        help="The LIGO accounting user for the job to be tagged with",
     )
     args = parser.parse_args()
 

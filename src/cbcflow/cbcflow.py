@@ -7,7 +7,6 @@ import argparse
 import copy
 import glob
 import json
-import logging
 from typing import Tuple
 
 import jsonschema
@@ -19,13 +18,7 @@ from .database import LocalLibraryDatabase
 from .parser import get_parser_and_default_data, sname_string
 from .process import process_user_input
 from .schema import get_schema
-
-
-def setup_logger() -> "logging.Logger":
-    """Setup a logger for CBCFlow"""
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    return logger
+from .utils import setup_logger
 
 
 def setup_args_metadata() -> Tuple[argparse.Namespace, "MetaData"]:

@@ -6,7 +6,19 @@ from datetime import datetime
 from jsondiff import Symbol
 import logging
 
-logger = logging.getLogger(__name__)
+
+def setup_logger() -> "logging.Logger":
+    """Setup a logger for CBCFlow"""
+    logging.basicConfig(
+        format="%(asctime)s CBCFlow %(levelname)s: %(message)s",
+        level=logging.INFO,
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger(__name__)
+    return logger
+
+
+logger = setup_logger()
 
 
 def standardize_list(inlist: list) -> list:
