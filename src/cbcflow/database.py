@@ -3,7 +3,6 @@ import configparser
 import copy
 import glob
 import json
-import logging
 import os
 from functools import cached_property
 import sys
@@ -23,9 +22,9 @@ from .parser import get_parser_and_default_data
 from .process import get_all_schema_def_defaults, get_simple_schema_defaults
 from .schema import get_schema
 from .gracedb import fetch_gracedb_information
-from .utils import get_dumpable_json_diff
+from .utils import get_dumpable_json_diff, setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 
 class Labeller(object):
@@ -315,7 +314,7 @@ class GraceDbDatabase(LibraryParent):
         else:
             now_str = event_config["created-before"]
 
-        logging.info(f"Syncing with GraceDB at time UTC:{now_str}")
+        logger.info(f"Syncing with GraceDB at time UTC:{now_str}")
         # make query and defaults, query
         query = f"created: {event_config['created-since']} .. {now_str} \
         FAR <= {event_config['far-threshold']}"
@@ -336,7 +335,7 @@ class GraceDbDatabase(LibraryParent):
         for superevent_id in self.library.metadata_dict.keys():
             if superevent_id not in self.superevents_to_propagate:
                 self.superevents_to_propagate.append(superevent_id)
-                logging.info(
+                logger.info(
                     f"Also querying superevent {superevent_id} which was in the library\
                 \n but which did not meet query parameters"
                 )

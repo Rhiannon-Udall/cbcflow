@@ -1,12 +1,13 @@
 """Methods for interacting with gracedb"""
-import logging
 from datetime import datetime
 from typing import Union
 
 from ligo.gracedb.exceptions import HTTPError
 from ligo.gracedb.rest import GraceDb
 
-logger = logging.getLogger(__name__)
+from .utils import setup_logger
+
+logger = setup_logger()
 
 
 def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) -> dict:

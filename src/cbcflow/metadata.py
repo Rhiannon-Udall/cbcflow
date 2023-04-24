@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import copy
 import json
-import logging
 import os
 import subprocess
 import sys
@@ -15,11 +14,12 @@ from .process import process_update_json
 from .utils import get_date_last_modified
 from .parser import get_parser_and_default_data
 from .schema import get_schema
+from .utils import setup_logger
 
 if TYPE_CHECKING:
     from .database import LocalLibraryDatabase
 
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 
 class MetaData(object):

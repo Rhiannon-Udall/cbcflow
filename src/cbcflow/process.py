@@ -4,19 +4,18 @@ from __future__ import annotations
 import argparse
 import copy
 import json
-import logging
 from typing import TYPE_CHECKING, Union
 
 from benedict import benedict
 from jsonmerge import Merger
 from jsonmerge.strategies import ArrayStrategy
 
-from .utils import fill_out_linked_file, standardize_list
+from .utils import fill_out_linked_file, standardize_list, setup_logger
 
 if TYPE_CHECKING:
     from .metadata import MetaData
 
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 
 def form_update_json_from_args(

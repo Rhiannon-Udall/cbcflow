@@ -1,17 +1,16 @@
 """Methods for setting up and running monitors through htcondor"""
 import argparse
-import logging
 import os
 from shutil import which
 
 from glue import pipeline
 from crontab import CronTab
 
+from .utils import setup_logger
 from .configuration import get_cbcflow_config
 from .database import LocalLibraryDatabase
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 
 def get_base_parser():

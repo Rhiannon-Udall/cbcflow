@@ -4,6 +4,7 @@ import os
 import subprocess
 from datetime import datetime
 from jsondiff import Symbol
+import logging
 
 
 def standardize_list(inlist: list) -> list:
@@ -153,3 +154,17 @@ def get_dumpable_json_diff(diff: dict) -> dict:
         else:
             string_rep_diff[key] = val_to_write
     return string_rep_diff
+
+
+def setup_logger() -> "logging.Logger":
+    """Setup a logger for CBCFlow"""
+    logging.basicConfig(
+        format='%(asctime)s CBCFlow %(levelname)s: %(message)s',
+        level=logging.INFO,
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    logger = logging.getLogger(__name__)
+    return logger
+
+
+logger = setup_logger()

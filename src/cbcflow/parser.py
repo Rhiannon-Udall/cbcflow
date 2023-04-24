@@ -1,14 +1,14 @@
 """Parsing tools, and tools for generating default data"""
 import argparse
-import logging
 from typing import Tuple
 import re
 
 import argcomplete
 
 from .configuration import config_defaults
+from .utils import setup_logger
 
-logger = logging.getLogger(__name__)
+logger = setup_logger()
 
 IGNORE_ARGS = ["info-sname"]
 
