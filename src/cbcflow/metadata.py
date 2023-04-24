@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import sys
+import jsonschema
 from typing import TYPE_CHECKING, Union
 
 import jsondiff
@@ -251,7 +252,12 @@ class MetaData(object):
             self.library._metadata_schema,
             is_removal=is_removal,
         )
-        self.library.validate(new_metadata_data)
+        try:
+            self.library.validate(new_metadata_data)
+        except jsonschema.ValidationError as e:
+            logger.warning("Failed to validate")
+            logger.warning(f"Changes are {jsondiff.diff(new_metadata_data, self.data)}")
+            raise jsonschema.ValidationError(e.message)
         self.data = new_metadata_data
 
     def load_from_library(self) -> None:

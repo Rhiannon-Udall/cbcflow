@@ -7,6 +7,20 @@ from jsondiff import Symbol
 import logging
 
 
+def setup_logger() -> "logging.Logger":
+    """Setup a logger for CBCFlow"""
+    logging.basicConfig(
+        format="%(asctime)s CBCFlow %(levelname)s: %(message)s",
+        level=logging.INFO,
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger(__name__)
+    return logger
+
+
+logger = setup_logger()
+
+
 def standardize_list(inlist: list) -> list:
     """Creates a list sorted in a standard way
 
@@ -156,15 +170,20 @@ def get_dumpable_json_diff(diff: dict) -> dict:
     return string_rep_diff
 
 
-def setup_logger() -> "logging.Logger":
-    """Setup a logger for CBCFlow"""
-    logging.basicConfig(
-        format="%(asctime)s CBCFlow %(levelname)s: %(message)s",
-        level=logging.INFO,
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-    logger = logging.getLogger(__name__)
-    return logger
-
-
-logger = setup_logger()
+def get_url_from_public_html_dir(dirpath):
+    """Given a path to a directory in public_html, get the corresponding URL (on CIT)"""
+    if dirpath.split("/")[2] == "public_html":
+        # This is the case where files are being written directly into public html
+        # First get the stuff that comes after public_html - this structure will stay the same
+        url_extension = "/".join(dirpath.split("/")[3:])
+        # next get the user in ldas form
+        url_user = f"~{dirpath.split('/')}"
+        # Combine them
+        dir_url = f"https://ldas-jobs.ligo.caltech.edu/\
+            {url_user}/{url_extension}"
+        return dir_url
+    else:
+        logger.info(
+            "Given directory path was not in public HTML, so URL cannot be extrapolated from it"
+        )
+        return None
