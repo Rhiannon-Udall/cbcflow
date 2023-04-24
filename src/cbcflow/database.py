@@ -16,6 +16,7 @@ import git
 from ligo.gracedb.rest import GraceDb
 from ligo.gracedb.exceptions import HTTPError
 from gwpy.time import to_gps
+import tqdm
 
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
@@ -253,7 +254,7 @@ class GraceDbDatabase(LibraryParent):
     def pull_library_updates(self) -> None:
         """Pulls updates from GraceDb and writes them to library, creates default data as required"""
         if hasattr(self, "superevents_to_propagate"):
-            for superevent_id in self.superevents_to_propagate:
+            for superevent_id in tqdm.tqdm(self.superevents_to_propagate):
                 if superevent_id in self.library.metadata_dict.keys():
                     metadata = self.library.metadata_dict[superevent_id]
                 else:
@@ -275,7 +276,7 @@ class GraceDbDatabase(LibraryParent):
                         # It may have to change in further schema versions
                     logger.info(f"Updates to supervent {superevent_id}")
                     string_rep_changes = get_dumpable_json_diff(changes)
-                    logger.info(json.dumps(string_rep_changes, indent=2))
+                    logger.debug(json.dumps(string_rep_changes, indent=2))
                     metadata.write_to_library()
                 except jsonschema.exceptions.ValidationError:
                     logger.warning(
@@ -725,7 +726,7 @@ class LocalLibraryDatabase(object):
         if index_diff != {}:
             logger.info("Index data has changed since it was last written")
             string_rep_diff = get_dumpable_json_diff(index_diff)
-            logger.info(json.dumps(string_rep_diff, indent=2))
+            logger.debug(json.dumps(string_rep_diff, indent=2))
         return index_diff
 
     def write_index_file(self) -> None:

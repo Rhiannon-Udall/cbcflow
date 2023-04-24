@@ -124,7 +124,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                             elif key == "HasMassGap":
                                 event_data["HasMassGap"] = embright_data[key]
                     except HTTPError:
-                        logger.info(f"No em bright provided for G-event {gname}")
+                        logger.debug(f"No em bright provided for G-event {gname}")
 
                     try:
                         # Some pipelines will provide source classification, others will not
@@ -140,7 +140,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                             elif key == "HasMassGap":
                                 event_data["PipelineHasMassGap"] = embright_data[key]
                     except HTTPError:
-                        logger.info(
+                        logger.debug(
                             f"No pipeline em bright provided for G-event {gname}"
                         )
 
@@ -184,7 +184,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                                     and could not return the event's id"
                         )
             else:
-                logger.info(
+                logger.debug(
                     f"Could not load event data for {event['graceid']} because it was from the pipeline\n\
                             {pipeline.lower().strip()} which is not supported"
                 )
