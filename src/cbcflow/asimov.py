@@ -1,13 +1,9 @@
 import cbcflow
-import logging
 import os
 import glob
 
 from asimov.event import Event
-from asimov import config
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+from asimov import config, logger
 
 
 class Collector:
@@ -250,10 +246,11 @@ class Applicator:
             if "FrameType" in ifo.keys():
                 frame_types[ifo_name] = ifo["FrameType"]
 
+        recommended_ifos_list = list()
         if ifo_list != []:
-            data["interferometers"] = ifo_list
+            recommended_ifos_list = ifo_list
         else:
-            data["interferometers"] = participating_detectors
+            recommended_ifos_list = participating_detectors
             logger.info(
                 "No detchar recommended IFOs provided, falling back to participating detectors"
             )
@@ -272,6 +269,7 @@ class Applicator:
             "quality": quality,
             "ligo": ligo,
             "data": data,
+            "interferometers": recommended_ifos_list,
             "event time": event_time,
         }
 
