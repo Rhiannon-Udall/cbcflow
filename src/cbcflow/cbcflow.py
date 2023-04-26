@@ -154,6 +154,14 @@ def from_file() -> None:
         action="store_true",
         help="If true, do not treat the library as a git repo",
     )
+    file_parser.add_argument(
+        "--branch-name",
+        help="The name of the branch to which commits should be written."
+        "If this is not provided and main is the current active branch"
+        "A new branch will be constructed with format"
+        "user-name-yyyy-mm-dd",
+        default=None,
+    )
     args = file_parser.parse_args()
 
     # Set the sname in the default data
