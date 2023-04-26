@@ -20,7 +20,11 @@ import tqdm
 
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
-from .process import get_all_schema_def_defaults, get_simple_schema_defaults
+from .process import (
+    get_all_schema_def_defaults,
+    get_simple_schema_defaults,
+    process_update_json,
+)
 from .schema import get_schema
 from .gracedb import fetch_gracedb_information
 from .utils import get_dumpable_json_diff, setup_logger
@@ -563,7 +567,11 @@ class LocalLibraryDatabase(object):
         self.repo = git.Repo(self.library)
 
     def git_add_and_commit(
-        self, filename, message: Union[str, None] = None, sname: Union[str, None] = None
+        self,
+        filename,
+        message: Union[str, None] = None,
+        sname: Union[str, None] = None,
+        branch_name: Union[str, None] = None,
     ) -> None:
         """
         Perform the git operations add and commit
@@ -577,6 +585,13 @@ class LocalLibraryDatabase(object):
         sname : str, optional
             The sname of the metadata, if a metadata file is what is being committed.
             Used for generating a default commit message.
+        branch_name: str, optional
+            The name of the branch to which the commit will be written:
+            If not passed, then:
+                - If the current branch is main, a new branch name will be formulaically generated
+                - If the current branch is not main, then the current branch will be used
+            If passed as "main", then the main branch will be written to explicitly
+            If passed as a string other than main, then that branch will be created if necessary, and checked out.
         """
         if not hasattr(self, "repo"):
             # If necessary, initialize git information for this library
@@ -604,6 +619,25 @@ class LocalLibraryDatabase(object):
             if message is None:
                 message = "No information provided about this commit, and could not infer from context"
 
+        if branch_name is None:
+            if self.repo.active_branch == self.repo.heads["main"]:
+                # If we are currently on main, we want to checkout a new branch
+                logger.info(
+                    "Branch main is currently checked out, and no new branch title was passed"
+                )
+                logger.info("Creating and checking out new branch")
+                # Placeholder - TODO solicit feedback on what to name this
+                generated_branch_title = "default"
+                self.git_checkout_new_branch(generated_branch_title)
+            else:
+                # Otherwise, we can stay on our current branch
+                pass
+        else:
+            if branch_name == "main":
+                # The case where we are forcing the commit onto main
+                logger.info("Commit explicitly made to main")
+            self.git_checkout_new_branch(branch_name)
+
         self.repo.git.add(filename)
         self.repo.git.commit("-m", message)
 
@@ -625,6 +659,23 @@ class LocalLibraryDatabase(object):
             self.remote_has_merge_conflict = True
             logger.info("Resetting to pre-merge state")
             self.repo.git.reset("--merge")
+
+    def git_checkout_new_branch(self, branch_title: str) -> None:
+        """Checkout a branch, creating it if necessary
+
+        Parameters
+        ==========
+        branch_title : str
+            The title of the branch to create
+        """
+        # https://gitpython.readthedocs.io/en/stable/tutorial.html
+        if branch_title not in self.repo.heads:
+            logger.info(f"Creating branch {branch_title}")
+            # Create a new branch with title branch_title
+            self.repo.create_head(branch_title)
+        # Check out that branch
+        logger.info(f"Checking out branch {branch_title}")
+        self.repo.heads[branch_title].checkout()
 
     ############################################################################
     ############################################################################
@@ -728,6 +779,23 @@ class LocalLibraryDatabase(object):
             string_rep_diff = get_dumpable_json_diff(index_diff)
             logger.debug(json.dumps(string_rep_diff, indent=2))
         return index_diff
+
+    def set_working_index_with_updates_to_file_index(self) -> None:
+        """Sometimes, we want to *update* the index instead of overwrite it.
+        This sets the working index to do just that.
+        Note:
+        - This will not remove events even if they are no longer satisfy index requirements
+        - If the working index has labels already set, this will concatenate those to the
+        labels in the file index, rather than overwriting, which may be undesirable"""
+        # Generate the working index from
+        if self.working_index == dict():
+            self.working_index = self.generate_index_from_metadata()
+        # Do a copy in case of python scope shenanigans
+        working_index_copy = copy.deepcopy(self.working_index)
+        # Use update methods to apply the update
+        self.working_index = process_update_json(
+            working_index_copy, self.index_from_file, self.library_index_schema
+        )
 
     def write_index_file(self) -> None:
         """Writes the new index to the library"""

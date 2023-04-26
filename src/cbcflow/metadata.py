@@ -270,7 +270,10 @@ class MetaData(object):
         self._loaded_data = copy.deepcopy(data)
 
     def write_to_library(
-        self, message: Union[str, None] = None, check_changes: bool = False
+        self,
+        message: Union[str, None] = None,
+        check_changes: bool = False,
+        create_branch=False,
     ) -> None:
         """
         Write loaded metadata back to library, and stage/commit if the library is a git repository
@@ -281,6 +284,8 @@ class MetaData(object):
             If passed, this message will be used for the git commit instead of the default.
         check_changes : bool | True, False
             If true, ask the user to confirm the changes before changing the information on disk.
+        create_branch : bool, optional
+            If set as True, then automatically checkout a new branch for this change.
         """
         if self.is_updated is False:
             logger.info("No changes made, exiting")
@@ -296,6 +301,9 @@ class MetaData(object):
             commit_changes = True
 
         if commit_changes:
+            if self.no_git_library is False and create_branch:
+                # TODO actions!
+                pass
             logger.info(f"Writing file {self.library_file}")
             with open(self.library_file, "w") as file:
                 json.dump(self.data, file, indent=2)

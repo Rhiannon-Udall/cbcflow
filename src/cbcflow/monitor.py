@@ -146,8 +146,10 @@ def run_monitor() -> None:
     local_library.initialize_parent(source_path=config_values["gracedb_service_url"])
     local_library.library_parent.sync_library()
     logger.info("Updating index file for library")
-    # In the future labelling can happen via monitor, but for now do it in gitlab
-    local_library.label_index_file()
+    # For now we don't want to do any labelling locally, instead doing it all in gitlab
+    # set_working_index... will change LastUpdate and add events
+    # but won't touch the labels
+    local_library.set_working_index_with_updates_to_file_index()
     local_library.write_index_file()
     if not local_library.remote_has_merge_conflict:
         logger.info("Pushing to remote")
