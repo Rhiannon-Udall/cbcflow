@@ -198,7 +198,10 @@ class Collector:
 
                     pe.append(analysis_output)
                     metadata.update(output)
-                    metadata.write_to_library(message="Analysis run update by asimov")
+                    # Note that Asimov *should* write to main, unlike most other processes
+                    metadata.write_to_library(
+                        message="Analysis run update by asimov", branch_name="main"
+                    )
                 else:
                     logger.info(
                         f"Pipeline {analysis.pipeline} is not supported by cbcflow"

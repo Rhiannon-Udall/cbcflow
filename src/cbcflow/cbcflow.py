@@ -60,7 +60,7 @@ def pull() -> None:
     gdb_data = fetch_gracedb_information(args.sname, args.gracedb_service_url)
     metadata.data.update(gdb_data)
     try:
-        metadata.write_to_library()
+        metadata.write_to_library(branch_name=args.branch_name)
     except jsonschema.exceptions.ValidationError:
         logger.info(
             "GraceDB data cannot be validated against current schema\n\
@@ -70,7 +70,7 @@ def pull() -> None:
             logger.info(
                 "Since no local library file exists yet, it will be initialized with valid defaults"
             )
-            default_metadata.write_to_library()
+            default_metadata.write_to_library(branch_name=args.branch_name)
 
 
 def update() -> None:
@@ -87,7 +87,9 @@ def update() -> None:
             check_changes = False
         else:
             check_changes = True
-        metadata.write_to_library(check_changes=check_changes)
+        metadata.write_to_library(
+            check_changes=check_changes, branch_name=args.branch_name
+        )
 
 
 def print_metadata() -> None:
