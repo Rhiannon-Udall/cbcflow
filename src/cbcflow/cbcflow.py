@@ -121,8 +121,6 @@ def print_metadata() -> None:
 
 def from_file() -> None:
     """Given a superevent and an update file, apply the updates"""
-    logger = setup_logger()
-
     # Read in command line arguments
     schema = get_schema()
     _, default_data = get_parser_and_default_data(schema)
@@ -196,14 +194,13 @@ def from_file() -> None:
             and that it's ending reflects this."
         )
 
-    logger.info("Read File Contents:")
-    logger.info(json.dumps(file_contents, indent=4))
-
-    logger.info("Updating Metadata")
     metadata.update(file_contents, is_removal=args.removal_file)
 
-    logger.info("Writing to library")
-    metadata.write_to_library()
+    if args.yes:
+        check_changes = False
+    else:
+        check_changes = True
+    metadata.write_to_library(check_changes=check_changes, branch_name=args.branch_name)
 
 
 def validate_library() -> None:
