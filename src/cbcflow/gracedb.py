@@ -130,7 +130,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                         # Some pipelines will provide source classification, others will not
                         # This is that information where available
                         embright_data = gdb.files(
-                            gname, f"{pipeline}.em_bright.json"
+                            gname, f"{pipeline.lower()}.em_bright.json"
                         ).json()
                         for key in embright_data:
                             if key == "HasNS":
