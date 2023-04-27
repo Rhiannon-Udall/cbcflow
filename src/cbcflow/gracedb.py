@@ -183,6 +183,78 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                             f"Failed to load an event for superevent {sname},\
                                     and could not return the event's id"
                         )
+            elif pipeline.lower().strip() == "cwb":
+                # cwb specific logic
+                try:
+                    event_data = dict()
+                    # Get the
+                    gname = event["graceid"]
+                    # Get the preferred event across pipelines
+                    if gname == superevent["preferred_event"]:
+                        data["GraceDB"]["Instruments"] = event["instruments"]
+                        event_data["State"] = "preferred"
+                    else:
+                        event_data["State"] = "neighbor"
+                    event_data["UID"] = gname
+                    event_data["Pipeline"] = pipeline
+                    # We specifically want the label that conveys whether this is
+                    # an offline or online result (or which offline)
+                    for label in event["labels"]:
+                        if "GWTC" in label:
+                            event_data["Label"] = label
+                    event_data["GPSTime"] = event["gpstime"]
+                    event_data["FAR"] = event["far"]
+                    event_data["NetworkSNR"] = event["extra_attributes"]["MultiBurst"][
+                        "snr"
+                    ]
+                    try:
+                        # All pipelines should provide source classification
+                        pastro_data = gdb.files(
+                            gname, f"{pipeline.lower()}.p_astro.json"
+                        ).json()
+
+                        event_data["Pastro"] = 1 - pastro_data["Terrestrial"]
+                        event_data["Pbbh"] = pastro_data["BBH"]
+                        event_data["Pbns"] = pastro_data["BNS"]
+                        event_data["Pnsbh"] = pastro_data["NSBH"]
+                    except HTTPError:
+                        logger.warning(
+                            f"Was not able to get source classification for G-event {gname}"
+                        )
+
+                    try:
+                        pass
+                        # trigger_file = gdb.files(gname, "trigger.txt")
+                    except HTTPError:
+                        logger.warning(
+                            f"Was not able to access trigger.txt for G-event {gname}"
+                        )
+
+                    try:
+                        file_links = gdb.files(gname, "").json()
+                        event_data["Skymap"] = file_links["cwb.multiorder.fits"]
+                        event_data["SourceClassification"] = file_links[
+                            f"{pipeline.lower()}.p_astro.json"
+                        ]
+                    except HTTPError:
+                        logger.warning(
+                            f"Could not fetch file links for G-event {gname}"
+                        )
+
+                    # Add the final event data to the array
+                    data["GraceDB"]["Events"].append(event_data)
+
+                except KeyError as err:
+                    logger.warning(f"Failed with key error {err}")
+                    if "graceid" in event.keys():
+                        logger.warning(
+                            f"Failed to load data for event {event['graceid']}"
+                        )
+                    else:
+                        logger.warning(
+                            f"Failed to load an event for superevent {sname},\
+                                    and could not return the event's id"
+                        )
             else:
                 logger.debug(
                     f"Could not load event data for {event['graceid']} because it was from the pipeline\n\
