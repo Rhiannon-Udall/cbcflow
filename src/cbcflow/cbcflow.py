@@ -160,6 +160,11 @@ def from_file() -> None:
         "user-name-yyyy-mm-dd",
         default=None,
     )
+    file_parser.add_argument(
+        "--yes",
+        help="Do not ask for confirmation",
+        action="store_true",
+    )
     args = file_parser.parse_args()
 
     # Set the sname in the default data
