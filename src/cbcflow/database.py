@@ -607,6 +607,31 @@ class LocalLibraryDatabase(object):
         self.repo.git.add(filename)
         self.repo.git.commit("-m", message)
 
+    def git_merge_metadata_jsons(
+        self, base_ref: str, head_ref: str, most_recent_common_ancestor: str
+    ) -> None:
+        """Merge metadata jsons in a manner which preserves meaning
+
+        Parameters
+        ==========
+        base_ref : str
+            The ref being merged onto
+        head_ref : str
+            The ref being merged in
+        most_recent_common_ancestor : str
+            The most recent common ancestor (MRCA) commit
+        """
+        # What needs to be done:
+        # First order solution is to simply load each json, then use the update method
+        # Next, we need to evaluate whether these branches have incompatible changes
+        # This *should* only involve checking whether there are any scalar fields
+        # Which are modified from MRCA in both refs
+        # These are *honest* merge conflicts, and must be resolved by a person
+        # We also want a way to combine lists correctly without
+        # a) duplicating elements
+        # b) re-adding elements that should be removed
+        pass
+
     def git_push_to_remote(self) -> None:
         """Push changes made to the library to the tracking remote"""
         if not hasattr(self, "repo"):
