@@ -613,8 +613,6 @@ def process_merge_json(
         base_json=base_json, head_json=head_json, mrca_json=mrca_json
     )
 
-    logger.error(changes_given_mrca)
-
     if changes_given_mrca is None:
         changes_given_mrca = dict()
 

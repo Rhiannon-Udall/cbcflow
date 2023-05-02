@@ -12,6 +12,7 @@ Finally, we provide autobuilt API documentation.
    :caption: Getting Started
 
    configuration
+   local-library-copy-setup
    what-is-metadata
    reading-the-schema
    updating-metadata-from-the-command-line
@@ -23,10 +24,11 @@ Finally, we provide autobuilt API documentation.
    :caption: Expert Usage
 
    development-setup
-   library-setup
+   library-setup-from-scratch
    monitor-usage
    library-indices
    library-index-labelling
+   cbcflow-git-merging
 
 .. toctree::
    :maxdepth: 1

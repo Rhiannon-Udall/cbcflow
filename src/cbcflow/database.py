@@ -20,7 +20,11 @@ import tqdm
 
 from .metadata import MetaData
 from .parser import get_parser_and_default_data
-from .process import get_all_schema_def_defaults, get_simple_schema_defaults
+from .process import (
+    get_all_schema_def_defaults,
+    get_simple_schema_defaults,
+    process_merge_json,
+)
 from .schema import get_schema
 from .gracedb import fetch_gracedb_information
 from .utils import get_dumpable_json_diff, setup_logger
@@ -608,29 +612,44 @@ class LocalLibraryDatabase(object):
         self.repo.git.commit("-m", message)
 
     def git_merge_metadata_jsons(
-        self, base_ref: str, head_ref: str, most_recent_common_ancestor: str
+        self, our_file: str, their_file: str, most_recent_common_ancestor_file: str
     ) -> None:
         """Merge metadata jsons in a manner which preserves meaning
 
         Parameters
         ==========
-        base_ref : str
-            The ref being merged onto
-        head_ref : str
-            The ref being merged in
-        most_recent_common_ancestor : str
-            The most recent common ancestor (MRCA) commit
+        our_file : str
+            The file in the base (current)
+        their_file : str
+            The file from head (changes being applied)
+        most_recent_common_ancestor_file : str
+            The file from the MRCA (last commit shared by head and base)
         """
-        # What needs to be done:
-        # First order solution is to simply load each json, then use the update method
-        # Next, we need to evaluate whether these branches have incompatible changes
-        # This *should* only involve checking whether there are any scalar fields
-        # Which are modified from MRCA in both refs
-        # These are *honest* merge conflicts, and must be resolved by a person
-        # We also want a way to combine lists correctly without
-        # a) duplicating elements
-        # b) re-adding elements that should be removed
-        pass
+        # `cbcflow.process.process_merge_json handles the logic for us`
+        # We just need to load in files here
+        with open(our_file, "r") as file:
+            head_json = json.load(file)
+        with open(their_file, "r") as file:
+            base_json = json.load(file)
+        with open(most_recent_common_ancestor_file, "r") as file:
+            mrca_json = json.load(file)
+
+        # Now get the merged json and the return status
+        merge_json, return_status = process_merge_json(
+            base_json=base_json,
+            head_json=head_json,
+            mrca_json=mrca_json,
+            schema=self.metadata_schema,
+        )
+
+        # Base is where changes should be written
+        with open(our_file, "w") as file:
+            json.dump(merge_json, file, indent=2)
+
+        # Return status tracks whether there are merge conflicts
+        # 0 is good
+        # 1 is conflicts
+        return return_status
 
     def git_push_to_remote(self) -> None:
         """Push changes made to the library to the tracking remote"""
@@ -638,8 +657,8 @@ class LocalLibraryDatabase(object):
             self._initialize_library_git_repo()
         self.repo.git.push()
 
-    def git_pull_from_remote(self) -> None:
-        """Attempt to pull from the remote"""
+    def git_pull_from_remote(self, automated=False) -> None:
+        """Pull from remote using our special logic"""
         if not hasattr(self, "repo"):
             self._initialize_library_git_repo()
         try:
@@ -647,9 +666,11 @@ class LocalLibraryDatabase(object):
         except Exception as e:
             logger.info("Pull failed:")
             logger.info(e)
-            self.remote_has_merge_conflict = True
-            logger.info("Resetting to pre-merge state")
-            self.repo.git.reset("--merge")
+            if automated:
+                logger.info("Automated mode prioritizes continued json validity")
+                self.remote_has_merge_conflict = True
+                logger.info("Resetting to pre-merge state")
+                self.repo.git.reset("--merge")
 
     ############################################################################
     ############################################################################
