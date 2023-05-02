@@ -240,17 +240,25 @@ class TestMergingMetadata(unittest.TestCase):
         """A test that a scalar outside of an object in an array can be
         written correctly when it changes from MRCA in either the head or the base,
         but not in both.
-        We will use ParameterEstimation-SafeLowerChirpMass and ParameterEstimation-SafeUpperChirpMass
-        for base and head respectively.
-        SafeLowerMassRatio acts as a built in consistency check
+        We will use ParameterEstimation-SafeLowerChirpMass, ParameterEstimation-SafeUpperChirpMass,
+        ParameterEstimation-SafeLowerPrimaryMass and ParameterEstimation-SafeUpperPrimaryMass
         """
-        # Set MRCA values for lower and upper
-        self.mrca_json["ParameterEstimation"]["SafeLowerChirpMass"] = 5
-        self.mrca_json["ParameterEstimation"]["SafeUpperChirpMass"] = 15
 
-        # Set Base and Head to have changed values for different fields respectively
+        # Case 1 - MRCA sets, head maintains, base changes
+        self.mrca_json["ParameterEstimation"]["SafeLowerChirpMass"] = 5
         self.base_json["ParameterEstimation"]["SafeLowerChirpMass"] = 4
+        self.head_json["ParameterEstimation"]["SafeLowerChirpMass"] = 5
+
+        # Case 2 - MRCA sets, base maintains, head changes
+        self.mrca_json["ParameterEstimation"]["SafeUpperChirpMass"] = 15
         self.head_json["ParameterEstimation"]["SafeUpperChirpMass"] = 16
+        self.base_json["ParameterEstimation"]["SafeUpperChirpMass"] = 15
+
+        # Case 3 - MRCA blank, base blank, head adds
+        self.head_json["ParameterEstimation"]["SafeUpperPrimaryMass"] = 40
+
+        # Case 4 - MRCA blank, base adds, head blank
+        self.base_json["ParameterEstimation"]["SafeLowerPrimaryMass"] = 5
 
         # Do the merge
         merge_json, return_status = process_merge_json(
@@ -260,6 +268,8 @@ class TestMergingMetadata(unittest.TestCase):
         # Set the check values
         self.check_json["ParameterEstimation"]["SafeLowerChirpMass"] = 4
         self.check_json["ParameterEstimation"]["SafeUpperChirpMass"] = 16
+        self.check_json["ParameterEstimation"]["SafeLowerPrimaryMass"] = 5
+        self.check_json["ParameterEstimation"]["SafeUpperPrimaryMass"] = 40
 
         # Assess similarity
         assert merge_json == self.check_json
@@ -273,15 +283,20 @@ class TestMergingMetadata(unittest.TestCase):
         We will use the InferenceSoftware and WaveformApproximant field of two PEResult objects in
         ParameterEstimation-Results for base and head respectively
         """
-        # Setup some MRCA values for one result
-        # Intentionally leave blank for the other
+        # Case 1 : MRCA sets, base changes, head maintains
         self.mrca_json["ParameterEstimation"]["Results"][0]["WaveformApproximant"] = "1"
-        self.mrca_json["ParameterEstimation"]["Results"][0]["InferenceSoftware"] = "2"
-
-        # Set head and base changes
         self.head_json["ParameterEstimation"]["Results"][0]["WaveformApproximant"] = "5"
+        self.base_json["ParameterEstimation"]["Results"][0]["WaveformApproximant"] = "1"
+
+        # Case 2: MRCA sets, base maintains, head changes
+        self.mrca_json["ParameterEstimation"]["Results"][0]["InferenceSoftware"] = "2"
         self.base_json["ParameterEstimation"]["Results"][0]["InferenceSoftware"] = "6"
+        self.head_json["ParameterEstimation"]["Results"][0]["InferenceSoftware"] = "2"
+
+        # Case 3: MRCA blank, base blank, head changes
         self.head_json["ParameterEstimation"]["Results"][1]["WaveformApproximant"] = "7"
+
+        # Case 4: MRCA blank, base changes, head blank
         self.base_json["ParameterEstimation"]["Results"][1]["InferenceSoftware"] = "8"
 
         # Do the merge
@@ -308,10 +323,88 @@ class TestMergingMetadata(unittest.TestCase):
         """A test that a scalar inside of an object inside of an object in an array can be
         written correctly when it changes from MRCA in either the head or the base,
         but not in both.
-        We will use the ConfigFile field of two PEResult objects in
+        We will use the ConfigFile and ResultFile fields of two PEResult objects in
         ParameterEstimation-Results
         """
-        pass
+        # Case 1: MRCA Sets, base maintains, head changes
+        self.mrca_json["ParameterEstimation"]["Results"][0]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-1.txt",
+            "MD5Sum": "eef9ce62b99d7f164ee1f2cc93867cca",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+        self.base_json["ParameterEstimation"]["Results"][0]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-1.txt",
+            "MD5Sum": "eef9ce62b99d7f164ee1f2cc93867cca",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+        self.head_json["ParameterEstimation"]["Results"][0]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+
+        # Case 2: MRCA sets, base changes, head maintains
+        self.mrca_json["ParameterEstimation"]["Results"][0]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-1.txt",
+            "MD5Sum": "eef9ce62b99d7f164ee1f2cc93867cca",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+        self.head_json["ParameterEstimation"]["Results"][0]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-1.txt",
+            "MD5Sum": "eef9ce62b99d7f164ee1f2cc93867cca",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+        self.base_json["ParameterEstimation"]["Results"][0]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+
+        # Case 3: MRCA blank, base blank, head adds
+        self.head_json["ParameterEstimation"]["Results"][1]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+
+        # Case 4: MRCA blank, base adds, head blank
+        self.base_json["ParameterEstimation"]["Results"][1]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        # Set the check values
+        self.check_json["ParameterEstimation"]["Results"][0]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+        self.check_json["ParameterEstimation"]["Results"][0]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+        self.check_json["ParameterEstimation"]["Results"][1]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+        self.check_json["ParameterEstimation"]["Results"][1]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+
+        # Assert similarity
+        assert merge_json == self.check_json
+        # Assert no merge conflicts
+        assert return_status == 0
 
     def test_scalar_overwrite_inside_object_in_array_inside_object_in_array(
         self,
@@ -322,33 +415,283 @@ class TestMergingMetadata(unittest.TestCase):
         We will use the InferenceSoftware field for four PEResult objects, two each in two
         TestingGR-BHMAnalyses Analysis objects
         """
-        pass
+        # Case 1: MRCA set, base maintains, head changes
+        self.mrca_json["TestingGR"]["BHMAnalyses"][0]["Results"][0][
+            "InferenceSoftware"
+        ] = "1"
+        self.base_json["TestingGR"]["BHMAnalyses"][0]["Results"][0][
+            "InferenceSoftware"
+        ] = "1"
+        self.head_json["TestingGR"]["BHMAnalyses"][0]["Results"][0][
+            "InferenceSoftware"
+        ] = "3"
+
+        # Case 2: MRCA set, base changes, head maintains
+        self.mrca_json["TestingGR"]["BHMAnalyses"][0]["Results"][1][
+            "InferenceSoftware"
+        ] = "2"
+        self.head_json["TestingGR"]["BHMAnalyses"][0]["Results"][1][
+            "InferenceSoftware"
+        ] = "4"
+        self.base_json["TestingGR"]["BHMAnalyses"][0]["Results"][1][
+            "InferenceSoftware"
+        ] = "2"
+
+        # Case 3: MRCA blank, base blank, head adds
+        self.head_json["TestingGR"]["BHMAnalyses"][1]["Results"][0][
+            "InferenceSoftware"
+        ] = "5"
+
+        # Case 4: MRCA blank, base adds, head blank
+        self.base_json["TestingGR"]["BHMAnalyses"][1]["Results"][1][
+            "InferenceSoftware"
+        ] = "6"
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        # Set the check values
+        self.check_json["TestingGR"]["BHMAnalyses"][0]["Results"][0][
+            "InferenceSoftware"
+        ] = "3"
+        self.check_json["TestingGR"]["BHMAnalyses"][0]["Results"][1][
+            "InferenceSoftware"
+        ] = "4"
+        self.check_json["TestingGR"]["BHMAnalyses"][1]["Results"][0][
+            "InferenceSoftware"
+        ] = "5"
+        self.check_json["TestingGR"]["BHMAnalyses"][1]["Results"][1][
+            "InferenceSoftware"
+        ] = "6"
+
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess no merge conflicts
+        assert return_status == 0
 
     def test_basic_scalar_conflict(self) -> None:
         """A test that a scalar outside of an object in an array can be
         written correctly when it changes from MRCA in either the head or the base,
         but not in both.
-        We will use ParameterEstimation-Status
+        We will use ParameterEstimation-SafeLowerChirpMass, ParameterEstimation-SafeUpperChirpMass,
+        ParameterEstimation-SafeLowerPrimaryMass, ParameterEstimation-SafeUpperPrimaryMass
         """
-        pass
+        # Case 1: MRCA sets, both base and head change
+        self.mrca_json["ParameterEstimation"]["SafeLowerChirpMass"] = 5
+        self.head_json["ParameterEstimation"]["SafeLowerChirpMass"] = 4
+        self.base_json["ParameterEstimation"]["SafeLowerChirpMass"] = 6
+
+        # Case 2: MRCA blank, both base and head add
+        self.head_json["ParameterEstimation"]["SafeUpperChirpMass"] = 14
+        self.base_json["ParameterEstimation"]["SafeUpperChirpMass"] = 16
+
+        # Case 3: MRCA sets, both base and head change in the same way
+        self.mrca_json["ParameterEstimation"]["SafeLowerPrimaryMass"] = 25
+        self.head_json["ParameterEstimation"]["SafeLowerPrimaryMass"] = 24
+        self.base_json["ParameterEstimation"]["SafeLowerPrimaryMass"] = 24
+
+        # Case 4: MRCA blank, both base and head set in the same way
+        self.head_json["ParameterEstimation"]["SafeUpperPrimaryMass"] = 36
+        self.base_json["ParameterEstimation"]["SafeUpperPrimaryMass"] = 36
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        # Set the check values
+        self.check_json["ParameterEstimation"][
+            "SafeLowerChirpMass"
+        ] = "<<<<<<Base Value:6 - Head Value:4 - MRCA Value:5>>>>>>"
+        self.check_json["ParameterEstimation"][
+            "SafeUpperChirpMass"
+        ] = "<<<<<<Base Value:16 - Head Value:14 - MRCA Value:None>>>>>>"
+        self.check_json["ParameterEstimation"]["SafeLowerPrimaryMass"] = 24
+        self.check_json["ParameterEstimation"]["SafeUpperPrimaryMass"] = 36
+
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess that there are indeed merge conflicts
+        assert return_status == 1
 
     def test_scalar_conflict_inside_object_in_array(self) -> None:
         """A test that a scalar inside of an object in an array can be
         written correctly when it changes from MRCA in either the head or the base,
         but not in both.
-        We will use the WaveformApproximant field of two PEResult objects in
+        We will use the WaveformApproximant and InferenceSoftware fields of two PEResult objects in
         ParameterEstimation-Results
         """
-        pass
+        # Case 1: MRCA sets, both base and head change
+        self.mrca_json["ParameterEstimation"]["Results"][0]["WaveformApproximant"] = "1"
+        self.base_json["ParameterEstimation"]["Results"][0]["WaveformApproximant"] = "2"
+        self.head_json["ParameterEstimation"]["Results"][0]["WaveformApproximant"] = "3"
+
+        # Case 2: MRCA blank, both base and head add
+        self.base_json["ParameterEstimation"]["Results"][1]["WaveformApproximant"] = "4"
+        self.head_json["ParameterEstimation"]["Results"][1]["WaveformApproximant"] = "5"
+
+        # Case 3: MRCA sets, both base and head change
+        self.mrca_json["ParameterEstimation"]["Results"][0]["InferenceSoftware"] = "11"
+        self.base_json["ParameterEstimation"]["Results"][0]["InferenceSoftware"] = "12"
+        self.head_json["ParameterEstimation"]["Results"][0]["InferenceSoftware"] = "12"
+
+        # Case 4: MRCA blank, both base and head change
+        self.base_json["ParameterEstimation"]["Results"][1]["InferenceSoftware"] = "14"
+        self.head_json["ParameterEstimation"]["Results"][1]["InferenceSoftware"] = "14"
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        # Set the check values
+        self.check_json["ParameterEstimation"]["Results"][0][
+            "WaveformApproximant"
+        ] = "<<<<<<Base Value:2 - Head Value:3 - MRCA Value:1>>>>>>"
+        self.check_json["ParameterEstimation"]["Results"][1][
+            "WaveformApproximant"
+        ] = "<<<<<<Base Value:4 - Head Value:5 - MRCA Value:None>>>>>>"
+        self.check_json["ParameterEstimation"]["Results"][0]["InferenceSoftware"] = "12"
+        self.check_json["ParameterEstimation"]["Results"][1]["InferenceSoftware"] = "14"
+
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess that there are indeed merge conflicts
+        assert return_status == 1
 
     def test_scalar_conflict_inside_object_inside_object_in_array(self) -> None:
         """A test that a scalar inside of an object inside of an object in an array can be
         written correctly when it changes from MRCA in either the head or the base,
         but not in both.
-        We will use the ResultFile field of two PEResult objects in
+        We will use the ConfigFile and ResultFile fields of two PEResult objects in
         ParameterEstimation-Results
         """
-        pass
+        # Case 1: MRCA sets, both base and head change
+        self.mrca_json["ParameterEstimation"]["Results"][0]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-1.txt",
+            "MD5Sum": "eef9ce62b99d7f164ee1f2cc93867cca",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+        self.base_json["ParameterEstimation"]["Results"][0]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:50",
+        }
+        self.head_json["ParameterEstimation"]["Results"][0]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-3.txt",
+            "MD5Sum": "29542515ebea994dab9faee07167a0e3",
+            "DateLastModified": "2023/05/02 01:04:54",
+        }
+
+        # Case 2: MRCA blank, both base and head add
+        self.base_json["ParameterEstimation"]["Results"][1]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:50",
+        }
+        self.head_json["ParameterEstimation"]["Results"][1]["ConfigFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-3.txt",
+            "MD5Sum": "29542515ebea994dab9faee07167a0e3",
+            "DateLastModified": "2023/05/02 01:04:54",
+        }
+
+        # Case 3: MRCA sets, both base and head change
+        self.mrca_json["ParameterEstimation"]["Results"][0]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-1.txt",
+            "MD5Sum": "eef9ce62b99d7f164ee1f2cc93867cca",
+            "DateLastModified": "2023/04/07 12:31:49",
+        }
+        self.base_json["ParameterEstimation"]["Results"][0]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:50",
+        }
+        self.head_json["ParameterEstimation"]["Results"][0]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:50",
+        }
+
+        # Case 4: MRCA blank, both base and head change
+        self.base_json["ParameterEstimation"]["Results"][1]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:50",
+        }
+        self.head_json["ParameterEstimation"]["Results"][1]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:50",
+        }
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        logger.error(json.dumps(merge_json["ParameterEstimation"]["Results"], indent=2))
+
+        # Set the check values
+        self.check_json["ParameterEstimation"]["Results"][0]["ConfigFile"] = {
+            "Path": (
+                "<<<<<<Base Value:CIT:/home/rhiannon.udall/meta-data/meta-data/"
+                "tests/files_for_testing/test-file-for-linking-2.txt -"
+                " Head Value:CIT:/home/rhiannon.udall/meta-data/meta-data/"
+                "tests/files_for_testing/test-file-for-linking-3.txt -"
+                " MRCA Value:CIT:/home/rhiannon.udall/meta-data/meta-data/"
+                "tests/files_for_testing/test-file-for-linking-1.txt>>>>>>"
+            ),
+            "MD5Sum": (
+                "<<<<<<Base Value:c4cf5fdc9c3efd65ca3d549f188e82cf -"
+                " Head Value:29542515ebea994dab9faee07167a0e3 -"
+                " MRCA Value:eef9ce62b99d7f164ee1f2cc93867cca>>>>>>"
+            ),
+            "DateLastModified": (
+                "<<<<<<Base Value:2023/04/07 12:31:50 -"
+                " Head Value:2023/05/02 01:04:54 -"
+                " MRCA Value:2023/04/07 12:31:49>>>>>>"
+            ),
+        }
+        self.check_json["ParameterEstimation"]["Results"][1]["ConfigFile"] = {
+            "Path": (
+                "<<<<<<Base Value:CIT:/home/rhiannon.udall/meta-data/meta-data/"
+                "tests/files_for_testing/test-file-for-linking-2.txt -"
+                " Head Value:CIT:/home/rhiannon.udall/meta-data/meta-data/"
+                "tests/files_for_testing/test-file-for-linking-3.txt -"
+                " MRCA Value:None>>>>>>"
+            ),
+            "MD5Sum": (
+                "<<<<<<Base Value:c4cf5fdc9c3efd65ca3d549f188e82cf -"
+                " Head Value:29542515ebea994dab9faee07167a0e3 -"
+                " MRCA Value:None>>>>>>"
+            ),
+            "DateLastModified": (
+                "<<<<<<Base Value:2023/04/07 12:31:50 -"
+                " Head Value:2023/05/02 01:04:54 -"
+                " MRCA Value:None>>>>>>"
+            ),
+        }
+        self.check_json["ParameterEstimation"]["Results"][0]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:50",
+        }
+        self.check_json["ParameterEstimation"]["Results"][1]["ResultFile"] = {
+            "Path": "CIT:/home/rhiannon.udall/meta-data/meta-data/tests/files_for_testing/test-file-for-linking-2.txt",
+            "MD5Sum": "c4cf5fdc9c3efd65ca3d549f188e82cf",
+            "DateLastModified": "2023/04/07 12:31:50",
+        }
+
+        logger.error(
+            json.dumps(self.check_json["ParameterEstimation"]["Results"], indent=2)
+        )
+
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess that there are indeed merge conflicts
+        assert return_status == 1
 
     def test_scalar_conflict_inside_object_in_array_inside_object_in_array(
         self,
@@ -359,4 +702,64 @@ class TestMergingMetadata(unittest.TestCase):
         We will use the InferenceSoftware field for four PEResult objects, two each in two
         TestingGR-IMRCTAnalyses Analysis objects
         """
-        pass
+        # Case 1: MRCA sets, both base and head change
+        self.mrca_json["TestingGR"]["IMRCTAnalyses"][0]["Results"][0][
+            "InferenceSoftware"
+        ] = "1"
+        self.base_json["TestingGR"]["IMRCTAnalyses"][0]["Results"][0][
+            "InferenceSoftware"
+        ] = "2"
+        self.head_json["TestingGR"]["IMRCTAnalyses"][0]["Results"][0][
+            "InferenceSoftware"
+        ] = "3"
+
+        # Case 2: MRCA blank, both base and head add
+        self.base_json["TestingGR"]["IMRCTAnalyses"][0]["Results"][1][
+            "InferenceSoftware"
+        ] = "4"
+        self.head_json["TestingGR"]["IMRCTAnalyses"][0]["Results"][1][
+            "InferenceSoftware"
+        ] = "5"
+
+        # Case 3: MRCA sets, both base and head change
+        self.mrca_json["TestingGR"]["IMRCTAnalyses"][1]["Results"][0][
+            "InferenceSoftware"
+        ] = "11"
+        self.base_json["TestingGR"]["IMRCTAnalyses"][1]["Results"][0][
+            "InferenceSoftware"
+        ] = "12"
+        self.head_json["TestingGR"]["IMRCTAnalyses"][1]["Results"][0][
+            "InferenceSoftware"
+        ] = "12"
+
+        # Case 4: MRCA blank, both base and head change
+        self.base_json["TestingGR"]["IMRCTAnalyses"][1]["Results"][1][
+            "InferenceSoftware"
+        ] = "14"
+        self.head_json["TestingGR"]["IMRCTAnalyses"][1]["Results"][1][
+            "InferenceSoftware"
+        ] = "14"
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        # Set the check values
+        self.check_json["TestingGR"]["IMRCTAnalyses"][0]["Results"][0][
+            "InferenceSoftware"
+        ] = "<<<<<<Base Value:2 - Head Value:3 - MRCA Value:1>>>>>>"
+        self.check_json["TestingGR"]["IMRCTAnalyses"][0]["Results"][1][
+            "InferenceSoftware"
+        ] = "<<<<<<Base Value:4 - Head Value:5 - MRCA Value:None>>>>>>"
+        self.check_json["TestingGR"]["IMRCTAnalyses"][1]["Results"][0][
+            "InferenceSoftware"
+        ] = "12"
+        self.check_json["TestingGR"]["IMRCTAnalyses"][1]["Results"][1][
+            "InferenceSoftware"
+        ] = "14"
+
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess that there are indeed merge conflicts
+        assert return_status == 1

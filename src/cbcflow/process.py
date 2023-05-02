@@ -700,11 +700,10 @@ def recurse_capture_changes_from_mrca(
                         return_status = max(descend_return_status, return_status)
                 else:
                     # This is the case where we are down to a scalar value
-                    if (
-                        base_json[key] == mrca_json[key]
-                        and head_json[key] == mrca_json[key]
-                    ):
-                        # If nothing has changed, return None (so don't trace this path)
+                    if base_json[key] == head_json[key]:
+                        # If base and head agree
+                        # whether that means nothing changed or both changed in the same way
+                        # Then there's no change that needs to be made
                         pass
                     elif (
                         base_json[key] == mrca_json[key]
@@ -713,7 +712,8 @@ def recurse_capture_changes_from_mrca(
                         # If only head has changed, the baseline merge will cover that already
                         pass
                     elif (
-                        base_json[key] != mrca_json[key] and head_json == mrca_json[key]
+                        base_json[key] != mrca_json[key]
+                        and head_json[key] == mrca_json[key]
                     ):
                         # If only base has changed, we can accept that change
                         working_json[key] = base_json[key]
@@ -722,13 +722,11 @@ def recurse_capture_changes_from_mrca(
                         # These will sometimes but not always pass validation?
                         # I think that doesn't matter - we *shouldn't* git_add_and_commit these
                         # So we'll write these conflict files explicitly
-                        working_json[
-                            key
-                        ] = f"<<<<<<\
-                            Base Value:{base_json[key]}\
-                            Head Value:{head_json[key]}\
-                            MRCA Value:{mrca_json[key]}\
-                        >>>>>>"
+                        working_json[key] = (
+                            f"<<<<<<Base Value:{base_json[key]} -"
+                            f" Head Value:{head_json[key]} -"
+                            f" MRCA Value:{mrca_json[key]}>>>>>>"
+                        )
                         return_status = 1
             elif key in base_json.keys():
                 # This node has a value in the base but not in mrca
@@ -743,7 +741,6 @@ def recurse_capture_changes_from_mrca(
                         base_json=base_json[key],
                         head_json=val,
                         mrca_json={},
-                        working_json={},
                         refId=refId,
                     )
                     if descend_value is None:
@@ -781,11 +778,9 @@ def recurse_capture_changes_from_mrca(
                         # I think that doesn't matter - we *shouldn't* git_add_and_commit these
                         # So we'll write these conflict files explicitly
                         working_json[key] = (
-                            f"<<<<<<\
-                            Base Value:{base_json[key]}\
-                            Head Value:{head_json[key]}\
-                            MRCA Value:{None}\
-                        >>>>>>",
+                            f"<<<<<<Base Value:{base_json[key]} -"
+                            f" Head Value:{head_json[key]} -"
+                            f" MRCA Value:{None}>>>>>>"
                         )
                         return_status = 1
 
