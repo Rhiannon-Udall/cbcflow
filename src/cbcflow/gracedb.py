@@ -188,8 +188,8 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                             f"Failed to load an event for superevent {sname},\
                                     and could not return the event's id"
                         )
-            elif pipeline.lower().strip() == "cwb":
-                # cwb specific logic
+            elif pipeline.lower().strip() == "cwb" and event["group"].lower() == "cbc":
+                # Catch the pipeline cwb in the group cbc
                 try:
                     event_data = dict()
                     # Get the
@@ -228,8 +228,26 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                         )
 
                     try:
-                        pass
-                        # trigger_file = gdb.files(gname, "trigger.txt")
+                        # Get the trigger file
+                        trigger_file = gdb.files(gname, "trigger.txt").read()
+                        # Parse lines by string hacking
+                        # 'ifo:' and 'sSNR:' are unique hopefully?
+                        trigger_file_lines = str(trigger_file).split("\\n")
+                        ifo_line = [
+                            line for line in trigger_file_lines if "ifo:" in line
+                        ][0]
+                        sSNR_line = [
+                            line for line in trigger_file_lines if "sSNR:" in line
+                        ][0]
+                        # More string hacking to get ifos
+                        ifos = ifo_line.split("")[1].strip().split()
+                        # More string hacking to get sSNRs
+                        snrs = [
+                            float(x) for x in sSNR_line.split(":")[1].strip().split()
+                        ]
+                        # Loop to assign SNRs by IFO
+                        for ii, ifo in ifos.enumerate():
+                            event_data[f"{ifo}SNR"] = snrs[ii]
                     except HTTPError:
                         logger.warning(
                             f"Was not able to access trigger.txt for G-event {gname}"
