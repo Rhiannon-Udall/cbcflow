@@ -5,14 +5,18 @@ Why is this Necessary?
 ----------------------
 
 Most of the time, the inner workings of ``git`` is something we try not too think too much about, lest that particular abyss stare back at us.
-Unfortunately, sometimes we do have to understand what is going on when git takes a certain action.
-``git`` tracks changes to files in terms of lines of text, totally ignorant of the semantic meaning of the files - this is why it is totally incapable of merging binary files.
-With json files, this can have bad repercussions: semantically, we know what should and should not generate a merge conflict: if two people add something to a list, there shouldn't be any conflict there, but if two people change a scalar field there should be.
+Unfortunately, sometimes we do have to understand what is going on when git takes a certain action, and that is the case here.
+
+``git`` tracks changes to files in terms of lines of text, ignorant of the semantic meaning of the files - this is why it is incapable of merging binary files.
+With json files, this can have bad repercussions.
+
+Semantically, we know what should and should not generate a merge conflict: if two people add something to a list, there shouldn't be any conflict there, but if two people change a scalar field there should be.
 ``git`` is able to identify that second case as a problem, but it will erroneously *also* identify the first as a problem! 
 Moreover, even if you do merge the lines of an array directly, the result is not in fact a valid json, because it will lack the appropriate commas!
 This issue is particularly thorny since, to the befuddlement of all, json standard does not allow trailing commas in arrays.
 Other issues which may arise include if the insertion order of objects with a reference ID (that is, UID labelled objects) is different between two branches.
 How is ``git`` to understand that these two sets of lines with ``UID:Test1`` should in fact be combined?
+
 All of this motivates creating a syntactic merge scheme for our json files, which is what ``cbcflow`` does.
 
 What Happens in a ``cbcflow`` Merge?
@@ -65,3 +69,7 @@ Note that this *demands* all list elements will be unique, since any repeats wil
 
 Another thing to note is that this merging scheme makes it *very* difficult to remove a field or an object in an array.
 In order for this to occur *both* ``head`` and ``base`` must remove this, and even then unexpected behavior is possible.
+However, it should be highlighted that *you shouldn't be doing that in the first place*.
+If a UID referenced object has been created, it should stick around even if it's deprecated.
+Similarly, if a field has been set, it should at most be changed, not cleared out.
+With significant effort you can get around this, but the amount of effort is commensurate with how rare this should be.

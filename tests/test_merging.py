@@ -763,3 +763,14 @@ class TestMergingMetadata(unittest.TestCase):
         assert merge_json == self.check_json
         # Assess that there are indeed merge conflicts
         assert return_status == 1
+
+    def test_adding_objects_to_array(self) -> None:
+        """A test that we can track adding objects to an array of objects"""
+        # Case 1: Head adds an object, base stays the same
+
+        # Case 2: Base adds an object, head stays the same
+
+        # Case 3: Base and Head add objects with different UIDs
+
+        # Case 4: Base and Head add objects with the same UIDs
+        pass
