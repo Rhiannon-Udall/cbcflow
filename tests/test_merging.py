@@ -764,13 +764,136 @@ class TestMergingMetadata(unittest.TestCase):
         # Assess that there are indeed merge conflicts
         assert return_status == 1
 
-    def test_adding_objects_to_array(self) -> None:
-        """A test that we can track adding objects to an array of objects"""
-        # Case 1: Head adds an object, base stays the same
+    def test_adding_objects_to_array_noninteracting_head(self) -> None:
+        """Test 1: add an object to head and do nothing else"""
+        self.head_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "WaveformApproximant": "1"}
+        )
 
-        # Case 2: Base adds an object, head stays the same
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
 
-        # Case 3: Base and Head add objects with different UIDs
+        # Set the check values
+        self.check_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "WaveformApproximant": "1"}
+        )
 
-        # Case 4: Base and Head add objects with the same UIDs
-        pass
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess that there are indeed merge conflicts
+        assert return_status == 0
+
+    def test_adding_objects_to_array_noninteracting_base(self) -> None:
+        """Test 2: add an object to head and do nothing else"""
+        # Make changes
+        self.base_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "WaveformApproximant": "1"}
+        )
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        # Set the check values
+        self.check_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "WaveformApproximant": "1"}
+        )
+
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess that there are indeed merge conflicts
+        assert return_status == 0
+
+    def test_adding_objects_to_array_noninteracting_base_and_head(self) -> None:
+        """Test 3: add objects to head and base with different UIDs"""
+        # Make changes
+        self.base_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "WaveformApproximant": "1"}
+        )
+        self.head_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test4", "WaveformApproximant": "2"}
+        )
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        # Set the check values
+        self.check_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "WaveformApproximant": "1"}
+        )
+        self.check_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test4", "WaveformApproximant": "2"}
+        )
+
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess that there are indeed merge conflicts
+        assert return_status == 0
+
+    def test_adding_objects_to_array_interacting_no_conflict(self) -> None:
+        """Test that we can track adding objects to an array of objects,
+        for cases where the altered nodes are not totally disjoint, but don't conflict"""
+        # Case 1: Base and Head add objects with the same UID, alter different scalar fields
+        # and Case 2: Base and Head add objects with the same UID, alter the same array field,
+        # check array resolution is as expected
+        self.base_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "WaveformApproximant": "1", "Notes": ["1", "2"]}
+        )
+        self.head_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "InferenceSoftware": "2", "Notes": ["1", "3"]}
+        )
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        # Set the check values
+        self.check_json["ParameterEstimation"]["Results"].append(
+            {
+                "UID": "Test3",
+                "WaveformApproximant": "1",
+                "InferenceSoftware": "2",
+                "Notes": ["1", "2", "3"],
+            }
+        )
+
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess that there are indeed merge conflicts
+        assert return_status == 0
+
+    def test_adding_objects_to_array_interacting_conflict(self) -> None:
+        """Test that we can track adding objects to an array of objects,
+        for cases where the altered nodes will conflict"""
+        # Make the changes, intentionally conflicting
+        self.base_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "WaveformApproximant": "1", "Notes": ["1", "2"]}
+        )
+        self.head_json["ParameterEstimation"]["Results"].append(
+            {"UID": "Test3", "WaveformApproximant": "2", "Notes": ["1", "3"]}
+        )
+
+        # Do the merge
+        merge_json, return_status = process_merge_json(
+            self.base_json, self.head_json, self.mrca_json, self.schema
+        )
+
+        # Set the check values
+        self.check_json["ParameterEstimation"]["Results"].append(
+            {
+                "UID": "Test3",
+                "WaveformApproximant": "<<<<<<Base Value:1 - Head Value:2 - MRCA Value:None>>>>>>",
+                "Notes": ["1", "2", "3"],
+            }
+        )
+
+        # Assess similarity
+        assert merge_json == self.check_json
+        # Assess that there are indeed merge conflicts
+        assert return_status == 1

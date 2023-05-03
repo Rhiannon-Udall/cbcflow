@@ -218,6 +218,7 @@ def get_merger(
 
             base.val = new_array
 
+            base.val = sorted(base.val)
             self.sort_array(walk, base, sortByRef, sortReverse)
 
             return base
@@ -755,7 +756,6 @@ def recurse_capture_changes_from_mrca(
                         base_json=base_json[key],
                         head_json=val,
                         mrca_json=[],
-                        working_json=[],
                         refId=refId,
                     )
                     if descend_value is None:
