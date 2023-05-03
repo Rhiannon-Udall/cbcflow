@@ -43,6 +43,11 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
             msg += "Either it does not exist, or you may need to run ligo-proxy-init."
             raise ValueError(msg)
         # We want the one best event per pipeline
+        event_dict = superevent["pipeline_preferred_events"]
+        preferred_event = superevent["preferred_event_data"]
+        if len(event_dict) == 0:
+            event_dict[preferred_event["pipeline"]] = preferred_event
+
         for pipeline, event in superevent["pipeline_preferred_events"].items():
             if pipeline.lower().strip() in ["spiir", "mbta", "gstlal", "pycbc"]:
                 try:
