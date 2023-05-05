@@ -1,4 +1,4 @@
-"""Methods for setting up and running monitors through htcondor"""
+"""Methods for setting up and running monitors"""
 import argparse
 import os
 from shutil import which
