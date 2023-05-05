@@ -65,7 +65,7 @@ def pull() -> None:
     add_onlinepe_information(metadata, args.sname)
 
     try:
-        metadata.write_to_library()
+        metadata.write_to_library(branch_name=args.branch_name)
     except jsonschema.exceptions.ValidationError:
         logger.info(
             "Recorded meta-data cannot be validated against current schema\n\
@@ -75,7 +75,7 @@ def pull() -> None:
             logger.info(
                 "Since no local library file exists yet, it will be initialized with valid defaults"
             )
-            default_metadata.write_to_library()
+            default_metadata.write_to_library(branch_name=args.branch_name)
 
 
 def update() -> None:
@@ -92,7 +92,9 @@ def update() -> None:
             check_changes = False
         else:
             check_changes = True
-        metadata.write_to_library(check_changes=check_changes)
+        metadata.write_to_library(
+            check_changes=check_changes, branch_name=args.branch_name
+        )
 
 
 def print_metadata() -> None:
@@ -124,8 +126,6 @@ def print_metadata() -> None:
 
 def from_file() -> None:
     """Given a superevent and an update file, apply the updates"""
-    logger = setup_logger()
-
     # Read in command line arguments
     schema = get_schema()
     _, default_data = get_parser_and_default_data(schema)
@@ -156,6 +156,19 @@ def from_file() -> None:
         "--no-git-library",
         action="store_true",
         help="If true, do not treat the library as a git repo",
+    )
+    file_parser.add_argument(
+        "--branch-name",
+        help="The name of the branch to which commits should be written."
+        "If this is not provided and main is the current active branch"
+        "A new branch will be constructed with format"
+        "user-name-yyyy-mm-dd",
+        default=None,
+    )
+    file_parser.add_argument(
+        "--yes",
+        help="Do not ask for confirmation",
+        action="store_true",
     )
     args = file_parser.parse_args()
 
@@ -191,14 +204,13 @@ def from_file() -> None:
             and that it's ending reflects this."
         )
 
-    logger.info("Read File Contents:")
-    logger.info(json.dumps(file_contents, indent=4))
-
-    logger.info("Updating Metadata")
     metadata.update(file_contents, is_removal=args.removal_file)
 
-    logger.info("Writing to library")
-    metadata.write_to_library()
+    if args.yes:
+        check_changes = False
+    else:
+        check_changes = True
+    metadata.write_to_library(check_changes=check_changes, branch_name=args.branch_name)
 
 
 def validate_library() -> None:

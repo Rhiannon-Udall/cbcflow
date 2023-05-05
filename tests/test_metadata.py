@@ -384,6 +384,7 @@ class TestMetaData(unittest.TestCase):
             "--library",
             self.test_library_directory,
             "--no-git-library",
+            "--yes",
         ]
         subprocess.check_output(cmd_1)
         cmd_2 = [
@@ -393,6 +394,7 @@ class TestMetaData(unittest.TestCase):
             "--library",
             self.test_library_directory,
             "--no-git-library",
+            "--yes",
         ]
         subprocess.check_output(cmd_2)
         altered_metadata = MetaData(
@@ -421,6 +423,7 @@ class TestMetaData(unittest.TestCase):
             "--library",
             self.test_library_directory,
             "--no-git-library",
+            "--yes",
         ]
         subprocess.check_output(cmd_1)
         cmd_2 = [
@@ -430,6 +433,7 @@ class TestMetaData(unittest.TestCase):
             "--library",
             self.test_library_directory,
             "--no-git-library",
+            "--yes",
         ]
         subprocess.check_output(cmd_2)
         altered_metadata = MetaData(

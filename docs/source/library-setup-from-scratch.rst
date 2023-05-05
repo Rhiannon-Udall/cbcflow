@@ -48,6 +48,7 @@ Unlike that case though, we will need to write the setup scripts ourselves, sinc
 Two things need to be done: ``.git/config`` has to be added to include our new merge strategy, and ``.gitattributes`` needs to point to this strategy for ``*-cbc-metadata.json`` files.
 The second is easier, so we'll start with that.
 Simply create a file ``.gitattributes`` in the root directory of the repository, with these contents:
+
 .. code-block::
 
     *-cbc-metadata.json merge=json_merge

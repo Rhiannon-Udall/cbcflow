@@ -150,7 +150,10 @@ def recurse_add_array_merge_options(
 
 
 def get_merger(
-    schema: dict, for_removal: bool = False, for_merging: bool = False
+    schema: dict,
+    for_removal: bool = False,
+    for_merging: bool = False,
+    idRef: str = "/UID",
 ) -> Merger:
     """Generate the `jsonmerge.Merger` object we will use
 
@@ -160,6 +163,10 @@ def get_merger(
         The base schema, this will be modified then used for the merger
     for_removal : bool, default=False
         If true make a merger which performs removals
+    idRef : str, default='/UID'
+        The key which serves as a unique ID - for metadata this should be /UID
+        For now this is /Sname for indices, though that could lead to issues in the future
+        if index complexity increases
     for_merging : bool, default=False
         If true make a merger which uses the Unique strategy on arrays
         Returning an array that contains one copy of each element in either head or base
@@ -178,6 +185,7 @@ def get_merger(
             merge_schema["$defs"][ref],
             is_removal_dict=for_removal,
             is_merge_dict=for_merging,
+            idRef=idRef,
         )
 
     # Some hackery to get the very specific behavior we want for negative images.
@@ -377,7 +385,7 @@ def populate_defaults_if_necessary(
     head: Union[dict, list],
     schema_defaults: dict,
     key_path: str = "",
-    refId: str = "UID",
+    idRef: str = "UID",
 ) -> dict:
     """New defaults are necessary if we create a new instance of an object.
     This determines when a new instance is being made, rather than just modifying and old one,
@@ -396,7 +404,7 @@ def populate_defaults_if_necessary(
         A set of keypaths which specify defaults for various objects.
     key_path : str, default=""
         The path which will be build up as we descend.
-    refId : str, default="UID"
+    idRef : str, default="UID"
         The reference ID used to identify different objects.
 
     Returns
@@ -416,7 +424,7 @@ def populate_defaults_if_necessary(
                     head[key],
                     schema_defaults,
                     new_key_path,
-                    refId=refId,
+                    idRef=idRef,
                 )
             else:
                 if isinstance(head[key], dict):
@@ -431,7 +439,7 @@ def populate_defaults_if_necessary(
                         head[key],
                         schema_defaults,
                         new_key_path,
-                        refId=refId,
+                        idRef=idRef,
                     )
                 else:
                     new_head_dict[key] = populate_defaults_if_necessary(
@@ -439,7 +447,7 @@ def populate_defaults_if_necessary(
                         head[key],
                         schema_defaults,
                         new_key_path,
-                        refId=refId,
+                        idRef=idRef,
                     )
         return new_head_dict
     elif isinstance(base, list) and isinstance(head, list):
@@ -448,10 +456,10 @@ def populate_defaults_if_necessary(
         for head_list_element in head:
             # For each element in head, we want to see if there is anything corresponding yet in base
             if isinstance(head_list_element, dict):
-                head_ref = head_list_element[refId]
+                head_ref = head_list_element[idRef]
                 already_exists = False
                 for base_list_element in base:
-                    if base_list_element[refId] == head_ref:
+                    if base_list_element[idRef] == head_ref:
                         already_exists = True
                         # It is possible this object already exists but some object within it does not
                         # So recurse further down
@@ -541,7 +549,11 @@ def process_user_input(args: argparse.Namespace, metadata: MetaData):
 
 
 def process_update_json(
-    update_json: dict, target_json: dict, schema: dict, is_removal: bool = False
+    update_json: dict,
+    target_json: dict,
+    schema: dict,
+    is_removal: bool = False,
+    idRef="UID",
 ):
     """Chains commands to take in and update json and update the metadata with it
 
@@ -555,18 +567,22 @@ def process_update_json(
         The schema which describes the metadata
     is_removal : bool, default=False
         If true, this json will be interpreted as a negative image, and the update will be a removal
+    idRef : str, default='/UID'
+        The key which serves as a unique ID - for metadata this should be UID
+        For now this is Sname for indices, though that could lead to issues in the future
+        if index complexity increases
     """
     if not is_removal:
         # If we are adding, we may need defaults
         # Get the schema defaults, and use them to make defaults where necessary in the add json
         schema_defaults = get_all_schema_def_defaults(schema)
         update_json = populate_defaults_if_necessary(
-            target_json, update_json, schema_defaults
+            target_json, update_json, schema_defaults, idRef=idRef
         )
     update_json = fill_linked_files_if_necessary(update_json)
 
     # generate the merger objects
-    merger = get_merger(schema, for_removal=is_removal)
+    merger = get_merger(schema, for_removal=is_removal, idRef=f"/{idRef}")
 
     # apply merges
     target_json = merger.merge(target_json, update_json)
@@ -662,27 +678,10 @@ def recurse_capture_changes_from_mrca(
             # which should be accepted
             # or it was removed in Head, which shouldn't happen and ought to be reverted
             # if it's in MRCA but not in Base or Head then, well, I guess we *really*
-            # wantd to remove it
+            # wanted to remove it
             if key in base_json.keys() and key in mrca_json.keys():
                 # This node has a value in all 3 jsons, so we can descend in a standard way
-                if isinstance(val, dict):
-                    # If val is a dict, descend with working_json as a dict
-                    (
-                        descend_value,
-                        descend_return_status,
-                    ) = recurse_capture_changes_from_mrca(
-                        base_json=base_json[key],
-                        head_json=val,
-                        mrca_json=mrca_json[key],
-                        refId=refId,
-                    )
-                    if descend_value is None:
-                        pass
-                    else:
-                        working_json[key] = descend_value
-                        return_status = max(descend_return_status, return_status)
-                elif isinstance(val, list):
-                    # if val is a list, descend with working_json as a list
+                if isinstance(val, dict) or isinstance(val, list):
                     (
                         descend_value,
                         descend_return_status,
@@ -731,7 +730,7 @@ def recurse_capture_changes_from_mrca(
                 # This node has a value in the base but not in mrca
                 # Thus, it was *added* in both base and head
                 # So descend but we need to do something curious for mrca
-                if isinstance(val, dict):
+                if isinstance(val, dict) or isinstance(val, list):
                     # If val is a dict, descend with working_json as a dict
                     (
                         descend_value,
@@ -744,22 +743,6 @@ def recurse_capture_changes_from_mrca(
                     )
                     if descend_value is None:
                         pass
-                    else:
-                        working_json[key] = descend_value
-                        return_status = max(descend_return_status, return_status)
-                elif isinstance(val, list):
-                    # if val is a list, descend with working_json as a list
-                    (
-                        descend_value,
-                        descend_return_status,
-                    ) = recurse_capture_changes_from_mrca(
-                        base_json=base_json[key],
-                        head_json=val,
-                        mrca_json=[],
-                        refId=refId,
-                    )
-                    if descend_value is None:
-                        continue
                     else:
                         working_json[key] = descend_value
                         return_status = max(descend_return_status, return_status)

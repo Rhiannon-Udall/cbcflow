@@ -209,6 +209,14 @@ def get_parser_and_default_data(schema: dict):
         help="Do not ask for confirmation",
         action="store_true",
     )
+    parser.add_argument(
+        "--branch-name",
+        help="The name of the branch to which commits should be written."
+        "If this is not provided and main is the current active branch"
+        "A new branch will be constructed with format"
+        "user-name-yyyy-mm-dd",
+        default=None,
+    )
 
     parser, default_data = build_parser_from_schema(parser, schema)
     argcomplete.autocomplete(parser)

@@ -135,7 +135,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                         # Some pipelines will provide source classification, others will not
                         # This is that information where available
                         embright_data = gdb.files(
-                            gname, f"{pipeline}.em_bright.json"
+                            gname, f"{pipeline.lower()}.em_bright.json"
                         ).json()
                         for key in embright_data:
                             if key == "HasNS":
@@ -179,6 +179,96 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                     data["GraceDB"]["Events"].append(event_data)
                 except KeyError as err:
                     logger.info(f"Failed with key error {err}")
+                    if "graceid" in event.keys():
+                        logger.warning(
+                            f"Failed to load data for event {event['graceid']}"
+                        )
+                    else:
+                        logger.warning(
+                            f"Failed to load an event for superevent {sname},\
+                                    and could not return the event's id"
+                        )
+            elif pipeline.lower().strip() == "cwb" and event["group"].lower() == "cbc":
+                # Catch the pipeline cwb in the group cbc
+                try:
+                    event_data = dict()
+                    # Get the
+                    gname = event["graceid"]
+                    # Get the preferred event across pipelines
+                    if gname == superevent["preferred_event"]:
+                        data["GraceDB"]["Instruments"] = event["instruments"]
+                        event_data["State"] = "preferred"
+                    else:
+                        event_data["State"] = "neighbor"
+                    event_data["UID"] = gname
+                    event_data["Pipeline"] = pipeline
+                    # We specifically want the label that conveys whether this is
+                    # an offline or online result (or which offline)
+                    for label in event["labels"]:
+                        if "GWTC" in label:
+                            event_data["Label"] = label
+                    event_data["GPSTime"] = event["gpstime"]
+                    event_data["FAR"] = event["far"]
+                    event_data["NetworkSNR"] = event["extra_attributes"]["MultiBurst"][
+                        "snr"
+                    ]
+                    try:
+                        # All pipelines should provide source classification
+                        pastro_data = gdb.files(
+                            gname, f"{pipeline.lower()}.p_astro.json"
+                        ).json()
+
+                        event_data["Pastro"] = 1 - pastro_data["Terrestrial"]
+                        event_data["Pbbh"] = pastro_data["BBH"]
+                        event_data["Pbns"] = pastro_data["BNS"]
+                        event_data["Pnsbh"] = pastro_data["NSBH"]
+                    except HTTPError:
+                        logger.warning(
+                            f"Was not able to get source classification for G-event {gname}"
+                        )
+
+                    try:
+                        # Get the trigger file
+                        trigger_file = gdb.files(gname, "trigger.txt").read()
+                        # Parse lines by string hacking
+                        # 'ifo:' and 'sSNR:' are unique hopefully?
+                        trigger_file_lines = str(trigger_file).split("\\n")
+                        ifo_line = [
+                            line for line in trigger_file_lines if "ifo:" in line
+                        ][0]
+                        sSNR_line = [
+                            line for line in trigger_file_lines if "sSNR:" in line
+                        ][0]
+                        # More string hacking to get ifos
+                        ifos = ifo_line.split("")[1].strip().split()
+                        # More string hacking to get sSNRs
+                        snrs = [
+                            float(x) for x in sSNR_line.split(":")[1].strip().split()
+                        ]
+                        # Loop to assign SNRs by IFO
+                        for ii, ifo in ifos.enumerate():
+                            event_data[f"{ifo}SNR"] = snrs[ii]
+                    except HTTPError:
+                        logger.warning(
+                            f"Was not able to access trigger.txt for G-event {gname}"
+                        )
+
+                    try:
+                        file_links = gdb.files(gname, "").json()
+                        event_data["Skymap"] = file_links["cwb.multiorder.fits"]
+                        event_data["SourceClassification"] = file_links[
+                            f"{pipeline.lower()}.p_astro.json"
+                        ]
+                    except HTTPError:
+                        logger.warning(
+                            f"Could not fetch file links for G-event {gname}"
+                        )
+
+                    # Add the final event data to the array
+                    data["GraceDB"]["Events"].append(event_data)
+
+                except KeyError as err:
+                    logger.warning(f"Failed with key error {err}")
                     if "graceid" in event.keys():
                         logger.warning(
                             f"Failed to load data for event {event['graceid']}"

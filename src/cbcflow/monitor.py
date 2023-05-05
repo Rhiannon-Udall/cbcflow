@@ -1,4 +1,4 @@
-"""Methods for setting up and running monitors through htcondor"""
+"""Methods for setting up and running monitors"""
 import argparse
 import os
 from shutil import which
@@ -135,6 +135,9 @@ def run_monitor() -> None:
     local_library = LocalLibraryDatabase(library_path=config_values["library"])
     logger.info("CBCFlow monitor is beginning sweep")
     logger.info("Attempting to pull from remote")
+    # Make sure we switch to main for monitor operations
+    local_library._initialize_library_git_repo()
+    local_library.repo.heads["main"].checkout()
     local_library.git_pull_from_remote(automated=True)
     if local_library.remote_has_merge_conflict:
         logger.info(
@@ -144,11 +147,14 @@ def run_monitor() -> None:
         )
     logger.info(f"Config values are {config_values}")
     local_library.initialize_parent(source_path=config_values["gracedb_service_url"])
-    local_library.library_parent.sync_library()
+    # Note that we explicitly sync to main instead of any other branch
+    local_library.library_parent.sync_library(branch_name="main")
     logger.info("Updating index file for library")
-    # In the future labelling can happen via monitor, but for now do it in gitlab
-    local_library.label_index_file()
-    local_library.write_index_file()
+    # For now we don't want to do any labelling locally, instead doing it all in gitlab
+    # set_working_index... will change LastUpdate and add events
+    # but won't touch the labels
+    local_library.set_working_index_with_updates_to_file_index()
+    local_library.write_index_file(branch_name="main")
     if not local_library.remote_has_merge_conflict:
         logger.info("Pushing to remote")
         local_library.git_push_to_remote()

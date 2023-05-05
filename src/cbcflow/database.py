@@ -8,6 +8,7 @@ from functools import cached_property
 import sys
 from pprint import pformat
 from typing import Union, Dict, Type, TypeVar
+from datetime import datetime
 
 import dateutil.parser as dp
 from jsondiff import diff
@@ -23,6 +24,7 @@ from .parser import get_parser_and_default_data
 from .process import (
     get_all_schema_def_defaults,
     get_simple_schema_defaults,
+    process_update_json,
     process_merge_json,
 )
 from .schema import get_schema
@@ -193,15 +195,25 @@ class LibraryParent(object):
         """
         return list()
 
-    def pull_library_updates(self) -> None:
+    def pull_library_updates(self, branch_name: Union[str, None] = None) -> None:
         """Propagates metadata in superevents_to_propagate into the library.
         Should be overwritten by the child class.
+
+        Parameters
+        ==========
+        branch_name : str | None, optional
+            The branch_name to write commits to, per `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`
         """
         return None
 
-    def sync_library(self) -> None:
+    def sync_library(self, branch_name: Union[str, None] = None) -> None:
         """A method for syncing the library, using the query specified in the library config.
-        This should be overwritten by the child class."""
+        This should be overwritten by the child class.
+
+        Parameters
+        ==========
+        branch_name : str | None, optional
+            The branch_name to write commits to, per `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`"""
         return None
 
 
@@ -256,8 +268,14 @@ class GraceDbDatabase(LibraryParent):
                 queried_superevents.append(superevent["superevent_id"])
         return queried_superevents
 
-    def pull_library_updates(self) -> None:
-        """Pulls updates from GraceDb and writes them to library, creates default data as required"""
+    def pull_library_updates(self, branch_name: Union[str, None] = None) -> None:
+        """Pulls updates from GraceDb and writes them to library, creates default data as required
+
+        Parameters
+        ==========
+        branch_name : str, optional
+            The name of the branch to write to, as passed to `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`
+        """
         if hasattr(self, "superevents_to_propagate"):
             for superevent_id in tqdm.tqdm(self.superevents_to_propagate):
                 if superevent_id in self.library.metadata_dict.keys():
@@ -288,30 +306,35 @@ class GraceDbDatabase(LibraryParent):
                     logger.info(f"Updates to supervent {superevent_id}")
                     string_rep_changes = get_dumpable_json_diff(changes)
                     logger.debug(json.dumps(string_rep_changes, indent=2))
-                    metadata.write_to_library()
+                    metadata.write_to_library(branch_name=branch_name)
                 except jsonschema.exceptions.ValidationError:
                     logger.warning(
                         f"For superevent {superevent_id}, GraceDB generated metadata failed validation\
                         Writing backup data (either default or pre-loaded) to library instead\n"
                     )
                     metadata.update(backup_data)
-                    metadata.write_to_library()
+                    metadata.write_to_library(branch_name=branch_name)
                 except HTTPError:
                     logger.warning(
                         f"For superevent {superevent_id}, failed to obtain data from GraceDB\
                         Writing backup data (either default or pre-loaded) to library instead\n"
                     )
                     metadata.update(backup_data)
-                    metadata.write_to_library()
+                    metadata.write_to_library(branch_name=branch_name)
         else:
             logger.info(
                 "This GraceDbDatabase instance has not assigned any superevents to propagate yet\
                  please do so before attempting to pull them."
             )
 
-    def sync_library(self) -> None:
+    def sync_library(self, branch_name: Union[str, None] = None) -> None:
         """Attempts to sync library and GraceDb,
         pulling any new events and changes to GraceDB data.
+
+        Parameters
+        ==========
+        branch_name : str | None, optional
+            The branch_name to write commits to, per `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`
         """
         # setup defaults
         # monitor_config = local_library.library_config["Monitor"]
@@ -352,7 +375,7 @@ class GraceDbDatabase(LibraryParent):
                 \n but which did not meet query parameters"
                 )
 
-        self.pull_library_updates()
+        self.pull_library_updates(branch_name=branch_name)
 
 
 class LocalLibraryDatabase(object):
@@ -574,7 +597,11 @@ class LocalLibraryDatabase(object):
         self.repo = git.Repo(self.library)
 
     def git_add_and_commit(
-        self, filename, message: Union[str, None] = None, sname: Union[str, None] = None
+        self,
+        filename,
+        message: Union[str, None] = None,
+        sname: Union[str, None] = None,
+        branch_name: Union[str, None] = None,
     ) -> None:
         """
         Perform the git operations add and commit
@@ -588,6 +615,13 @@ class LocalLibraryDatabase(object):
         sname : str, optional
             The sname of the metadata, if a metadata file is what is being committed.
             Used for generating a default commit message.
+        branch_name: str, optional
+            The name of the branch to which the commit will be written:
+            If not passed, then:
+                - If the current branch is main, a new branch name will be formulaically generated
+                - If the current branch is not main, then the current branch will be used
+            If passed as "main", then the main branch will be written to explicitly
+            If passed as a string other than main, then that branch will be created if necessary, and checked out.
         """
         if not hasattr(self, "repo"):
             # If necessary, initialize git information for this library
@@ -615,8 +649,32 @@ class LocalLibraryDatabase(object):
             if message is None:
                 message = "No information provided about this commit, and could not infer from context"
 
+        if branch_name is None:
+            if self.repo.active_branch == self.repo.heads["main"]:
+                # If we are currently on main, we want to checkout a new branch
+                logger.info(
+                    "Branch main is currently checked out, and no new branch title was passed"
+                )
+                user_name = (
+                    self.repo.config_reader()
+                    .get_value("user", "name")
+                    .replace(" ", "-")
+                )
+                date = datetime.today().strftime("%Y-%m-%d")
+                generated_branch_name = f"{user_name}-{date}"
+                self.git_checkout_new_branch(generated_branch_name)
+            else:
+                # Otherwise, we can stay on our current branch
+                pass
+        else:
+            if branch_name == "main":
+                # The case where we are forcing the commit onto main
+                logger.info("Commit explicitly made to main")
+            self.git_checkout_new_branch(branch_name)
+
         self.repo.git.add(filename)
         self.repo.git.commit("-m", message)
+        logger.info(f"Wrote commit {self.repo.active_branch.commit}")
 
     def git_merge_metadata_jsons(
         self, our_file: str, their_file: str, most_recent_common_ancestor_file: str
@@ -678,6 +736,37 @@ class LocalLibraryDatabase(object):
                 self.remote_has_merge_conflict = True
                 logger.info("Resetting to pre-merge state")
                 self.repo.git.reset("--merge")
+
+    def git_checkout_new_branch(
+        self, branch_name: str, remote_to_track: str = "origin"
+    ) -> None:
+        """Checkout a branch, creating it if necessary
+
+        Parameters
+        ==========
+        branch_name : str
+            The title of the branch to create
+        remote_to_track : str
+            If a new branch is being created, such that we want to track a remote, this designates
+            the remote which the tracking branch should be pushed to
+        """
+        # If necessary initialize the repo
+        if not hasattr(self, "repo"):
+            self._initialize_library_git_repo()
+        # https://gitpython.readthedocs.io/en/stable/tutorial.html
+        if branch_name not in self.repo.heads:
+            # If necessary create a new branch with title branch_name
+            logger.info(f"Creating branch {branch_name}")
+            self.repo.create_head(branch_name)
+        if self.repo.active_branch != self.repo.heads[branch_name]:
+            # If necessary check out the branch with title branch_name
+            logger.info(f"Checking out branch {branch_name}")
+            self.repo.heads[branch_name].checkout()
+        if self.repo.active_branch.tracking_branch() is None:
+            logger.info(
+                f"Pushing to tracked remote branch {remote_to_track}/{branch_name}"
+            )
+            self.repo.git.push("-u", remote_to_track, branch_name)
 
     ############################################################################
     ############################################################################
@@ -782,8 +871,34 @@ class LocalLibraryDatabase(object):
             logger.debug(json.dumps(string_rep_diff, indent=2))
         return index_diff
 
-    def write_index_file(self) -> None:
-        """Writes the new index to the library"""
+    def set_working_index_with_updates_to_file_index(self) -> None:
+        """Sometimes, we want to *update* the index instead of overwrite it.
+        This sets the working index to do just that.
+        Note:
+        - This will not remove events even if they are no longer satisfy index requirements
+        - If the working index has labels already set, this will concatenate those to the
+        labels in the file index, rather than overwriting, which may be undesirable"""
+        # Generate the working index from
+        if self.working_index == dict():
+            self.working_index = self.generate_index_from_metadata()
+        # Do a copy in case of python scope shenanigans
+        working_index_copy = copy.deepcopy(self.working_index)
+        # Use update methods to apply the update
+        self.working_index = process_update_json(
+            working_index_copy,
+            self.index_from_file,
+            self.library_index_schema,
+            idRef="Sname",
+        )
+
+    def write_index_file(self, branch_name: Union[str, None] = None) -> None:
+        """Writes the new index to the library
+
+        Parameters
+        ==========
+        branch_name: str | None, optional
+            The branch name, as passed to `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`.
+        """
         index_delta = self.check_for_index_update()
         if index_delta != dict():
             with open(self.index_file_path, "w") as f:
@@ -793,6 +908,7 @@ class LocalLibraryDatabase(object):
                     filename=self.index_file_name,
                     message=f"Updating index with changes:\n\
                         {pformat(get_dumpable_json_diff(index_delta))}",
+                    branch_name=branch_name,
                 )
 
     def label_index_file(
