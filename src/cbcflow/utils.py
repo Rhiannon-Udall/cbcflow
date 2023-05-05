@@ -1,5 +1,6 @@
 """Miscellaneous functions, especially relating to OS I/O"""
 import hashlib
+from typing import Union
 import os
 import subprocess
 from datetime import datetime
@@ -115,7 +116,7 @@ def get_md5sum(path: str) -> str:
     return file_hash.hexdigest()
 
 
-def fill_out_linked_file(path: str, linked_file_dict: dict = dict()) -> dict:
+def fill_out_linked_file(path: str, linked_file_dict: Union[dict, None] = None) -> dict:
     """Fill out the contents of a LinkedFile object
 
     Parameters
@@ -130,6 +131,10 @@ def fill_out_linked_file(path: str, linked_file_dict: dict = dict()) -> dict:
     dict
         Either the linked_file_dict updated, or a new linked_file dict
     """
+
+    if linked_file_dict is None:
+        linked_file_dict = dict()
+
     path = os.path.expanduser(path)
     if path[0] != "/":
         # presumably this means it's a relative path, so prepend cwd
@@ -172,18 +177,27 @@ def get_dumpable_json_diff(diff: dict) -> dict:
 
 def get_url_from_public_html_dir(dirpath):
     """Given a path to a directory in public_html, get the corresponding URL (on CIT)"""
-    if dirpath.split("/")[2] == "public_html":
-        # This is the case where files are being written directly into public html
-        # First get the stuff that comes after public_html - this structure will stay the same
-        url_extension = "/".join(dirpath.split("/")[3:])
-        # next get the user in ldas form
-        url_user = f"~{dirpath.split('/')}"
-        # Combine them
-        dir_url = f"https://ldas-jobs.ligo.caltech.edu/\
-            {url_user}/{url_extension}"
-        return dir_url
-    else:
+    # Ensure the path is well formed
+    if dirpath[0] != "/":
+        dirpath = "/" + dirpath
+
+    elements = dirpath.split("/")
+
+    # Check if it is in public_html
+    if "public_html" not in elements:
         logger.info(
-            "Given directory path was not in public HTML, so URL cannot be extrapolated from it"
+            "Given dirpath was not in public HTML, so URL cannot be extrapolated from it"
+            " returning the path"
         )
-        return None
+        return dirpath
+
+    # First get the stuff that comes after public_html - this structure will stay the same
+    public_html_index = elements.index("public_html")
+    url_extension = "/".join(elements[public_html_index + 1 :])
+
+    # next get the user in ldas form
+    url_user = elements[2]
+
+    # Combine them
+    dir_url = f"https://ldas-jobs.ligo.caltech.edu/~{url_user}/{url_extension}"
+    return dir_url

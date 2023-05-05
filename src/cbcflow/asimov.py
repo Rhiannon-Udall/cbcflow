@@ -172,7 +172,7 @@ class Collector:
                             logger.warning(
                                 "Could not uniquely determine location of PESummary result samples"
                             )
-                        if pesummary_pages_dir.split("/")[2] == "public_html":
+                        if "public_html" in pesummary_pages_dir.split("/"):
                             # Currently, we do the bit of trying to guess the URL ourselves
                             # In the future there may be an asimov config value for this
                             pesummary_pages_url_dir = (

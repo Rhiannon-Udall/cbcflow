@@ -13,6 +13,7 @@ import jsonschema
 
 from .configuration import config_defaults
 from .gracedb import fetch_gracedb_information
+from .online_pe import add_onlinepe_information
 from .metadata import MetaData
 from .database import LocalLibraryDatabase
 from .parser import get_parser_and_default_data, sname_string
@@ -59,11 +60,15 @@ def pull() -> None:
     # Pull information from GraceDB
     gdb_data = fetch_gracedb_information(args.sname, args.gracedb_service_url)
     metadata.data.update(gdb_data)
+
+    # Pull information from onlinePE
+    add_onlinepe_information(metadata, args.sname)
+
     try:
         metadata.write_to_library()
     except jsonschema.exceptions.ValidationError:
         logger.info(
-            "GraceDB data cannot be validated against current schema\n\
+            "Recorded meta-data cannot be validated against current schema\n\
             Accordingly, the local library will not be updated"
         )
         if not metadata.library_file_exists:

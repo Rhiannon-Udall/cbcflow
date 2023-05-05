@@ -27,6 +27,7 @@ from .process import (
 )
 from .schema import get_schema
 from .gracedb import fetch_gracedb_information
+from .online_pe import add_onlinepe_information
 from .utils import get_dumpable_json_diff, setup_logger
 
 logger = setup_logger()
@@ -270,8 +271,14 @@ class GraceDbDatabase(LibraryParent):
                     )
                 try:
                     backup_data = copy.deepcopy(metadata.data)
-                    database_data = self.pull(superevent_id)
-                    metadata.update(database_data)
+
+                    # Pull information from GraceDB
+                    gdb_data = self.pull(superevent_id)
+                    metadata.data.update(gdb_data)
+
+                    # Pull information from onlinePE
+                    add_onlinepe_information(metadata, superevent_id)
+
                     changes = metadata.get_diff()
                     if "GraceDB" in changes.keys() and len(changes.keys()) == 1:
                         if len(changes["GraceDB"].keys()) == 1:
