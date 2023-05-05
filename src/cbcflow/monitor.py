@@ -135,7 +135,7 @@ def run_monitor() -> None:
     local_library = LocalLibraryDatabase(library_path=config_values["library"])
     logger.info("CBCFlow monitor is beginning sweep")
     logger.info("Attempting to pull from remote")
-    local_library.git_pull_from_remote()
+    local_library.git_pull_from_remote(automated=True)
     if local_library.remote_has_merge_conflict:
         logger.info(
             "Could not pull from remote, continuing with standard sync sequence\n\

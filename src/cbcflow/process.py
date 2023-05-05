@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, Tuple
 
 from benedict import benedict
 from jsonmerge import Merger
@@ -102,7 +102,10 @@ def form_update_json_from_args(
 
 
 def recurse_add_array_merge_options(
-    schema: dict, is_removal_dict: bool = False, idRef: str = "/UID"
+    schema: dict,
+    is_removal_dict: bool = False,
+    is_merge_dict: bool = False,
+    idRef: str = "/UID",
 ) -> None:
     """Add the requisite jsonmerge details to the schema, in prep to make a Merger
 
@@ -112,6 +115,8 @@ def recurse_add_array_merge_options(
         The schema to which the merge options will be added
     is_removal_dict : bool, default=False
         Whether this will be used for performing a removal operation
+    is_merge_dict : bool, default=False
+        Whether this will be used for a merging operation
     idRef : str, optional
         The key to use as a unique ID reference, defaulting to UID
     """
@@ -127,6 +132,8 @@ def recurse_add_array_merge_options(
                         mergeStrategy="remove",
                     )
                 )
+            elif is_merge_dict:
+                schema.update(dict(mergeStrategy="unique"))
             else:
                 schema.update(
                     dict(
@@ -136,11 +143,15 @@ def recurse_add_array_merge_options(
     elif schema["type"] == "object" and "properties" in schema.keys():
         for prop in schema["properties"]:
             recurse_add_array_merge_options(
-                schema["properties"][prop], is_removal_dict=is_removal_dict
+                schema["properties"][prop],
+                is_removal_dict=is_removal_dict,
+                is_merge_dict=is_merge_dict,
             )
 
 
-def get_merger(schema: dict, for_removal: bool = False) -> Merger:
+def get_merger(
+    schema: dict, for_removal: bool = False, for_merging: bool = False
+) -> Merger:
     """Generate the `jsonmerge.Merger` object we will use
 
     Parameters
@@ -149,6 +160,9 @@ def get_merger(schema: dict, for_removal: bool = False) -> Merger:
         The base schema, this will be modified then used for the merger
     for_removal : bool, default=False
         If true make a merger which performs removals
+    for_merging : bool, default=False
+        If true make a merger which uses the Unique strategy on arrays
+        Returning an array that contains one copy of each element in either head or base
 
     Returns
     =======
@@ -156,14 +170,21 @@ def get_merger(schema: dict, for_removal: bool = False) -> Merger:
         The merger which will be used to do the update
     """
     merge_schema = copy.deepcopy(schema)
-    recurse_add_array_merge_options(merge_schema, is_removal_dict=for_removal)
+    recurse_add_array_merge_options(
+        merge_schema, is_removal_dict=for_removal, is_merge_dict=for_merging
+    )
     for ref in merge_schema["$defs"]:
         recurse_add_array_merge_options(
-            merge_schema["$defs"][ref], is_removal_dict=for_removal
+            merge_schema["$defs"][ref],
+            is_removal_dict=for_removal,
+            is_merge_dict=for_merging,
         )
 
     # Some hackery to get the very specific behavior we want for negative images.
     class RemoveStrategy(ArrayStrategy):
+        """A subclass of `jsonmerge.strategies.ArrayStrategy`
+        which removes all elements in head from base"""
+
         def _merge(
             self, walk, base, head, schema, sortByRef=None, sortReverse=None, **kwargs
         ):
@@ -175,6 +196,8 @@ def get_merger(schema: dict, for_removal: bool = False) -> Merger:
             base.val = new_array
 
             self.sort_array(walk, base, sortByRef, sortReverse)
+            if sortByRef is None:
+                base.val.sort()
 
             return base
 
@@ -184,7 +207,32 @@ def get_merger(schema: dict, for_removal: bool = False) -> Merger:
 
             return schema
 
-    merger = Merger(merge_schema, strategies=dict(remove=RemoveStrategy()))
+    class UniqueStrategy(ArrayStrategy):
+        """A subclass of `jsonmerge.strategies.ArrayStrategy`
+        which produces a list with all unique elements contained in both head and base"""
+
+        def _merge(
+            self, walk, base, head, schema, sortByRef=None, sortReverse=None, **kwargs
+        ):
+            new_array = list(set(head.val + base.val))
+
+            base.val = new_array
+
+            base.val = sorted(base.val)
+            self.sort_array(walk, base, sortByRef, sortReverse)
+
+            return base
+
+        def get_schema(self, walk, schema, **kwargs):
+            """An incantation which may or may not be necessary, I'm just not messing with it"""
+            schema.val.pop("maxItems", None)
+            schema.val.pop("uniqueItems", None)
+
+            return schema
+
+    merger = Merger(
+        merge_schema, strategies=dict(remove=RemoveStrategy(), unique=UniqueStrategy())
+    )
     return merger
 
 
@@ -523,3 +571,318 @@ def process_update_json(
     # apply merges
     target_json = merger.merge(target_json, update_json)
     return target_json
+
+
+def process_merge_json(
+    base_json: dict, head_json: dict, mrca_json: dict, schema: dict
+) -> Tuple[dict, int]:
+    """Perform a merge between two different versions of the metadata.
+    This requires singificantly different logic than updating with a json.
+    But at least we can skip a lot of complicated stuff (defaults, LinkedFiles, etc)
+
+    Parameters
+    ==========
+    base_json : dict
+        The json which is the head (for our purposes largely interchangeable with base)
+    head_json : dict
+        The json which is the head (for our purposes largely interchangeable with head)
+    mrca_json : dict
+        The json which for the most recent common ancestor (mrca). Used to parse what is a change
+    schema : dict
+        The schema for the data.
+
+    Returns
+    =======
+    dict
+        The result of the merge, possibly with conflicts
+    int
+        The exit value: 0 if no conflicts, 1 if conflicts
+    """
+    # generate the merger objects
+    merger = get_merger(schema, for_merging=True)
+    removal_merger = get_merger(schema, for_removal=True)
+
+    # The first step is easy: combine base and head using the unique strategy for arrays
+    working_json = merger.merge(base_json, head_json)
+
+    # Now the tricky bits, involving the MRCA
+    # The issue is that jsondiff is not really suitable to provide the identification of conflicts we need
+    # So, do a recursion to capture
+    # a) whether there are any merge conflicts
+    # b) whether any list elements need to be removed
+    changes_given_mrca, return_status = recurse_capture_changes_from_mrca(
+        base_json=base_json, head_json=head_json, mrca_json=mrca_json
+    )
+
+    if changes_given_mrca is None:
+        changes_given_mrca = dict()
+
+    working_json = removal_merger.merge(working_json, changes_given_mrca)
+    return working_json, return_status
+
+
+def recurse_capture_changes_from_mrca(
+    base_json: dict,
+    head_json: dict,
+    mrca_json: dict,
+    refId: str = "UID",
+) -> Tuple[Union[dict, None], int]:
+    """A recursive function to yield changes of both base and head from mrca
+    We want to know when:
+    a) scalars change in both
+    b) elements of arrays which need to be removed
+
+    Parameters
+    ==========
+    base_json : dict
+        The json which is the head (for our purposes largely interchangeable with base)
+    head_json : dict
+        The json which is the head (for our purposes largely interchangeable with head)
+    mrca_json : dict
+        The json which for the most recent common ancestor (mrca). Used to parse what is a change
+    refId : str
+        The string to use as a unique ID, defaults to 'UID'
+
+    Returns
+    =======
+    Union[dict, None]
+        If no changes are made along this branch, return None. Else return a dict of changes/conflicts
+    """
+    # Return status starts as 0
+    # It will change to 1 if there is a conflict somewhere down the chain
+    return_status = 0
+    # Two cases - either we are looking at a dict, or we are looking at an array
+    if isinstance(head_json, dict):
+        working_json = dict()
+        for key, val in head_json.items():
+            # If it's a dict, loop over key/val pairs
+            # Note this will therefore not touch any key/val present in
+            # Base or MRCA but not in Head
+            # This is good: if a k/v pair is in Base but not Head then it's an addition
+            # which should be accepted
+            # or it was removed in Head, which shouldn't happen and ought to be reverted
+            # if it's in MRCA but not in Base or Head then, well, I guess we *really*
+            # wantd to remove it
+            if key in base_json.keys() and key in mrca_json.keys():
+                # This node has a value in all 3 jsons, so we can descend in a standard way
+                if isinstance(val, dict):
+                    # If val is a dict, descend with working_json as a dict
+                    (
+                        descend_value,
+                        descend_return_status,
+                    ) = recurse_capture_changes_from_mrca(
+                        base_json=base_json[key],
+                        head_json=val,
+                        mrca_json=mrca_json[key],
+                        refId=refId,
+                    )
+                    if descend_value is None:
+                        pass
+                    else:
+                        working_json[key] = descend_value
+                        return_status = max(descend_return_status, return_status)
+                elif isinstance(val, list):
+                    # if val is a list, descend with working_json as a list
+                    (
+                        descend_value,
+                        descend_return_status,
+                    ) = recurse_capture_changes_from_mrca(
+                        base_json=base_json[key],
+                        head_json=val,
+                        mrca_json=mrca_json[key],
+                        refId=refId,
+                    )
+                    if descend_value is None:
+                        pass
+                    else:
+                        working_json[key] = descend_value
+                        return_status = max(descend_return_status, return_status)
+                else:
+                    # This is the case where we are down to a scalar value
+                    if base_json[key] == head_json[key]:
+                        # If base and head agree
+                        # whether that means nothing changed or both changed in the same way
+                        # Then there's no change that needs to be made
+                        pass
+                    elif (
+                        base_json[key] == mrca_json[key]
+                        and head_json[key] != mrca_json[key]
+                    ):
+                        # If only head has changed, the baseline merge will cover that already
+                        pass
+                    elif (
+                        base_json[key] != mrca_json[key]
+                        and head_json[key] == mrca_json[key]
+                    ):
+                        # If only base has changed, we can accept that change
+                        working_json[key] = base_json[key]
+                    else:
+                        # This is a true conflict - we must note that with git markers
+                        # These will sometimes but not always pass validation?
+                        # I think that doesn't matter - we *shouldn't* git_add_and_commit these
+                        # So we'll write these conflict files explicitly
+                        working_json[key] = (
+                            f"<<<<<<Base Value:{base_json[key]} -"
+                            f" Head Value:{head_json[key]} -"
+                            f" MRCA Value:{mrca_json[key]}>>>>>>"
+                        )
+                        return_status = 1
+            elif key in base_json.keys():
+                # This node has a value in the base but not in mrca
+                # Thus, it was *added* in both base and head
+                # So descend but we need to do something curious for mrca
+                if isinstance(val, dict):
+                    # If val is a dict, descend with working_json as a dict
+                    (
+                        descend_value,
+                        descend_return_status,
+                    ) = recurse_capture_changes_from_mrca(
+                        base_json=base_json[key],
+                        head_json=val,
+                        mrca_json={},
+                        refId=refId,
+                    )
+                    if descend_value is None:
+                        pass
+                    else:
+                        working_json[key] = descend_value
+                        return_status = max(descend_return_status, return_status)
+                elif isinstance(val, list):
+                    # if val is a list, descend with working_json as a list
+                    (
+                        descend_value,
+                        descend_return_status,
+                    ) = recurse_capture_changes_from_mrca(
+                        base_json=base_json[key],
+                        head_json=val,
+                        mrca_json=[],
+                        refId=refId,
+                    )
+                    if descend_value is None:
+                        continue
+                    else:
+                        working_json[key] = descend_value
+                        return_status = max(descend_return_status, return_status)
+                else:
+                    # This is the case where we are down to a scalar value
+                    # Now, because we are in the case where something was newly added since MRCA
+                    # we can't check against MRCA
+                    # So instead we just check if base and head differ
+                    # Note that in this case any time where a key is in base but not in head
+                    # Will show up in the baseline merge, so we don't need to worry about it
+                    if base_json[key] != head_json[key]:
+                        # This is a true conflict - we must note that with git markers
+                        # These will sometimes but not always pass validation?
+                        # I think that doesn't matter - we *shouldn't* git_add_and_commit these
+                        # So we'll write these conflict files explicitly
+                        working_json[key] = (
+                            f"<<<<<<Base Value:{base_json[key]} -"
+                            f" Head Value:{head_json[key]} -"
+                            f" MRCA Value:{None}>>>>>>"
+                        )
+                        return_status = 1
+
+            elif key in mrca_json.keys():
+                # The case where this key was *removed* in base but not in head
+                # This is weird and shouldn't happen in normal operation, so we will pass and
+                # let the baseline merge, which will have the k/v, stand
+                continue
+        if working_json == dict():
+            return None, return_status
+        else:
+            return working_json, return_status
+    elif isinstance(head_json, list):
+        working_json = list()
+        # We will loop through all the elements in the array
+        # Three options:
+        # The elements are scalar, in which case we operate on the list as an object
+        # The elements are dicts, which is to say they are objects to recurse through
+        # The elements are heterogeneous, which is bad and should error
+        all_scalar = all([not isinstance(x, dict) for x in head_json])
+        all_objects = all([isinstance(x, dict) for x in head_json])
+        if all_scalar:
+            # In the case the elements are all scalar, we want to check whether
+            # Something has been removed since MRCA in either head or base
+            # So that we can remove it accordingly
+            for el in mrca_json:
+                if el not in base_json or el not in head_json:
+                    working_json.append(el)
+        elif all_objects:
+            # In the case where we have a list of objects, we identify by UID
+            # Then recurse accordingly
+            for el in head_json:
+                # Loop over elements in head_json
+                # If an element only appears in base_json (such that we don't loop over it)
+                # that's fine because it will be reflected correctly in the baseline merge
+                # If an element appears in MRCA but not head or base, well, that's weird
+                # but I guess we accept it
+                # Get the elements in MRCA and Base which share a UID with this element
+                corresponding_mrca_list = [
+                    x for x in mrca_json if x[refId] == el[refId]
+                ]
+                corresponding_base_list = [
+                    x for x in base_json if x[refId] == el[refId]
+                ]
+                if len(corresponding_base_list) > 1 or len(corresponding_mrca_list) > 1:
+                    # Something weird has happened
+                    raise KeyError(
+                        "A branch has an array with multiple elements sharing a UID;\
+                                   that is by definition wrong"
+                    )
+                elif (
+                    len(corresponding_base_list) == 1
+                    and len(corresponding_mrca_list) == 1
+                ):
+                    # The case where the object appears in all 3 lists
+                    corresponding_mrca_el = corresponding_mrca_list[0]
+                    corresponding_base_el = corresponding_base_list[0]
+                    (
+                        descend_value,
+                        descend_return_status,
+                    ) = recurse_capture_changes_from_mrca(
+                        base_json=corresponding_base_el,
+                        head_json=el,
+                        mrca_json=corresponding_mrca_el,
+                        refId=refId,
+                    )
+                    if descend_value is None:
+                        pass
+                    else:
+                        descend_value[refId] = el[refId]
+                        working_json.append(descend_value)
+                        return_status = max(descend_return_status, return_status)
+                elif (
+                    len(corresponding_base_list) == 1
+                    and len(corresponding_mrca_list) == 0
+                ):
+                    # The case where an object was added in base and head but wasn't present in MRCA
+                    corresponding_base_el = corresponding_base_list[0]
+                    (
+                        descend_value,
+                        descend_return_status,
+                    ) = recurse_capture_changes_from_mrca(
+                        base_json=corresponding_base_el,
+                        head_json=el,
+                        mrca_json={},
+                        refId=refId,
+                    )
+                    if descend_value is None:
+                        pass
+                    else:
+                        descend_value[refId] = el[refId]
+                        working_json.append(descend_value)
+                        return_status = max(descend_return_status, return_status)
+                else:
+                    # Someone removed this in base?
+                    # That's really not supposed to happen
+                    # and since the baseline reflects that by just using head
+                    # we'll pass
+                    pass
+        else:
+            raise ValueError("List is heterogeneous where it shouldn't be")
+        if working_json == list():
+            return None, return_status
+        else:
+            return working_json, return_status
+    else:
+        return None, 0
