@@ -730,13 +730,18 @@ class LocalLibraryDatabase(object):
                 logger.info("Resetting to pre-merge state")
                 self.repo.git.reset("--merge")
 
-    def git_checkout_new_branch(self, branch_name: str) -> None:
+    def git_checkout_new_branch(
+        self, branch_name: str, remote_to_track="origin"
+    ) -> None:
         """Checkout a branch, creating it if necessary
 
         Parameters
         ==========
         branch_name : str
             The title of the branch to create
+        remote_to_track : str
+            If a new branch is being created, such that we want to track a remote, this designates
+            the remote which the tracking branch should be pushed to
         """
         # If necessary initialize the repo
         if not hasattr(self, "repo"):
@@ -750,6 +755,11 @@ class LocalLibraryDatabase(object):
             # If necessary check out the branch with title branch_name
             logger.info(f"Checking out branch {branch_name}")
             self.repo.heads[branch_name].checkout()
+        if self.repo.active_branch.tracking_branch() is None:
+            logger.info(
+                f"Pushing to tracked remote branch {remote_to_track}/{branch_name}"
+            )
+            self.repo.git.push("-u", remote_to_track, branch_name)
 
     ############################################################################
     ############################################################################
