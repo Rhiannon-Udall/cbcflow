@@ -2,7 +2,12 @@
 import os
 from glob import glob
 
-from .utils import setup_logger, get_cluster, get_url_from_public_html_dir, fill_out_linked_file
+from .utils import (
+    setup_logger,
+    get_cluster,
+    get_url_from_public_html_dir,
+    fill_out_linked_file,
+)
 
 logger = setup_logger()
 
@@ -35,7 +40,9 @@ def scrape_bilby_result(path):
     # Try to grab existing result files
     result_files = glob(f"{path}/final_result/*merge_result*")
     if len(result_files) > 1:
-        logger.warning(f"Found multiple result files {result_files}, unclear how to proceed")
+        logger.warning(
+            f"Found multiple result files {result_files}, unclear how to proceed"
+        )
     elif len(result_files) == 1:
         result["ResultFile"] = fill_out_linked_file(result_files[0])
         result["RunStatus"] = "complete"
@@ -63,7 +70,9 @@ def scrape_pesummary_pages(top_level, sname, rundir, sampler):
     result = {}
 
     # Try to find the pesummary outputs
-    pes_path = f"/home/{top_level}/public_html/online_pe/{sname}/{sampler}/{rundir}/pesummary"
+    pes_path = (
+        f"/home/{top_level}/public_html/online_pe/{sname}/{sampler}/{rundir}/pesummary"
+    )
     samples_path = f"{pes_path}/posterior_samples.h5"
     if os.path.exists(samples_path):
         result["PESummaryResultFile"] = fill_out_linked_file(samples_path)
@@ -73,7 +82,9 @@ def scrape_pesummary_pages(top_level, sname, rundir, sampler):
     return result
 
 
-def add_onlinepe_information(metadata: dict, sname: str, base_path: str = "CIT:/home/emfollow") -> dict:
+def add_onlinepe_information(
+    metadata: dict, sname: str, base_path: str = "CIT:/home/emfollow"
+) -> dict:
     """Fetch any available online PE information for this superevent
 
     Parameters

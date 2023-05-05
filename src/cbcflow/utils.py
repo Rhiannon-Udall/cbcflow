@@ -193,7 +193,7 @@ def get_url_from_public_html_dir(dirpath):
 
     # First get the stuff that comes after public_html - this structure will stay the same
     public_html_index = elements.index("public_html")
-    url_extension = "/".join(elements[public_html_index + 1:])
+    url_extension = "/".join(elements[public_html_index + 1 :])
 
     # next get the user in ldas form
     url_user = elements[2]
