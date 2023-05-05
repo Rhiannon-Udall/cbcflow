@@ -24,7 +24,7 @@ What Happens in a ``cbcflow`` Merge?
 
 Understanding how ``cbcflow`` actually executes merges is important to those who will be conducting these merges themselves, since there are certain behaviors which may seem pathological.
 
-Essentially, when ``cbcflow`` performs a merge, it traces down the tree for three jsons: the ``head`` (your current changes), the ``base`` (the changes on the other branch), and the most recent common ancestor, which is the most recent commit shared by head and base.
+Essentially, when ``cbcflow`` performs a merge, it traces down the tree for three jsons: the ``head`` (your current changes), the ``base`` (the changes on the other branch), and the most recent common ancestor (MRCA), which is the most recent commit shared by head and base.
 At each leaf node (that is, when it reaches a scalar value or a list of scalar values), it will assess how to make a merge.
 
 If it's a scalar leaf, the logic is pretty simple: if one of ``head`` or ``base`` makes a change from the MRCA, but the other does not, that change is accepted.
