@@ -731,6 +731,7 @@ def recurse_capture_changes_from_mrca(
                 # Thus, it was *added* in both base and head
                 # So descend but we need to do something curious for mrca
                 if isinstance(val, dict) or isinstance(val, list):
+                    # If val is a dict, descend with working_json as a dict
                     (
                         descend_value,
                         descend_return_status,
@@ -745,6 +746,24 @@ def recurse_capture_changes_from_mrca(
                     else:
                         working_json[key] = descend_value
                         return_status = max(descend_return_status, return_status)
+                else:
+                    # This is the case where we are down to a scalar value
+                    # Now, because we are in the case where something was newly added since MRCA
+                    # we can't check against MRCA
+                    # So instead we just check if base and head differ
+                    # Note that in this case any time where a key is in base but not in head
+                    # Will show up in the baseline merge, so we don't need to worry about it
+                    if base_json[key] != head_json[key]:
+                        # This is a true conflict - we must note that with git markers
+                        # These will sometimes but not always pass validation?
+                        # I think that doesn't matter - we *shouldn't* git_add_and_commit these
+                        # So we'll write these conflict files explicitly
+                        working_json[key] = (
+                            f"<<<<<<Base Value:{base_json[key]} -"
+                            f" Head Value:{head_json[key]} -"
+                            f" MRCA Value:{None}>>>>>>"
+                        )
+                        return_status = 1
 
             elif key in mrca_json.keys():
                 # The case where this key was *removed* in base but not in head
