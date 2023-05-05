@@ -25,6 +25,7 @@ from .process import (
     get_all_schema_def_defaults,
     get_simple_schema_defaults,
     process_update_json,
+    process_merge_json,
 )
 from .schema import get_schema
 from .gracedb import fetch_gracedb_information
@@ -668,14 +669,54 @@ class LocalLibraryDatabase(object):
         self.repo.git.commit("-m", message)
         logger.info(f"Wrote commit {self.repo.active_branch.commit}")
 
+    def git_merge_metadata_jsons(
+        self, our_file: str, their_file: str, most_recent_common_ancestor_file: str
+    ) -> None:
+        """Merge metadata jsons in a manner which preserves meaning
+
+        Parameters
+        ==========
+        our_file : str
+            The file in the base (current)
+        their_file : str
+            The file from head (changes being applied)
+        most_recent_common_ancestor_file : str
+            The file from the MRCA (last commit shared by head and base)
+        """
+        # `cbcflow.process.process_merge_json handles the logic for us`
+        # We just need to load in files here
+        with open(our_file, "r") as file:
+            head_json = json.load(file)
+        with open(their_file, "r") as file:
+            base_json = json.load(file)
+        with open(most_recent_common_ancestor_file, "r") as file:
+            mrca_json = json.load(file)
+
+        # Now get the merged json and the return status
+        merge_json, return_status = process_merge_json(
+            base_json=base_json,
+            head_json=head_json,
+            mrca_json=mrca_json,
+            schema=self.metadata_schema,
+        )
+
+        # Base is where changes should be written
+        with open(our_file, "w") as file:
+            json.dump(merge_json, file, indent=2)
+
+        # Return status tracks whether there are merge conflicts
+        # 0 is good
+        # 1 is conflicts
+        return return_status
+
     def git_push_to_remote(self) -> None:
         """Push changes made to the library to the tracking remote"""
         if not hasattr(self, "repo"):
             self._initialize_library_git_repo()
         self.repo.git.push()
 
-    def git_pull_from_remote(self) -> None:
-        """Attempt to pull from the remote"""
+    def git_pull_from_remote(self, automated=False) -> None:
+        """Pull from remote using our special logic"""
         if not hasattr(self, "repo"):
             self._initialize_library_git_repo()
         try:
@@ -683,9 +724,11 @@ class LocalLibraryDatabase(object):
         except Exception as e:
             logger.info("Pull failed:")
             logger.info(e)
-            self.remote_has_merge_conflict = True
-            logger.info("Resetting to pre-merge state")
-            self.repo.git.reset("--merge")
+            if automated:
+                logger.info("Automated mode prioritizes continued json validity")
+                self.remote_has_merge_conflict = True
+                logger.info("Resetting to pre-merge state")
+                self.repo.git.reset("--merge")
 
     def git_checkout_new_branch(self, branch_name: str) -> None:
         """Checkout a branch, creating it if necessary

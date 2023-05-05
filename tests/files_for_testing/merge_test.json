@@ -1,0 +1,220 @@
+{
+    "Sname": "S230419cl",
+    "Info": {
+      "Labels": [],
+      "SchemaVersion": "v2",
+      "Notes": []
+    },
+    "Publications": {
+      "Papers": []
+    },
+    "GraceDB": {
+      "Events": [
+        {
+          "State": "neighbor",
+          "UID": "G1012274",
+          "Pipeline": "pycbc",
+          "GPSTime": 1365945570.367676,
+          "FAR": 1.678799296389241e-07,
+          "NetworkSNR": 12.92330533277287,
+          "H1SNR": 9.7511377,
+          "Mass1": 34.789783,
+          "Mass2": 1.4971966,
+          "Spin1z": 0.40366086,
+          "Spin2z": -0.50233327,
+          "L1SNR": 8.4809866,
+          "Pastro": 0.027249624642209813,
+          "Pbbh": 0.008215788134206833,
+          "Pbns": 0.0,
+          "Pnsbh": 0.01903383650800298,
+          "HasNS": 0.9324691569233386,
+          "HasRemnant": 0.0,
+          "HasMassGap": 0.0,
+          "PipelineHasMassGap": 0.25353849477951357,
+          "XML": "https://gracedb-playground.ligo.org/api/events/G1012274/files/coinc.xml",
+          "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G1012274/files/pycbc.p_astro.json",
+          "Skymap": "https://gracedb-playground.ligo.org/api/events/G1012274/files/bayestar.multiorder.fits"
+        },
+        {
+          "State": "preferred",
+          "UID": "G1012270",
+          "Pipeline": "gstlal",
+          "GPSTime": 1365945570.36094,
+          "FAR": 2.707112798166108e-31,
+          "NetworkSNR": 13.37067637009653,
+          "H1SNR": 9.6936121,
+          "Mass1": 29.554897,
+          "Mass2": 1.6528069,
+          "Spin1z": 0.25523436,
+          "Spin2z": 0.25523436,
+          "L1SNR": 9.2091732,
+          "Pastro": 1.0,
+          "Pbbh": 0.0005457999050192219,
+          "Pbns": 1.1657406509974384e-35,
+          "Pnsbh": 0.9994542000949809,
+          "HasNS": 1.0,
+          "HasRemnant": 0.0,
+          "HasMassGap": 0.006666666666666666,
+          "XML": "https://gracedb-playground.ligo.org/api/events/G1012270/files/coinc.xml",
+          "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G1012270/files/gstlal.p_astro.json",
+          "Skymap": "https://gracedb-playground.ligo.org/api/events/G1012270/files/bayestar.multiorder.fits"
+        },
+        {
+          "State": "neighbor",
+          "UID": "G1012254",
+          "Pipeline": "spiir",
+          "GPSTime": 1365945570.366699,
+          "FAR": 3.072849003410471e-18,
+          "NetworkSNR": 13.04902665291502,
+          "H1SNR": 9.2571611,
+          "Mass1": 38.161137,
+          "Mass2": 1.4215634,
+          "Spin1z": 0.4572168,
+          "Spin2z": 0.031305015,
+          "L1SNR": 9.1968508,
+          "Pastro": 0.9999999999884482,
+          "Pbbh": 0.3038248573963614,
+          "Pbns": 0.0,
+          "Pnsbh": 0.6961751425920869,
+          "HasNS": 1.0,
+          "HasRemnant": 0.0,
+          "HasMassGap": 0.0,
+          "XML": "https://gracedb-playground.ligo.org/api/events/G1012254/files/coinc.xml",
+          "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G1012254/files/spiir.p_astro.json",
+          "Skymap": "https://gracedb-playground.ligo.org/api/events/G1012254/files/bayestar.multiorder.fits"
+        }
+      ],
+      "Instruments": "H1,L1",
+      "LastUpdate": "2023-04-24 13:54:13.181941"
+    },
+    "ExtremeMatter": {
+      "Analyses": []
+    },
+    "Cosmology": {
+      "Counterparts": [],
+      "CosmologyRunsUsingThisSuperevent": [],
+      "Notes": [],
+      "PreferredLowLatencySkymap": "https://gracedb-playground.ligo.org/api/events/G1012270/files/bayestar.multiorder.fits"
+    },
+    "RatesAndPopulations": {
+      "RnPRunsUsingThisSuperevent": []
+    },
+    "ParameterEstimation": {
+      "Analysts": [],
+      "Reviewers": [],
+      "Status": "unstarted",
+      "Results": [
+        {
+          "UID":"Test1"
+        },
+        {
+          "UID":"Test2"
+        }
+      ],
+      "SafeSamplingRate": 4096.0,
+      "SafeLowerMassRatio": 0.05,
+      "Notes": []
+    },
+    "Lensing": {
+      "Analyses": []
+    },
+    "TestingGR": {
+      "BHMAnalyses": [
+        {
+          "UID":"Test1",
+          "Results":[
+            {
+              "UID":"Test1a"
+            },
+            {
+              "UID":"Test1b"
+            }
+          ]
+        },
+        {
+          "UID":"Test2",
+          "Results":[
+            {
+              "UID":"Test2a"
+            },
+            {
+              "UID":"Test2b"
+            }
+          ]
+        }
+      ],
+      "EchoesCWBAnalyses": [],
+      "FTIAnalyses": [],
+      "IMRCTAnalyses": [
+        {
+          "UID":"Test1",
+          "Results":[
+            {
+              "UID":"Test1a"
+            },
+            {
+              "UID":"Test1b"
+            }
+          ]
+        },
+        {
+          "UID":"Test2",
+          "Results":[
+            {
+              "UID":"Test2a"
+            },
+            {
+              "UID":"Test2b"
+            }
+          ]
+        }
+      ],
+      "LOSAAnalyses": [],
+      "MDRAnalyses": [],
+      "ModeledEchoesAnalyses": [],
+      "PCATGRAnalyses": [],
+      "POLAnalyses": [],
+      "PSEOBRDAnalyses": [],
+      "PYRINGAnalyses": [],
+      "QNMRationalFilterAnalyses": [],
+      "ResidualsAnalyses": [],
+      "SIMAnalyses": [
+        {
+          "UID":"Test1",
+          "Results":[
+            {
+              "UID":"Test1a"
+            },
+            {
+              "UID":"Test1b"
+            }
+          ]
+        },
+        {
+          "UID":"Test2",
+          "Results":[
+            {
+              "UID":"Test2a"
+            },
+            {
+              "UID":"Test2b"
+            }
+          ]
+        }
+      ],
+      "SMAAnalyses": [],
+      "SSBAnalyses": [],
+      "TIGERAnalyses": [],
+      "UnmodeledEchoesAnalyses": [],
+      "Notes": []
+    },
+    "DetectorCharacterization": {
+      "Analysts": [],
+      "Reviewers": [],
+      "ParticipatingDetectors": [],
+      "Status": "unstarted",
+      "RecommendedDetectors": [],
+      "DQRResults": [],
+      "Notes": []
+    }
+  }

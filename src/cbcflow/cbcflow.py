@@ -242,3 +242,48 @@ class ValidationError(Exception):
     """An error in schema validation"""
 
     pass
+
+
+def cbcflow_git_merge() -> int:
+    """A script"""
+    logger = setup_logger()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "mrcafile",
+        type=str,
+        help="The version of the file from the most recent common ancestor",
+    )
+    parser.add_argument(
+        "ourfile", type=str, help="The version of the file on our current branch"
+    )
+    parser.add_argument(
+        "theirfile", type=str, help="The version of the file on the other branch"
+    )
+    parser.add_argument(
+        "--library",
+        type=str,
+        default=config_defaults["library"],
+        help="The library to operate in",
+    )
+    args = parser.parse_args()
+
+    logger.info(f"Merging file {args.ourfile}")
+
+    # Setup the library, necessary to do the merge operation
+    local_library = LocalLibraryDatabase(args.library)
+    # Do the merge and get the return status
+    return_status = local_library.git_merge_metadata_jsons(
+        args.ourfile, args.theirfile, args.mrcafile
+    )
+
+    if return_status == 1:
+        logger.warning("A merge conflict has occurred as part of this process")
+        logger.warning("Conflicted fields will now be strings bounded by <<<<<<>>>>>>")
+        logger.warning("Please fix these conflicted fields and commit the result")
+        logger.warning(
+            "Note that some fields may not pass validation, due to type or enum conflicts"
+        )
+        logger.warning("Use the schema to identify these cases and correct")
+
+    return return_status

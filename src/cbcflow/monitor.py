@@ -138,7 +138,7 @@ def run_monitor() -> None:
     # Make sure we switch to main for monitor operations
     local_library._initialize_library_git_repo()
     local_library.repo.heads["main"].checkout()
-    local_library.git_pull_from_remote()
+    local_library.git_pull_from_remote(automated=True)
     if local_library.remote_has_merge_conflict:
         logger.info(
             "Could not pull from remote, continuing with standard sync sequence\n\
