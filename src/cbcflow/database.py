@@ -731,7 +731,7 @@ class LocalLibraryDatabase(object):
                 self.repo.git.reset("--merge")
 
     def git_checkout_new_branch(
-        self, branch_name: str, remote_to_track="origin"
+        self, branch_name: str, remote_to_track: str = "origin"
     ) -> None:
         """Checkout a branch, creating it if necessary
 
