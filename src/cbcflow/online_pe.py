@@ -6,7 +6,6 @@ from .utils import (
     setup_logger,
     get_cluster,
     get_url_from_public_html_dir,
-    fill_out_linked_file,
 )
 
 logger = setup_logger()
@@ -31,7 +30,7 @@ def scrape_bilby_result(path):
     # Try to grab the config
     possible_configs = glob(f"{path}/*config_complete.ini")
     if len(possible_configs) == 1:
-        result["ConfigFile"] = fill_out_linked_file(possible_configs[0])
+        result["ConfigFile"]["Path"] = possible_configs[0]
     elif len(possible_configs) > 1:
         logger.warning("Multiple config files found: unclear how to proceed")
     else:
@@ -44,7 +43,7 @@ def scrape_bilby_result(path):
             f"Found multiple result files {result_files}, unclear how to proceed"
         )
     elif len(result_files) == 1:
-        result["ResultFile"] = fill_out_linked_file(result_files[0])
+        result["ResultFile"]["Path"] = result_files[0]
         result["RunStatus"] = "complete"
     elif len(result_files) == 0:
         logger.info(f"No result file found in {path}")
@@ -57,7 +56,7 @@ def scrape_rapidpe_result(path):
     # Try to grab the config
     possible_configs = glob(f"{path}/*rapidpe.ini")
     if len(possible_configs) == 1:
-        result["ConfigFile"] = fill_out_linked_file(possible_configs[0])
+        result["ConfigFile"]["Path"] = possible_configs[0]
     elif len(possible_configs) > 1:
         logger.warning("Multiple config files found: unclear how to proceed")
     else:
@@ -75,7 +74,7 @@ def scrape_pesummary_pages(top_level, sname, rundir, sampler):
     )
     samples_path = f"{pes_path}/posterior_samples.h5"
     if os.path.exists(samples_path):
-        result["PESummaryResultFile"] = fill_out_linked_file(samples_path)
+        result["PESummaryResultFile"]["Path"] = samples_path
     pes_home = f"{pes_path}/home.html"
     if os.path.exists(pes_home):
         result["PESummaryPageURL"] = get_url_from_public_html_dir(pes_home)
