@@ -30,7 +30,7 @@
             "type":"object",
             "additionalProperties":true,
             "properties":{
-                "Sname":{
+                "UID":{
                     "description": "The GraceDB defined sname",
                     "type": "string",
                     "pattern": "^S[0-9]{6}[a-z]+"
