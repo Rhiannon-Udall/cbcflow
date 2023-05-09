@@ -6,6 +6,8 @@ from .utils import (
     setup_logger,
     get_cluster,
     get_url_from_public_html_dir,
+    get_number_suffixed_key,
+    get_uids_from_object_array,
 )
 
 logger = setup_logger()
@@ -30,6 +32,7 @@ def scrape_bilby_result(path):
     # Try to grab the config
     possible_configs = glob(f"{path}/*config_complete.ini")
     if len(possible_configs) == 1:
+        result["ConfigFile"] = {}
         result["ConfigFile"]["Path"] = possible_configs[0]
     elif len(possible_configs) > 1:
         logger.warning("Multiple config files found: unclear how to proceed")
@@ -43,6 +46,7 @@ def scrape_bilby_result(path):
             f"Found multiple result files {result_files}, unclear how to proceed"
         )
     elif len(result_files) == 1:
+        result["ResultFile"] = {}
         result["ResultFile"]["Path"] = result_files[0]
         result["RunStatus"] = "complete"
     elif len(result_files) == 0:
@@ -56,6 +60,7 @@ def scrape_rapidpe_result(path):
     # Try to grab the config
     possible_configs = glob(f"{path}/*rapidpe.ini")
     if len(possible_configs) == 1:
+        result["ConfigFile"] = {}
         result["ConfigFile"]["Path"] = possible_configs[0]
     elif len(possible_configs) > 1:
         logger.warning("Multiple config files found: unclear how to proceed")
@@ -74,6 +79,7 @@ def scrape_pesummary_pages(top_level, sname, rundir, sampler):
     )
     samples_path = f"{pes_path}/posterior_samples.h5"
     if os.path.exists(samples_path):
+        result["PESummaryResultFile"] = {}
         result["PESummaryResultFile"]["Path"] = samples_path
     pes_home = f"{pes_path}/home.html"
     if os.path.exists(pes_home):
@@ -122,6 +128,9 @@ def add_onlinepe_information(
                 UID = f"onlinepe_{sampler}_{rundir}"
             else:
                 UID = f"onlinepe_{sampler}"
+
+            keys_so_far = get_uids_from_object_array(results)
+            UID = get_number_suffixed_key(key=UID, keys_so_far=keys_so_far)
 
             # Initialise result dictionary
             result = dict(
