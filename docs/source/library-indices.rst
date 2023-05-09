@@ -16,7 +16,7 @@ An example is:
     },
     "Superevents": [
       {
-        "Sname": "S230301f",
+        "UID": "S230301f",
         "LastUpdated": "2023/04/09 21:11:20",
         "Labels": [
           "PE::high-significance",
@@ -24,7 +24,7 @@ An example is:
         ]
       },
       {
-        "Sname": "S230301h",
+        "UID": "S230301h",
         "LastUpdated": "2023/04/09 21:11:17",
         "Labels": [
           "PE::high-significance",
@@ -32,7 +32,7 @@ An example is:
         ]
       },
       {
-        "Sname": "S230303m",
+        "UID": "S230303m",
         "LastUpdated": "2023/04/09 21:11:14",
         "Labels": [
           "PE::high-significance",
