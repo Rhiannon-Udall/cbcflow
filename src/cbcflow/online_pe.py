@@ -141,6 +141,10 @@ def add_onlinepe_information(
 
             results.append(result)
 
-    metadata.data["ParameterEstimation"]["Results"] += results
+    update_dict = {}
+    update_dict["ParameterEstimation"] = {}
+    update_dict["ParameterEstimation"]["Results"] = results
+
+    metadata.update(update_dict)
 
     return metadata
