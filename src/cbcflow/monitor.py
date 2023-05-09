@@ -129,6 +129,12 @@ def run_monitor() -> None:
         type=str,
         help="The .cbcflow.cfg file to use for library and service URL info",
     )
+    parser.add_argument(
+        "--branch-name",
+        type=str,
+        default="main",
+        help="The branch the monitor should write to - defaults to main",
+    )
     args = parser.parse_args()
 
     config_values = get_cbcflow_config(args.cbcflowconfig)
@@ -136,8 +142,7 @@ def run_monitor() -> None:
     logger.info("CBCFlow monitor is beginning sweep")
     logger.info("Attempting to pull from remote")
     # Make sure we switch to main for monitor operations
-    local_library._initialize_library_git_repo()
-    local_library.repo.heads["main"].checkout()
+    local_library.git_checkout_new_branch(branch_name=args.branch_name)
     local_library.git_pull_from_remote(automated=True)
     if local_library.remote_has_merge_conflict:
         logger.info(
