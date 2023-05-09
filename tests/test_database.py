@@ -49,5 +49,5 @@ class TestDatabase(unittest.TestCase):
         """
         events_in_library = []
         for superevent in json["Superevents"]:
-            events_in_library.append(superevent["Sname"])
+            events_in_library.append(superevent["UID"])
         return events_in_library
