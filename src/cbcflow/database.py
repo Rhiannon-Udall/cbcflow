@@ -14,9 +14,6 @@ import dateutil.parser as dp
 from jsondiff import diff
 import jsonschema
 import git
-from ligo.gracedb.rest import GraceDb
-from ligo.gracedb.exceptions import HTTPError
-from gwpy.time import to_gps
 import tqdm
 
 from .metadata import MetaData
@@ -261,6 +258,8 @@ class GraceDbDatabase(LibraryParent):
         list
             The superevents which satisfy the query
         """
+        from ligo.gracedb.rest import GraceDb
+
         queried_superevents = []
         with GraceDb(service_url=self.source_path) as gdb:
             superevent_iterator = gdb.superevents(query)
@@ -276,6 +275,8 @@ class GraceDbDatabase(LibraryParent):
         branch_name : str, optional
             The name of the branch to write to, as passed to `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`
         """
+        from ligo.gracedb.exceptions import HTTPError
+
         if hasattr(self, "superevents_to_propagate"):
             for superevent_id in tqdm.tqdm(self.superevents_to_propagate):
                 if superevent_id in self.library.metadata_dict.keys():
@@ -336,6 +337,8 @@ class GraceDbDatabase(LibraryParent):
         branch_name : str | None, optional
             The branch_name to write commits to, per `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`
         """
+        from ligo.gracedb.exceptions import HTTPError
+
         # setup defaults
         # monitor_config = local_library.library_config["Monitor"]
         event_config = self.library.library_config["Events"]
@@ -499,6 +502,8 @@ class LocalLibraryDatabase(object):
     @property
     def downselected_metadata_dict(self) -> Dict[str, MetaData]:
         """The metadata of events that satisfy library inclusion criteria, labelled by sname"""
+        from gwpy.time import to_gps
+
         downselected_metadata_dict = dict()
         self.load_library_metadata_dict()
         for sname, metadata in self.metadata_dict.items():

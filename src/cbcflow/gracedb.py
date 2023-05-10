@@ -2,9 +2,6 @@
 from datetime import datetime
 from typing import Union
 
-from ligo.gracedb.exceptions import HTTPError
-from ligo.gracedb.rest import GraceDb
-
 from .utils import setup_logger
 
 logger = setup_logger()
@@ -26,6 +23,9 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
     dict
         An update dictionary to apply to the metadata, containing the GraceDB info.
     """
+    from ligo.gracedb.rest import GraceDb
+    from ligo.gracedb.exceptions import HTTPError
+
     if service_url is None:
         from .configuration import config_defaults
 

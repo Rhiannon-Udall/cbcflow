@@ -6,7 +6,6 @@ import json
 import os
 import subprocess
 import sys
-import jsonschema
 from typing import TYPE_CHECKING, Union
 
 import jsondiff
@@ -245,6 +244,8 @@ class MetaData(object):
             If true, this dictionary will treat all primitive list elements (i.e. not objects)
             as something to be removed, rather than added. Use sparingly.
         """
+        import jsonschema
+
         new_metadata_data = copy.deepcopy(self.data)
         new_metadata_data = process_update_json(
             update_dict,

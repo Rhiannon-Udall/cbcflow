@@ -6,7 +6,6 @@ import copy
 import json
 from typing import TYPE_CHECKING, Union, Tuple
 
-from benedict import benedict
 from jsonmerge import Merger
 from jsonmerge.strategies import ArrayStrategy
 
@@ -285,6 +284,8 @@ def get_all_schema_def_defaults(schema: dict) -> dict:
         These are the the possible call paths for the referenced object, with each
         level of hierarchy separated by underscores.
     """
+    from benedict import benedict
+
     if not isinstance(schema, benedict):
         schema = benedict(schema, keypath_separator="_")
 

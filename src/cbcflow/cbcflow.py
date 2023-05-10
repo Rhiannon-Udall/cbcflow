@@ -9,7 +9,6 @@ import glob
 import json
 from typing import Tuple
 
-import jsonschema
 
 from .configuration import config_defaults
 from .gracedb import fetch_gracedb_information
@@ -52,6 +51,8 @@ def setup_args_metadata() -> Tuple[argparse.Namespace, "MetaData"]:
 
 def pull() -> None:
     """Pull updates from GraceDB to the library"""
+    import jsonschema
+
     logger = setup_logger()
     args, metadata = setup_args_metadata()
 
