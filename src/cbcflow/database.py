@@ -66,7 +66,7 @@ class Labeller(object):
     def populate_working_index_with_labels(self) -> None:
         """Loop over all events in the index, and apply labels to them based on their metadata"""
         for superevent in self.library.working_index["Superevents"]:
-            sname = superevent["Sname"]
+            sname = superevent["UID"]
             labels = self.label_event(self.library.metadata_dict[sname])
             superevent["Labels"] = labels
 
