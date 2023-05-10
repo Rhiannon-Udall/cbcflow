@@ -163,9 +163,7 @@ def get_merger(
     for_removal : bool, default=False
         If true make a merger which performs removals
     idRef : str, default='/UID'
-        The key which serves as a unique ID - for metadata this should be /UID
-        For now this is /Sname for indices, though that could lead to issues in the future
-        if index complexity increases
+        The key which serves as a unique ID - this should consistently be /UID
     for_merging : bool, default=False
         If true make a merger which uses the Unique strategy on arrays
         Returning an array that contains one copy of each element in either head or base
@@ -569,9 +567,7 @@ def process_update_json(
     is_removal : bool, default=False
         If true, this json will be interpreted as a negative image, and the update will be a removal
     idRef : str, default='/UID'
-        The key which serves as a unique ID - for metadata this should be UID
-        For now this is Sname for indices, though that could lead to issues in the future
-        if index complexity increases
+        The key which serves as a unique ID - for this should consistently be UID
     """
     if not is_removal:
         # If we are adding, we may need defaults

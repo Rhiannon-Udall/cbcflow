@@ -846,14 +846,14 @@ class LocalLibraryDatabase(object):
         for sname, metadata in self.downselected_metadata_dict.items():
             # Fill out basic info
             superevent_meta = copy.deepcopy(superevent_default)
-            superevent_meta["Sname"] = sname
+            superevent_meta["UID"] = sname
             superevent_meta["LastUpdated"] = metadata.get_date_last_modified()
             new_index["Superevents"].append(superevent_meta)
             # Get the datetime of the most recent change
             if dp.parse(superevent_meta["LastUpdated"]) > dp.parse(current_most_recent):
                 current_most_recent = superevent_meta["LastUpdated"]
         # Sort by Sname for readability
-        new_index["Superevents"].sort(key=lambda x: x["Sname"])
+        new_index["Superevents"].sort(key=lambda x: x["UID"])
         # Set the most recent change as the time of the library's most recent change
         new_index["LibraryStatus"]["LastUpdated"] = current_most_recent
         return new_index
@@ -893,7 +893,6 @@ class LocalLibraryDatabase(object):
             working_index_copy,
             self.index_from_file,
             self.library_index_schema,
-            idRef="Sname",
         )
 
     def write_index_file(self, branch_name: Union[str, None] = None) -> None:
