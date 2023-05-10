@@ -1,6 +1,6 @@
 """Miscellaneous functions, especially relating to OS I/O"""
 import hashlib
-from typing import Union
+from typing import Union, List, Dict
 import os
 import subprocess
 from datetime import datetime
@@ -201,3 +201,61 @@ def get_url_from_public_html_dir(dirpath):
     # Combine them
     dir_url = f"https://ldas-jobs.ligo.caltech.edu/~{url_user}/{url_extension}"
     return dir_url
+
+
+def get_number_suffixed_key(key: str, keys_so_far: list) -> str:
+    """We want unique keys - this will suffix a number to make one if necessary
+
+    Parameters
+    ==========
+    key : str
+       The key to check and possibly modify
+    keys_so_far : list
+        The keys so far to reference for uniqueness
+
+    Returns
+    =======
+    str
+        The key, suffixed if necessary for uniqueness
+    """
+    overlapping_keys = [x for x in keys_so_far if key in x]
+    if key in overlapping_keys:
+        suffixes = [x.split("_")[-1] for x in overlapping_keys if "_" in x]
+        highest_integer_not_yet_taken = 1
+        for suffix in suffixes:
+            if suffix.isdigit():
+                if int(suffix) == highest_integer_not_yet_taken:
+                    highest_integer_not_yet_taken += 1
+        new_key = f"{key}_{highest_integer_not_yet_taken}"
+        return new_key
+    else:
+        return key
+
+
+def get_uids_from_object_array(array: List[Dict], refId: str = "UID") -> list:
+    """Get the list of unique IDs from the object array
+
+    Parameters
+    ==========
+    array : List[Dict]
+        A list of objects each with a unique ID (the refId)
+    refId : str
+        The reference ID which uniquely identifies objects, in normal operation UID
+
+    Returns
+    =======
+    list
+        The list of UIDs reflected in the object array
+    """
+    list_of_uids = []
+    for entry in array:
+        try:
+            list_of_uids.append(entry[refId])
+        except KeyError as e:
+            raise KeyError(
+                (
+                    f"Failed with key error {e}\n"
+                    f"Why is there an object without {refId} in this key-tracked array?"
+                )
+            )
+    return list_of_uids

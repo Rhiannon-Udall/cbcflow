@@ -141,9 +141,11 @@ def run_monitor() -> None:
     local_library = LocalLibraryDatabase(library_path=config_values["library"])
     logger.info("CBCFlow monitor is beginning sweep")
     logger.info("Attempting to pull from remote")
+    # Pull before we potentially checkout a new branch
+    local_library.git_pull_from_remote(automated=True)
     # Make sure we switch to main for monitor operations
     local_library.git_checkout_new_branch(branch_name=args.branch_name)
-    local_library.git_pull_from_remote(automated=True)
+    # Pull again in case the remote already existed and we want to update it
     if local_library.remote_has_merge_conflict:
         logger.info(
             "Could not pull from remote, continuing with standard sync sequence\n\
@@ -153,13 +155,13 @@ def run_monitor() -> None:
     logger.info(f"Config values are {config_values}")
     local_library.initialize_parent(source_path=config_values["gracedb_service_url"])
     # Note that we explicitly sync to main instead of any other branch
-    local_library.library_parent.sync_library(branch_name="main")
+    local_library.library_parent.sync_library(branch_name=args.branch_name)
     logger.info("Updating index file for library")
     # For now we don't want to do any labelling locally, instead doing it all in gitlab
     # set_working_index... will change LastUpdate and add events
     # but won't touch the labels
     local_library.set_working_index_with_updates_to_file_index()
-    local_library.write_index_file(branch_name="main")
+    local_library.write_index_file(branch_name=args.branch_name)
     if not local_library.remote_has_merge_conflict:
         logger.info("Pushing to remote")
         local_library.git_push_to_remote()
