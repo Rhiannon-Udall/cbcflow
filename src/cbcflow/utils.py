@@ -241,6 +241,11 @@ def get_uids_from_object_array(array: List[Dict], refId: str = "UID") -> list:
         A list of objects each with a unique ID (the refId)
     refId : str
         The reference ID which uniquely identifies objects, in normal operation UID
+
+    Returns
+    =======
+    list
+        The list of UIDs reflected in the object array
     """
     list_of_uids = []
     for entry in array:
