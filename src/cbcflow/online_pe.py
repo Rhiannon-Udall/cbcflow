@@ -125,9 +125,9 @@ def add_onlinepe_information(
             # Path should be of the form /home/emfollow-test/.cache/bilby/S230502m/fast_test
             _, _, top_level, _, _, _, rundir = path.split("/")
             if rundir != "":
-                UID = f"onlinepe_{sampler}_{rundir}"
+                UID = f"{top_level}_{sampler}_{rundir}"
             else:
-                UID = f"onlinepe_{sampler}"
+                UID = f"{top_level}_{sampler}"
 
             keys_so_far = get_uids_from_object_array(results)
             UID = get_number_suffixed_key(key=UID, keys_so_far=keys_so_far)
@@ -138,16 +138,18 @@ def add_onlinepe_information(
                 InferenceSoftware=sampler,
             )
 
-            # Scrate the analysis directories
+            # Scrape the analysis directories
             if sampler == "bilby":
                 result.update(scrape_bilby_result(path))
             elif sampler == "rapidpe":
                 result.update(scrape_rapidpe_result(path))
 
-            # Scrate the pesummary pages
+            # Scrape the pesummary pages
             result.update(scrape_pesummary_pages(top_level, sname, rundir, sampler))
 
-            results.append(result)
+            # Check if results contains anything
+            if "ConfigFile" in result:
+                results.append(result)
 
     update_dict = {}
     update_dict["ParameterEstimation"] = {}
