@@ -697,12 +697,30 @@ class LocalLibraryDatabase(object):
         """
         # `cbcflow.process.process_merge_json handles the logic for us`
         # We just need to load in files here
-        with open(our_file, "r") as file:
-            head_json = json.load(file)
-        with open(their_file, "r") as file:
-            base_json = json.load(file)
-        with open(most_recent_common_ancestor_file, "r") as file:
-            mrca_json = json.load(file)
+        try:
+            with open(our_file, "r") as file:
+                head_json = json.load(file)
+        except json.decoder.JSONDecodeError as e:
+            logger.info(
+                f"Could not read head with error {e}, proceeding as if it's empty"
+            )
+            head_json = {}
+        try:
+            with open(their_file, "r") as file:
+                base_json = json.load(file)
+        except json.decoder.JSONDecodeError as e:
+            logger.info(
+                f"Could not read base with error {e}, proceeding as if it's empty"
+            )
+            base_json = {}
+        try:
+            with open(most_recent_common_ancestor_file, "r") as file:
+                mrca_json = json.load(file)
+        except json.decoder.JSONDecodeError as e:
+            logger.info(
+                f"Could not read head with error {e}, proceeding as if it's empty"
+            )
+            mrca_json = {}
 
         # Now get the merged json and the return status
         merge_json, return_status = process_merge_json(
