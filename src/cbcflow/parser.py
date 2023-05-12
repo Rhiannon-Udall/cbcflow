@@ -1,6 +1,6 @@
 """Parsing tools, and tools for generating default data"""
 import argparse
-from typing import Tuple
+from typing import Tuple, Union
 import re
 
 import argcomplete
@@ -16,6 +16,30 @@ group_shorthands = dict(
     parameter_estimation="parameter_estimation",
     publications="publications",
 )
+
+
+def str2bool(v: Union[str, bool]) -> bool:
+    """Helper type for argparse so we can do set True, etc,
+    from https://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse
+
+    Parameters
+    ==========
+    v : str | bool
+        The value to comprehend. If a string will attempt to interpret.
+
+    Returns
+    =======
+    bool
+        The True/False interpretation of the value
+    """
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif v.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
 
 
 def process_property(
@@ -99,7 +123,9 @@ def process_property(
         if default is not None:
             default_data[key] = default
     elif value["type"] == "boolean":
-        parser.add_argument("--" + arg + "-set", action="store", help=f"Set the {arg}")
+        parser.add_argument(
+            "--" + arg + "-set", action="store", help=f"Set the {arg}", type=str2bool
+        )
         default = value.get("default", None)
         if default is not None:
             default_data[key] = default
