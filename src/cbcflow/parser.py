@@ -98,6 +98,11 @@ def process_property(
         default = value.get("default", None)
         if default is not None:
             default_data[key] = default
+    elif value["type"] == "boolean":
+        parser.add_argument("--" + arg + "-set", action="store", help=f"Set the {arg}")
+        default = value.get("default", None)
+        if default is not None:
+            default_data[key] = default
     elif value["type"] == "array":
         if value["items"].get("type") == "string":
             parser.add_argument(
