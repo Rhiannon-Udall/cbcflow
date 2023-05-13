@@ -65,7 +65,8 @@ class Collector:
                         analysis_output["ConfigFile"]["Path"] = ini
                     except IndexError:
                         logger.warning("Could not find ini file for this analysis")
-                    analysis_output["Notes"] = [analysis.comment]
+                    if analysis.comment is not None:
+                        analysis_output["Notes"] = [analysis.comment]
                     if analysis.review.status:
                         if analysis.review.status.lower() == "approved":
                             analysis_output["ReviewStatus"] = "pass"
