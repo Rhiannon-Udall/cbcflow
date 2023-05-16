@@ -188,7 +188,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
                             f"Failed to load an event for superevent {sname},\
                                     and could not return the event's id"
                         )
-            elif pipeline.lower().strip() == "cwb" and event["group"].lower() == "cbc":
+            elif pipeline.lower().strip() == "cwb" and event["search"].lower() == "bbh":
                 # Catch the pipeline cwb in the group cbc
                 try:
                     event_data = dict()
