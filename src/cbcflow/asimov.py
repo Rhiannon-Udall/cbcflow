@@ -156,7 +156,7 @@ class Collector:
                         # Next, try to get PESummary information
                         pesummary_pages_dir = os.path.join(
                             config.get("general", "webroot"),
-                            analysis.subject.name,
+                            analysis.event.name,
                             analysis.name,
                             "pesummary",
                         )
