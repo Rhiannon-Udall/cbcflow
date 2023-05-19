@@ -231,7 +231,6 @@ class Applicator:
         data = {}
         channels = data["channels"] = {}
         frame_types = data["frame types"] = {}
-        data["segment length"] = detchar["RecommendedDuration"]
         # NOTE there are also detector specific quantities "RecommendedStart/EndTime"
         # but it is not clear how these should be reconciled with
 
@@ -241,6 +240,8 @@ class Applicator:
             # Grab IFO specific quantities
             ifo_name = ifo["UID"]
             ifo_list.append(ifo_name)
+            if "RecommendedDuration" in detchar.keys():
+                data["segment length"] = detchar["RecommendedDuration"]
             if "RecommendedMaximumFrequency" in ifo.keys():
                 max_f[ifo_name] = ifo["RecommendedMaximumFrequency"]
             if "RecommendedMinimumFrequency" in ifo.keys():
