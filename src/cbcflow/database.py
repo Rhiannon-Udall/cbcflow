@@ -472,14 +472,18 @@ class LocalLibraryDatabase(object):
 
                 if self.library_config["Monitor"]["cred"].lower() == "none":
                     # If it's just the string None
+                    logger.info("Using default credentials")
                     cred = None
                 elif re.match(r"\(.,.\)", self.library_config["Monitor"]["cred"]):
                     import ast
 
+                    logger.info("Using cred/key pair given")
                     cred = ast.literal_eval(self.library_config["Monitor"]["cred"])
                 else:
+                    logger.info("Using path to credential proxy file")
                     cred = self.library_config["Monitor"]["cred"]
             else:
+                logger.info("Using default credentials")
                 cred = None
             self._library_parent = GraceDbDatabase(
                 service_url=source_path, library=self, cred=cred
