@@ -8,7 +8,7 @@ import ast
 from functools import cached_property
 import sys
 from pprint import pformat
-from typing import Union, Dict, Type, TypeVar
+from typing import Union, Dict, Type, TypeVar, Tuple
 from datetime import datetime
 
 import dateutil.parser as dp
@@ -218,7 +218,12 @@ class LibraryParent(object):
 class GraceDbDatabase(LibraryParent):
     """The LibraryParent class to use when the parent is GraceDB"""
 
-    def __init__(self, service_url: str, library: "LocalLibraryDatabase") -> None:
+    def __init__(
+        self,
+        service_url: str,
+        library: "LocalLibraryDatabase",
+        cred: Union[Tuple[str, str], str, None] = None,
+    ) -> None:
         """Setup the GraceDbDatabase that this library pairs to
 
         Parameters
@@ -229,6 +234,18 @@ class GraceDbDatabase(LibraryParent):
             The library for which this serves as a parent.
         """
         super(GraceDbDatabase, self).__init__(source_path=service_url, library=library)
+        self.cred = cred
+
+    @property
+    def cred(self) -> Union[Tuple[str, str], str, None]:
+        """Information on the credentials to pass to GraceDb, per
+        https://ligo-gracedb.readthedocs.io/en/latest/api.html#ligo.gracedb.rest.GraceDb
+        """
+        return self._cred
+
+    @cred.setter
+    def cred(self, input_cred: Union[Tuple[str, str], str, None]) -> None:
+        self._cred = input_cred
 
     def pull(self, sname: str) -> dict:
         """Pull information on the superevent with this sname from GraceDB
@@ -243,7 +260,9 @@ class GraceDbDatabase(LibraryParent):
         dict
             The GraceDB data for the superevent
         """
-        return fetch_gracedb_information(sname, service_url=self.source_path)
+        return fetch_gracedb_information(
+            sname, service_url=self.source_path, cred=self.cred
+        )
 
     def query_superevents(self, query: str) -> list:
         """Queries superevents in GraceDb, according to a given query
@@ -262,7 +281,7 @@ class GraceDbDatabase(LibraryParent):
         from ligo.gracedb.rest import GraceDb
 
         queried_superevents = []
-        with GraceDb(service_url=self.source_path) as gdb:
+        with GraceDb(service_url=self.source_path, cred=self.cred) as gdb:
             superevent_iterator = gdb.superevents(query)
             for superevent in superevent_iterator:
                 queried_superevents.append(superevent["superevent_id"])
@@ -448,8 +467,26 @@ class LocalLibraryDatabase(object):
                 f"Initializing parent from configuration, with source path {source_path}"
             )
         if "https://gracedb" in source_path:
+            if self.library_config["Monitor"]["cred"] is not None:
+                import re
+
+                if self.library_config["Monitor"]["cred"].lower() == "none":
+                    # If it's just the string None
+                    logger.info("Using default credentials")
+                    cred = None
+                elif re.match(r"\(.,.\)", self.library_config["Monitor"]["cred"]):
+                    import ast
+
+                    logger.info("Using cred/key pair given")
+                    cred = ast.literal_eval(self.library_config["Monitor"]["cred"])
+                else:
+                    logger.info("Using path to credential proxy file")
+                    cred = self.library_config["Monitor"]["cred"]
+            else:
+                logger.info("Using default credentials")
+                cred = None
             self._library_parent = GraceDbDatabase(
-                service_url=source_path, library=self
+                service_url=source_path, library=self, cred=cred
             )
         elif os.path.exists(source_path):
             # This will be the branch for pulling from a git repo in the local filesystem
@@ -583,7 +620,7 @@ class LocalLibraryDatabase(object):
             "snames-to-include": [],
             "snames-to-exclude": [],
         }
-        library_defaults["Monitor"] = {"parent": "gracedb"}
+        library_defaults["Monitor"] = {"parent": "gracedb", "cred": None}
         if os.path.exists(config_file):
             config.read(config_file)
             for section_key in config.sections():
