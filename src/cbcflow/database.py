@@ -4,6 +4,7 @@ import copy
 import glob
 import json
 import os
+import ast
 from functools import cached_property
 import sys
 from pprint import pformat
@@ -377,6 +378,19 @@ class GraceDbDatabase(LibraryParent):
                     f"Also querying superevent {superevent_id} which was in the library\
                 \n but which did not meet query parameters"
                 )
+
+        # For special events which are called out by name, act accordingly
+        specially_included_snames = ast.literal_eval(
+            self.library.library_config["Events"]["snames-to-include"]
+        )
+        specially_excuded_snames = ast.literal_eval(
+            self.library.library_config["Events"]["snames-to-exclude"]
+        )
+
+        self.superevents_to_propagate += specially_included_snames
+        self.superevents_to_propagate = list(
+            set(self.superevents_to_propagate) - set(specially_excuded_snames)
+        )
 
         self.pull_library_updates(branch_name=branch_name)
 
