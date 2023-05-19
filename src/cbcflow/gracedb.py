@@ -1,13 +1,17 @@
 """Methods for interacting with gracedb"""
 from datetime import datetime
-from typing import Union
+from typing import Union, Tuple
 
 from .utils import setup_logger
 
 logger = setup_logger()
 
 
-def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) -> dict:
+def fetch_gracedb_information(
+    sname: str,
+    service_url: Union[str, None] = None,
+    cred: Union[Tuple[str, str], str, None] = None,
+) -> dict:
     """Get the standard GraceDB metadata contents for this superevent
 
     Parameters
@@ -17,6 +21,9 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
     service_url : Union[str, None], optional
         The url for the GraceDB instance to access.
         If None is passed then this will use the configuration default.
+    cred : Union[Tuple[str, str], str, None]
+        Per https://ligo-gracedb.readthedocs.io/en/latest/api.html#ligo.gracedb.rest.GraceDb, information on credentials
+        to use in authentication.
 
     Returns
     =======
@@ -34,7 +41,7 @@ def fetch_gracedb_information(sname: str, service_url: Union[str, None] = None) 
 
     data = dict(GraceDB=dict(Events=[]), Cosmology=dict())
 
-    with GraceDb(service_url=service_url) as gdb:
+    with GraceDb(service_url=service_url, cred=cred) as gdb:
         try:
             # Get the json of metadata for the superevent
             superevent = gdb.superevent(sname).json()
