@@ -241,7 +241,7 @@ class Applicator:
             ifo_name = ifo["UID"]
             ifo_list.append(ifo_name)
             if "RecommendedDuration" in detchar.keys():
-                data["segment length"] = detchar["RecommendedDuration"]
+                data["segment length"] = int(detchar["RecommendedDuration"])
             if "RecommendedMaximumFrequency" in ifo.keys():
                 max_f[ifo_name] = ifo["RecommendedMaximumFrequency"]
             if "RecommendedMinimumFrequency" in ifo.keys():
