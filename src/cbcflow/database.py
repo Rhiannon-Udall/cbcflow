@@ -536,12 +536,15 @@ class LocalLibraryDatabase(object):
     @metadata_dict.setter
     def metadata_dict(self, new_dict) -> None:
         self._metadata_dict = new_dict
-        if hasattr(self, "downselected_metadata_dict"):
-            logger.info(
-                "Downselected metadata now out of date, and is being be cleared"
-            )
-            logger.info("It will be recomputed if invoked again")
-            del self.downselected_metadata_dict
+        logger.error(self)
+        if hasattr(self, "_downselected_metadata_has_been_computed"):
+            if self._downselected_metadata_has_been_computed:
+                logger.info(
+                    "Downselected metadata now out of date, and is being be cleared"
+                )
+                logger.info("It will be recomputed if invoked again")
+                del self.downselected_metadata_dict
+                self._downselected_metadata_has_been_computed = False
 
     def load_library_metadata_dict(self) -> None:
         """Load all of the metadata in a given library"""
@@ -560,6 +563,8 @@ class LocalLibraryDatabase(object):
     def downselected_metadata_dict(self) -> Dict[str, MetaData]:
         """The metadata of events that satisfy library inclusion criteria, labelled by sname"""
         from gwpy.time import to_gps
+
+        self._downselected_metadata_has_been_computed = True
 
         downselected_metadata_dict = dict()
         if self.metadata_dict.keys() != self.superevents_in_library:
