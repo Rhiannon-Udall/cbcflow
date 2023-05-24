@@ -12,7 +12,7 @@ from typing import Tuple
 
 from .configuration import config_defaults
 from .gracedb import fetch_gracedb_information
-from .online_pe import add_onlinepe_information
+from .pe_scraper import add_pe_information
 from .metadata import MetaData
 from .database import LocalLibraryDatabase
 from .parser import get_parser_and_default_data, sname_string
@@ -62,8 +62,8 @@ def pull() -> None:
     gdb_data = fetch_gracedb_information(args.sname, args.gracedb_service_url)
     metadata.data.update(gdb_data)
 
-    # Pull information from onlinePE
-    add_onlinepe_information(metadata, args.sname)
+    # Pull information from PE
+    add_pe_information(metadata, args.sname)
 
     try:
         metadata.write_to_library(branch_name=args.branch_name)

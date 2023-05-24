@@ -6,8 +6,6 @@ from .utils import (
     setup_logger,
     get_cluster,
     get_url_from_public_html_dir,
-    get_number_suffixed_key,
-    get_uids_from_object_array,
 )
 
 logger = setup_logger()
@@ -70,13 +68,9 @@ def scrape_rapidpe_result(path):
     return result
 
 
-def scrape_pesummary_pages(top_level, sname, rundir, sampler):
+def scrape_pesummary_pages(pes_path):
     result = {}
 
-    # Try to find the pesummary outputs
-    pes_path = (
-        f"/home/{top_level}/public_html/online_pe/{sname}/{sampler}/{rundir}/pesummary"
-    )
     samples_path = f"{pes_path}/posterior_samples.h5"
     if os.path.exists(samples_path):
         result["PESummaryResultFile"] = {}
@@ -87,10 +81,19 @@ def scrape_pesummary_pages(top_level, sname, rundir, sampler):
     return result
 
 
-def add_onlinepe_information(
-    metadata: dict, sname: str, base_path: str = "CIT:/home/emfollow"
+def add_pe_information(metadata: dict, sname: str) -> dict:
+    # Define where to expect results
+    directories = glob("/home/pe.o4/public_html/*")
+    cluster = "CIT"
+    for dir in directories:
+        base_path = f"{cluster}:{dir}"
+        metadata = add_pe_information_from_base_path(metadata, sname, base_path)
+
+
+def add_pe_information_from_base_path(
+    metadata: dict, sname: str, base_path: str
 ) -> dict:
-    """Fetch any available online PE information for this superevent
+    """Fetch any available PE information for this superevent
 
     Parameters
     ==========
@@ -99,57 +102,62 @@ def add_onlinepe_information(
     sname : str
         The sname of the superevent to fetch.
     base_path : str
-        The path (including cluster name) where emfollow tests are performed.
-        This should point to the top-level directory (with, e.g. bilby as a
-        subdirectory).
+        The path (including cluster name) where PE results are stored.
+        This should point to the top-level directory (with snames in
+        subdirectories).
 
     Returns
     =======
-    dict
-        An update dictionary to apply to the metadata, containing the onlinePE info.
+    metadata:
+        The updated metadata dictionary
     """
 
     cluster, base_dir = base_path.split(":")
 
     if cluster.upper() != get_cluster():
-        logger.info(f"Unable to fetch onlinePE info as we are not running on {cluster}")
-        return {}
+        logger.info(f"Unable to fetch PE as we are not running on {cluster}")
+        return metadata
     elif os.path.exists(base_dir) is False:
-        logger.info(f"Unable to fetch onlinePE info as {base_dir} does not exist")
-        return {}
+        logger.info(f"Unable to fetch PE as {base_dir} does not exist")
+        return metadata
 
     results = []
-    for sampler in ["bilby", "rapidpe"]:
-        paths = get_emfollow_paths(base_dir, sampler, sname)
-        for path in paths:
-            # Path should be of the form /home/emfollow-test/.cache/bilby/S230502m/fast_test
-            _, _, top_level, _, _, _, rundir = path.split("/")
-            if rundir != "":
-                UID = f"{top_level}_{sampler}_{rundir}"
-            else:
-                UID = f"{top_level}_{sampler}"
+    dirs = glob(f"{base_dir}/{sname}/*")
+    for dir in dirs:
+        UID = dir.split("/")[-1]
+        # Figure out which sampler we are looking
+        content = glob(f"{dir}/*")
+        if len(content) == 0:
+            logger.info(f"Directory {UID} is empty")
+            continue
+        elif any(["BayesWave" in fname for fname in content]):
+            sampler = "bayeswave"
+        elif any(["final_result" in fname for fname in content]):
+            sampler = "bilby"
+        elif UID == "online":
+            sampler = "bilby"
+            UID = "online-bilby"
+        else:
+            logger.info(f"Sampler in {UID} not yet implemented")
 
-            keys_so_far = get_uids_from_object_array(results)
-            UID = get_number_suffixed_key(key=UID, keys_so_far=keys_so_far)
+        # Initialise result dictionary
+        result = dict(
+            UID=UID,
+            InferenceSoftware=sampler,
+        )
 
-            # Initialise result dictionary
-            result = dict(
-                UID=UID,
-                InferenceSoftware=sampler,
-            )
+        # Scrape the online directory
+        if UID == "online-bilby":
+            result.update(scrape_bilby_result(dir + "/bilby"))
+            result.update(scrape_pesummary_pages(dir + "/summary"))
+        elif sampler == "bayeswave":
+            logger.info("Scraping of BayesWave not yet implemented")
+            # result.update(scrape_bayeswave_result(dir))
 
-            # Scrape the analysis directories
-            if sampler == "bilby":
-                result.update(scrape_bilby_result(path))
-            elif sampler == "rapidpe":
-                result.update(scrape_rapidpe_result(path))
-
-            # Scrape the pesummary pages
-            result.update(scrape_pesummary_pages(top_level, sname, rundir, sampler))
-
-            # Check if results contains anything
-            if "ConfigFile" in result:
-                results.append(result)
+        # Scrape the online directory
+        # Check if results contains anything
+        if "ConfigFile" in result:
+            results.append(result)
 
     update_dict = {}
     update_dict["ParameterEstimation"] = {}

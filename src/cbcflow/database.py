@@ -27,7 +27,7 @@ from .process import (
 )
 from .schema import get_schema
 from .gracedb import fetch_gracedb_information
-from .online_pe import add_onlinepe_information
+from .pe_scraper import add_pe_information
 from .utils import get_dumpable_json_diff, setup_logger
 
 logger = setup_logger()
@@ -316,7 +316,7 @@ class GraceDbDatabase(LibraryParent):
                     metadata.data.update(gdb_data)
 
                     # Pull information from onlinePE
-                    add_onlinepe_information(metadata, superevent_id)
+                    add_pe_information(metadata, superevent_id)
 
                     changes = metadata.get_diff()
                     if "GraceDB" in changes.keys() and len(changes.keys()) == 1:
