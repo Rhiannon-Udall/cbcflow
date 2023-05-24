@@ -536,6 +536,12 @@ class LocalLibraryDatabase(object):
     @metadata_dict.setter
     def metadata_dict(self, new_dict) -> None:
         self._metadata_dict = new_dict
+        if hasattr(self, "downselected_metadata_dict"):
+            logger.info(
+                "Downselected metadata now out of date, and is being be cleared"
+            )
+            logger.info("It will be recomputed if invoked again")
+            del self.downselected_metadata_dict
 
     def load_library_metadata_dict(self) -> None:
         """Load all of the metadata in a given library"""
@@ -550,13 +556,14 @@ class LocalLibraryDatabase(object):
             metadata_dict[md.sname] = md
         self.metadata_dict.update(metadata_dict)
 
-    @property
+    @cached_property
     def downselected_metadata_dict(self) -> Dict[str, MetaData]:
         """The metadata of events that satisfy library inclusion criteria, labelled by sname"""
         from gwpy.time import to_gps
 
         downselected_metadata_dict = dict()
-        self.load_library_metadata_dict()
+        if self.metadata_dict.keys() != self.superevents_in_library:
+            self.load_library_metadata_dict()
         for sname, metadata in self.metadata_dict.items():
             library_created_earliest = to_gps(
                 self.library_config["Events"]["created-since"]
