@@ -93,6 +93,16 @@ def add_pe_information(metadata: dict, sname: str) -> dict:
         base_path = f"{cluster}:{dir}"
         metadata = add_pe_information_from_base_path(metadata, sname, base_path)
 
+    pe_status_reports = [
+        r.get("RunStatus", "unstarted")
+        for r in metadata.data["ParameterEstimation"]["Results"]
+    ]
+    if metadata.data["ParameterEstimation"]["Status"] == "unstarted":
+        if len(pe_status_reports) > 0:
+            update_dict = {"ParameterEstimation": {"Status": "ongoing"}}
+
+        metadata.update(update_dict)
+
 
 def add_pe_information_from_base_path(
     metadata: dict, sname: str, base_path: str
@@ -125,6 +135,11 @@ def add_pe_information_from_base_path(
         logger.info(f"Unable to fetch PE as {base_dir} does not exist")
         return metadata
 
+    # Get existing results
+    results_dict = {
+        res["UID"]: res for res in metadata.data["ParameterEstimation"]["Results"]
+    }
+
     dirs = sorted(glob(f"{base_dir}/{sname}/*"))
     for dir in dirs:
 
@@ -137,7 +152,7 @@ def add_pe_information_from_base_path(
         # Figure out which sampler we are looking
         content = glob(f"{dir}/*")
         if len(content) == 0:
-            logger.info(f"Directory {UID} is empty")
+            logger.debug(f"Directory {dir} is empty")
             continue
         elif any(["BayesWave" in fname for fname in content]):
             sampler = "bayeswave"
@@ -163,10 +178,20 @@ def add_pe_information_from_base_path(
 
             # Append the analysts and reviewers to the global PE data
             for key in ["Analysts", "Reviewers"]:
+                existing_entries = set(metadata.data["ParameterEstimation"][key])
                 entries = run_info_data.pop(key, "").split(",")
-                update_dict["ParameterEstimation"][key] = entries
+                entries = set([ent.lstrip(" ") for ent in entries])
+                new_entries = list(entries - existing_entries)
+                update_dict["ParameterEstimation"][key] = new_entries
 
-            # All other elements are result specific
+            # Treat notes as a set
+            if UID in results_dict and "Notes" in run_info_data:
+                existing_entries = set(results_dict[UID]["Notes"])
+                entries = set(run_info_data["Notes"])
+                new_entries = list(entries - existing_entries)
+                run_info_data["Notes"] = new_entries
+
+            # Update the result with the info data
             result.update(run_info_data)
 
         # Scrape the online directory
