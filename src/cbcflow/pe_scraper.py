@@ -1,6 +1,7 @@
 """Methods for interacting with onlinepe"""
 import os
 from glob import glob
+import yaml
 
 from .utils import (
     setup_logger,
@@ -22,6 +23,31 @@ def get_emfollow_paths(base_dir, sampler, sname):
             pattern = f"{base_dir}{ext}/.cache/{sampler}/{sname}/"
         paths += glob(pattern)
     return paths
+
+
+def scrape_bayeswave_result(path):
+    result = {}
+
+    # Try to grab the config
+    possible_configs = sorted(glob(f"{path}/*.ini"))
+    # BayesWave produces one config per detector, we can only store one of
+    # these: this will be fixed in a future schema.
+    if len(possible_configs) > 0:
+        result["ConfigFile"] = {}
+        result["ConfigFile"]["Path"] = possible_configs[0]
+
+    # Try to grab existing dat files
+    result_files = glob(f"{path}/*dat")
+    if len(result_files) > 0:
+        result["BayeswaveResults"] = {}
+        for res_file in result_files:
+            det = res_file.split("_")[-1].rstrip(".dat")
+            result["BayeswaveResults"][f"{det}PSD"] = {}
+            result["BayeswaveResults"][f"{det}PSD"]["Path"] = res_file
+            result["RunStatus"] = "complete"
+    elif len(result_files) == 0:
+        logger.info(f"No result file found in {path}")
+    return result
 
 
 def scrape_bilby_result(path):
@@ -121,9 +147,13 @@ def add_pe_information_from_base_path(
         logger.info(f"Unable to fetch PE as {base_dir} does not exist")
         return metadata
 
-    results = []
-    dirs = glob(f"{base_dir}/{sname}/*")
+    dirs = sorted(glob(f"{base_dir}/{sname}/*"))
     for dir in dirs:
+
+        update_dict = {}
+        update_dict["ParameterEstimation"] = {}
+        update_dict["ParameterEstimation"]["Results"] = []
+
         UID = dir.split("/")[-1]
         # Figure out which sampler we are looking
         content = glob(f"{dir}/*")
@@ -146,23 +176,29 @@ def add_pe_information_from_base_path(
             InferenceSoftware=sampler,
         )
 
+        # Read RunInfo
+        run_info = f"{dir}/RunInfo.yml"
+        if os.path.exists(run_info):
+            with open(run_info, "r") as file:
+                run_info_data = yaml.safe_load(file)
+
+            # Append the analysts and reviewers to the global PE data
+            for key in ["Analysts", "Reviewers"]:
+                entries = run_info_data.pop(key, "").split(",")
+                update_dict["ParameterEstimation"][key] = entries
+
+            # All other elements are result specific
+            result.update(run_info_data)
+
         # Scrape the online directory
         if UID == "online-bilby":
             result.update(scrape_bilby_result(dir + "/bilby"))
             result.update(scrape_pesummary_pages(dir + "/summary"))
         elif sampler == "bayeswave":
-            logger.info("Scraping of BayesWave not yet implemented")
-            # result.update(scrape_bayeswave_result(dir))
+            result.update(scrape_bayeswave_result(dir))
 
-        # Scrape the online directory
-        # Check if results contains anything
-        if "ConfigFile" in result:
-            results.append(result)
-
-    update_dict = {}
-    update_dict["ParameterEstimation"] = {}
-    update_dict["ParameterEstimation"]["Results"] = results
-
-    metadata.update(update_dict)
+        update_dict["ParameterEstimation"]["Results"] = [result]
+        print(update_dict)
+        metadata.update(update_dict)
 
     return metadata
