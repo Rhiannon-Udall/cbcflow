@@ -174,15 +174,20 @@ def add_pe_information_from_base_path(
         run_info = f"{dir}/RunInfo.yml"
         if os.path.exists(run_info):
             with open(run_info, "r") as file:
-                run_info_data = yaml.safe_load(file)
+                try:
+                    run_info_data = yaml.safe_load(file)
+                except Exception:
+                    logger.warning(f"Yaml file {run_info} corrupted")
+                    run_info_data = {}
 
             # Append the analysts and reviewers to the global PE data
             for key in ["Analysts", "Reviewers"]:
-                existing_entries = set(metadata.data["ParameterEstimation"][key])
-                entries = run_info_data.pop(key, "").split(",")
-                entries = set([ent.lstrip(" ") for ent in entries])
-                new_entries = list(entries - existing_entries)
-                update_dict["ParameterEstimation"][key] = new_entries
+                if key in run_info_data:
+                    existing_entries = set(metadata.data["ParameterEstimation"][key])
+                    entries = run_info_data[key].split(",")
+                    entries = set([ent.lstrip(" ") for ent in entries])
+                    new_entries = list(entries - existing_entries)
+                    update_dict["ParameterEstimation"][key] = new_entries
 
             # Treat notes as a set
             if UID in results_dict and "Notes" in run_info_data:
