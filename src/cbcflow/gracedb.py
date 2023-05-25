@@ -247,13 +247,13 @@ def fetch_gracedb_information(
                             line for line in trigger_file_lines if "sSNR:" in line
                         ][0]
                         # More string hacking to get ifos
-                        ifos = ifo_line.split("")[1].strip().split()
+                        ifos = ifo_line.split(" ")[1].strip().split()
                         # More string hacking to get sSNRs
                         snrs = [
                             float(x) for x in sSNR_line.split(":")[1].strip().split()
                         ]
                         # Loop to assign SNRs by IFO
-                        for ii, ifo in ifos.enumerate():
+                        for ii, ifo in enumerate(ifos):
                             event_data[f"{ifo}SNR"] = snrs[ii]
                     except HTTPError:
                         logger.warning(
