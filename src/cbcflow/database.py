@@ -315,7 +315,7 @@ class GraceDbDatabase(LibraryParent):
                     gdb_data = self.pull(superevent_id)
                     metadata.data.update(gdb_data)
 
-                    # Pull information from onlinePE
+                    # Pull information from PE
                     add_pe_information(metadata, superevent_id)
 
                     changes = metadata.get_diff()

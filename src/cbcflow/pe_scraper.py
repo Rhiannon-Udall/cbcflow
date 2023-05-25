@@ -1,4 +1,4 @@
-"""Methods for interacting with onlinepe"""
+"""Methods for interacting with PE results stored on CIT"""
 import os
 from glob import glob
 import yaml
@@ -12,20 +12,8 @@ from .utils import (
 logger = setup_logger()
 
 
-def get_emfollow_paths(base_dir, sampler, sname):
-    # Match all possible basedir* cases
-    paths = []
-    exts = ["", "-test", "-playground", "-dev"]
-    for ext in exts:
-        if sampler == "bilby":
-            pattern = f"{base_dir}{ext}/.cache/{sampler}/{sname}/*"
-        elif sampler == "rapidpe":
-            pattern = f"{base_dir}{ext}/.cache/{sampler}/{sname}/"
-        paths += glob(pattern)
-    return paths
-
-
 def scrape_bayeswave_result(path):
+    """Read in results from standardised BayesWave output directory"""
     result = {}
 
     # Try to grab the config
@@ -51,6 +39,7 @@ def scrape_bayeswave_result(path):
 
 
 def scrape_bilby_result(path):
+    """Read in results from standardised bilby output directory"""
     result = {}
 
     # Try to grab the config
@@ -78,23 +67,8 @@ def scrape_bilby_result(path):
     return result
 
 
-def scrape_rapidpe_result(path):
-    result = {}
-
-    # Try to grab the config
-    possible_configs = glob(f"{path}/*rapidpe.ini")
-    if len(possible_configs) == 1:
-        result["ConfigFile"] = {}
-        result["ConfigFile"]["Path"] = possible_configs[0]
-    elif len(possible_configs) > 1:
-        logger.warning("Multiple config files found: unclear how to proceed")
-    else:
-        logger.info("No config file found!")
-
-    return result
-
-
 def scrape_pesummary_pages(pes_path):
+    """Read in results from standardised pesummary output directory"""
     result = {}
 
     samples_path = f"{pes_path}/posterior_samples.h5"
@@ -108,9 +82,13 @@ def scrape_pesummary_pages(pes_path):
 
 
 def add_pe_information(metadata: dict, sname: str) -> dict:
+    """Top level function to add pe information for a given sname"""
+
     # Define where to expect results
     directories = glob("/home/pe.o4/public_html/*")
     cluster = "CIT"
+
+    # Iterate over directories
     for dir in directories:
         base_path = f"{cluster}:{dir}"
         metadata = add_pe_information_from_base_path(metadata, sname, base_path)
@@ -150,6 +128,7 @@ def add_pe_information_from_base_path(
     dirs = sorted(glob(f"{base_dir}/{sname}/*"))
     for dir in dirs:
 
+        # Initialise an empty update dictionary
         update_dict = {}
         update_dict["ParameterEstimation"] = {}
         update_dict["ParameterEstimation"]["Results"] = []
@@ -198,7 +177,6 @@ def add_pe_information_from_base_path(
             result.update(scrape_bayeswave_result(dir))
 
         update_dict["ParameterEstimation"]["Results"] = [result]
-        print(update_dict)
         metadata.update(update_dict)
 
     return metadata
