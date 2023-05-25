@@ -184,7 +184,7 @@ def add_pe_information_from_base_path(
             for key in ["Analysts", "Reviewers"]:
                 if key in run_info_data:
                     existing_entries = set(metadata.data["ParameterEstimation"][key])
-                    entries = run_info_data[key].split(",")
+                    entries = run_info_data.pop(key).split(",")
                     entries = set([ent.lstrip(" ") for ent in entries])
                     new_entries = list(entries - existing_entries)
                     update_dict["ParameterEstimation"][key] = new_entries
