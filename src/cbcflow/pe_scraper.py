@@ -149,6 +149,12 @@ def add_pe_information_from_base_path(
         update_dict["ParameterEstimation"]["Results"] = []
 
         UID = dir.split("/")[-1]
+
+        # Initialise result dictionary
+        result = dict(
+            UID=UID,
+        )
+
         # Figure out which sampler we are looking
         content = glob(f"{dir}/*")
         if len(content) == 0:
@@ -156,19 +162,24 @@ def add_pe_information_from_base_path(
             continue
         elif any(["BayesWave" in fname for fname in content]):
             sampler = "bayeswave"
-        elif any(["final_result" in fname for fname in content]):
-            sampler = "bilby"
-        elif UID == "online":
-            sampler = "bilby"
-            UID = "online-bilby"
+            result.update(scrape_bayeswave_result(dir))
         else:
-            logger.info(f"Sampler in {UID} not yet implemented")
+            directories = [s.split("/")[-1] for s in content]
 
-        # Initialise result dictionary
-        result = dict(
-            UID=UID,
-            InferenceSoftware=sampler,
-        )
+            if "summary" in directories:
+                result.update(scrape_pesummary_pages(dir + "/summary"))
+
+            if "bilby" in directories:
+                sampler = "bilby"
+                result.update(scrape_bilby_result(dir + f"/{sampler}"))
+            elif "parallel_bilby" in directories:
+                sampler = "parallel_bilby"
+                result.update(scrape_bilby_result(dir + f"/{sampler}"))
+            else:
+                logger.info(f"Sampler in {UID} not yet implemented")
+                continue
+
+        result["InferenceSoftware"] = sampler
 
         # Read RunInfo
         run_info = f"{dir}/RunInfo.yml"
@@ -184,10 +195,12 @@ def add_pe_information_from_base_path(
             for key in ["Analysts", "Reviewers"]:
                 if key in run_info_data:
                     existing_entries = set(metadata.data["ParameterEstimation"][key])
-                    entries = run_info_data.pop(key).split(",")
-                    entries = set([ent.lstrip(" ") for ent in entries])
-                    new_entries = list(entries - existing_entries)
-                    update_dict["ParameterEstimation"][key] = new_entries
+                    entries_string = run_info_data.pop(key)
+                    if entries_string is not None:
+                        entries = entries_string.split(",")
+                        entries = set([ent.lstrip(" ") for ent in entries])
+                        new_entries = list(entries - existing_entries)
+                        update_dict["ParameterEstimation"][key] = new_entries
 
             # Treat notes as a set
             if UID in results_dict and "Notes" in run_info_data:
@@ -198,13 +211,6 @@ def add_pe_information_from_base_path(
 
             # Update the result with the info data
             result.update(run_info_data)
-
-        # Scrape the online directory
-        if UID == "online-bilby":
-            result.update(scrape_bilby_result(dir + "/bilby"))
-            result.update(scrape_pesummary_pages(dir + "/summary"))
-        elif sampler == "bayeswave":
-            result.update(scrape_bayeswave_result(dir))
 
         update_dict["ParameterEstimation"]["Results"] = [result]
         metadata.update(update_dict)
