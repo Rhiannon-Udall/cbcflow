@@ -53,7 +53,16 @@ def scrape_bilby_result(path):
         logger.info("No config file found!")
 
     # Try to grab existing result files
-    result_files = glob(f"{path}/final_result/*merge_result*")
+    result_files = glob(f"{path}/final_result/*merge_result*hdf5")
+
+    # Try looking for a single merge file
+    if len(result_files) == 0:
+        result_files = glob(f"{path}/result/*merge_result*hdf5")
+
+    # Deal with pbilby cases
+    if len(result_files) == 0:
+        result_files = glob(f"{path}/result/*result*hdf5")
+
     if len(result_files) > 1:
         logger.warning(
             f"Found multiple result files {result_files}, unclear how to proceed"
