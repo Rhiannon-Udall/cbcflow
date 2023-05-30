@@ -25,7 +25,10 @@ class Collector:
         Collect data from the asimov ledger and write it to a CBCFlow library.
         """
         hook_data = ledger.data["hooks"]["postmonitor"]["cbcflow"]
-        self.library = hook_data["library location"]
+        self.library = cbcflow.database.LocalLibraryDatabase(
+            hook_data["library location"]
+        )
+        self.library.git_pull_from_remote(automated=True)
         self.schema_section = hook_data["schema section"]
         self.ledger = ledger
 
@@ -42,10 +45,24 @@ class Collector:
             metadata = cbcflow.get_superevent(
                 event.meta["ligo"]["sname"], library=self.library
             )
+
+            # Get the metadata that already exists for reference
+            metadata_pe_results = metadata["ParameterEstimation"]["Results"]
+            metadata_pe_results_uids = cbcflow.utils.get_uids_from_object_array(
+                metadata_pe_results
+            )
             for analysis in event.productions:
                 if str(analysis.pipeline).lower() in self.supported_pipelines:
                     analysis_output = {}
                     analysis_output["UID"] = analysis.name
+
+                    if analysis.name in metadata_pe_results_uids:
+                        corresponding_analysis = metadata_pe_results[
+                            metadata_pe_results_uids.index(analysis.name)
+                        ]
+                    else:
+                        corresponding_analysis = None
+
                     analysis_output["InferenceSoftware"] = str(analysis.pipeline)
                     if analysis.status.lower() in self.status_map.keys():
                         analysis_output["RunStatus"] = self.status_map[
@@ -66,7 +83,11 @@ class Collector:
                     except IndexError:
                         logger.warning("Could not find ini file for this analysis")
                     if analysis.comment is not None:
-                        analysis_output["Notes"] = [analysis.comment]
+                        # We only want to add the comment to the notes if it doesn't already exist
+                        if corresponding_analysis is None:
+                            analysis_output["Notes"] = [analysis.comment]
+                        elif analysis.comment not in corresponding_analysis["Notes"]:
+                            analysis_output["Notes"] = [analysis.comment]
                     if analysis.review.status:
                         if analysis.review.status.lower() == "approved":
                             analysis_output["ReviewStatus"] = "pass"
@@ -78,9 +99,17 @@ class Collector:
                             analysis.review.messages, key=lambda k: k.timestamp
                         )
                         if len(messages) > 0:
-                            analysis_output["Notes"].append(
+                            if corresponding_analysis is None:
+                                analysis_output["Notes"].append(
+                                    f"{messages[0].timestamp:%Y-%m-%d}: {messages[0].message}"
+                                )
+                            elif (
                                 f"{messages[0].timestamp:%Y-%m-%d}: {messages[0].message}"
-                            )
+                                in corresponding_analysis["Notes"]
+                            ):
+                                analysis_output["Notes"].append(
+                                    f"{messages[0].timestamp:%Y-%m-%d}: {messages[0].message}"
+                                )
                     if analysis.finished:
                         # Get the results
                         results = analysis.pipeline.collect_assets()
@@ -206,6 +235,7 @@ class Collector:
                     logger.info(
                         "If this is a mistake, please contact the cbcflow developers to add support."
                     )
+        self.library.git_push_to_remote()
 
 
 class Applicator:
@@ -214,7 +244,10 @@ class Applicator:
     def __init__(self, ledger):
         hook_data = ledger.data["hooks"]["applicator"]["cbcflow"]
         self.ledger = ledger
-        self.library = hook_data["library location"]
+        self.library = cbcflow.database.LocalLibraryDatabase(
+            hook_data["library location"]
+        )
+        self.library.git_pull_from_remote(automated=True)
 
     def run(self, sid=None):
 
