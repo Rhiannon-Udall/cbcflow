@@ -86,6 +86,14 @@ class MetaData(object):
 
         self.library.metadata_dict[sname] = self
 
+    def __getitem__(self, item):
+        """The helper method required to make subscripting metadata work the way you think it should"""
+        return self.data[item]
+
+    def __str__(self):
+        """The string representation of the metadata's data"""
+        return json.dumps(self.data, indent=4)
+
     ############################################################################
     ############################################################################
     ####                  System Properties and Operations                  ####

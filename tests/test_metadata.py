@@ -275,6 +275,165 @@ class TestMetaData(unittest.TestCase):
         assert metadata.sname == sname
         assert metadata.data["ParameterEstimation"]["Reviewers"] == ["Prospero"]
 
+    def test_read_metadata_subscripting_simple_hierarchy(self):
+        """Test the ability to read metadata through subscripting at a high level"""
+        # Write a metadata file to test
+        tgt = "tests/files_for_testing/cbc-meta-data-example.json"
+        sname = "S220331b"
+        os.makedirs(self.test_library_directory)
+        shutil.copy(
+            tgt, os.path.join(self.test_library_directory, MetaData.get_filename(sname))
+        )
+
+        metadata = MetaData(
+            sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
+        )
+
+        assert metadata["Sname"] == "S220331b"
+        assert metadata["Info"]["Labels"] == ["Testing cbcflow"]
+
+    def test_read_metadata_subscripting_complex_hierarchy(self):
+        """Test the ability to read metadata through subscripting at deep nesting"""
+
+        tgt = "tests/files_for_testing/cbc-meta-data-example.json"
+        sname = "S220331b"
+        os.makedirs(self.test_library_directory)
+        shutil.copy(
+            tgt, os.path.join(self.test_library_directory, MetaData.get_filename(sname))
+        )
+
+        metadata = MetaData(
+            sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
+        )
+
+        assert (
+            metadata["ParameterEstimation"]["Results"][0]["InferenceSoftware"]
+            == "bilby"
+        )
+        assert metadata["ParameterEstimation"]["Results"][0]["Notes"] == ["A note"]
+
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["UID"] == "IMRCT"
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["Analysts"] == ["Miranda"]
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["AnalysisSoftware"] == "tiger"
+        assert (
+            metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["UID"] == "TestA1"
+        )
+        assert (
+            metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["InferenceSoftware"]
+            == "bilby"
+        )
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["Notes"] == [
+            "A note, with high recursion depth"
+        ]
+
+    def test_write_metadata_subscripting_simple_hierarchy(self):
+        """Test the write to read metadata through subscripting at a high level"""
+        # Write a metadata file to test
+        tgt = "tests/files_for_testing/cbc-meta-data-example.json"
+        sname = "S220331b"
+        os.makedirs(self.test_library_directory)
+        shutil.copy(
+            tgt, os.path.join(self.test_library_directory, MetaData.get_filename(sname))
+        )
+
+        metadata = MetaData(
+            sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
+        )
+
+        assert metadata["Sname"] == "S220331b"
+        assert metadata["Cosmology"]["PreferredLowLatencySkymap"] == "A skymap"
+        assert metadata["Info"]["Labels"] == ["Testing cbcflow"]
+
+        metadata["Cosmology"]["PreferredLowLatencySkymap"] = "A different skymap"
+        metadata["Info"]["Labels"].append("Another test")
+
+        assert (
+            metadata["Cosmology"]["PreferredLowLatencySkymap"] == "A different skymap"
+        )
+        assert metadata["Info"]["Labels"] == ["Testing cbcflow", "Another test"]
+
+    def test_write_metadata_subscripting_complex_hierarchy(self):
+        """Test the ability to write metadata through subscripting at deep nesting"""
+
+        tgt = "tests/files_for_testing/cbc-meta-data-example.json"
+        sname = "S220331b"
+        os.makedirs(self.test_library_directory)
+        shutil.copy(
+            tgt, os.path.join(self.test_library_directory, MetaData.get_filename(sname))
+        )
+
+        metadata = MetaData(
+            sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
+        )
+
+        assert (
+            metadata["ParameterEstimation"]["Results"][0]["InferenceSoftware"]
+            == "bilby"
+        )
+        assert metadata["ParameterEstimation"]["Results"][0]["Notes"] == ["A note"]
+
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["UID"] == "IMRCT"
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["Analysts"] == ["Miranda"]
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["AnalysisSoftware"] == "tiger"
+        assert (
+            metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["UID"] == "TestA1"
+        )
+        assert (
+            metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["InferenceSoftware"]
+            == "bilby"
+        )
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["Notes"] == [
+            "A note, with high recursion depth"
+        ]
+
+        metadata["ParameterEstimation"]["Results"][0]["InferenceSoftware"] = "rift"
+        metadata["ParameterEstimation"]["Results"][0]["Notes"].append("Another Note")
+
+        metadata["TestingGR"]["IMRCTAnalyses"][0]["Analysts"].append("Caliban")
+        metadata["TestingGR"]["IMRCTAnalyses"][0]["AnalysisSoftware"] = "nottiger"
+        metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0][
+            "InferenceSoftware"
+        ] = "lalinference"
+        metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["Notes"].append(
+            "Something Else"
+        )
+
+        assert (
+            metadata["ParameterEstimation"]["Results"][0]["InferenceSoftware"] == "rift"
+        )
+        assert metadata["ParameterEstimation"]["Results"][0]["Notes"] == [
+            "A note",
+            "Another Note",
+        ]
+
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["UID"] == "IMRCT"
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["Analysts"] == [
+            "Miranda",
+            "Caliban",
+        ]
+        assert (
+            metadata["TestingGR"]["IMRCTAnalyses"][0]["AnalysisSoftware"] == "nottiger"
+        )
+        assert (
+            metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["UID"] == "TestA1"
+        )
+        assert (
+            metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["InferenceSoftware"]
+            == "lalinference"
+        )
+        assert metadata["TestingGR"]["IMRCTAnalyses"][0]["Results"][0]["Notes"] == [
+            "A note, with high recursion depth",
+            "Something Else",
+        ]
+
     def test_modify_metadata_from_file(self):
         # Write a metadata file to test
         tgt = "tests/files_for_testing/cbc-meta-data-example.json"
