@@ -260,6 +260,7 @@ class MetaData(object):
             logger.warning(f"Changes are {jsondiff.diff(new_metadata_data, self.data)}")
             raise jsonschema.ValidationError(e.message)
         self.data = new_metadata_data
+        self.library.metadata_dict[self.sname] = self
 
     def load_from_library(self) -> None:
         """Load metadata from a library"""
