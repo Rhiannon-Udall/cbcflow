@@ -41,6 +41,9 @@ It is recommended to set a default library, strictly from an ergonomic perspecti
 but the average user may comfortably choose not to set the other fields 
 (or, for ease of use, just copy the above and leave them unchanged).
 
+If you want to use a specific configuration for, e.g. a monitor,
+then this may be written and pointed to by the relevant program directly. 
+
 Argcomplete
 -----------
 ``cbcflow`` uses `argcomplete <https://pypi.org/project/argcomplete/>`__
