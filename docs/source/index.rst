@@ -16,13 +16,20 @@ Finally, we provide autobuilt API documentation.
    what-is-metadata
    reading-the-schema
    updating-metadata-from-the-command-line
-   gwosc
+   
 
 .. toctree::
    :maxdepth: 1
    :caption: Using CBCFlow's Python API
 
    updating-metadata-with-the-python-api
+
+.. toctre::
+   :maxdepth: 1
+   :caption: Integrated Projects
+
+   asimov
+   gwosc
 
 .. toctree::
    :maxdepth: 1
