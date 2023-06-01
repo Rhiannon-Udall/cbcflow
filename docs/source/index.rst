@@ -9,15 +9,20 @@ Finally, we provide autobuilt API documentation.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Getting Started
+   :caption: Getting Started: Setup, Concepts, and the Command Line
 
    configuration
    local-library-copy-setup
    what-is-metadata
    reading-the-schema
    updating-metadata-from-the-command-line
-   updating-metadata-with-the-python-api
    gwosc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Using CBCFlow's Python API
+
+   updating-metadata-with-the-python-api
 
 .. toctree::
    :maxdepth: 1
