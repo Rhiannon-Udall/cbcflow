@@ -29,12 +29,14 @@ CBCFlow has a user dependent default configuration, set in ``~/.cbcflow.cfg``. A
 
    # Optionally you may point to a non-standard meta-data schema
    # Take caution in doing so!
-   schema = None
+   # This would take the form of
+   # schema=/path/to/schema/file
 
    # You may also point to a non-standard index schema
    # This will be exceedingly uncommon, since the standard index schema is already quite flexible
    # However, it is included for completeness
-   index-schema = None
+   # This would take the form of
+   # index-schema=/path/to/index/schema/file
 
 All of these arguments are, strictly speaking optional.
 It is recommended to set a default library, strictly from an ergonomic perspective, 
