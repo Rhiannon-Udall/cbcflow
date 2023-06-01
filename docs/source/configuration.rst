@@ -14,14 +14,32 @@ CBCFlow has a user dependent default configuration, set in ``~/.cbcflow.cfg``. A
 
 .. code-block::
 
-    [cbcflow]
-    gracedb_service_url=https://gracedb.ligo.org/api/
-    library=/home/albert.einstein/cbcflow-library
-    schema=None
+   [cbcflow]
+   # Set the library to use by default
+   # In typical use this is likely a result of git cloning the O4a library:
+   # https://git.ligo.org/cbc/projects/cbc-workflow-o4a
+   # For command line calls you can always set a non-default library to use with the flag
+   # --library path/to/library
+   library=/home/albert.einstein/sub/directory/path/cbc-workflow-o4a
 
-Library and schema are optional arguments, setting the default library and schema.
-The gracedb_service_url points to the instance of GraceDB which should be used.
-If you would like to use a non-default configuration, you should format it like this, then point to it directly where applicable.
+   # The gracedb service url to use: this should be set as below
+   # However, in most cases it will not prove necessary
+   # For the average user
+   gracedb_service_url=https://gracedb.ligo.org/api/
+
+   # Optionally you may point to a non-standard meta-data schema
+   # Take caution in doing so!
+   schema = None
+
+   # You may also point to a non-standard index schema
+   # This will be exceedingly uncommon, since the standard index schema is already quite flexible
+   # However, it is included for completeness
+   index-schema = None
+
+All of these arguments are, strictly speaking optional.
+It is recommended to set a default library, strictly from an ergonomic perspective, 
+but the average user may comfortably choose not to set the other fields 
+(or, for ease of use, just copy the above and leave them unchanged).
 
 Argcomplete
 -----------
@@ -43,9 +61,9 @@ of the metadata. For example,
 
 .. code-block::
 
-   $ cbcflow_update_from_flags SXXYYZZabc --info-[TAB]
+   $ cbcflow_update_from_flags SXXYYZZabc --Info-[TAB]
 
-will either auto complete all the ``--info-`` options, or print a list
+will either auto complete all the ``--Info-`` options, or print a list
 of available options.
 
 Getting help
