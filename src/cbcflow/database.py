@@ -550,13 +550,16 @@ class LocalLibraryDatabase(object):
             metadata_dict[md.sname] = md
         self.metadata_dict.update(metadata_dict)
 
-    @property
-    def downselected_metadata_dict(self) -> Dict[str, MetaData]:
-        """The metadata of events that satisfy library inclusion criteria, labelled by sname"""
+    @cached_property
+    def downselected_metadata_keys(self) -> Dict[str, MetaData]:
+
         from gwpy.time import to_gps
 
-        downselected_metadata_dict = dict()
-        self.load_library_metadata_dict()
+        self._downselected_metadata_has_been_computed = True
+
+        downselected_metadata_keys = list()
+        if self.metadata_dict.keys() != self.superevents_in_library:
+            self.load_library_metadata_dict()
         for sname, metadata in self.metadata_dict.items():
             library_created_earliest = to_gps(
                 self.library_config["Events"]["created-since"]
@@ -577,7 +580,7 @@ class LocalLibraryDatabase(object):
                 )
                 continue
             if sname in self.library_config["Events"]["snames-to-include"]:
-                downselected_metadata_dict[sname] = metadata
+                downselected_metadata_keys.append(sname)
             elif sname in self.library_config["Events"]["snames-to-exclude"]:
                 pass
             elif (
@@ -587,8 +590,19 @@ class LocalLibraryDatabase(object):
                 continue
             # Right now we *only* check date, FAR threshold, and specific inclusion
             elif preferred_far <= float(self.library_config["Events"]["far-threshold"]):
-                downselected_metadata_dict[sname] = metadata
-        return downselected_metadata_dict
+                downselected_metadata_keys.append(sname)
+        return downselected_metadata_keys
+
+    @property
+    def downselected_metadata_dict(self) -> dict:
+        """The metadata of events that satisfy library inclusion criteria, labelled by sname"""
+        if not hasattr(self, "downselected_metadata_keys"):
+            self.downselected_metadata_keys
+        return {
+            sname: metadata
+            for sname, metadata in self.metadata_dict.items()
+            if sname in self.downselected_metadata_keys
+        }
 
     def validate(self, data) -> None:
         """Check that data satisfies the metadata schema
