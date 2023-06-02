@@ -109,6 +109,8 @@ def add_pe_information(metadata: dict, sname: str) -> dict:
     if metadata.data["ParameterEstimation"]["Status"] == "unstarted":
         if len(pe_status_reports) > 0:
             update_dict = {"ParameterEstimation": {"Status": "ongoing"}}
+        else:
+            update_dict = dict()
 
         metadata.update(update_dict)
 
