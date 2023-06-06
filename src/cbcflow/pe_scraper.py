@@ -122,8 +122,8 @@ def determine_pe_status(sname, metadata, gitlab_project_id=14074):
         else:
             status = "ongoing"
 
-    update_dict = {"ParameterEstimation": {"Status": status}}
-    metadata.update(update_dict)
+        update_dict = {"ParameterEstimation": {"Status": status}}
+        metadata.update(update_dict)
 
 
 def add_pe_information_from_base_path(
