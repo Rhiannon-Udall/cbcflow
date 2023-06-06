@@ -121,8 +121,6 @@ def determine_pe_status(sname, metadata, gitlab_project_id=14074):
             status = "complete"
         else:
             status = "ongoing"
-    else:
-        status = "unstarted"
 
     update_dict = {"ParameterEstimation": {"Status": status}}
     metadata.update(update_dict)
