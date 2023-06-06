@@ -37,6 +37,8 @@ def get_cbcflow_config(config_file: str = "~/.cbcflow.cfg") -> dict:
         for key in config_defaults:
             if key in list(section.keys()):
                 config_defaults[key] = section[key]
+                if config_defaults[key].lower() == "none":
+                    config_defaults[key] = None
     else:
         logger.info("Could not read config file, falling back on defaults.")
     return config_defaults
