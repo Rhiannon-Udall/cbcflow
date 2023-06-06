@@ -315,8 +315,15 @@ class GraceDbDatabase(LibraryParent):
                     gdb_data = self.pull(superevent_id)
                     metadata.data.update(gdb_data)
 
-                    # Pull information from PE
-                    add_pe_information(metadata, superevent_id)
+                    try:
+                        # Pull information from PE
+                        add_pe_information(metadata, superevent_id)
+                    except Exception as e:
+                        logger.warning("Fatal error while scraping PE automatically")
+                        logger.warning(
+                            "Proceeding automatically to maintain library status as best as possible"
+                        )
+                        logger.warning(f"The exception was {e}")
 
                     changes = metadata.get_diff()
                     if "GraceDB" in changes.keys() and len(changes.keys()) == 1:
