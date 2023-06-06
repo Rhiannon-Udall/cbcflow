@@ -24,7 +24,7 @@ Finally, we provide autobuilt API documentation.
 
    updating-metadata-with-the-python-api
 
-.. toctre::
+.. toctree::
    :maxdepth: 1
    :caption: Integrated Projects
 
