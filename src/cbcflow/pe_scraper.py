@@ -2,6 +2,7 @@
 import os
 from glob import glob
 import yaml
+import gitlab
 
 from .utils import (
     setup_logger,
@@ -73,6 +74,7 @@ def scrape_bilby_result(path):
         result["RunStatus"] = "complete"
     elif len(result_files) == 0:
         logger.info(f"No result file found in {path}")
+
     return result
 
 
@@ -102,17 +104,28 @@ def add_pe_information(metadata: dict, sname: str) -> dict:
         base_path = f"{cluster}:{dir}"
         metadata = add_pe_information_from_base_path(metadata, sname, base_path)
 
-    pe_status_reports = [
-        r.get("RunStatus", "unstarted")
-        for r in metadata.data["ParameterEstimation"]["Results"]
-    ]
-    if metadata.data["ParameterEstimation"]["Status"] == "unstarted":
-        if len(pe_status_reports) > 0:
-            update_dict = {"ParameterEstimation": {"Status": "ongoing"}}
-        else:
-            update_dict = dict()
+    determine_pe_status(sname, metadata)
 
-        metadata.update(update_dict)
+
+def determine_pe_status(sname, metadata, gitlab_project_id=14074):
+
+    CI_SERVER_URL = "https://git.ligo.org/"
+    PRIVATE_TOKEN = os.environ["PRIVATE_TOKEN"]
+    CI_PROJECT_ID = str(gitlab_project_id)
+    gl = gitlab.Gitlab(CI_SERVER_URL, private_token=PRIVATE_TOKEN)
+    project = gl.projects.get(CI_PROJECT_ID)
+    issues = project.issues.list(get_all=True)
+    issue_dict = {issue.title: issue for issue in issues}
+    if sname in issue_dict:
+        if issue_dict[sname].state == "closed":
+            status = "complete"
+        else:
+            status = "ongoing"
+    else:
+        status = "unstarted"
+
+    update_dict = {"ParameterEstimation": {"Status": status}}
+    metadata.update(update_dict)
 
 
 def add_pe_information_from_base_path(
