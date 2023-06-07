@@ -9,7 +9,6 @@ Installing cbcflow from release
 
    .. tab:: pypi
 
-      NOT YET IMPLEMENTED
       To install the latest :code:`cbcflow` release from `PyPi
       <https://pypi.org/project/cbcflow/>`_, run
 
@@ -24,8 +23,8 @@ To install ``cbcflow`` for development, run
 
 .. code-block:: console
 
-   $ git clone git@git.ligo.org:cbc/meta-data.git
-   $ cd meta-data/
+   $ git clone git@git.ligo.org:cbc/projects/cbcflow.git
+   $ cd cbcflow
    $ pip install -e .
 
 For development, we will use ``pre-commit`` to check standardisation.
@@ -48,5 +47,5 @@ Note that if you do not install ``pre-commit``, you can still push, but
 if the standardisation checks fail, the C.I. on gitlab will fail.
 
 If you experience issues, you can commit with ``--no-verify`` and push
-then request help (cc @gregory.ashton).
+then request help (cc @gregory.ashton and/or @rhiannon.udall).
 
