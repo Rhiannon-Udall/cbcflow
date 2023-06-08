@@ -61,7 +61,7 @@ It will then build and start the workflow to analyse the event.
 		asimov apply -f https://git.ligo.org/asimov/data/-/raw/main/defaults/testing-pe.yaml
 		asimov apply -f https://git.ligo.org/asimov/data/-/raw/main/defaults/production-pe-priors.yaml
 
-		asimov apply -f cbcflow.yaml
+		asimov apply -f https://git.ligo.org/asimov/data/-/raw/cbcflow/defaults/cbcflow.yaml
 
 		# Clone the git repository
 		# NB you will need an access token to use this method
