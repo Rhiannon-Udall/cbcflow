@@ -2,10 +2,11 @@ Welcome to the cbcflow documentation!
 =====================================
 
 CBCFlow allows convenient and machine readable storage, communication, and retrieval of important metadata for CBC analyses of events. 
-Getting started covers the topics that typical users should know for interacting with a CBCFlow library.
-Expert usage includes further topics, such as the configuration of libraries and operation of monitors.
-Schema information describes how to understand the schema, and gives a breakdown of the various elements.
-Finally, we provide autobuilt API documentation. 
+This project consists of three parts:
+
+* Metadata for superevents, stored in a standardized format
+* A Python API for interacting with that metadata
+* Integrated visualization tools
 
 Important Links
 ---------------
