@@ -31,7 +31,7 @@ Otherwise, this superevent will start with default data.
 
 To see what our metadata looks like, we can use the ``pretty_print()`` method:
 
-.. collapsible:: The contents of S230409g
+.. collapse:: The contents of S230409g
 
     .. code-block::
 

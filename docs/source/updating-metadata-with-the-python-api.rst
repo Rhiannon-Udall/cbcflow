@@ -51,7 +51,7 @@ We can borrow an example from :doc:`command-line-usage`, by defining our update 
 
 Then the ParameterEstimation section should now look like:
 
-.. collapsible:: ParameterEstimation After Updates
+.. collapse:: ParameterEstimation After Updates
 
     .. code-block::
         
