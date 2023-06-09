@@ -4,11 +4,12 @@ Using the GraceDB Monitor
 To use the monitor, one should first configure ``cbcflow`` and a library upon which the monitor will act. 
 If you have not already done so, please see :doc:`configuration` and :doc:`library-setup` respectively for further details.
 
-To run the monitor, we execute the command ``cbcflow_monitor_make``, which sets up the ``monitor.sub`` file and submits it to htcondor. The flags we will use are:
+To run the monitor, we execute the command ``cbcflow_monitor_make_crontab``, which writes a crontab entry to run ``cbcflow_monitor_run`` at the desired interval.
+The flags we will use are:
 
 .. code-block::
     
-    cbcflow_monitor_make --config-file review-monitor.cfg --ligo-user-name rhiannon.udall \
+    cbcflow_monitor_make_crontab --config-file review-monitor.cfg --ligo-user-name rhiannon.udall \
     --ligo-accounting ligo.dev.o4.cbc.explore.test --rundir `pwd` --monitor-interval 1 --monitor-minute {}
 
 The ``config-file`` points to the configuration file being used, in case it differs from the default configuration,
