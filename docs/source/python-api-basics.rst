@@ -234,3 +234,48 @@ and so on.
 
 ``LocalLibraryDatabase``
 ------------------------
+
+The ``LocalLibraryDatabase``, which we'll just call the library, is an object that reflects the collection of many metadata objects.
+One of these is automatically generated whenever we load metadata, but to edit it directly we will want to invoke it directly.
+This may be done with:
+
+.. code-block::
+
+    >>> import cbcflow
+    >>> library = cbcflow.database.LocalLibraryDatabase("/home/rhiannon.udall/meta-data/testing_libraries/cbcflow-tutorial-library")
+    2023-06-09 13:53:18 CBCFlow INFO: Using cbc schema file /home/rhiannon.udall/meta-data/meta-data/src/cbcflow/schema/cbc-meta-data-v2.schema
+
+We can now load the metadata using this library by doing:
+
+.. code-block::
+
+    >>> metadata = cbcflow.get_superevent("S230409lg", library=library)
+    2023-06-09 13:56:31 CBCFlow INFO: Using cbc schema file /home/rhiannon.udall/meta-data/meta-data/src/cbcflow/schema/cbc-meta-data-v2.schema
+
+This metadata exists as before, but we can also access it through the library, for example:
+
+.. collapse::
+
+    .. code-block::
+
+        >>> metadata["GraceDB"]["Events"][2]
+        {'State': 'preferred', 'UID': 'G991765', 'Pipeline': 'gstlal', 'GPSTime': 1365062495.091802, 'FAR': 2.900794989032493e-36,
+        'NetworkSNR': 16.56542135029717, 'H1SNR': 12.060055, 'Mass1': 1.7551488, 'Mass2': 1.540255, 'Spin1z': 0.04640625,
+        'Spin2z': 0.04640625, 'L1SNR': 10.567706, 'V1SNR': 4.1583471, 'Pastro': 1.0, 'Pbbh': 3.347659662210488e-57, 'Pbns': 1.0,
+        'Pnsbh': 5.433561263857133e-56, 'HasNS': 1.0, 'HasRemnant': 1.0, 'HasMassGap': 0.0,
+        'XML': 'https://gracedb-playground.ligo.org/api/events/G991765/files/coinc.xml',
+        'SourceClassification': 'https://gracedb-playground.ligo.org/api/events/G991765/files/gstlal.p_astro.json',
+        'Skymap': 'https://gracedb-playground.ligo.org/api/events/G991765/files/bayestar.multiorder.fits'}
+        >>> library.metadata_dict["S230409lg"]["GraceDB"]["Events"][2]
+        {'State': 'preferred', 'UID': 'G991765', 'Pipeline': 'gstlal', 'GPSTime': 1365062495.091802, 'FAR': 2.900794989032493e-36,
+        'NetworkSNR': 16.56542135029717, 'H1SNR': 12.060055, 'Mass1': 1.7551488, 'Mass2': 1.540255, 'Spin1z': 0.04640625,
+        'Spin2z': 0.04640625, 'L1SNR': 10.567706, 'V1SNR': 4.1583471, 'Pastro': 1.0, 'Pbbh': 3.347659662210488e-57, 'Pbns': 1.0,
+        'Pnsbh': 5.433561263857133e-56, 'HasNS': 1.0, 'HasRemnant': 1.0, 'HasMassGap': 0.0,
+        'XML': 'https://gracedb-playground.ligo.org/api/events/G991765/files/coinc.xml',
+        'SourceClassification': 'https://gracedb-playground.ligo.org/api/events/G991765/files/gstlal.p_astro.json',
+        'Skymap': 'https://gracedb-playground.ligo.org/api/events/G991765/files/bayestar.multiorder.fits'}
+
+On its own, this probably does not seem particularly useful, and if you are just updating (or, especially, reading) a single
+metadata file you are safe to not worry about libraries.
+If you wish to do more advanced automation, though, especially involving interactions with git, please see
+:doc:`python-api-libraries` for more information on how to use libraries.
