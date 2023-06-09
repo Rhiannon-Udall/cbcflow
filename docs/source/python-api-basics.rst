@@ -254,9 +254,9 @@ We can now load the metadata using this library by doing:
     >>> metadata = cbcflow.get_superevent("S230409lg", library=library)
     2023-06-09 13:56:31 CBCFlow INFO: Using cbc schema file /home/rhiannon.udall/meta-data/meta-data/src/cbcflow/schema/cbc-meta-data-v2.schema
 
-This metadata exists as before, but we can also access it through the library, for example:
+This metadata exists as before, but we can also access it through the library. 
 
-.. collapse::
+.. collapse:: A comparison of metadata accessed by these two methods:
 
     .. code-block::
 
