@@ -24,6 +24,9 @@ If you aren't sure how to configure this as a default, check out :doc:`configura
 
 This library contains a few events from April 9th, as well as some other example contents.
 
+And finally, if you want to practice with the real library instead, you can follow instructions and
+links in :doc:`local-library-copy-setup`.
+
 Printing File Contents
 ----------------------
 
