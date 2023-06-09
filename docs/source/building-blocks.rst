@@ -29,9 +29,7 @@ If the library already contains metadata for the superevent described by ``sname
 then that metadata will be loaded.
 Otherwise, this superevent will start with default data.
 
-To see what our metadata looks like, we can use the ``pretty_print()`` method:
-
-.. collapse:: The contents of S230409g
+.. collapse:: To see what our metadata looks like, we can use the ``pretty_print()`` method:
 
     .. code-block::
 
