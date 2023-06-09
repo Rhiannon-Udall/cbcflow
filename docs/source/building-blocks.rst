@@ -1,17 +1,17 @@
 Building Blocks: Metadata and Libraries
 =======================================
 
-When writing scripts which use `cbcflow`, you should expect to use two classes:
-`cbcflow.metadata.MetaData` and `cbcflow.database.LocalLibraryDatabase`.
+When writing scripts which use ``cbcflow``, you should expect to use two classes:
+``cbcflow.metadata.MetaData`` and ``cbcflow.database.LocalLibraryDatabase``.
 These describe the attributes and methods for a given event's metadata and the 
 library of event metadata respectively.
 This page will give an introduction to each in turn, while a more thorough tour
 may be found in subsequent pages.
 
-`MetaData`
+``MetaData``
 ----------
 
-The most central building block in `cbcflow` is metadata. 
+The most central building block in ``cbcflow`` is metadata. 
 Loading this is surprisingly easy for example:
 
 .. code-block::

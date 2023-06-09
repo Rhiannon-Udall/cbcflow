@@ -10,12 +10,12 @@ Finally, we provide autobuilt API documentation.
 Important Links
 ---------------
 
-When using `cbcflow`, there are a lot of different links which may be important. 
+When using ``cbcflow``, there are a lot of different links which may be important. 
 For convenience, we note some here:
 
 * `The current (O4a) library <https://git.ligo.org/cbc/projects/cbc-workflow-o4a>`_
    * `The issues page for that library, to track developments <https://git.ligo.org/cbc/projects/cbc-workflow-o4a/-/issues>`_
-   * The cluster copy of this library (read only) is at `CIT:/home/cbc/cbcflow/O4a/cbc-workflow-o4a`
+   * The cluster copy of this library (read only) is at ``CIT:/home/cbc/cbcflow/O4a/cbc-workflow-o4a``
 * `The GWOSC visualization page for the library <https://gwosc-rl8.ligo.caltech.edu/eventapi/html/>`_
 * `The cbcflow development repository <https://git.ligo.org/cbc/projects/cbcflow>`_ 
    * `The mattermost help channel <https://chat.ligo.org/landing#/ligo/channels/cbcflow-help>`_
@@ -24,7 +24,7 @@ This Documentation
 ------------------
 
 These pages are meant to provide tutorials and examples for interacting with
-and developing `cbcflow`, as well as documenting the API. If you find anything
+and developing ``cbcflow``, as well as documenting the API. If you find anything
 unclear or missing, please request improvements to the documentation 
 `here <https://git.ligo.org/cbc/projects/cbcflow/-/issues/56>`_
 
