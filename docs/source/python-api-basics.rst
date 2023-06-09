@@ -209,6 +209,7 @@ Otherwise, this superevent will start with default data.
             }
         }
 
+
 Since this event has already been initialized from gracedb, we can see a lot of gracedb information already.
 
 If you want to read a specific element in a ``MetaData`` object, it also works like you expect it to.

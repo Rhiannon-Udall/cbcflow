@@ -1,5 +1,5 @@
-Updating Metadata in ``cbcflow``
-================================
+Updating Metadata with Python
+=============================
 
 Updating From GraceDB
 ---------------------
@@ -27,8 +27,8 @@ The command ``gracedb.fetch_gracedb_information`` pulls information from gracedb
 Note that this event was pulled from playground data (https://gracedb-playground.ligo.org/api/),
 as set in the test ``~/.cbcflow.cfg`` in use.
 
-Updating Metadata
------------------
+Updating Metadata in Python
+---------------------------
 
 Now that metadata has been loaded, we may edit it.
 We can borrow an example from :doc:`command-line-usage`, by defining our update json: 
@@ -49,9 +49,8 @@ We can borrow an example from :doc:`command-line-usage`, by defining our update 
         }
     >>> metadata.update(update_add_json)
 
-Then the ParameterEstimation section should now look like:
 
-.. collapse:: ParameterEstimation After Updates
+.. collapse:: Then the ParameterEstimation section should now look like:
 
     .. code-block::
         

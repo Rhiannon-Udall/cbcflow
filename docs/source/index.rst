@@ -4,9 +4,9 @@ Welcome to the cbcflow documentation!
 CBCFlow allows convenient and machine readable storage, communication, and retrieval of important metadata for CBC analyses of events. 
 This project consists of three parts:
 
-* Metadata for superevents, stored in a standardized format
-* A Python API for interacting with that metadata
-* Integrated visualization tools
+#. Metadata for superevents, stored in a standardized format
+#. A Python API for interacting with that metadata
+#. Integrated visualization tools
 
 Important Links
 ---------------
@@ -14,12 +14,12 @@ Important Links
 When using ``cbcflow``, there are a lot of different links which may be important. 
 For convenience, we note some here:
 
-* `The current (O4a) library <https://git.ligo.org/cbc/projects/cbc-workflow-o4a>`_
-   * `The issues page for that library, to track developments <https://git.ligo.org/cbc/projects/cbc-workflow-o4a/-/issues>`_
-   * The cluster copy of this library (read only) is at ``CIT:/home/cbc/cbcflow/O4a/cbc-workflow-o4a``
-* `The GWOSC visualization page for the library <https://gwosc-rl8.ligo.caltech.edu/eventapi/html/>`_
-* `The cbcflow development repository <https://git.ligo.org/cbc/projects/cbcflow>`_ 
-   * `The mattermost help channel <https://chat.ligo.org/landing#/ligo/channels/cbcflow-help>`_
+#. `The current (O4a) library <https://git.ligo.org/cbc/projects/cbc-workflow-o4a>`_
+   #. `The issues page for that library, to track developments <https://git.ligo.org/cbc/projects/cbc-workflow-o4a/-/issues>`_
+   #. The cluster copy of this library (read only) is at ``CIT:/home/cbc/cbcflow/O4a/cbc-workflow-o4a``
+#. `The GWOSC visualization page for the library <https://gwosc-rl8.ligo.caltech.edu/eventapi/html/>`_
+#. `The cbcflow development repository <https://git.ligo.org/cbc/projects/cbcflow>`_ 
+   #. `The mattermost help channel <https://chat.ligo.org/landing#/ligo/channels/cbcflow-help>`_
 
 This Documentation
 ------------------
@@ -37,15 +37,16 @@ unclear or missing, please request improvements to the documentation
    local-library-copy-setup
    what-is-metadata
    reading-the-schema
-   updating-metadata-from-the-command-line
+   command-line-general
+   command-line-update
    
-
 .. toctree::
    :maxdepth: 1
    :caption: Using CBCFlow's Python API
 
-   building-blocks
-   updating-metadata-with-the-python-api
+   python-api-basics
+   python-api-update-metadata
+   python-api-libraries
 
 .. toctree::
    :maxdepth: 1

@@ -695,10 +695,11 @@ class LocalLibraryDatabase(object):
         branch_name: str, optional
             The name of the branch to which the commit will be written:
             If not passed, then:
-                - If the current branch is main, a new branch name will be formulaically generated
-                - If the current branch is not main, then the current branch will be used
+            - If the current branch is main, a new branch name will be formulaically generated
+            - If the current branch is not main, then the current branch will be used
             If passed as "main", then the main branch will be written to explicitly
             If passed as a string other than main, then that branch will be created if necessary, and checked out.
+
         """
         if not hasattr(self, "repo"):
             # If necessary, initialize git information for this library

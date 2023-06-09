@@ -43,7 +43,7 @@ schema-html:
     - python -m pip install json-schema-for-humans
     - mkdir schema/visualization
     - cd schema/visualization/
-    - generate-schema-doc ../cbc-meta-data-v2.schema cbc-meta-data-schema.html --link-to-reused-ref
+    - generate-schema-doc ../cbc-meta-data-v2.schema cbc-meta-data-schema.html --no-link-to-reused-ref
     - cd ../..
     - mkdir docs/source/schema_visualization/
     - mv schema/visualization/* docs/source/schema_visualization/
