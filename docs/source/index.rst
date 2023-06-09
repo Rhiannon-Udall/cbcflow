@@ -12,7 +12,7 @@ Important Links
 
 When using `cbcflow`, there are a lot of different links which may be important. 
 For convenience, we note some here:
-`
+
 * `The current (O4a) library <https://git.ligo.org/cbc/projects/cbc-workflow-o4a>`_
    * `The issues page for that library, to track developments <https://git.ligo.org/cbc/projects/cbc-workflow-o4a/-/issues>`_
    * The cluster copy of this library (read only) is at `CIT:/home/cbc/cbcflow/O4a/cbc-workflow-o4a`
