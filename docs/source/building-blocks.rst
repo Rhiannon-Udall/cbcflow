@@ -9,7 +9,7 @@ This page will give an introduction to each in turn, while a more thorough tour
 may be found in subsequent pages.
 
 ``MetaData``
-----------
+------------
 
 The most central building block in ``cbcflow`` is metadata. 
 Loading this is surprisingly easy - for example:
@@ -212,3 +212,26 @@ To see what our metadata looks like, we can use the ``pretty_print()`` method:
         }
 
 Since this event has already been initialized from gracedb, we can see a lot of gracedb information already.
+
+If you want to read a specific element in a ``MetaData`` object, it also works like you expect it to.
+For example:
+
+.. code-block::
+
+    >>> metadata["GraceDB"]["Events"][2]
+    {'State': 'preferred', 'UID': 'G991765', 'Pipeline': 'gstlal', 'GPSTime': 1365062495.091802, 'FAR': 2.900794989032493e-36,
+    'NetworkSNR': 16.56542135029717, 'H1SNR': 12.060055, 'Mass1': 1.7551488, 'Mass2': 1.540255, 'Spin1z': 0.04640625, 'Spin2z': 0.04640625,
+    'L1SNR': 10.567706, 'V1SNR': 4.1583471, 'Pastro': 1.0, 'Pbbh': 3.347659662210488e-57, 'Pbns': 1.0, 'Pnsbh': 5.433561263857133e-56,
+    'HasNS': 1.0, 'HasRemnant': 1.0, 'HasMassGap': 0.0, 'XML': 'https://gracedb-playground.ligo.org/api/events/G991765/files/coinc.xml',
+    'SourceClassification': 'https://gracedb-playground.ligo.org/api/events/G991765/files/gstlal.p_astro.json',
+    'Skymap': 'https://gracedb-playground.ligo.org/api/events/G991765/files/bayestar.multiorder.fits'}
+
+Note that since ``Events`` is a list (of dictionaries), this level of the hierarchy must be accessed by list index, *not* by the UID name.
+This may be updated in the future, but for now is a necessary evil. 
+
+If you want to write to the metadata, it is *strongly* recommended that you do so with the ``update`` method detailed in
+:doc:`updating-metadata-with-the-python-api`, which will automatically handle merging the correct UIDs, validation against the schema,
+and so on.
+
+``LocalLibraryDatabase``
+------------------------
