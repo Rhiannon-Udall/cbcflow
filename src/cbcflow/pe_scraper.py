@@ -56,7 +56,7 @@ def scrape_bilby_result(path):
             x for x in config_lines if "waveform-approximant=" in x
         ]
         if len(waveform_approximant_lines) == 1:
-            result["WaveformApproximant"] = waveform_approximant_lines[0]
+            result["WaveformApproximant"] = waveform_approximant_lines[0].split("=")[1]
         else:
             logger.warning(
                 "Multiple waveform approximants given\n"
