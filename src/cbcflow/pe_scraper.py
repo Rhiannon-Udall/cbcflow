@@ -47,6 +47,22 @@ def scrape_bilby_result(path):
     if len(possible_configs) == 1:
         result["ConfigFile"] = {}
         result["ConfigFile"]["Path"] = possible_configs[0]
+        # Read waveform approximant out of config file
+        # I am going to just read the file directly rather than use configparse
+        # Since bilby_pipe has its own special parser that we don't want to import right now
+        with open(possible_configs[0], "r") as file:
+            config_lines = file.readlines()
+        waveform_approximant_lines = [
+            x for x in config_lines if "waveform-approximant=" in x
+        ]
+        if len(waveform_approximant_lines) == 1:
+            result["WaveformApproximant"] = waveform_approximant_lines[0]
+        else:
+            logger.warning(
+                "Multiple waveform approximants given\n"
+                "Or no waveform approximant given\n"
+                "Is this a valid config file?"
+            )
     elif len(possible_configs) > 1:
         logger.warning("Multiple config files found: unclear how to proceed")
     else:
