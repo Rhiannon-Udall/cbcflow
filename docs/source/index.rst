@@ -9,7 +9,7 @@ Finally, we provide autobuilt API documentation.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Getting Started: Setup, Concepts, and the Command Line
+   :caption: Getting Started
 
    configuration
    local-library-copy-setup

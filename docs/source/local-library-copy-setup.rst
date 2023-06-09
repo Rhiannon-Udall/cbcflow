@@ -1,6 +1,19 @@
 Setting Up A Library From a Remote
 ==================================
 
+Before interacting with a library, one naturally needs a library to interact with.
+If you only wish to read metadata, and are on the CIT shared filesystem, this is easy:
+you may read from the shared CBC account library at `CIT:/home/cbc/cbcflow/O4a/cbc-workflow-o4a`.
+
+If you wish to modify metadata, however, you will need to interact with a local copy.
+You may choose to fork the central repository and clone that, or you may clone it directly.
+Note that the main branch of this library will be protected, and so you will need to make
+updates by branching and making a merge request - as we will see this is done automatically 
+when using provided scripts. 
+
+Cloning and Setup
+-----------------
+
 Creating a working ``cbcflow`` library is *slightly* more complicated than just cloning a remote library.
 First, though, you should indeed clone it!
 For O4a the relevant library to clone is https://git.ligo.org/cbc/projects/cbc-workflow-o4a/.
