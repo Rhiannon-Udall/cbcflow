@@ -58,7 +58,9 @@ def scrape_bilby_result(path):
             if "waveform-approximant=" in x and "injection" not in x
         ]
         if len(waveform_approximant_lines) == 1:
-            result["WaveformApproximant"] = waveform_approximant_lines[0].split("=")[1]
+            result["WaveformApproximant"] = (
+                waveform_approximant_lines[0].split("=")[1].strip()
+            )
         else:
             logger.warning(
                 "Multiple waveform approximants given\n"
