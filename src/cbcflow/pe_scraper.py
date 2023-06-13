@@ -53,7 +53,9 @@ def scrape_bilby_result(path):
         with open(possible_configs[0], "r") as file:
             config_lines = file.readlines()
         waveform_approximant_lines = [
-            x for x in config_lines if "waveform-approximant=" in x
+            x
+            for x in config_lines
+            if "waveform-approximant=" in x and "injection" not in x
         ]
         if len(waveform_approximant_lines) == 1:
             result["WaveformApproximant"] = waveform_approximant_lines[0].split("=")[1]
