@@ -3,12 +3,14 @@ import os
 from glob import glob
 import yaml
 import gitlab
+from typing import Union
 
 from .utils import (
     setup_logger,
     get_cluster,
     get_url_from_public_html_dir,
 )
+from .metadata import MetaData
 
 logger = setup_logger()
 
@@ -92,8 +94,20 @@ def scrape_pesummary_pages(pes_path):
     return result
 
 
-def add_pe_information(metadata: dict, sname: str) -> dict:
-    """Top level function to add pe information for a given sname"""
+def add_pe_information(
+    metadata: dict, sname: str, pe_rota_token: Union[str, None] = None
+) -> dict:
+    """Top level function to add pe information for a given sname
+
+    Parameters
+    ==========
+    metadata : `cbcflow.metadata.MetaData`
+        The metadata object being updated
+    sname : str
+        The Sname for the metadata
+    pe_rota_token : str, optional
+        The string representation of the token for accessing the PE rota repository
+    """
 
     # Define where to expect results
     directories = glob("/home/pe.o4/public_html/*")
@@ -104,13 +118,28 @@ def add_pe_information(metadata: dict, sname: str) -> dict:
         base_path = f"{cluster}:{dir}"
         metadata = add_pe_information_from_base_path(metadata, sname, base_path)
 
-    determine_pe_status(sname, metadata)
+    if pe_rota_token is not None:
+        determine_pe_status(sname, metadata, pe_rota_token)
 
 
-def determine_pe_status(sname, metadata, gitlab_project_id=14074):
+def determine_pe_status(
+    sname: str, metadata: "MetaData", pe_rota_token: str, gitlab_project_id: int = 14074
+):
+    """Check the PE rota repository to determine the status of the PE for this event
 
+    Parameters
+    ==========
+    sname : str
+        The sname for this event
+    metadata : `cbcflow.metadata.MetaData`
+        The metadata object to update with the status of the PE
+    pe_rota_token : str
+        The token to use when accessing the PE ROTA repository to check status
+    gitlab_project_id : int, optional
+        The project id to identify the PE ROTA repository - hardcoded to the O4a repository
+    """
     CI_SERVER_URL = "https://git.ligo.org/"
-    PRIVATE_TOKEN = os.environ["PRIVATE_TOKEN"]
+    PRIVATE_TOKEN = pe_rota_token
     CI_PROJECT_ID = str(gitlab_project_id)
     gl = gitlab.Gitlab(CI_SERVER_URL, private_token=PRIVATE_TOKEN)
     project = gl.projects.get(CI_PROJECT_ID)
