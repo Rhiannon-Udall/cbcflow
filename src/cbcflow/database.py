@@ -223,6 +223,7 @@ class GraceDbDatabase(LibraryParent):
         service_url: str,
         library: "LocalLibraryDatabase",
         cred: Union[Tuple[str, str], str, None] = None,
+        pe_rota_token_path: Union[str, None] = None,
     ) -> None:
         """Setup the GraceDbDatabase that this library pairs to
 
@@ -232,9 +233,14 @@ class GraceDbDatabase(LibraryParent):
             The http address for the gracedb instance that this library pairs to
         library : `LocalLibraryDatabase`
             The library for which this serves as a parent.
+        cred : Union[Tuple[str, str], str, None]
+            The credentials to pass when accessing gracedb
+        pe_rota_token_path : str
+            The path to the token to use when accessing the PE rota
         """
         super(GraceDbDatabase, self).__init__(source_path=service_url, library=library)
         self.cred = cred
+        self.pe_rota_token = pe_rota_token_path
 
     @property
     def cred(self) -> Union[Tuple[str, str], str, None]:
@@ -246,6 +252,15 @@ class GraceDbDatabase(LibraryParent):
     @cred.setter
     def cred(self, input_cred: Union[Tuple[str, str], str, None]) -> None:
         self._cred = input_cred
+
+    @property
+    def pe_rota_token(self) -> str:
+        return self._pe_rota_token
+
+    @pe_rota_token.setter
+    def pe_rota_token(self, path_name: str) -> None:
+        with open(path_name, "r") as file:
+            self._pe_rota_token = file.read().strip()
 
     def pull(self, sname: str) -> dict:
         """Pull information on the superevent with this sname from GraceDB
@@ -317,7 +332,7 @@ class GraceDbDatabase(LibraryParent):
 
                     try:
                         # Pull information from PE
-                        add_pe_information(metadata, superevent_id)
+                        add_pe_information(metadata, superevent_id, self.pe_rota_token)
                     except Exception as e:
                         logger.warning("Fatal error while scraping PE automatically")
                         logger.warning(
@@ -492,8 +507,18 @@ class LocalLibraryDatabase(object):
             else:
                 logger.info("Using default credentials")
                 cred = None
+            if self.library_config["Monitor"]["pe_rota_token"] is not None:
+                if self.library_config["Monitor"]["pe_rota_token"].lower() != "none":
+                    pe_rota_token_path = self.library_config["Monitor"]["pe_rota_token"]
+                else:
+                    pe_rota_token_path = None
+            else:
+                pe_rota_token_path = None
             self._library_parent = GraceDbDatabase(
-                service_url=source_path, library=self, cred=cred
+                service_url=source_path,
+                library=self,
+                cred=cred,
+                pe_rota_token_path=pe_rota_token_path,
             )
         elif os.path.exists(source_path):
             # This will be the branch for pulling from a git repo in the local filesystem
@@ -641,7 +666,11 @@ class LocalLibraryDatabase(object):
             "snames-to-include": [],
             "snames-to-exclude": [],
         }
-        library_defaults["Monitor"] = {"parent": "gracedb", "cred": None}
+        library_defaults["Monitor"] = {
+            "parent": "gracedb",
+            "cred": None,
+            "pe_rota_token": None,
+        }
         if os.path.exists(config_file):
             config.read(config_file)
             for section_key in config.sections():
