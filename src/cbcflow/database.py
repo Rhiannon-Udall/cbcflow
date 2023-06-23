@@ -328,6 +328,11 @@ class GraceDbDatabase(LibraryParent):
 
                     # Pull information from GraceDB
                     gdb_data = self.pull(superevent_id)
+                    for note in metadata["Info"]["Notes"]:
+                        # If a note already marks this as retracted don't add another
+                        if "retracted" in note.lower():
+                            gdb_data.pop("Info")
+                            break
                     metadata.data.update(gdb_data)
 
                     try:

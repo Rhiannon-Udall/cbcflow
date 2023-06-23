@@ -39,7 +39,7 @@ def fetch_gracedb_information(
         service_url = config_defaults["gracedb_service_url"]
         logger.info("Using configuration default GraceDB service_url")
 
-    data = dict(GraceDB=dict(Events=[]), Cosmology=dict())
+    data = dict(GraceDB=dict(Events=[]), Cosmology=dict(), Info=dict(Notes=[]))
 
     with GraceDb(service_url=service_url, cred=cred) as gdb:
         try:
@@ -52,9 +52,11 @@ def fetch_gracedb_information(
         # We want the one best event per pipeline
         event_dict = superevent["pipeline_preferred_events"]
         preferred_event = superevent["preferred_event_data"]
+        if "ADVNO" in superevent["labels"]:
+            # If ADVNO is here that means this event is retracted
+            data["Info"]["Notes"].append("Retracted: ADVNO applied in GraceDB")
         if len(event_dict) == 0:
             event_dict[preferred_event["pipeline"]] = preferred_event
-
         for pipeline, event in superevent["pipeline_preferred_events"].items():
             if pipeline.lower().strip() in ["spiir", "mbta", "gstlal", "pycbc"]:
                 try:
