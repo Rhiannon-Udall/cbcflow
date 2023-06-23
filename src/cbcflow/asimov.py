@@ -84,12 +84,14 @@ class Collector:
                     except IndexError:
                         logger.warning("Could not find ini file for this analysis")
 
+                    analysis_output["Notes"] = []
+
                     if analysis.comment is not None:
                         # We only want to add the comment to the notes if it doesn't already exist
                         if corresponding_analysis is None:
-                            analysis_output["Notes"] = [analysis.comment]
+                            analysis_output["Notes"].append(analysis.comment)
                         elif analysis.comment not in corresponding_analysis["Notes"]:
-                            analysis_output["Notes"] = [analysis.comment]
+                            analysis_output["Notes"].append(analysis.comment)
 
                     if analysis.review.status:
                         if analysis.review.status.lower() == "approved":
