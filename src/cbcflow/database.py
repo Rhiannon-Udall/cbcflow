@@ -254,13 +254,16 @@ class GraceDbDatabase(LibraryParent):
         self._cred = input_cred
 
     @property
-    def pe_rota_token(self) -> str:
+    def pe_rota_token(self) -> Union[None, str]:
         return self._pe_rota_token
 
     @pe_rota_token.setter
     def pe_rota_token(self, path_name: str) -> None:
-        with open(path_name, "r") as file:
-            self._pe_rota_token = file.read().strip()
+        if path_name is not None:
+            with open(path_name, "r") as file:
+                self._pe_rota_token = file.read().strip()
+        else:
+            self._pe_rota_token = None
 
     def pull(self, sname: str) -> dict:
         """Pull information on the superevent with this sname from GraceDB
