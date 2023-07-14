@@ -50,7 +50,7 @@ def fetch_gracedb_information(
             msg += "Either it does not exist, or you may need to run ligo-proxy-init."
             raise ValueError(msg)
         # We want the one best event per pipeline
-        event_dict = superevent["pipeline_preferred_events"]
+        event_dict = superevent.get("pipeline_preferred_events", dict())
         preferred_event = superevent["preferred_event_data"]
         if "ADVNO" in superevent["labels"]:
             # If ADVNO is here that means this event is retracted
