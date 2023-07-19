@@ -116,7 +116,7 @@ def scrape_pesummary_pages(pes_path):
 
 def add_pe_information(
     metadata: "MetaData", sname: str, pe_rota_token: Union[str, None] = None
-) -> None:
+) -> "MetaData":
     """Top level function to add pe information for a given sname
 
     Parameters
@@ -127,6 +127,11 @@ def add_pe_information(
         The Sname for the metadata
     pe_rota_token : str, optional
         The string representation of the token for accessing the PE rota repository
+
+    Returns
+    =======
+    `cbcflow.metadata.MetaData`
+        The updated metadata object
     """
 
     # Define where to expect results
@@ -176,14 +181,14 @@ def determine_pe_status(
 
 
 def add_pe_information_from_base_path(
-    metadata: dict, sname: str, base_path: str
-) -> dict:
+    metadata: "MetaData", sname: str, base_path: str
+) -> "MetaData":
     """Fetch any available PE information for this superevent
 
     Parameters
     ==========
-    metadata : dict
-        The existing metadata dictionary
+    metadata : `cbcflow.metadata.MetaData`
+        The existing metadata object
     sname : str
         The sname of the superevent to fetch.
     base_path : str
@@ -193,8 +198,8 @@ def add_pe_information_from_base_path(
 
     Returns
     =======
-    metadata:
-        The updated metadata dictionary
+    `cbcflow.metadata.MetaData`
+        The updated metadata object
     """
 
     cluster, base_directory = base_path.split(":")
@@ -252,38 +257,55 @@ def add_pe_information_from_base_path(
 
         result["InferenceSoftware"] = sampler
 
-        # Read RunInfo
-        run_info = f"{directory}/RunInfo.yml"
-        if os.path.exists(run_info):
-            with open(run_info, "r") as file:
-                try:
-                    run_info_data = yaml.safe_load(file)
-                except Exception:
-                    logger.warning(f"Yaml file {run_info} corrupted")
-                    run_info_data = {}
-
-            # Append the analysts and reviewers to the global PE data
-            for key in ["Analysts", "Reviewers"]:
-                if key in run_info_data:
-                    existing_entries = set(metadata.data["ParameterEstimation"][key])
-                    entries_string = run_info_data.pop(key)
-                    if entries_string is not None:
-                        entries = entries_string.split(",")
-                        entries = set([ent.lstrip(" ") for ent in entries])
-                        new_entries = list(entries - existing_entries)
-                        update_dict["ParameterEstimation"][key] = new_entries
-
-            # Treat notes as a set
-            if uid in results_dict and "Notes" in run_info_data:
-                existing_entries = set(results_dict[uid]["Notes"])
-                entries = set(run_info_data["Notes"])
-                new_entries = list(entries - existing_entries)
-                run_info_data["Notes"] = new_entries
-
-            # Update the result with the info data
-            result.update(run_info_data)
+        process_run_info_yml(
+            path_to_run_info=f"{directory}/RunInfo.yml",
+            metadata=metadata,
+            update_dict=update_dict,
+            uid=uid,
+            results_dict=results_dict,
+            result=result,
+        )
 
         update_dict["ParameterEstimation"]["Results"] = [result]
         metadata.update(update_dict)
 
     return metadata
+
+
+def process_run_info_yml(
+    path_to_run_info: str,
+    metadata: "MetaData",
+    update_dict: dict,
+    uid: str,
+    results_dict: dict,
+    result: dict,
+):
+
+    if os.path.exists(path_to_run_info):
+        with open(path_to_run_info, "r") as file:
+            try:
+                run_info_data = yaml.safe_load(file)
+            except Exception:
+                logger.warning(f"Yaml file {path_to_run_info} corrupted")
+                run_info_data = {}
+
+        # Append the analysts and reviewers to the global PE data
+        for key in ["Analysts", "Reviewers"]:
+            if key in run_info_data:
+                existing_entries = set(metadata.data["ParameterEstimation"][key])
+                entries_string = run_info_data.pop(key)
+                if entries_string is not None:
+                    entries = entries_string.split(",")
+                    entries = set([ent.lstrip(" ") for ent in entries])
+                    new_entries = list(entries - existing_entries)
+                    update_dict["ParameterEstimation"][key] = new_entries
+
+        # Treat notes as a set
+        if uid in results_dict and "Notes" in run_info_data:
+            existing_entries = set(results_dict[uid]["Notes"])
+            entries = set(run_info_data["Notes"])
+            new_entries = list(entries - existing_entries)
+            run_info_data["Notes"] = new_entries
+
+        # Update the result with the info data
+        result.update(run_info_data)
