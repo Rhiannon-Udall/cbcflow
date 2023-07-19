@@ -162,6 +162,7 @@ def run_monitor() -> None:
     # but won't touch the labels
     local_library.set_working_index_with_updates_to_file_index()
     local_library.write_index_file(branch_name=args.branch_name)
+    local_library.git_pull_from_remote(automated=True)
     if not local_library.remote_has_merge_conflict:
         logger.info("Pushing to remote")
         local_library.git_push_to_remote()
