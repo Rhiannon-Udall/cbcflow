@@ -219,11 +219,11 @@ def add_pe_information_from_base_path(
         update_dict["ParameterEstimation"] = {}
         update_dict["ParameterEstimation"]["Results"] = []
 
-        UID = directory.split("/")[-1]
+        uid = directory.split("/")[-1]
 
         # Initialise result dictionary
         result = dict(
-            UID=UID,
+            UID=uid,
         )
 
         # Figure out which sampler we are looking
@@ -247,7 +247,7 @@ def add_pe_information_from_base_path(
                 sampler = "parallel_bilby"
                 result.update(scrape_bilby_result(directory + f"/{sampler}"))
             else:
-                logger.info(f"Sampler in {UID} not yet implemented")
+                logger.info(f"Sampler in {uid} not yet implemented")
                 continue
 
         result["InferenceSoftware"] = sampler
@@ -274,8 +274,8 @@ def add_pe_information_from_base_path(
                         update_dict["ParameterEstimation"][key] = new_entries
 
             # Treat notes as a set
-            if UID in results_dict and "Notes" in run_info_data:
-                existing_entries = set(results_dict[UID]["Notes"])
+            if uid in results_dict and "Notes" in run_info_data:
+                existing_entries = set(results_dict[uid]["Notes"])
                 entries = set(run_info_data["Notes"])
                 new_entries = list(entries - existing_entries)
                 run_info_data["Notes"] = new_entries
