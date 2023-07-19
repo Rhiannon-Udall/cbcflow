@@ -115,8 +115,8 @@ def scrape_pesummary_pages(pes_path):
 
 
 def add_pe_information(
-    metadata: dict, sname: str, pe_rota_token: Union[str, None] = None
-) -> dict:
+    metadata: "MetaData", sname: str, pe_rota_token: Union[str, None] = None
+) -> None:
     """Top level function to add pe information for a given sname
 
     Parameters
@@ -134,8 +134,8 @@ def add_pe_information(
     cluster = "CIT"
 
     # Iterate over directories
-    for dir in directories:
-        base_path = f"{cluster}:{dir}"
+    for directory in directories:
+        base_path = f"{cluster}:{directory}"
         metadata = add_pe_information_from_base_path(metadata, sname, base_path)
 
     if pe_rota_token is not None:
@@ -197,13 +197,13 @@ def add_pe_information_from_base_path(
         The updated metadata dictionary
     """
 
-    cluster, base_dir = base_path.split(":")
+    cluster, base_directory = base_path.split(":")
 
     if cluster.upper() != get_cluster():
         logger.info(f"Unable to fetch PE as we are not running on {cluster}")
         return metadata
-    elif os.path.exists(base_dir) is False:
-        logger.info(f"Unable to fetch PE as {base_dir} does not exist")
+    elif os.path.exists(base_directory) is False:
+        logger.info(f"Unable to fetch PE as {base_directory} does not exist")
         return metadata
 
     # Get existing results
@@ -211,15 +211,15 @@ def add_pe_information_from_base_path(
         res["UID"]: res for res in metadata.data["ParameterEstimation"]["Results"]
     }
 
-    dirs = sorted(glob(f"{base_dir}/{sname}/*"))
-    for dir in dirs:
+    directories = sorted(glob(f"{base_directory}/{sname}/*"))
+    for directory in directories:
 
         # Initialise an empty update dictionary
         update_dict = {}
         update_dict["ParameterEstimation"] = {}
         update_dict["ParameterEstimation"]["Results"] = []
 
-        UID = dir.split("/")[-1]
+        UID = directory.split("/")[-1]
 
         # Initialise result dictionary
         result = dict(
@@ -227,25 +227,25 @@ def add_pe_information_from_base_path(
         )
 
         # Figure out which sampler we are looking
-        content = glob(f"{dir}/*")
+        content = glob(f"{directory}/*")
         if len(content) == 0:
-            logger.debug(f"Directory {dir} is empty")
+            logger.debug(f"Directory {directory} is empty")
             continue
         elif any(["BayesWave" in fname for fname in content]):
             sampler = "bayeswave"
-            result.update(scrape_bayeswave_result(dir))
+            result.update(scrape_bayeswave_result(directory))
         else:
             directories = [s.split("/")[-1] for s in content]
 
             if "summary" in directories:
-                result.update(scrape_pesummary_pages(dir + "/summary"))
+                result.update(scrape_pesummary_pages(directory + "/summary"))
 
             if "bilby" in directories:
                 sampler = "bilby"
-                result.update(scrape_bilby_result(dir + f"/{sampler}"))
+                result.update(scrape_bilby_result(directory + f"/{sampler}"))
             elif "parallel_bilby" in directories:
                 sampler = "parallel_bilby"
-                result.update(scrape_bilby_result(dir + f"/{sampler}"))
+                result.update(scrape_bilby_result(directory + f"/{sampler}"))
             else:
                 logger.info(f"Sampler in {UID} not yet implemented")
                 continue
@@ -253,7 +253,7 @@ def add_pe_information_from_base_path(
         result["InferenceSoftware"] = sampler
 
         # Read RunInfo
-        run_info = f"{dir}/RunInfo.yml"
+        run_info = f"{directory}/RunInfo.yml"
         if os.path.exists(run_info):
             with open(run_info, "r") as file:
                 try:

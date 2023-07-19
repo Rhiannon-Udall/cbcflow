@@ -342,7 +342,9 @@ class GraceDbDatabase(LibraryParent):
                         # Pull information from PE
                         add_pe_information(metadata, superevent_id, self.pe_rota_token)
                     except Exception as e:
-                        logger.warning("Fatal error while scraping PE automatically")
+                        logger.warning(
+                            f"Fatal error while scraping PE automatically for superevent {superevent_id}"
+                        )
                         logger.warning(
                             "Proceeding automatically to maintain library status as best as possible"
                         )
