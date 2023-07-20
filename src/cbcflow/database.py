@@ -859,7 +859,8 @@ class LocalLibraryDatabase(object):
         if not hasattr(self, "repo"):
             self._initialize_library_git_repo()
         try:
-            self.repo.git.pull()
+            self.repo.git.fetch("origin")
+            self.repo.git.merge("origin/main", "main")
         except Exception as e:
             logger.info("Pull failed:")
             logger.info(e)
