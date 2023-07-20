@@ -3,7 +3,8 @@ import os
 from glob import glob
 import yaml
 import gitlab
-from typing import Union
+import copy
+from typing import Union, Tuple, Dict
 
 from .utils import (
     setup_logger,
@@ -211,101 +212,176 @@ def add_pe_information_from_base_path(
         logger.info(f"Unable to fetch PE as {base_directory} does not exist")
         return metadata
 
-    # Get existing results
-    results_dict = {
-        res["UID"]: res for res in metadata.data["ParameterEstimation"]["Results"]
+    # Get existing results, analysts list, reviewers list
+    existing_results_dict = {
+        res["UID"]: res for res in metadata["ParameterEstimation"]["Results"]
     }
+    existing_analysts = metadata["ParameterEstimation"]["Analysts"]
+    existing_reviewers = metadata["ParameterEstimation"]["Reviewers"]
+
+    all_analysts = copy.copy(existing_analysts)
+    all_reviewers = copy.copy(existing_reviewers)
+
+    update_dictionary = {"ParameterEstimation": {"Results": []}}
 
     directories = sorted(glob(f"{base_directory}/{sname}/*"))
     for directory in directories:
-
-        # Initialise an empty update dictionary
-        update_dict = {}
-        update_dict["ParameterEstimation"] = {}
-        update_dict["ParameterEstimation"]["Results"] = []
-
+        # For each directory under this superevents heading...
         uid = directory.split("/")[-1]
+        existing_result = existing_results_dict.get(uid, dict(UID=uid))
 
-        # Initialise result dictionary
-        result = dict(
-            UID=uid,
+        # ... generate the update dictionary for the PEResult
+        result_update, result_analysts, result_reviewers = generate_result_update(
+            directory, existing_result, uid
         )
 
-        # Figure out which sampler we are looking
-        content = glob(f"{directory}/*")
-        if len(content) == 0:
-            logger.debug(f"Directory {directory} is empty")
-            continue
-        elif any(["BayesWave" in fname for fname in content]):
-            sampler = "bayeswave"
-            result.update(scrape_bayeswave_result(directory))
-        else:
-            directories = [s.split("/")[-1] for s in content]
+        # Build up list of all analysts and reviewers
+        all_analysts += result_analysts
+        all_reviewers += result_reviewers
 
-            if "summary" in directories:
-                result.update(scrape_pesummary_pages(directory + "/summary"))
+        # Add this result update to the full update dictionary
+        if len(list(result_update.keys())) > 0:
+            update_dictionary["ParameterEstimation"]["Results"].append(result_update)
 
-            if "bilby" in directories:
-                sampler = "bilby"
-                result.update(scrape_bilby_result(directory + f"/{sampler}"))
-            elif "parallel_bilby" in directories:
-                sampler = "parallel_bilby"
-                result.update(scrape_bilby_result(directory + f"/{sampler}"))
-            else:
-                logger.info(f"Sampler in {uid} not yet implemented")
-                continue
+    # Add only reviewers and analysts not yet
+    new_analysts = list(set(all_analysts) - set(existing_analysts))
+    new_reviewers = list(set(all_reviewers) - set(existing_reviewers))
 
-        result["InferenceSoftware"] = sampler
+    update_dictionary["ParameterEstimation"]["Analysts"] = new_analysts
+    update_dictionary["ParameterEstimation"]["Reviewers"] = new_reviewers
 
-        process_run_info_yml(
-            path_to_run_info=f"{directory}/RunInfo.yml",
-            metadata=metadata,
-            update_dict=update_dict,
-            uid=uid,
-            results_dict=results_dict,
-            result=result,
-        )
-
-        update_dict["ParameterEstimation"]["Results"] = [result]
-        metadata.update(update_dict)
-
+    metadata.update(update_dict=update_dictionary)
     return metadata
+
+
+def generate_result_update(
+    directory: str, existing_result: dict, uid: str
+) -> Tuple[dict, list, list]:
+    """Process a directory for updates to the corresponding PEResult
+
+    Parameters
+    ==========
+    directory : str
+        The directory corresponding to the PEResult
+    existing_result : dict
+        The PEResult object which already exists, to be updated
+    uid : str
+        The UID of the PEResult object
+
+    Returns
+    =======
+    dict
+        The update dictionary for the PEResult
+    list
+        The list of analysts corresponding to this PEResult
+    list
+        The list of reviewers corresponding to this PEResult
+    """
+    result_update = dict(UID=uid)
+
+    # Figure out which sampler we are looking
+    content = glob(f"{directory}/*")
+    if len(content) == 0:
+        logger.debug(f"Directory {directory} is empty")
+        return dict(), list(), list()
+    elif any(["BayesWave" in fname for fname in content]):
+        sampler = "bayeswave"
+        result_update.update(scrape_bayeswave_result(directory))
+    else:
+        directories = [s.split("/")[-1] for s in content]
+        if "summary" in directories:
+            result_update.update(scrape_pesummary_pages(directory + "/summary"))
+        if "bilby" in directories:
+            sampler = "bilby"
+            result_update.update(scrape_bilby_result(directory + f"/{sampler}"))
+        elif "parallel_bilby" in directories:
+            sampler = "parallel_bilby"
+            result_update.update(scrape_bilby_result(directory + f"/{sampler}"))
+        else:
+            logger.info(f"Sampler in {uid} not yet implemented")
+            return dict(), list(), list()
+
+    result_update["InferenceSoftware"] = sampler
+
+    run_info_data = process_run_info_yml(
+        path_to_run_info=f"{directory}/RunInfo.yml",
+    )
+
+    for key in ["Deprecated", "ReviewStatus"]:
+        # If these aren't set do nothing
+        if key in run_info_data.keys():
+            result_update[key] = run_info_data[key]
+
+    result_update["Notes"] = list(
+        set(run_info_data.get("Notes", [])) - set(existing_result.get("Notes", []))
+    )
+
+    return (
+        result_update,
+        run_info_data.get("Analysts", list()),
+        run_info_data.get("Reviewers", list()),
+    )
 
 
 def process_run_info_yml(
     path_to_run_info: str,
-    metadata: "MetaData",
-    update_dict: dict,
-    uid: str,
-    results_dict: dict,
-    result: dict,
-):
+) -> Dict[str, Union[list, str, bool]]:
+    """Extracts information from a RunInfo.yml file
 
+    Parameters
+    ==========
+    path_to_run_info : str
+        The path to the RunInfo.yml file
+
+    Returns
+    =======
+    dict
+        A dictionary containing processed contents of the RunInfo, including:
+        - Reviewers
+        - Analysts
+        - Notes
+        - Deprecated
+        - ReviewStatus
+    """
     if os.path.exists(path_to_run_info):
         with open(path_to_run_info, "r") as file:
             try:
                 run_info_data = yaml.safe_load(file)
             except Exception:
                 logger.warning(f"Yaml file {path_to_run_info} corrupted")
-                run_info_data = {}
+                return dict()
+    else:
+        return dict()
 
-        # Append the analysts and reviewers to the global PE data
-        for key in ["Analysts", "Reviewers"]:
-            if key in run_info_data:
-                existing_entries = set(metadata.data["ParameterEstimation"][key])
-                entries_string = run_info_data.pop(key)
-                if entries_string is not None:
-                    entries = entries_string.split(",")
-                    entries = set([ent.lstrip(" ") for ent in entries])
-                    new_entries = list(entries - existing_entries)
-                    update_dict["ParameterEstimation"][key] = new_entries
+    # Process information for Analysts, Reviewers, and Notes
+    # Each of these may be screwed up in some way by the writer of the RunInfo
+    for key in ["Analysts", "Reviewers", "Notes"]:
+        if key in run_info_data:
+            yaml_content = run_info_data.pop(key)
+            yaml_elements = process_ambiguous_yaml_list(yaml_content=yaml_content)
+            run_info_data[key] = yaml_elements
 
-        # Treat notes as a set
-        if uid in results_dict and "Notes" in run_info_data:
-            existing_entries = set(results_dict[uid]["Notes"])
-            entries = set(run_info_data["Notes"])
-            new_entries = list(entries - existing_entries)
-            run_info_data["Notes"] = new_entries
+    return run_info_data
 
-        # Update the result with the info data
-        result.update(run_info_data)
+
+def process_ambiguous_yaml_list(yaml_content: Union[str, list]) -> list:
+    """Process heterogeneous yaml contents smoothly
+
+    Parameters
+    ==========
+    yaml_content : Union[str, list]
+        The content of the yaml, which should be either a string or a list
+        If its neither it will be ignored
+
+    Returns
+    =======
+    list
+        The list of elements in the yaml
+    """
+    if isinstance(yaml_content, str):
+        yaml_elements = set([x.lstrip(" ").strip("-") for x in yaml_content.split(",")])
+    elif isinstance(yaml_content, list):
+        yaml_elements = set([x.lstrip() for x in yaml_content])
+    else:
+        yaml_elements = list()
+    return yaml_elements
