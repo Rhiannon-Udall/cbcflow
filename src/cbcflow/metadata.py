@@ -401,8 +401,14 @@ class MetaData(object):
         for event in events:
             if event["State"] == "preferred":
                 GPSTime = event["GPSTime"]
-                m1, m2 = event["Mass1"], event["Mass2"]
-                chirp_mass = round((m1 * m2) ** (3 / 5) / (m1 + m2) ** (1 / 5), 2)
+                try:
+                    m1, m2 = event["Mass1"], event["Mass2"]
+                    chirp_mass = round((m1 * m2) ** (3 / 5) / (m1 + m2) ** (1 / 5), 2)
+                except KeyError:
+                    logger.warning("Could not find Mass1 and Mass2 for this event")
+                    logger.warning(
+                        "This may be because it's a CWB event, or it may be because something went wrong"
+                    )
 
         # Print the message
         logger.info(
