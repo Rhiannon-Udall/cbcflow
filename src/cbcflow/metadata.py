@@ -9,6 +9,7 @@ import sys
 from typing import TYPE_CHECKING, Union
 
 import jsondiff
+import jsonschema
 
 from .process import process_update_json
 from .utils import get_date_last_modified
@@ -191,6 +192,25 @@ class MetaData(object):
             The date and time last modified in iso standard (yyyy-MM-dd hh:mm:ss)
         """
         return get_date_last_modified(self.library_file)
+
+    def validate(self) -> bool:
+        """Check whether this metadata is valid under the schema
+
+        Returns
+        =======
+        bool
+            Whether the metadata is valid
+
+        """
+        try:
+            self.library.validate(self.data)
+            return True
+        except jsonschema.ValidationError as e:
+            logger.info("Validation failed with message:" f"{e}")
+            return False
+        except jsonschema.SchemaError as e:
+            logger.info("Schema failed with message" f"{e}")
+            return False
 
     ############################################################################
     ############################################################################
@@ -381,8 +401,14 @@ class MetaData(object):
         for event in events:
             if event["State"] == "preferred":
                 GPSTime = event["GPSTime"]
-                m1, m2 = event["Mass1"], event["Mass2"]
-                chirp_mass = round((m1 * m2) ** (3 / 5) / (m1 + m2) ** (1 / 5), 2)
+                try:
+                    m1, m2 = event["Mass1"], event["Mass2"]
+                    chirp_mass = round((m1 * m2) ** (3 / 5) / (m1 + m2) ** (1 / 5), 2)
+                except KeyError:
+                    logger.warning("Could not find Mass1 and Mass2 for this event")
+                    logger.warning(
+                        "This may be because it's a CWB event, or it may be because something went wrong"
+                    )
 
         # Print the message
         logger.info(

@@ -73,6 +73,7 @@ class Collector:
                             analysis_output["WaveformApproximant"] = str(
                                 analysis.meta["waveform"]["approximant"]
                             )
+
                     try:
                         ini = analysis.pipeline.production.event.repository.find_prods(
                             analysis.pipeline.production.name,
@@ -82,12 +83,16 @@ class Collector:
                         analysis_output["ConfigFile"]["Path"] = ini
                     except IndexError:
                         logger.warning("Could not find ini file for this analysis")
+
+                    analysis_output["Notes"] = []
+
                     if analysis.comment is not None:
                         # We only want to add the comment to the notes if it doesn't already exist
                         if corresponding_analysis is None:
-                            analysis_output["Notes"] = [analysis.comment]
+                            analysis_output["Notes"].append(analysis.comment)
                         elif analysis.comment not in corresponding_analysis["Notes"]:
-                            analysis_output["Notes"] = [analysis.comment]
+                            analysis_output["Notes"].append(analysis.comment)
+
                     if analysis.review.status:
                         if analysis.review.status.lower() == "approved":
                             analysis_output["ReviewStatus"] = "pass"
@@ -110,16 +115,20 @@ class Collector:
                                 analysis_output["Notes"].append(
                                     f"{messages[0].timestamp:%Y-%m-%d}: {messages[0].message}"
                                 )
+
                     if analysis.finished:
                         # Get the results
                         results = analysis.pipeline.collect_assets()
+
                         if str(analysis.pipeline).lower() == "bayeswave":
                             # If the pipeline is Bayeswave, we slot each psd into its designated spot
                             analysis_output["BayeswaveResults"] = {}
+
                             for ifo, psd in results["psds"].items():
-                                analysis_output["BayeswaveResults"][f"{ifo}PSD"][
-                                    "Path"
-                                ] = psd
+                                analysis_output["BayeswaveResults"][f"{ifo}PSD"] = {
+                                    "Path": psd
+                                }
+
                             if analysis_output["BayeswaveResults"] == {}:
                                 # Cleanup if we fail to write any results
                                 analysis_output.pop("BayeswaveResults")

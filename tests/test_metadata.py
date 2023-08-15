@@ -793,6 +793,88 @@ class TestMetaData(unittest.TestCase):
 
         assert altered_metadata.data == self.check_metadata_data
 
+    def test_validate_metadata_correct(self):
+        """A test of whether the function metadata.validate() yields true for valid configurations"""
+        # Same code as update_metadata_with_json_add above
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
+        metadata = MetaData(
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
+        )
+
+        metadata.update(self.update_json_1)
+        metadata.update(self.update_json_2)
+
+        assert metadata.validate()
+
+        removal_json = {
+            "Info": {
+                "Labels": ["A test label, showing that appending works"],
+            },
+            "ExtremeMatter": {
+                "Analyses": [{"UID": "TestF1", "Reviewers": ["Prospero"]}]
+            },
+            "TestingGR": {
+                "IMRCTAnalyses": [
+                    {
+                        "UID": "TestF1",
+                        "Analysts": ["Miranda"],
+                        "Results": [{"UID": "TestF1", "Notes": ["A note"]}],
+                    }
+                ]
+            },
+        }
+
+        metadata.update(removal_json, is_removal=True)
+
+        assert metadata.validate()
+
+    def test_validate_metadata_incorrect(self):
+        """A test of whether the function metadata.validate() yields False for invalid configurations"""
+        # Same code as update_metadata_with_json_add above
+        if not os.path.exists(self.test_library_directory):
+            os.makedirs(self.test_library_directory)
+
+        metadata = MetaData(
+            self.test_sname,
+            local_library_path=self.test_library_directory,
+            **self.default_metadata_kwargs,
+        )
+
+        metadata.update(self.update_json_1)
+        metadata.update(self.update_json_2)
+
+        assert metadata.validate()
+
+        # Now we mess this up in various ways
+
+        # First make a list a number
+        original_labels_value = copy.copy(metadata["Info"]["Labels"])
+        metadata["Info"]["Labels"] = 3
+
+        assert not metadata.validate()
+        # Reset to original form, to get a clean test of the next
+        metadata["Info"]["Labels"] = original_labels_value
+
+        # Intentionally violate a regex
+        metadata["GraceDB"]["Events"] = []
+        metadata["GraceDB"]["Events"].append({"UID": "Q11111"})
+
+        assert not metadata.validate()
+        metadata["GraceDB"]["Events"] = []
+
+        # This test *does not* pass because repeated copies of UID is not technically a schema violation
+
+        # # Now make there be two copies of a given UID
+        # original_result_id = copy.copy(metadata["ExtremeMatter"]["Analyses"][1]["UID"])
+        # metadata["ExtremeMatter"]["Analyses"][1]["UID"] = "TestF1"
+
+        # assert not metadata.validate()
+        # metadata["ExtremeMatter"]["Analyses"][1]["UID"] = original_result_id
+
 
 if __name__ == "__main__":
     unittest.main()
