@@ -76,6 +76,8 @@ class MetaData(object):
 
         logger.debug(f"Loading metadata object for superevent {self.sname}")
 
+        default_data = copy.deepcopy(default_data)
+
         if self.library_file_exists:
             logger.debug("Found existing library file: loading")
             self.load_from_library()
