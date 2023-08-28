@@ -3,8 +3,8 @@ import json
 import logging
 import unittest
 
-from cbcflow.process import process_merge_json
-from cbcflow.schema import get_schema
+from cbcflow.core.process import process_merge_json
+from cbcflow.core.schema import get_schema
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)

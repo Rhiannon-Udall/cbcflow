@@ -6,10 +6,10 @@ import shutil
 import subprocess
 import unittest
 
-from cbcflow.metadata import MetaData
-from cbcflow.parser import get_parser_and_default_data
-from cbcflow.schema import get_schema
-from cbcflow.utils import get_cluster, get_date_last_modified, get_md5sum
+from cbcflow.core.metadata import MetaData
+from cbcflow.core.parser import get_parser_and_default_data
+from cbcflow.core.schema import get_schema
+from cbcflow.core.utils import get_cluster, get_date_last_modified, get_md5sum
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
