@@ -59,7 +59,7 @@ class MetaData(object):
         if local_library is not None:
             self.library = local_library
         elif local_library_path is not None:
-            from cbcflow.database import LocalLibraryDatabase
+            from .database import LocalLibraryDatabase
 
             self.library = LocalLibraryDatabase(
                 local_library_path, schema=schema, default_data=default_data
