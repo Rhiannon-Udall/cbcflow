@@ -6,12 +6,12 @@ import gitlab
 import copy
 from typing import Union, Tuple, Dict
 
-from .utils import (
+from ..core.utils import (
     setup_logger,
     get_cluster,
     get_url_from_public_html_dir,
 )
-from .metadata import MetaData
+from ..core.metadata import MetaData
 
 logger = setup_logger()
 

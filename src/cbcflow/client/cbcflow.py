@@ -10,15 +10,15 @@ import json
 from typing import Tuple
 
 
-from .configuration import config_defaults
-from .gracedb import fetch_gracedb_information
-from .pe_scraper import add_pe_information
-from .metadata import MetaData
-from .database import LocalLibraryDatabase
-from .parser import get_parser_and_default_data, sname_string
-from .process import process_user_input
-from .schema import get_schema
-from .utils import setup_logger
+from ..core.configuration import config_defaults
+from ..inputs.gracedb import fetch_gracedb_information
+from ..inputs.pe_scraper import add_pe_information
+from ..core.metadata import MetaData
+from ..core.database import LocalLibraryDatabase
+from ..core.parser import get_parser_and_default_data, sname_string
+from ..core.process import process_user_input
+from ..core.schema import get_schema
+from ..core.utils import setup_logger
 
 
 def setup_args_metadata() -> Tuple[argparse.Namespace, "MetaData"]:
@@ -51,7 +51,7 @@ def setup_args_metadata() -> Tuple[argparse.Namespace, "MetaData"]:
 
 def pull() -> None:
     """Pull updates from GraceDB to the library"""
-    import jsonschema
+    from jsonschema.exceptions import ValidationError
 
     logger = setup_logger()
     args, metadata = setup_args_metadata()
@@ -67,7 +67,7 @@ def pull() -> None:
 
     try:
         metadata.write_to_library(branch_name=args.branch_name)
-    except jsonschema.exceptions.ValidationError:
+    except ValidationError:
         logger.info(
             "Recorded meta-data cannot be validated against current schema\n\
             Accordingly, the local library will not be updated"
@@ -216,6 +216,8 @@ def from_file() -> None:
 
 def validate_library() -> None:
     """Go through the library, validating that all metadata files satisfy the schema"""
+    from jsonschema.exceptions import ValidationError
+
     # Read in command line arguments
     schema = get_schema()
     _, default_data = get_parser_and_default_data(schema)
@@ -242,12 +244,6 @@ def validate_library() -> None:
             schema=schema,
             local_library=library,
         )
-
-
-class ValidationError(Exception):
-    """An error in schema validation"""
-
-    pass
 
 
 def cbcflow_git_merge() -> int:
