@@ -17,7 +17,7 @@ from .core.metadata import MetaData
 from .core.database import LocalLibraryDatabase
 from .client.monitor import generate_crondor, generate_crontab, run_monitor
 from .core.parser import get_parser_and_default_data
-from .schema import get_schema
+from .core.schema import get_schema
 from .core.wrapped import get_superevent
 
 __version__ = _version.__version__
