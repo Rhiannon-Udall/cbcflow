@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from cbcflow.schema import get_schema, get_schema_path
+from cbcflow.core.schema import get_schema, get_schema_path
 
 
 def test_get_schema_path():

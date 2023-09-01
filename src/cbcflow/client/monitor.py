@@ -6,9 +6,9 @@ from shutil import which
 from glue import pipeline
 from crontab import CronTab
 
-from .utils import setup_logger
-from .configuration import get_cbcflow_config
-from .database import LocalLibraryDatabase
+from ..core.utils import setup_logger
+from ..core.configuration import get_cbcflow_config
+from ..core.database import LocalLibraryDatabase
 
 logger = setup_logger()
 

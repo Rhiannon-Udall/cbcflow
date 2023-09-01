@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Union, Tuple
 
-from .utils import setup_logger
+from ..core.utils import setup_logger
 
 logger = setup_logger()
 
@@ -34,7 +34,7 @@ def fetch_gracedb_information(
     from ligo.gracedb.exceptions import HTTPError
 
     if service_url is None:
-        from .configuration import config_defaults
+        from ..core.configuration import config_defaults
 
         service_url = config_defaults["gracedb_service_url"]
         logger.info("Using configuration default GraceDB service_url")
