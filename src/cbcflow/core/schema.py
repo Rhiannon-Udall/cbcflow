@@ -31,7 +31,7 @@ def get_schema_path(version, schema_type_designator="cbc"):
     files = ddir.glob(f"{schema_type_designator}*schema")
     matches = []
     for file in files:
-        if version in str(file):
+        if version in str(file).rsplit("/", 1)[-1]:
             matches.append(file)
     if len(matches) == 1:
         return matches[0]
