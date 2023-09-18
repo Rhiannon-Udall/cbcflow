@@ -24,7 +24,7 @@ class Collector:
         Collect data from the asimov ledger and write it to a CBCFlow library.
         """
         hook_data = ledger.data["hooks"]["postmonitor"]["cbcflow"]
-        self.library = cbcflow.database.LocalLibraryDatabase(
+        self.library = cbcflow.core.database.LocalLibraryDatabase(
             hook_data["library location"]
         )
         self.library.git_pull_from_remote(automated=True)
@@ -47,7 +47,7 @@ class Collector:
 
             # Get the metadata that already exists for reference
             metadata_pe_results = metadata["ParameterEstimation"]["Results"]
-            metadata_pe_results_uids = cbcflow.utils.get_uids_from_object_array(
+            metadata_pe_results_uids = cbcflow.core.utils.get_uids_from_object_array(
                 metadata_pe_results
             )
             for analysis in event.productions:
@@ -214,7 +214,7 @@ class Collector:
                             # Currently, we do the bit of trying to guess the URL ourselves
                             # In the future there may be an asimov config value for this
                             pesummary_pages_url_dir = (
-                                cbcflow.utils.get_url_from_public_html_dir(
+                                cbcflow.core.utils.get_url_from_public_html_dir(
                                     pesummary_pages_dir
                                 )
                             )
