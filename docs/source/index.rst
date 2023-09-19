@@ -88,7 +88,6 @@ API
    :recursive:
 
     cbcflow.core
-    cbcflow.schema
     cbcflow.inputs
     cbcflow.outputs
     cbcflow.client
