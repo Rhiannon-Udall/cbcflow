@@ -87,4 +87,8 @@ API
    :template: custom-module-template.rst
    :recursive:
 
-    cbcflow
+    core
+    schema
+    inputs
+    outputs
+    client
