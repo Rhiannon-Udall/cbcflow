@@ -14,6 +14,7 @@ logger = setup_logger()
 
 
 def get_base_parser():
+    """Generate the standard monitor parser"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--config-file",
@@ -42,6 +43,7 @@ def get_base_parser():
 
 
 def generate_crontab() -> None:
+    """Setup a crontab to run the monitor on an interval"""
     parser = get_base_parser()
     parser.add_argument(
         "--user-name",

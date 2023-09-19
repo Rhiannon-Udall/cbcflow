@@ -16,8 +16,19 @@ from ..core.metadata import MetaData
 logger = setup_logger()
 
 
-def scrape_bayeswave_result(path):
-    """Read in results from standardised BayesWave output directory"""
+def scrape_bayeswave_result(path: str):
+    """Read in results from standardised BayesWave output directory
+
+    Parameters
+    ==========
+    path : str
+        The path to the run directory
+
+    Returns
+    =======
+    dict
+        The update dictionary associated with this analysis
+    """
     result = {}
 
     # Try to grab the config
@@ -43,7 +54,18 @@ def scrape_bayeswave_result(path):
 
 
 def scrape_bilby_result(path):
-    """Read in results from standardised bilby output directory"""
+    """Read in results from standardised bilby output directory
+
+    Parameters
+    ==========
+    path : str
+        The path to the run directory
+
+    Returns
+    =======
+    dict
+        The update dictionary associated with this analysis
+    """
     result = {}
 
     # Try to grab the config
@@ -102,7 +124,18 @@ def scrape_bilby_result(path):
 
 
 def scrape_pesummary_pages(pes_path):
-    """Read in results from standardised pesummary output directory"""
+    """Read in results from standardised pesummary output directory
+
+    Parameters
+    ==========
+    path : str
+        The path to the run directory
+
+    Returns
+    =======
+    dict
+        The update dictionary associated with this analysis
+    """
     result = {}
 
     samples_path = f"{pes_path}/posterior_samples.h5"
