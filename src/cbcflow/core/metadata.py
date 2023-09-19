@@ -59,7 +59,7 @@ class MetaData(object):
         if local_library is not None:
             self.library = local_library
         elif local_library_path is not None:
-            from cbcflow.database import LocalLibraryDatabase
+            from .database import LocalLibraryDatabase
 
             self.library = LocalLibraryDatabase(
                 local_library_path, schema=schema, default_data=default_data
@@ -75,6 +75,8 @@ class MetaData(object):
             _, default_data = get_parser_and_default_data(schema=schema)
 
         logger.debug(f"Loading metadata object for superevent {self.sname}")
+
+        default_data = copy.deepcopy(default_data)
 
         if self.library_file_exists:
             logger.debug("Found existing library file: loading")

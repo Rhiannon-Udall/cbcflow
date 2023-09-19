@@ -1,8 +1,8 @@
 import logging
 import unittest
 
-from cbcflow.database import LocalLibraryDatabase
-from cbcflow.metadata import MetaData
+from cbcflow.core.database import LocalLibraryDatabase
+from cbcflow.core.metadata import MetaData
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)

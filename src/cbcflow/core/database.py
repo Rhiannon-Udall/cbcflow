@@ -26,8 +26,8 @@ from .process import (
     process_merge_json,
 )
 from .schema import get_schema
-from .gracedb import fetch_gracedb_information
-from .pe_scraper import add_pe_information
+from ..inputs.gracedb import fetch_gracedb_information
+from ..inputs.pe_scraper import add_pe_information
 from .utils import get_dumpable_json_diff, setup_logger
 
 logger = setup_logger()
@@ -317,6 +317,7 @@ class GraceDbDatabase(LibraryParent):
 
         if hasattr(self, "superevents_to_propagate"):
             for superevent_id in tqdm.tqdm(self.superevents_to_propagate):
+                logger.info(f"Updating superevent {superevent_id}")
                 if superevent_id in self.library.metadata_dict.keys():
                     metadata = self.library.metadata_dict[superevent_id]
                 else:
@@ -326,6 +327,9 @@ class GraceDbDatabase(LibraryParent):
                         schema=self.library.metadata_schema,
                         default_data=self.library.metadata_default_data,
                     )
+                    assert (
+                        len(self.library.metadata_default_data["Info"]["Notes"]) == 0
+                    ), "Something has gone horribly wrong and modified the defaults"
                 try:
                     backup_data = copy.deepcopy(metadata.data)
 
