@@ -73,6 +73,11 @@ class Applicator:
                 event_time = event["GPSTime"]
         ligo["sname"] = sid
 
+        if "IllustrativeResult" in metadata.data["ParameterEstimation"]:
+            ligo["illustrative result"] = metadata.data["ParameterEstimation"][
+                "IllustrativeResult"
+            ]
+
         output = {
             "name": metadata.data["Sname"],
             "quality": quality,
