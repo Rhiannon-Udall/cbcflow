@@ -1,3 +1,4 @@
+"""Functionality for information which flows from cbcflow into Asimov"""
 import cbcflow
 
 from asimov.event import Event

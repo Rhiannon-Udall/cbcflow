@@ -1,4 +1,4 @@
-"""The core (and presently only) module for cbcflow"""
+"""The overarching cbcflow module"""
 from typing import Union
 
 from . import _version

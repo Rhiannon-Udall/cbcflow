@@ -1,3 +1,4 @@
+"""Functionality for information which flows from Asimov into cbcflow"""
 import cbcflow
 import os
 import glob

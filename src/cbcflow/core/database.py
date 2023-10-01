@@ -255,6 +255,7 @@ class GraceDbDatabase(LibraryParent):
 
     @property
     def pe_rota_token(self) -> Union[None, str]:
+        """The token used to access the pe rota gitlab api"""
         return self._pe_rota_token
 
     @pe_rota_token.setter
@@ -598,7 +599,8 @@ class LocalLibraryDatabase(object):
 
     @cached_property
     def downselected_metadata_keys(self) -> Dict[str, MetaData]:
-
+        """The keys of the downselected metadata
+        stored to allow updating metadata without recomputing inclusion"""
         from gwpy.time import to_gps
 
         self._downselected_metadata_has_been_computed = True
