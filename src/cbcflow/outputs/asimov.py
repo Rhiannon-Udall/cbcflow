@@ -23,13 +23,18 @@ class Applicator:
         ifos = detchar["RecommendedDetectors"]
         participating_detectors = detchar["ParticipatingDetectors"]
         quality = {}
-        max_f = quality["maximum frequency"] = {}
-        min_f = quality["minimum frequency"] = {}
+
+        if "RecommendedMaximumFrequency" in ifos[0].keys():
+            max_f = quality["maximum frequency"] = {}
+        if "RecommendedMinimumFrequency" in ifos[0].keys():
+            min_f = quality["minimum frequency"] = {}
 
         # Data settings
         data = {}
-        channels = data["channels"] = {}
-        frame_types = data["frame types"] = {}
+        if "RecommendedChannel" in ifos[0].keys():
+            channels = data["channels"] = {}
+        if "FrameType" in ifos[0].keys():
+            frame_types = data["frame types"] = {}
         # NOTE there are also detector specific quantities "RecommendedStart/EndTime"
         # but it is not clear how these should be reconciled with
 
@@ -67,6 +72,11 @@ class Applicator:
                 ligo["false alarm rate"] = event["FAR"]
                 event_time = event["GPSTime"]
         ligo["sname"] = sid
+
+        if "IllustrativeResult" in metadata.data["ParameterEstimation"]:
+            ligo["illustrative result"] = metadata.data["ParameterEstimation"][
+                "IllustrativeResult"
+            ]
 
         output = {
             "name": metadata.data["Sname"],
