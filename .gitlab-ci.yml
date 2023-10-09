@@ -3,6 +3,8 @@ include:
     file:
       - python.yml
 
+image: python:3.11
+
 stages:
   - initial
   - test
