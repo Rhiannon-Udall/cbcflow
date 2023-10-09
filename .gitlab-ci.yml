@@ -53,7 +53,7 @@ schema-html:
     - docs/source/schema_visualization/
 
 docs:
-  image: python:3.11-slim-bookworm
+  image: python:3.11-bookworm
   stage: docs
   extends:
     - .python:base
