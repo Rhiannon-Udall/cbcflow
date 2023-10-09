@@ -3,9 +3,6 @@ include:
     file:
       - python.yml
 
-default:
-  image: python:3.11.6-bookworm
-
 stages:
   - initial
   - test
@@ -30,6 +27,7 @@ integration-test:
     - jsonschema -i tests/files_for_testing/cbc-meta-data-example.json schema/cbc-meta-data-v2.schema
 
 unit-test:
+  image: python:3.11-slim-bookworm
   stage: test
   extends:
     - .python:pytest
