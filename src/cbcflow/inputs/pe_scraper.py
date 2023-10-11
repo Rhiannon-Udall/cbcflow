@@ -394,6 +394,12 @@ def process_run_info_yml(
             yaml_elements = process_ambiguous_yaml_list(yaml_content=yaml_content)
             run_info_data[key] = yaml_elements
 
+    for key in ["ReviewStatus"]:
+        # ReviewStatus is an enum, and hence expects specific values, which the PE expert may mess up
+        # This drops everything to lowercase, to fix one such failure mode
+        if key in run_info_data:
+            run_info_data[key] = run_info_data[key].lower()
+
     return run_info_data
 
 
