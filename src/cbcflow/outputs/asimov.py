@@ -11,7 +11,7 @@ class Applicator:
     def __init__(self, ledger):
         hook_data = ledger.data["hooks"]["applicator"]["cbcflow"]
         self.ledger = ledger
-        self.library = cbcflow.database.LocalLibraryDatabase(
+        self.library = cbcflow.core.database.LocalLibraryDatabase(
             hook_data["library location"]
         )
         self.library.git_pull_from_remote(automated=True)
