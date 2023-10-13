@@ -25,11 +25,10 @@ from .core.utils import setup_logger
 
 logger = setup_logger()
 logger.info(
-    "Also including old import paths as well, e.g. `cbcflow.database`\
+    "Also including old import paths as well, e.g. `cbcflow.database`\n\
     These will be deprecated at some point in the future."
 )
 
-from . import asimov  # Note - this message applies to all of the following imports!
 from .core import database
 from .core import wrapped as cbcflow
 from .core import configuration
