@@ -21,6 +21,14 @@ from .core.parser import get_parser_and_default_data
 from .core.schema import get_schema
 from .core.wrapped import get_superevent
 
+from .core.utils import setup_logger
+
+logger = setup_logger()
+logger.info(
+    "Also including old import paths as well, e.g. `cbcflow.database`\
+    These will be deprecated at some point in the future."
+)
+
 from . import asimov  # Note - this message applies to all of the following imports!
 from .core import database
 from .core import wrapped as cbcflow
