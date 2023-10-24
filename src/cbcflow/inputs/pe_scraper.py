@@ -68,6 +68,8 @@ def scrape_bilby_result(path):
     """
     result = {}
 
+    detstr = ""
+
     # Try to grab the config
     possible_configs = glob(f"{path}/*config_complete.ini")
     if len(possible_configs) == 1:
@@ -93,17 +95,29 @@ def scrape_bilby_result(path):
                 "Or no waveform approximant given\n"
                 "Is this a valid config file?"
             )
+        detector_lines = [x for x in config_lines if x.startswith("detectors")]
+        if len(detector_lines) == 1:
+            detstr = detector_lines[0].split("=")[1].strip()
+            # We only want the full network analysis when using the coherence test
+            # this can be formatted like "detectors=["H1", 'L1']"
+            for bad in [" ", "[", "]", ",", "'", '"']:
+                detstr = detstr.replace(bad, "")
+        else:
+            logger.warning(
+                "Multiple or no entries found for detectors\n"
+                "Is this a valid config file?"
+            )
     elif len(possible_configs) > 1:
         logger.warning("Multiple config files found: unclear how to proceed")
     else:
         logger.info("No config file found!")
 
     # Try to grab existing result files
-    result_files = glob(f"{path}/final_result/*merge_result*hdf5")
+    result_files = glob(f"{path}/final_result/*{detstr}_merge_result*hdf5")
 
     # Try looking for a single merge file
     if len(result_files) == 0:
-        result_files = glob(f"{path}/result/*merge_result*hdf5")
+        result_files = glob(f"{path}/result/*{detstr}_merge_result*hdf5")
 
     # Deal with pbilby cases
     if len(result_files) == 0:
