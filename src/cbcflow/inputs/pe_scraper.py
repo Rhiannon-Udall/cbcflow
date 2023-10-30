@@ -102,6 +102,12 @@ def scrape_bilby_result(path):
             # this can be formatted like "detectors=["H1", 'L1']"
             for bad in [" ", "[", "]", ",", "'", '"']:
                 detstr = detstr.replace(bad, "")
+            logger.info(detstr)
+            # Alphabetize detstr
+            detstr = "".join(
+                sorted([detstr[2 * ii : 2 * ii + 2] for ii in range(len(detstr) // 2)])
+            )
+            logger.info(detstr)
         else:
             logger.warning(
                 "Multiple or no entries found for detectors\n"
@@ -413,6 +419,10 @@ def process_run_info_yml(
         # This drops everything to lowercase, to fix one such failure mode
         if key in run_info_data:
             run_info_data[key] = run_info_data[key].lower()
+            if run_info_data[key] in ["passed"]:
+                # Catch a specific case which has gone wrong in the past
+                # We'll add more to this list if people invent new ways to get things wrong
+                run_info_data[key] = "pass"
 
     return run_info_data
 
