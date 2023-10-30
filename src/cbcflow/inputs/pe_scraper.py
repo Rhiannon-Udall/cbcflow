@@ -102,12 +102,10 @@ def scrape_bilby_result(path):
             # this can be formatted like "detectors=["H1", 'L1']"
             for bad in [" ", "[", "]", ",", "'", '"']:
                 detstr = detstr.replace(bad, "")
-            logger.info(detstr)
             # Alphabetize detstr
             detstr = "".join(
                 sorted([detstr[2 * ii : 2 * ii + 2] for ii in range(len(detstr) // 2)])
             )
-            logger.info(detstr)
         else:
             logger.warning(
                 "Multiple or no entries found for detectors\n"
