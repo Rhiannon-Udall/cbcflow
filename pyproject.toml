@@ -24,7 +24,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dynamic = ["version"]
+dynamic = ["version", "entry-points", "scripts", "dependencies"]
 
 [tool.setuptools.dynamic]
 version = {attr = "cbcflow._version.__version__"}
