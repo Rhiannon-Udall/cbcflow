@@ -276,3 +276,35 @@ def get_uids_from_object_array(array: List[Dict], refId: str = "UID") -> list:
                 )
             )
     return list_of_uids
+
+
+def get_gps_time_from_input(input: str | datetime) -> float:
+    """Returns the gps time given some heterogeneous input
+
+    Parameters
+    ==========
+    input_str : str | `datetime.datetime`
+        The input in question
+
+    Returns
+    =======
+    float
+        The float representation of the corresponding gps time
+    """
+    from gwpy.time import to_gps
+
+    # TODO unittest me
+    if isinstance(input, datetime):
+        dt = input
+    elif isinstance(str):
+        if "-" in input:
+            # We'll assume this means we're using gracedb standard: %Y-%m-%d
+            if ":" in input:
+                # We'll assume this further implies gracedb standard time specificier %H:%M:%S
+                dt = datetime.strptime(input, r"%Y-%m-%d %H:%M:%S")
+            else:
+                dt = datetime.strptime(input, r"%Y-%m-%d")
+        else:
+            # Last option is to assume it's just a string representation of gps time already
+            dt = input
+    return to_gps(dt)

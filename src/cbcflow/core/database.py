@@ -28,7 +28,7 @@ from .process import (
 from .schema import get_schema
 from ..inputs.gracedb import fetch_gracedb_information
 from ..inputs.pe_scraper import add_pe_information
-from .utils import get_dumpable_json_diff, setup_logger
+from .utils import get_dumpable_json_diff, setup_logger, get_gps_time_from_input
 
 logger = setup_logger()
 
@@ -405,13 +405,15 @@ class GraceDbDatabase(LibraryParent):
 
         if event_config["created-before"] == "now":
             now = datetime.datetime.utcnow()
-            now_str = now.strftime("%Y-%m-%d %H:%M:%S")
         else:
-            now_str = event_config["created-before"]
+            now = event_config["created-before"]
+        now_gps = get_gps_time_from_input(now)
 
-        logger.info(f"Syncing with GraceDB at time UTC:{now_str}")
+        start_gps = get_gps_time_from_input(event_config["created-since"])
+
+        logger.info(f"Syncing with GraceDB at {now}")
         # make query and defaults, query
-        query = f"created: {event_config['created-since']} .. {now_str} \
+        query = f"gpstime: {start_gps} .. {now_gps} \
         FAR <= {event_config['far-threshold']}"
         logger.info(f"Constructed query {query} from library config")
         try:
