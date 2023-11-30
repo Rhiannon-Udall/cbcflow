@@ -296,7 +296,7 @@ def get_gps_time_from_input(input: str | datetime) -> float:
     # TODO unittest me
     if isinstance(input, datetime):
         dt = input
-    elif isinstance(str):
+    elif isinstance(input, str):
         if "-" in input:
             # We'll assume this means we're using gracedb standard: %Y-%m-%d
             if ":" in input:
