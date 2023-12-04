@@ -28,7 +28,7 @@ from .process import (
 from .schema import get_schema
 from ..inputs.gracedb import fetch_gracedb_information
 from ..inputs.pe_scraper import add_pe_information
-from .utils import get_dumpable_json_diff, setup_logger, get_gps_time_from_input
+from .utils import get_dumpable_json_diff, setup_logger
 
 logger = setup_logger()
 
@@ -395,6 +395,7 @@ class GraceDbDatabase(LibraryParent):
             The branch_name to write commits to, per `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`
         """
         from ligo.gracedb.exceptions import HTTPError
+        from gwpy.time import to_gps
 
         # setup defaults
         # monitor_config = local_library.library_config["Monitor"]
@@ -407,9 +408,9 @@ class GraceDbDatabase(LibraryParent):
             now = datetime.datetime.utcnow()
         else:
             now = event_config["created-before"]
-        now_gps = get_gps_time_from_input(now)
+        now_gps = to_gps(now)
 
-        start_gps = get_gps_time_from_input(event_config["created-since"])
+        start_gps = to_gps(event_config["created-since"])
 
         logger.info(f"Syncing with GraceDB at {now}")
         # make query and defaults, query
