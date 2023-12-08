@@ -404,13 +404,13 @@ class GraceDbDatabase(LibraryParent):
         # annying hack due to gracedb query bug
         import datetime
 
-        if event_config["created-before"] == "now":
+        if event_config["latest-library-datetime"] == "now":
             now = datetime.datetime.utcnow()
         else:
             now = event_config["created-before"]
         now_gps = to_gps(now)
 
-        start_gps = to_gps(event_config["created-since"])
+        start_gps = to_gps(event_config["earliest-library-datetime"])
 
         logger.info(f"Syncing with GraceDB at {now}")
         # make query and defaults, query
@@ -679,9 +679,8 @@ class LocalLibraryDatabase(object):
         library_defaults["Library Info"] = {"library-name": "CBC-Library"}
         library_defaults["Events"] = {
             "far-threshold": 1.2675e-7,
-            "pastro-threshold": 0.5,
-            "created-since": "2022-01-01",
-            "created-before": "now",
+            "earliest-library-datetime": "2022-01-01",
+            "latest-library-datetime": "now",
             "snames-to-include": [],
             "snames-to-exclude": [],
         }
@@ -696,6 +695,19 @@ class LocalLibraryDatabase(object):
                 if section_key not in library_defaults.keys():
                     library_defaults[section_key] = dict()
                 section = config[section_key]
+                if (
+                    "created-since" in section.keys()
+                    and "earliest-library-datetime" not in section.keys()
+                ):
+                    # NOTE: this will be deprecated in time, but for now allow backwards compatibility with
+                    # older library configuration files
+                    section["earliest-library-datetime"] = section["created-since"]
+                if (
+                    "created-before" in section.keys()
+                    and "latest-library-datetime" not in section.keys()
+                ):
+                    # As above
+                    section["latest-library-datetime"] = section["created-before"]
                 for key in section.keys():
                     library_defaults[section_key][key] = section[key]
         return library_defaults
