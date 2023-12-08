@@ -404,17 +404,15 @@ class GraceDbDatabase(LibraryParent):
         # annying hack due to gracedb query bug
         import datetime
 
-        if event_config["latest-library-datetime"] == "now":
-            now = datetime.datetime.utcnow()
-        else:
-            now = event_config["created-before"]
-        now_gps = to_gps(now)
-
         start_gps = to_gps(event_config["earliest-library-datetime"])
+        # to_gps understands 'now'
+        end_gps = to_gps(event_config["latest-library-datetime"])
+
+        now = datetime.datetime.utcnow()
 
         logger.info(f"Syncing with GraceDB at {now}")
         # make query and defaults, query
-        query = f"gpstime: {start_gps} .. {now_gps} \
+        query = f"gpstime: {start_gps} .. {end_gps} \
         FAR <= {event_config['far-threshold']}"
         logger.info(f"Constructed query {query} from library config")
         try:
@@ -612,11 +610,11 @@ class LocalLibraryDatabase(object):
         if self.metadata_dict.keys() != self.superevents_in_library:
             self.load_library_metadata_dict()
         for sname, metadata in self.metadata_dict.items():
-            library_created_earliest = to_gps(
-                self.library_config["Events"]["created-since"]
+            earliest_library_datetime = to_gps(
+                self.library_config["Events"]["earliest-library-datetime"]
             )
-            library_created_latest = to_gps(
-                self.library_config["Events"]["created-before"]
+            latest_library_datetime = to_gps(
+                self.library_config["Events"]["latest-library-datetime"]
             )
             preferred_far = 1
             preferred_time = 0
@@ -635,8 +633,8 @@ class LocalLibraryDatabase(object):
             elif sname in self.library_config["Events"]["snames-to-exclude"]:
                 pass
             elif (
-                preferred_time < library_created_earliest
-                or preferred_time > library_created_latest
+                preferred_time < earliest_library_datetime
+                or preferred_time > latest_library_datetime
             ):
                 continue
             # Right now we *only* check date, FAR threshold, and specific inclusion
