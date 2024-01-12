@@ -217,7 +217,7 @@ def add_filelinks_gevent_metadata(links_data: dict, pipeline: str) -> dict:
     return cbcflow_gevent_dict
 
 
-def get_superevent_gevents(
+def get_superevent_online_gevents(
     superevent_data: dict,
 ) -> Dict[str, dict]:
     """Gets the gevents associated with a superevent.
@@ -232,9 +232,6 @@ def get_superevent_gevents(
     dict
         A dictionary of gevent data, with gid as the key.
     """
-    # NOTE: This will be one of the big changes once the catalog API is integrated!
-    # Also NOTE: this is one of the few semantic changes: making the g-event the key instead of pipeline
-    # This requires shifting things around, but is conceptually much clearer (it's an actual unique ID)
     gevents_dict = superevent_data.get("pipeline_preferred_events", dict())
     gevents_dict = {v["graceid"]: v for v in gevents_dict.values()}
     preferred_event = superevent_data["preferred_event_data"]
@@ -242,6 +239,44 @@ def get_superevent_gevents(
         # Sometimes pipeline_preferred_events is not set correctly
         # This defaults to the data
         gevents_dict[preferred_event["graceid"]] = preferred_event
+
+    return gevents_dict
+
+
+def get_superevent_gwtc_gevents(
+    sname: str,
+    gdb: "gwtc.gwtc_gracedb.GWTCGraceDB",
+    catalog_number: str = "4",
+    catalog_version: Union[str, int] = "latest",
+) -> Dict[str, dict]:
+    """Gets the gevents associated with a superevent.
+
+    Parameters
+    ==========
+    sname : str
+        The superevent identifier to specify
+    gdb : "gwtc.gwtc_gracedb.GWTCGraceDB"
+        An instance of the rest API, with gwtc functionality
+    catalog_number : str
+        The catalog number - defaults to 4 for the time being
+    catalog_version : Union[str, int]
+        The
+
+    Returns
+    =======
+    dict
+        A dictionary of gevent data, with gid as the key.
+    """
+    gevents_dict = dict()
+
+    # Read event gids with gwtc_get
+    gwtc_superevents = gdb.gwtc_get(
+        number=catalog_number, version=catalog_version
+    ).json()["gwtc_superevents"]
+    gevent_ids = [x for x in gwtc_superevents[sname].values()]
+
+    for gevent_id in gevent_ids:
+        gevents_dict[gevent_id] = gdb.event(gevent_id).json()
 
     return gevents_dict
 
@@ -327,6 +362,9 @@ def fetch_gracedb_information(
     sname: str,
     service_url: Union[str, None] = None,
     cred: Union[Tuple[str, str], str, None] = None,
+    catalog_mode: bool = False,
+    catalog_number: Optional[int] = 4,
+    catalog_version: Optional[Union[int, str]] = "latest",
 ) -> dict:
     """Get the standard GraceDB metadata contents for this superevent
 
@@ -340,13 +378,19 @@ def fetch_gracedb_information(
     cred : Union[Tuple[str, str], str, None]
         Per https://ligo-gracedb.readthedocs.io/en/latest/api.html#ligo.gracedb.rest.GraceDb, information on credentials
         to use in authentication.
+    catalog_mode : bool = False
+        Whether to get events from the catalog gracedb interface, or the online interface
+    catalog_number : Optional[int] = 4
+        The number of the catalog - defaults to 4 for GWTC-4
+    catalog_version : Optional[str | int]
+        The version of the catalog to use - if 'latest' will use latest
 
     Returns
     =======
     dict
         An update dictionary to apply to the metadata, containing the GraceDB info.
     """
-    from ligo.gracedb.rest import GraceDb
+    from gwtc.gwtc_gracedb import GWTCGraceDB
     from ligo.gracedb.exceptions import HTTPError
 
     full_update_dict = dict(
@@ -359,10 +403,12 @@ def fetch_gracedb_information(
         service_url = config_defaults["gracedb_service_url"]
         logger.info("Using configuration default GraceDB service_url")
 
-    with GraceDb(service_url=service_url, cred=cred) as gdb:
+    with GWTCGraceDB(service_url=service_url, cred=cred) as gdb:
         try:
             # Get the json of metadata for the superevent
             superevent_data = gdb.superevent(sname).json()
+
+            # TODO we only need preferred event from this, otherwise offload all querying to get_superevent_gevents
         except HTTPError:
             msg = f"Superevent {sname} not found on {service_url}.\n"
             msg += "Either it does not exist, or you may need to run ligo-proxy-init.\n"
@@ -370,7 +416,16 @@ def fetch_gracedb_information(
             logger.ERROR(msg)
             return full_update_dict
 
-        gevents_data = get_superevent_gevents(superevent_data)
+        if not catalog_mode:
+            gevents_data = get_superevent_online_gevents(superevent_data)
+        else:
+            gevents_data = get_superevent_gwtc_gevents(
+                sname=sname,
+                gdb=gdb,
+                catalog_number=catalog_number,
+                catalog_version=catalog_version,
+            )
+
         file_data = get_superevent_file_data(gdb, gevents_data=gevents_data)
 
     preferred_event = superevent_data["preferred_event"]
