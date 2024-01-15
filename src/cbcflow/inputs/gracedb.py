@@ -121,14 +121,17 @@ def add_cwbtrigger_gevent_metadata(trigger_file_contents: str) -> dict:
         This should satisfy structural requirements of `$defs-Events` in the schema
     """
     cbcflow_gevent_dict = dict()
-    # Parse lines by string hacking
-    # 'ifo:' and 'sSNR:' are unique hopefully?
+    # CWB contents are in a text file rather than a json dict
+    # We'll parse by making assumptions about those files:
+    # 1. There exists one and only one line which looks like e.g. ifo:\tH1 L1\n
+    # 2. There exists one and only one line which looks like e.g. sSNR:\txx.xxxxx yy.yyyyy
+    # So we'll do string parsing to pull out those elements
     trigger_file_lines = str(trigger_file_contents).split("\\n")
     ifo_line = [line for line in trigger_file_lines if "ifo:" in line][0]
     sSNR_line = [line for line in trigger_file_lines if "sSNR:" in line][0]
-    # More string hacking to get ifos
+    # Split get the functional part of the ifos line, then split on spaces
     ifos = ifo_line.split(" ")[1].strip().split()
-    # More string hacking to get sSNRs
+    #  Get the functional part of the snrs line, then split on spaces and convert to floats
     snrs = [float(x) for x in sSNR_line.split(":")[1].strip().split()]
     # Loop to assign SNRs by IFO
     for ii, ifo in enumerate(ifos):
@@ -163,9 +166,9 @@ def add_singleinspiral_gevent_metadata(gevent_data: dict) -> dict:
         else:
             # The SingleInspirals should be the same template
             # If they aren't, that's pretty bad! so we put in
-            # impossible placeholders
-            # TODO is this really necessary though?
-            # Discuss with reviewers
+            # impossible placeholders. After discussion with reviewers,
+            # we'll leave this in as a safeguard against confusion, but
+            # these checks should be handled internally to gracedb already
             if (
                 (cbcflow_gevent_dict["Mass1"] != inspiral["mass1"])
                 or (cbcflow_gevent_dict["Mass2"] != inspiral["mass2"])
@@ -429,7 +432,6 @@ def fetch_gracedb_information(
             # but I am including it for now to replicate the behavior of the previous function
             # We can easily remove it and get valid (more complete) data
             # Though this only applies when the preferred event is a cwb trigger
-            # Which currently only occurs for retracted event S230808i
             full_update_dict["Cosmology"][
                 "PreferredLowLatencySkymap"
             ] = cbcflow_gevent_dict["Skymap"]
