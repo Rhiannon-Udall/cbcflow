@@ -395,6 +395,7 @@ class GraceDbDatabase(LibraryParent):
             The branch_name to write commits to, per `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`
         """
         from ligo.gracedb.exceptions import HTTPError
+        from gwpy.time import to_gps
 
         # setup defaults
         # monitor_config = local_library.library_config["Monitor"]
@@ -403,15 +404,15 @@ class GraceDbDatabase(LibraryParent):
         # annying hack due to gracedb query bug
         import datetime
 
-        if event_config["created-before"] == "now":
-            now = datetime.datetime.utcnow()
-            now_str = now.strftime("%Y-%m-%d %H:%M:%S")
-        else:
-            now_str = event_config["created-before"]
+        start_gps = to_gps(event_config["earliest-library-datetime"])
+        # to_gps understands 'now'
+        end_gps = to_gps(event_config["latest-library-datetime"])
 
-        logger.info(f"Syncing with GraceDB at time UTC:{now_str}")
+        now = datetime.datetime.utcnow()
+
+        logger.info(f"Syncing with GraceDB at {now}")
         # make query and defaults, query
-        query = f"created: {event_config['created-since']} .. {now_str} \
+        query = f"gpstime: {start_gps} .. {end_gps} \
         FAR <= {event_config['far-threshold']}"
         logger.info(f"Constructed query {query} from library config")
         try:
@@ -609,11 +610,11 @@ class LocalLibraryDatabase(object):
         if self.metadata_dict.keys() != self.superevents_in_library:
             self.load_library_metadata_dict()
         for sname, metadata in self.metadata_dict.items():
-            library_created_earliest = to_gps(
-                self.library_config["Events"]["created-since"]
+            earliest_library_datetime = to_gps(
+                self.library_config["Events"]["earliest-library-datetime"]
             )
-            library_created_latest = to_gps(
-                self.library_config["Events"]["created-before"]
+            latest_library_datetime = to_gps(
+                self.library_config["Events"]["latest-library-datetime"]
             )
             preferred_far = 1
             preferred_time = 0
@@ -632,8 +633,8 @@ class LocalLibraryDatabase(object):
             elif sname in self.library_config["Events"]["snames-to-exclude"]:
                 pass
             elif (
-                preferred_time < library_created_earliest
-                or preferred_time > library_created_latest
+                preferred_time < earliest_library_datetime
+                or preferred_time > latest_library_datetime
             ):
                 continue
             # Right now we *only* check date, FAR threshold, and specific inclusion
@@ -676,9 +677,8 @@ class LocalLibraryDatabase(object):
         library_defaults["Library Info"] = {"library-name": "CBC-Library"}
         library_defaults["Events"] = {
             "far-threshold": 1.2675e-7,
-            "pastro-threshold": 0.5,
-            "created-since": "2022-01-01",
-            "created-before": "now",
+            "earliest-library-datetime": "2022-01-01",
+            "latest-library-datetime": "now",
             "snames-to-include": [],
             "snames-to-exclude": [],
         }
@@ -693,6 +693,19 @@ class LocalLibraryDatabase(object):
                 if section_key not in library_defaults.keys():
                     library_defaults[section_key] = dict()
                 section = config[section_key]
+                if (
+                    "created-since" in section.keys()
+                    and "earliest-library-datetime" not in section.keys()
+                ):
+                    # NOTE: this will be deprecated in time, but for now allow backwards compatibility with
+                    # older library configuration files
+                    section["earliest-library-datetime"] = section["created-since"]
+                if (
+                    "created-before" in section.keys()
+                    and "latest-library-datetime" not in section.keys()
+                ):
+                    # As above
+                    section["latest-library-datetime"] = section["created-before"]
                 for key in section.keys():
                     library_defaults[section_key][key] = section[key]
         return library_defaults
