@@ -486,23 +486,25 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         )
 
     def query_superevents(self, query: Optional[str] = None) -> list:
+        """Query for superevents in the catalog
+
+        Parameters
+        ==========
+        query : Optional[str]
+            This parameter is included for API compatibililty, but is ignored for Catalog operations
+        """
         from gwtc.gwtc_gracedb import GWTCGraceDB
 
-        if query is None:
-            query = self.library_query
-
-        queried_superevents = []
+        catalog_superevents = []
         with GWTCGraceDB(service_url=self.source_path, cred=self.cred) as gdb:
-            superevent_iterator = gdb.superevents(query)
-            catalog_superevents = gdb.gwtc_get(
+            catalog_superevents_map = gdb.gwtc_get(
                 number=self.catalog_number, version=self.catalog_version
             ).json()["gwtc_superevents"]
-            for superevent in superevent_iterator:
-                if superevent["superevent_id"] in catalog_superevents.keys():
-                    queried_superevents.append(superevent["superevent_id"])
-            # TODO downselect to catalog only events
-            # also could find a way to pass on g-events so query isn't repeated?
-        return queried_superevents
+            [
+                superevent["superevent_id"]
+                for superevent in catalog_superevents_map.keys()
+            ]
+        return catalog_superevents
 
 
 class LocalLibraryDatabase(object):
