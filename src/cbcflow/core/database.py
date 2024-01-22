@@ -500,10 +500,7 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
             catalog_superevents_map = gdb.gwtc_get(
                 number=self.catalog_number, version=self.catalog_version
             ).json()["gwtc_superevents"]
-            [
-                superevent["superevent_id"]
-                for superevent in catalog_superevents_map.keys()
-            ]
+            catalog_superevents = [x for x in catalog_superevents_map.keys()]
         return catalog_superevents
 
 
