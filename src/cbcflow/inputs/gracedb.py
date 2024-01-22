@@ -462,6 +462,8 @@ def fetch_gracedb_information(
             add_pastro_gevent_metadata(file_data[gid]["pastro_data"])
         )
 
+        logger.info(cbcflow_gevent_dict)
+
         # Pipeline dependent changes
         if pipeline == "cwb":
             cbcflow_gevent_dict.update(
