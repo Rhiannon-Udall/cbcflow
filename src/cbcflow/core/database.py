@@ -361,6 +361,15 @@ class GraceDbDatabase(LibraryParent):
                 ), "Something has gone horribly wrong and modified the defaults"
             updated_metadata = copy.deepcopy(metadata)
 
+            # TODO for review!
+            # I'm adding this in the parent function (i.e. what happens online)
+            # to reduce code repetition, but we only *want* it in the GWTC version
+            # That being said, the contents of GraceDB-Events is derived strictly from the
+            # current state of GraceDB, so there won't be any functional change in online
+            # operation from doing this (deleting all event entries and starting over)
+            # So, discuss
+            updated_metadata["GraceDB"]["Events"] = []
+
             # Pull information from GraceDB
             gdb_data = self.pull(superevent_id)
             for note in metadata["Info"]["Notes"]:
