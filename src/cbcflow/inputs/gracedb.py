@@ -160,6 +160,8 @@ def add_singleinspiral_gevent_metadata(gevent_data: dict) -> dict:
         This should satisfy structural requirements of `$defs-Events` in the schema
     """
     cbcflow_gevent_dict = dict()
+    if "SingleInspiral" not in gevent_data["extra_attributes"]:
+        return cbcflow_gevent_dict
     for ii, inspiral in enumerate(gevent_data["extra_attributes"]["SingleInspiral"]):
         ifo = inspiral["ifo"]
         snr_key = f"{ifo}SNR"
@@ -284,7 +286,7 @@ def get_superevent_gwtc_gevents(
     gwtc_superevents = gdb.gwtc_get(
         number=catalog_number, version=catalog_version
     ).json()["gwtc_superevents"]
-    gevent_ids = [x for x in gwtc_superevents[sname].values()]
+    gevent_ids = [x for x in gwtc_superevents[sname]["pipelines"].values()]
 
     for gevent_id in gevent_ids:
         gevents_dict[gevent_id] = gdb.event(gevent_id).json()
@@ -470,8 +472,6 @@ def fetch_gracedb_information(
         cbcflow_gevent_dict.update(
             add_pastro_gevent_metadata(file_data[gid]["pastro_data"])
         )
-
-        logger.info(cbcflow_gevent_dict)
 
         # Pipeline dependent changes
         if pipeline == "cwb":

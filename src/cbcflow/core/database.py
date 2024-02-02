@@ -504,12 +504,21 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         """
         from gwtc.gwtc_gracedb import GWTCGraceDB
 
+        # standard query structure: "gpstime: {start_gps} .. {end_gps} \
+        # FAR <= {self.event_config['far-threshold']}"
+        # so split() then take 2 indexes further
+        far_threshold = float(query.split()[query.split().index("FAR") + 2])
+
         catalog_superevents = []
         with GWTCGraceDB(service_url=self.source_path, cred=self.cred) as gdb:
             catalog_superevents_map = gdb.gwtc_get(
                 number=self.catalog_number, version=self.catalog_version
             ).json()["gwtc_superevents"]
-            catalog_superevents = [x for x in catalog_superevents_map.keys()]
+            catalog_superevents = [
+                k
+                for k, v in catalog_superevents_map.items()
+                if v["far"] <= far_threshold
+            ]
         return catalog_superevents
 
 
