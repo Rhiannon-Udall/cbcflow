@@ -69,7 +69,12 @@
           "items": {
             "$ref": "#/$defs/Events"
           }
-        }
+        },
+        "ADVOK":{
+          "description": "Whether this event has had the ADVOK label applied",
+          "type": "boolean"
+      }
+      
       }
     },
     "ExtremeMatter": {
@@ -587,7 +592,23 @@
         "Skymap": {
           "description": "GraceDB link to the bayestar.multiorder.fits file",
           "type": "string"
-        } 
+        },
+        "EarlyWarning": {
+          "description": "Whether this event was an early warning trigger",
+          "type": "boolean",
+          "default": false
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+        },
+        "SearchType" : {
+          "type" : "string",
+          "enum" : ["low latency", "offline"],
+          "description": "Whether this g-event was produced by a low latency pipeline, or by an offline pipeline (as indicated by the offline gracedb tag)"
+      }
+      
       }
     },
     "DetcharDetector":{
