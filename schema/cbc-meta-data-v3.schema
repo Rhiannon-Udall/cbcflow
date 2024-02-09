@@ -607,8 +607,15 @@
           "type" : "string",
           "enum" : ["low latency", "offline"],
           "description": "Whether this g-event was produced by a low latency pipeline, or by an offline pipeline (as indicated by the offline gracedb tag)"
-      }
-      
+        },
+        "CatalogNumber" : {
+          "type": "string",
+          "description": "The number of the catalog for which this event was queried, e.g. 4 for GWTC-4"
+        },      
+        "CatalogVersion": {
+          "type": "string",
+          "description": "The version of the catalog associated with this event by the query (i.e. from what version of the catalog did cbcflow read this event)"
+        }      
       }
     },
     "DetcharDetector":{
