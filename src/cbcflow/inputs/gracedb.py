@@ -426,7 +426,7 @@ def fetch_gracedb_information(
             msg = f"Superevent {sname} not found on {service_url}.\n"
             msg += "Either it does not exist, or you may need to run ligo-proxy-init.\n"
             msg += "No updates will be made to this superevent accordingly."
-            logger.ERROR(msg)
+            logger.error(msg)
             return full_update_dict
 
         if not catalog_mode:
