@@ -473,6 +473,8 @@ def fetch_gracedb_information(
             add_pastro_gevent_metadata(file_data[gid]["pastro_data"])
         )
 
+        logger.info(cbcflow_gevent_dict)
+
         # Pipeline dependent changes
         if pipeline == "cwb":
             cbcflow_gevent_dict.update(
@@ -500,9 +502,10 @@ def fetch_gracedb_information(
             # but I am including it for now to replicate the behavior of the previous function
             # We can easily remove it and get valid (more complete) data
             # Though this only applies when the preferred event is a cwb trigger
-            full_update_dict["Cosmology"][
-                "PreferredLowLatencySkymap"
-            ] = cbcflow_gevent_dict["Skymap"]
+            if "Skymap" in cbcflow_gevent_dict.keys():
+                full_update_dict["Cosmology"][
+                    "PreferredLowLatencySkymap"
+                ] = cbcflow_gevent_dict["Skymap"]
 
         full_update_dict["GraceDB"]["Events"].append(cbcflow_gevent_dict)
 
