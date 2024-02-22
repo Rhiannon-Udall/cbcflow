@@ -8,7 +8,7 @@ import ast
 from functools import cached_property
 import sys
 from pprint import pformat
-from typing import Union, Dict, Type, TypeVar, Tuple, Optional
+from typing import Union, Dict, Type, TypeVar, Tuple, Optional, List
 from datetime import datetime
 
 import dateutil.parser as dp
@@ -492,7 +492,19 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
             catalog_mode=True,
             catalog_number=self.catalog_number,
             catalog_version=self.catalog_version,
+            gevent_ids=[
+                x for x in self.catalog_superevents[sname]["pipelines"].values()
+            ],
         )
+
+    @property
+    def catalog_superevents(self) -> Dict[str, List[str]]:
+        """A map of superevents to catalog gevents for superevents which are in the catalog"""
+        return self._catalog_superevents
+
+    @catalog_superevents.setter
+    def catalog_superevents(self, catalog_superevents: Dict[str, List[str]]) -> None:
+        self._catalog_superevents = catalog_superevents
 
     def query_superevents(self, query: Optional[str] = None) -> list:
         """Query for superevents in the catalog
@@ -509,17 +521,18 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         # so split() then take 2 indexes further
         far_threshold = float(query.split()[query.split().index("FAR") + 2])
 
-        catalog_superevents = []
         with GWTCGraceDB(service_url=self.source_path, cred=self.cred) as gdb:
             catalog_superevents_map = gdb.gwtc_get(
                 number=self.catalog_number, version=self.catalog_version
             ).json()["gwtc_superevents"]
-            catalog_superevents = [
-                k
+            catalog_superevents = {
+                k: v
                 for k, v in catalog_superevents_map.items()
                 if v["far"] <= far_threshold
-            ]
-        return catalog_superevents
+            }
+
+        self.catalog_superevents = catalog_superevents
+        return [k for k in catalog_superevents.keys()]
 
 
 class LocalLibraryDatabase(object):

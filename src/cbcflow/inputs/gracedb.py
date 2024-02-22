@@ -1,6 +1,6 @@
 """Methods for interacting with gracedb"""
 from datetime import datetime
-from typing import Union, Tuple, Optional, Dict, TYPE_CHECKING
+from typing import Union, Tuple, Optional, Dict, TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from ligo.gracedb.rest import GraceDb
@@ -257,23 +257,16 @@ def get_superevent_online_gevents(
 
 
 def get_superevent_gwtc_gevents(
-    sname: str,
-    gdb: "gwtc.gwtc_gracedb.GWTCGraceDB",
-    catalog_number: str = "4",
-    catalog_version: Union[str, int] = "latest",
+    gdb: "gwtc.gwtc_gracedb.GWTCGraceDB", gevent_ids: List[str]
 ) -> Dict[str, dict]:
     """Gets the gevents associated with a superevent.
 
     Parameters
     ==========
-    sname : str
-        The superevent identifier to specify
     gdb : "gwtc.gwtc_gracedb.GWTCGraceDB"
         An instance of the rest API, with gwtc functionality
-    catalog_number : str
-        The catalog number - defaults to 4 for the time being
-    catalog_version : Union[str, int]
-        The
+    gevent_ids : List[str]
+        The list of g-event ids to query
 
     Returns
     =======
@@ -281,12 +274,6 @@ def get_superevent_gwtc_gevents(
         A dictionary of gevent data, with gid as the key.
     """
     gevents_dict = dict()
-
-    # Read event gids with gwtc_get
-    gwtc_superevents = gdb.gwtc_get(
-        number=catalog_number, version=catalog_version
-    ).json()["gwtc_superevents"]
-    gevent_ids = [x for x in gwtc_superevents[sname]["pipelines"].values()]
 
     for gevent_id in gevent_ids:
         gevents_dict[gevent_id] = gdb.event(gevent_id).json()
@@ -378,6 +365,7 @@ def fetch_gracedb_information(
     catalog_mode: bool = False,
     catalog_number: Optional[int] = 4,
     catalog_version: Optional[Union[int, str]] = "latest",
+    gevent_ids: List[str] = None,
 ) -> dict:
     """Get the standard GraceDB metadata contents for this superevent
 
@@ -397,6 +385,8 @@ def fetch_gracedb_information(
         The number of the catalog - defaults to 4 for GWTC-4
     catalog_version : Optional[str | int]
         The version of the catalog to use - if 'latest' will use latest
+    gevent_ids : List[str]
+        A list of the event ids which are relevant for a given superevent, when in catalog operation
 
     Returns
     =======
@@ -432,12 +422,7 @@ def fetch_gracedb_information(
         if not catalog_mode:
             gevents_data = get_superevent_online_gevents(superevent_data)
         else:
-            gevents_data = get_superevent_gwtc_gevents(
-                sname=sname,
-                gdb=gdb,
-                catalog_number=catalog_number,
-                catalog_version=catalog_version,
-            )
+            gevents_data = get_superevent_gwtc_gevents(gdb=gdb, gevent_ids=gevent_ids)
 
         file_data = get_superevent_file_data(gdb, gevents_data=gevents_data)
 
@@ -455,7 +440,10 @@ def fetch_gracedb_information(
         # Do some checks to make sure we're only looking at events with valid information
         if pipeline not in ["spiir", "mbta", "gstlal", "pycbc", "cwb"]:
             continue
-        elif pipeline == "cwb" and gevent_data["search"].lower() != "bbh":
+        elif pipeline == "cwb" and gevent_data["search"].lower() not in [
+            "allsky",
+            "bbh",
+        ]:
             continue
 
         # Add common information for superevent and event
@@ -472,8 +460,6 @@ def fetch_gracedb_information(
         cbcflow_gevent_dict.update(
             add_pastro_gevent_metadata(file_data[gid]["pastro_data"])
         )
-
-        logger.info(cbcflow_gevent_dict)
 
         # Pipeline dependent changes
         if pipeline == "cwb":

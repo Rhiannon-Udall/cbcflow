@@ -102,3 +102,5 @@ class TestGraceDB(unittest.TestCase):
             embright_data=embright_data, pipeline_embright=True
         )
         assert update_dict == {}
+
+    # def test_cwb_trigger_gevent_metadata(self):
