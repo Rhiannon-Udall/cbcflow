@@ -516,6 +516,9 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         """
         from gwtc.gwtc_gracedb import GWTCGraceDB
 
+        if query is None:
+            query = self.library_query
+
         # standard query structure: "gpstime: {start_gps} .. {end_gps} \
         # FAR <= {self.event_config['far-threshold']}"
         # so split() then take 2 indexes further
