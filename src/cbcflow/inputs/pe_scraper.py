@@ -160,7 +160,7 @@ def scrape_pesummary_pages(pes_path):
     if os.path.exists(samples_path):
         result["PESummaryResultFile"] = {}
         result["PESummaryResultFile"]["Path"] = samples_path
-    pes_home = f"{pes_path}/summary/home.html"
+    pes_home = f"{pes_path}/home.html"
     if os.path.exists(pes_home):
         result["PESummaryPageURL"] = get_url_from_public_html_dir(pes_home)
     return result
