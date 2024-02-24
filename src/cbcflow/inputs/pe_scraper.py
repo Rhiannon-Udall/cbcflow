@@ -156,11 +156,11 @@ def scrape_pesummary_pages(pes_path):
     """
     result = {}
 
-    samples_path = f"{pes_path}/posterior_samples.h5"
+    samples_path = f"{pes_path}/samples/posterior_samples.h5"
     if os.path.exists(samples_path):
         result["PESummaryResultFile"] = {}
         result["PESummaryResultFile"]["Path"] = samples_path
-    pes_home = f"{pes_path}/home.html"
+    pes_home = f"{pes_path}/summary/home.html"
     if os.path.exists(pes_home):
         result["PESummaryPageURL"] = get_url_from_public_html_dir(pes_home)
     return result
@@ -341,7 +341,9 @@ def generate_result_update(
     else:
         directories = [s.split("/")[-1] for s in content]
         if "summary" in directories:
-            result_update.update(scrape_pesummary_pages(directory + "/summary"))
+            result_update.update(
+                scrape_pesummary_pages(os.path.join(directory, "summary"))
+            )
         if "bilby" in directories:
             sampler = "bilby"
             result_update.update(scrape_bilby_result(directory + f"/{sampler}"))
