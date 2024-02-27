@@ -234,11 +234,16 @@ def get_parser_and_default_data(schema: dict):
         help="The library in which the metadata file in question is stored, defaults to cwd",
         type=str,
     )
-    parser.add_argument("--schema-version", help="The schema version to use")
+    parser.add_argument(
+        "--schema-version",
+        help="The schema version to use, if None (default) the latest version is used",
+        type=str,
+        default=None,
+    )
     parser.add_argument(
         "--schema-file",
         help="Explicit path to the schema-file. If None (default) the inbuilt schema is used",
-        default=schema,
+        default=None,
     )
     parser.add_argument(
         "--no-git-library",
