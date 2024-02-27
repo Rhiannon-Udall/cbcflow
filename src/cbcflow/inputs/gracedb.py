@@ -401,10 +401,7 @@ def fetch_gracedb_information(
     )
 
     if service_url is None:
-        from ..core.configuration import config_defaults
-
-        service_url = config_defaults["gracedb_service_url"]
-        logger.info("Using configuration default GraceDB service_url")
+        logger.info("Using default (production) GraceDB service_url")
 
     with GWTCGraceDB(service_url=service_url, cred=cred) as gdb:
         try:

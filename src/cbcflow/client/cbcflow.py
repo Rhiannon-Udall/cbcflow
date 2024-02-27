@@ -7,10 +7,9 @@ import argparse
 import copy
 import glob
 import json
+import os
 from typing import Tuple
 
-
-from ..core.configuration import config_defaults
 from ..inputs.gracedb import fetch_gracedb_information
 from ..inputs.pe_scraper import add_pe_information
 from ..core.metadata import MetaData
@@ -107,7 +106,10 @@ def print_metadata() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("sname", help="The superevent SNAME", type=sname_string)
     parser.add_argument(
-        "--library", default=config_defaults["library"], help="The library"
+        "--library",
+        default=os.getcwd(),
+        help="The library in which the metadata file in question is stored, defaults to cwd",
+        type=str,
     )
     args = parser.parse_args()
 
@@ -139,19 +141,16 @@ def from_file() -> None:
         The type of file will be inferred from the ending .yaml or .json",
     )
     file_parser.add_argument(
+        "--library",
+        default=os.getcwd(),
+        help="The library in which the metadata file in question is stored, defaults to cwd",
+        type=str,
+    )
+    file_parser.add_argument(
         "--removal-file",
         action="store_true",
         help="If passed, this will be treated as a negative image,\
             so array elements will be removed instead of added",
-    )
-    file_parser.add_argument(
-        "--library", default=config_defaults["library"], help="The library"
-    )
-    file_parser.add_argument("--schema-version", help="The schema version to use")
-    file_parser.add_argument(
-        "--schema-file",
-        help="Explicit path to the schema-file. If None (default) the inbuilt schema is used",
-        default=config_defaults["schema"],
     )
     file_parser.add_argument(
         "--no-git-library",
@@ -264,9 +263,9 @@ def cbcflow_git_merge() -> int:
     )
     parser.add_argument(
         "--library",
+        default=os.getcwd(),
+        help="The library in which the metadata file in question is stored, defaults to cwd",
         type=str,
-        default=config_defaults["library"],
-        help="The library to operate in",
     )
     args = parser.parse_args()
 
