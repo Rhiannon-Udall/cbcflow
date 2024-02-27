@@ -402,6 +402,7 @@ def fetch_gracedb_information(
 
     if service_url is None:
         logger.info("Using default (production) GraceDB service_url")
+        service_url = "https://gracedb.ligo.org/api/"
 
     with GWTCGraceDB(service_url=service_url, cred=cred) as gdb:
         try:
