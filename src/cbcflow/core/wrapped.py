@@ -3,7 +3,6 @@ from typing import Union
 
 from .schema import get_schema
 from .parser import get_parser_and_default_data
-from .configuration import get_cbcflow_config
 from .metadata import MetaData
 from .database import LocalLibraryDatabase
 import os
