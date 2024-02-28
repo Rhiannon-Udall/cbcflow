@@ -393,7 +393,7 @@
         }
         }
     },
-  "DetectorCharacterization": {
+    "DetectorCharacterization": {
     "description": "The detchar meta-data",
     "additionalProperties": false,
     "type": "object",
@@ -448,7 +448,24 @@
         "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
       }
     }
-  }
+    },
+    "CatalogTracking":{
+      "description": "Metadata for tracking the progression of the catalog",
+      "additionalProperties": false,
+      "type": "object",
+      "properties":{
+        "ParameterEstimationStatuses":{
+          "description": "Statuses for relevant catalog parameter estimation results (i.e. for different waveforms)",
+          "type": "array",
+          "items": {"$ref": "#/$defs/CatalogParameterEstimationStatus"}
+        },
+        "SearchResultStatuses":{
+          "description": "Statuses for relevant catalog search results (i.e. per pipeline status)",
+          "type": "array",
+          "items": {"$ref": "#/$defs/CatalogSearchResultStatus"}
+        }
+      }
+    }
 },
   "$defs": {
     "LinkedFile": {
@@ -809,6 +826,58 @@
           "type": "object",
           "description": "The output PSD for the GEO detector.",
           "$ref": "#/$defs/LinkedFile"
+        }
+      }
+    },
+    "CatalogParameterEstimationStatus":{
+      "description": "The catalog status of a given parameter estimation analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["UID"],
+      "properties":{
+        "UID": {
+          "type": "string",
+          "description": "The relevant designator of the analysis (generally waveform approximant name)"
+        },
+        "Reviewed":{
+          "type": "boolean",
+          "description": "Whether the analysis in question has passed review"
+        },
+        "Finalized":{
+          "type": "boolean",
+          "description": "Whether the analysis in question is the final analysis of this type which will be performed"
+        },
+        "IsDesignatedIllustrativeResult":{
+          "type": "boolean",
+          "description": "Whether the analysis in question is the designated IllustrativeResult in the ParameterEstimation section"
+        },
+        "CorrespondingPEUID":{
+          "type":"string",
+          "description": "The UID of the PE Result object which is associated with this status (if one is available)"
+        }
+      }
+    },
+    "CatalogSearchResultStatus":{
+      "description": "The catalog status of a given search result",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["UID"],
+      "properties":{
+        "UID": {
+          "type": "string",
+          "description": "The relevant designator of the analysis (generally pipeline name)"
+        },
+        "Reviewed":{
+          "type": "boolean",
+          "description": "Whether the analysis in question has passed review"
+        },
+        "Finalized":{
+          "type": "boolean",
+          "description": "Whether the analysis in question is the final analysis of this type which will be performed"
+        },
+        "Chunk":{
+          "type": "number",
+          "description": "The chunk to which the event is associated, for purposes of the pipeline in question. Need not be filled out if pipeline in question does not use chunks"
         }
       }
     },
