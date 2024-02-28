@@ -20,15 +20,15 @@ def test_get_schema():
 
 def test_get_schema_bootstrap_file():
     assert isinstance(
-        get_schema(["--schema-file", "schema/cbc-meta-data-v2.schema"]), dict
+        get_schema_from_args(["--schema-file", "schema/cbc-meta-data-v2.schema"]), dict
     )
 
 
 def test_get_schema_bootstrap_version():
-    assert isinstance(get_schema(["--schema-version", "v3"]), dict)
+    assert isinstance(get_schema_from_args(["--schema-version", "v2"]), dict)
 
 
 def test_get_schema_compare():
     assert get_schema_from_args(
         ["--schema-file", "schema/cbc-meta-data-v2.schema"]
-    ) == get_schema("v2")
+    ) == get_schema(version="v2")

@@ -111,6 +111,7 @@ def get_schema_from_args(
         schema_file = None
         version = args[args.index(versionflag) + 1]
     else:
+        schema_file = None
         version = None
     schema = get_schema(
         schema_path=schema_file, version=version, index_schema=index_schema
