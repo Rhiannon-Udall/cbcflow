@@ -7,7 +7,6 @@ from glue import pipeline
 from crontab import CronTab
 
 from ..core.utils import setup_logger
-from ..core.configuration import get_cbcflow_config
 from ..core.database import LocalLibraryDatabase
 
 logger = setup_logger()
@@ -127,9 +126,9 @@ def run_monitor() -> None:
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "cbcflowconfig",
+        "library",
         type=str,
-        help="The .cbcflow.cfg file to use for library and service URL info",
+        help="The path to the library to operate on",
     )
     parser.add_argument(
         "--branch-name",
@@ -139,8 +138,7 @@ def run_monitor() -> None:
     )
     args = parser.parse_args()
 
-    config_values = get_cbcflow_config(args.cbcflowconfig)
-    local_library = LocalLibraryDatabase(library_path=config_values["library"])
+    local_library = LocalLibraryDatabase(library_path=args.library)
     logger.info("CBCFlow monitor is beginning sweep")
     logger.info("Attempting to pull from remote")
     # Pull before we potentially checkout a new branch
@@ -154,8 +152,7 @@ def run_monitor() -> None:
                     Before these changes can be propagated to the remote, this merge conflict\n\
                     must be resolved manually."
         )
-    logger.info(f"Config values are {config_values}")
-    local_library.initialize_parent(source_path=config_values["gracedb_service_url"])
+    local_library.initialize_parent()
     # Note that we explicitly sync to main instead of any other branch
     local_library.library_parent.sync_library(branch_name=args.branch_name)
     logger.info("Updating index file for library")
