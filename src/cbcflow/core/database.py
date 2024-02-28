@@ -1045,7 +1045,7 @@ class LocalLibraryDatabase(object):
     @property
     def library_index_schema(self) -> dict:
         """The schema being used for this library's index"""
-        return get_schema(index_schema=True, args=["--schema-version", "v1"])
+        return get_schema(index_schema=True, version="v1")
 
     @cached_property
     def index_from_file(self) -> dict:
