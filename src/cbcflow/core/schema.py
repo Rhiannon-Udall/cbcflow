@@ -106,6 +106,7 @@ def get_schema_from_args(
 
     if fileflag in args:
         schema_file = args[args.index(fileflag) + 1]
+        version = None
     elif versionflag in args:
         schema_file = None
         version = args[args.index(versionflag) + 1]
