@@ -419,14 +419,17 @@ def fetch_gracedb_information(
             logger.error(msg)
             return full_update_dict
 
+        preferred_event = superevent_data["preferred_event"]
+
         if not catalog_mode:
             gevents_data = get_superevent_online_gevents(superevent_data)
         else:
             gevents_data = get_superevent_gwtc_gevents(gdb=gdb, gevent_ids=gevent_ids)
 
-        file_data = get_superevent_file_data(gdb, gevents_data=gevents_data)
+        if catalog_mode and preferred_event not in gevents_data.keys():
+            gevents_data.append(gdb.event(preferred_event))
 
-    preferred_event = superevent_data["preferred_event"]
+        file_data = get_superevent_file_data(gdb, gevents_data=gevents_data)
 
     if "ADVNO" in superevent_data["labels"]:
         # If ADVNO is here that means this event is retracted
