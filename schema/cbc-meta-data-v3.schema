@@ -463,6 +463,11 @@
           "description": "Statuses for relevant catalog search results (i.e. per pipeline status)",
           "type": "array",
           "items": {"$ref": "#/$defs/CatalogSearchResultStatus"}
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Catchall array of strings"
         }
       }
     }
@@ -639,6 +644,10 @@
         "CatalogVersion": {
           "type": "string",
           "description": "The version of the catalog associated with this event by the query (i.e. from what version of the catalog did cbcflow read this event)"
+        },
+        "InCatalog":{
+          "description": "Whether this event is present in the current catalog GWTC table, or is included for other reasons",
+          "type": "boolean"
         }      
       }
     },
@@ -840,7 +849,7 @@
           "description": "The relevant designator of the analysis (generally waveform approximant name)"
         },
         "Reviewed":{
-          "type": "boolean",
+          "type": "string",
           "description": "Whether the analysis in question has passed review"
         },
         "Finalized":{
@@ -854,6 +863,11 @@
         "CorrespondingPEUID":{
           "type":"string",
           "description": "The UID of the PE Result object which is associated with this status (if one is available)"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Catchall array of strings"
         }
       }
     },
@@ -868,7 +882,7 @@
           "description": "The relevant designator of the analysis (generally pipeline name)"
         },
         "Reviewed":{
-          "type": "boolean",
+          "type": "string",
           "description": "Whether the analysis in question has passed review"
         },
         "Finalized":{
@@ -878,6 +892,11 @@
         "Chunk":{
           "type": "number",
           "description": "The chunk to which the event is associated, for purposes of the pipeline in question. Need not be filled out if pipeline in question does not use chunks"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Catchall array of strings"
         }
       }
     },
