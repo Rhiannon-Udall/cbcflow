@@ -645,8 +645,8 @@
           "type": "string",
           "description": "The version of the catalog associated with this event by the query (i.e. from what version of the catalog did cbcflow read this event)"
         },
-        "InCatalog":{
-          "description": "Whether this event is present in the current catalog GWTC table, or is included for other reasons",
+        "InOfflineCatalog":{
+          "description": "Whether this event appears in the offline analysis used for the current GWTC event table. An event may be tracked while this is false if it is used for other analysis inputs (i.e. Asimov trigger times from online preferred events).",
           "type": "boolean"
         }      
       }
