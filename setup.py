@@ -20,7 +20,8 @@ if __name__ == "__main__":
             "cbcflow": [
                 "schema/cbc-meta-data-v1.schema",
                 "schema/cbc-meta-data-v2.schema",
-                "schema/cbc-meta-data-v3.schema" "schema/index-v1.schema",
+                "schema/cbc-meta-data-v3.schema",
+                "schema/index-v1.schema",
             ]
         },
     )
