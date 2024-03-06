@@ -430,8 +430,7 @@ def fetch_gracedb_information(
         file_data = get_superevent_file_data(gdb, gevents_data=gevents_data)
 
     if "ADVNO" in superevent_data["labels"]:
-        # If ADVNO is here that means this event is retracted
-        full_update_dict["Info"]["Notes"].append("Retracted: ADVNO applied in GraceDB")
+        full_update_dict["GraceDB"]["ADVOK"] = False
 
     for gid, gevent_data in gevents_data.items():
         cbcflow_gevent_dict = dict()
