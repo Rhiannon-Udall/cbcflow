@@ -470,7 +470,7 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
     ) -> None:
         super().__init__(service_url, library, cred, pe_rota_token_path)
         self.catalog_number = library.library_config["Catalog"]["number"]
-        self.catalog_version = library.library_config["Catalog"]["version"]
+        self.catalog_query_version = library.library_config["Catalog"]["version"]
 
     def pull(self, sname: str) -> dict:
         """Pull information on the superevent with this sname from GraceDB
@@ -491,10 +491,12 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
             cred=self.cred,
             catalog_mode=True,
             catalog_number=self.catalog_number,
-            catalog_version=self.catalog_version,
+            catalog_version=self.catalog_table_version,
             gevent_ids=[
                 x for x in self.catalog_superevents[sname]["pipelines"].values()
             ],
+            catalog_superevent_far=self.catalog_superevents[sname]["far"],
+            catalog_superevent_pastro=self.catalog_superevents[sname]["pastro"],
         )
 
     @property
@@ -505,6 +507,24 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
     @catalog_superevents.setter
     def catalog_superevents(self, catalog_superevents: Dict[str, List[str]]) -> None:
         self._catalog_superevents = catalog_superevents
+
+    @property
+    def catalog_query_version(self) -> Union[str, int]:
+        """The version of the catalog table to query - either a number or "latest" """
+        return self._catalog_query_version
+
+    @catalog_query_version.setter
+    def catalog_query_version(self, catalog_query_version: Union[str, int]):
+        self._catalog_query_version = catalog_query_version
+
+    @property
+    def catalog_table_version(self) -> int:
+        """The version of the gwtc catalog table which was obtained from the query."""
+        return self._catalog_table_version
+
+    @catalog_table_version.setter
+    def catalog_table_version(self, catalog_table_version: int):
+        self._catalog_table_version = catalog_table_version
 
     def query_superevents(self, query: Optional[str] = None) -> list:
         """Query for superevents in the catalog
@@ -525,14 +545,16 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         far_threshold = float(query.split()[query.split().index("FAR") + 2])
 
         with GWTCGraceDB(service_url=self.source_path, cred=self.cred) as gdb:
-            catalog_superevents_map = gdb.gwtc_get(
-                number=self.catalog_number, version=self.catalog_version
-            ).json()["gwtc_superevents"]
+            gwtc_table = gdb.gwtc_get(
+                number=self.catalog_number, version=self.catalog_query_version
+            ).json()
+            catalog_superevents_map = gwtc_table["gwtc_superevents"]
             catalog_superevents = {
                 k: v
                 for k, v in catalog_superevents_map.items()
                 if v["far"] <= far_threshold
             }
+            self.catalog_table_version = gwtc_table["version"]
 
         self.catalog_superevents = catalog_superevents
         return [k for k in catalog_superevents.keys()]

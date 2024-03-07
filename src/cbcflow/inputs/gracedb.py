@@ -39,6 +39,12 @@ def add_common_gevent_metadata(
     cbcflow_gevent_dict["Pipeline"] = gevent_data["pipeline"]
     cbcflow_gevent_dict["GPSTime"] = gevent_data["gpstime"]
     cbcflow_gevent_dict["FAR"] = gevent_data["far"]
+    if gevent_data["offline"]:
+        cbcflow_gevent_dict["SearchType"] = "offline"
+    else:
+        cbcflow_gevent_dict["SearchType"] = "low latency"
+    if "EARLY_WARNING" in gevent_data["labels"]:
+        cbcflow_gevent_dict["EarlyWarning"] = True
     if preferred:
         cbcflow_gevent_dict["State"] = "preferred"
         cbcflow_sevent_dict["Instruments"] = gevent_data["instruments"]
@@ -230,6 +236,20 @@ def add_filelinks_gevent_metadata(links_data: dict, pipeline: str) -> dict:
     return cbcflow_gevent_dict
 
 
+def add_catalog_gevent_metadata(
+    catalog_number: int, catalog_version: int, in_offline_table: bool
+):
+    """Add catalog specific information to the gevent metadata"""
+    cbcflow_gevent_dict = dict()
+    if not in_offline_table:
+        cbcflow_gevent_dict["InOfflineCatalog"] = False
+        return cbcflow_gevent_dict
+    cbcflow_gevent_dict["CatalogNumber"] = catalog_number
+    cbcflow_gevent_dict["CatalogVersion"] = catalog_version
+    cbcflow_gevent_dict["InOfflineCatalog"] = True
+    return cbcflow_gevent_dict
+
+
 def get_superevent_online_gevents(
     superevent_data: dict,
 ) -> Dict[str, dict]:
@@ -364,8 +384,10 @@ def fetch_gracedb_information(
     cred: Union[Tuple[str, str], str, None] = None,
     catalog_mode: bool = False,
     catalog_number: Optional[int] = 4,
-    catalog_version: Optional[Union[int, str]] = "latest",
+    catalog_version: Optional[int] = None,
     gevent_ids: List[str] = None,
+    catalog_superevent_far: float = None,
+    catalog_superevent_pastro: float = None,
 ) -> dict:
     """Get the standard GraceDB metadata contents for this superevent
 
@@ -383,10 +405,16 @@ def fetch_gracedb_information(
         Whether to get events from the catalog gracedb interface, or the online interface
     catalog_number : Optional[int] = 4
         The number of the catalog - defaults to 4 for GWTC-4
-    catalog_version : Optional[str | int]
-        The version of the catalog to use - if 'latest' will use latest
+    catalog_version : Optional[int]
+        The version of the catalog table from which data was queried.
+        Note that even if it was queried as "latest" it should report the table version.
     gevent_ids : List[str]
         A list of the event ids which are relevant for a given superevent, when in catalog operation
+    catalog_superevent_far : float
+        The FAR associated with this superevent in the catalog table, if available
+    catalog_superevent_pastro : float
+        The probability of being of astrophysical origin associated with this superevent,
+        as recorded in the catalog table, if available
 
     Returns
     =======
@@ -432,6 +460,13 @@ def fetch_gracedb_information(
     if "ADVNO" in superevent_data["labels"]:
         full_update_dict["GraceDB"]["ADVOK"] = False
 
+    # Add high level superevent catalog info
+    if catalog_mode:
+        if catalog_superevent_far is not None:
+            full_update_dict["GraceDB"]["SupereventFAR"] = catalog_superevent_far
+        if catalog_superevent_pastro is not None:
+            full_update_dict["GraceDB"]["SupereventPastro"] = catalog_superevent_pastro
+
     for gid, gevent_data in gevents_data.items():
         cbcflow_gevent_dict = dict()
         pipeline = gevent_data["pipeline"].lower().strip()
@@ -461,7 +496,13 @@ def fetch_gracedb_information(
             add_pastro_gevent_metadata(file_data[gid]["pastro_data"])
         )
 
-        logger.info(cbcflow_gevent_dict)
+        # Catalog specific additions:
+        if catalog_mode:
+            cbcflow_gevent_dict.update(
+                add_catalog_gevent_metadata(
+                    catalog_number, catalog_version, (gid in gevent_ids)
+                )
+            )
 
         # Pipeline dependent changes
         if pipeline == "cwb":
