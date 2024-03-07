@@ -2000,7 +2000,6 @@
         }
       }
     },
-
     "RnPRun": {
       "description": "An RnP analysis",
       "type": "object",
@@ -3219,6 +3218,10 @@
           "type": "array",
           "items": {"$ref": "#/$defs/PEResult"}
         },
+        "DeviationParameter":{
+          "description": "The deviation parameter tested for",
+          "type": "string"
+        },
         "SafeLowerChirpMass":{
           "description": "A safe lower chirp mass to set in the prior, to prevent railing",
           "type": "number"
@@ -3227,116 +3230,20 @@
           "description": "A safe upper chirp mass to set in the prior, to prevent railing",
           "type": "number"
         },
-        "LowerDchiMinus2":{
-          "description": "The lower limit on prior of dchi_minus2 parameter",
+        "LowerDchi":{
+          "description": "The lower limit on prior of deviation parameter",
           "type": "number"
         },
-        "UpperDchiMinus2":{
-          "description": "The upper limit on prior of dchi_minus2 parameter",
+        "UpperDchi":{
+          "description": "The upper limit on prior of deviation parameter",
           "type": "number"
         },
-        "LowerDchi0":{
-          "description": "The lower limit on prior of dchi_0 parameter",
+        "TaperingCycles":{
+          "description": "The value of NumCycles parameter",
           "type": "number"
         },
-        "UpperDchi0":{
-          "description": "The upper limit on prior of dchi_0 parameter",
-          "type": "number"
-        },
-        "LowerDchi1":{
-          "description": "The lower limit on prior of dchi_1 parameter",
-          "type": "number"
-        },
-        "UpperDchi1":{
-          "description": "The upper limit on prior of dchi_1 parameter",
-          "type": "number"
-        },
-        "LowerDchi2":{
-          "description": "The lower limit on prior of dchi_2 parameter",
-          "type": "number"
-        },
-        "UpperDchi2":{
-          "description": "The upper limit on prior of dchi_2 parameter",
-          "type": "number"
-        },
-        "LowerDchi3":{
-          "description": "The lower limit on prior of dchi_3 parameter",
-          "type": "number"
-        },
-        "UpperDchi3":{
-          "description": "The upper limit on prior of dchi_3 parameter",
-          "type": "number"
-        },
-        "LowerDchi4":{
-          "description": "The lower limit on prior of dchi_4 parameter",
-          "type": "number"
-        },
-        "UpperDchi4":{
-          "description": "The upper limit on prior of dchi_4 parameter",
-          "type": "number"
-        },
-        "LowerDchi5l":{
-          "description": "The lower limit on prior of dchi_5l parameter",
-          "type": "number"
-        },
-        "UpperDchi5l":{
-          "description": "The upper limit on prior of dchi_5l parameter",
-          "type": "number"
-        },
-        "LowerDchi6":{
-          "description": "The lower limit on prior of dchi_6 parameter",
-          "type": "number"
-        },
-        "UpperDchi6":{
-          "description": "The upper limit on prior of dchi_6 parameter",
-          "type": "number"
-        },
-        "LowerDchi6l":{
-          "description": "The lower limit on prior of dchi_6l parameter",
-          "type": "number"
-        },
-        "UpperDchi6l":{
-          "description": "The upper limit on prior of dchi_6l parameter",
-          "type": "number"
-        },
-        "LowerDchi7":{
-          "description": "The lower limit on prior of dchi_7 parameter",
-          "type": "number"
-        },
-        "UpperDchi7":{
-          "description": "The upper limit on prior of dchi_7 parameter",
-          "type": "number"
-        },
-        "LowerKappaS":{
-          "description": "The lower limit on prior of kappa_s parameter",
-          "type": "number"
-        },
-        "UpperKappaS":{
-          "description": "The upper limit on prior of kappa_s parameter",
-          "type": "number"
-        },
-        "LowerKappaA":{
-          "description": "The lower limit on prior of kappa_a parameter",
-          "type": "number"
-        },
-        "UpperKappaA":{
-          "description": "The upper limit on prior of kappa_a parameter",
-          "type": "number"
-        },
-        "LowerTaperingCycles":{
-          "description": "The lower limit on prior of tapering_cycles parameter",
-          "type": "number"
-        },
-        "UpperTaperingCycles":{
-          "description": "The upper limit on prior of tapering_cycles parameter",
-          "type": "number"
-        },
-        "LowerFTapering":{
-          "description": "The lower limit on prior of f_tapering parameter",
-          "type": "number"
-        },
-        "UpperFTapering":{
-          "description": "The upper limit on prior of f_tapering parameter",
+        "FTapering":{
+          "description": "The value of f_window_div_f_peak parameter",
           "type": "number"
         },
         "Notes": {
@@ -3344,8 +3251,8 @@
           "items": {"type": "string"},
           "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
         } 
-        }       
-      },
+      }       
+    },
     "PSEOBRD": {
       "description": "Parameterized SEOB ringdown analysis",
       "type": "object",
