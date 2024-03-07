@@ -18,6 +18,8 @@ class TestGraceDB(unittest.TestCase):
             "gpstime": 111111111.1,
             "far": 1e-8,
             "instruments": "H1L1",
+            "offline": False,
+            "labels": ["EARLY_WARNING"],
         }
         gevent_dict, sevent_dict = gracedb.add_common_gevent_metadata(
             gevent_data=gevent_data, preferred=False
@@ -28,6 +30,8 @@ class TestGraceDB(unittest.TestCase):
             "GPSTime": 111111111.1,
             "FAR": 1e-8,
             "State": "neighbor",
+            "SearchType": "low latency",
+            "EarlyWarning": True,
         }
         assert sevent_dict == {}
 
@@ -38,6 +42,8 @@ class TestGraceDB(unittest.TestCase):
             "gpstime": 111111111.1,
             "far": 1e-8,
             "instruments": "H1L1",
+            "offline": True,
+            "labels": [],
         }
         gevent_dict, sevent_dict = gracedb.add_common_gevent_metadata(
             gevent_data=gevent_data, preferred=True
@@ -48,6 +54,8 @@ class TestGraceDB(unittest.TestCase):
             "GPSTime": 111111111.1,
             "FAR": 1e-8,
             "State": "preferred",
+            "SearchType": "offline",
+            "EarlyWarning": False,
         }
         assert sevent_dict == {"Instruments": "H1L1"}
 
