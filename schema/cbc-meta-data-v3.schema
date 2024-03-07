@@ -242,15 +242,49 @@
       }
     },
     "Lensing": {
-      "description": "The lensing meta-data",
+      "description": "Lensing Analysis meta-data",
       "additionalProperties": false,
       "type": "object",
-      "properties": {
-        "Analyses": {
-          "description": "A list of lensing analyses",
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/LensingAnalysis"
+      "properties":{
+      	"MultipletAnalyses": {
+          "description": "Joint Analyses with another event",
+          "additionalProperties": false,
+          "type": "object",
+          "patternProperties": {
+            "^(S|MS)([a-zA-Z0-9]+)$": {
+              "description": "Analyses with a Suprathreshold Counterpart",
+              "type": "object",
+              "$ref": "#/$defs/LensingMultipletSuperAnalysis"
+            },
+            "^LGW([a-zA-Z0-9])+$": {
+              "description": "Analyses with a Subthreshold Counterpart",
+              "type": "object",
+              "$ref": "#/$defs/LensingMultipletSuperAnalysis"
+            }
+          }
+        },
+        "SingletAnalyses": {
+          "description": "Analyses with this event only",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Gravelamps": {
+              "description": "Gravelamps Analyses meta-data",
+              "type": "object",
+              "$ref": "#/$defs/LensingGravelampsAnalysis"
+            },
+            "GolumTypeII": {
+              "description": "Golum Type II Analyses meta-data",
+              "type": "object",
+              "$ref": "#/$defs/LensingGolumTypeIIAnalysis"
+            }
+          },
+          "patternProperties": {
+            "^([a-zA-Z0-9 ]+)Analysis$": {
+              "description": "Additional Analyses meta-data",
+              "type": "object",
+              "$ref": "#/$defs/LensingAdditionalAnalysis"
+            }
           }
         }
       }
@@ -1018,67 +1052,955 @@
         }
       }
     },
-    "LensingAnalysis": {
-      "description": "A lensing analysis",
+    "LensingMultipletSuperAnalysis": {
+      "description": "Analysis with a Suprathreshold Counterpart",
       "type": "object",
       "additionalProperties": false,
-      "required": [ "UID" ],
       "properties": {
-        "UID": {
-          "description": "The unique identifier for this analysis",
-          "type": "string"
-        },
-        "Description": {
-          "description": "A short and concise description of the analysis",
-          "type": "string"
-        },
-        "Analysts": {
-          "description": "The name of analysts involved",
-          "type": "array",
-          "items": {
-            "type": "string"
+        "PosteriorOverlap": {
+          "description": "Posterior Overlap Analyses meta-data",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Analysts": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of analysts involved"
+            },
+            "Reviewers": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of reviewers involved"
+            },
+            "Status": {
+              "type": "string",
+              "enum": ["unstarted", "ongoing", "complete"],
+              "description": "Status of the Posterior Overlap Analysis",
+              "default": "unstarted"
+            },
+            "InterestStatus": {
+              "type": "boolean",
+              "description": "Event considered interesting by pipeline"
+            },
+            "Results": {
+              "type": "array",
+              "description": "Results from Posterior Overlap Analysis",
+              "items": {
+                "$ref": "#/$defs/PosteriorOverlapResults"
+              }
+            }
           }
+              },
+              "LensID": {
+          "description": "LensID Analyses meta-data",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Analysts": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of analysts involved"
+            },
+            "Reviewers": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of reviewers involved"
+            },
+            "Status": {
+              "type": "string",
+              "enum": ["unstarted", "ongoing", "complete"],
+              "description": "Status of the Posterior Overlap Analysis",
+              "default": "unstarted"
+            },
+            "InterestStatus": {
+              "type": "boolean",
+              "description": "Event considered interesting by pipeline"
+            },
+            "Results": {
+              "type": "array",
+              "description": "Results from Posterior Overlap Analysis",
+              "items": {
+                "$ref": "#/$defs/LensIDResults"
+              }
+            }
+          }
+        },
+        "Phazap": {
+          "description": "Phazap Analyses meta-data",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Analysts": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of analysts involved"
+            },
+            "Reviewers": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of reviewers involved"
+            },
+            "Status": {
+              "type": "string",
+              "enum": ["unstarted", "ongoing", "complete"],
+              "description": "Status of the Posterior Overlap Analysis",
+              "default": "unstarted"
+            },
+            "InterestStatus": {
+              "type": "boolean",
+              "description": "Event considered interesting by pipeline"
+            },
+            "Results": {
+              "type": "array",
+              "description": "Results from Posterior Overlap Analysis",
+              "items": {
+                "$ref": "#/$defs/PhazapResults"
+              }
+            }
+          }
+        },
+        "Hanabi": {
+          "description": "Hanabi Analyses meta-data",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Analysts": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of analysts involved"
+            },
+            "Reviewers": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of reviewers involved"
+            },
+            "Status": {
+              "type": "string",
+              "enum": ["unstarted", "ongoing", "complete"],
+              "description": "Status of the Posterior Overlap Analysis",
+              "default": "unstarted"
+            },
+            "InterestStatus": {
+              "type": "boolean",
+              "description": "Event considered interesting by pipeline"
+            },
+            "Results": {
+              "type": "array",
+              "description": "Results from Posterior Overlap Analysis",
+              "items": {
+                "$ref": "#/$defs/HanabiResults"
+              }
+            }
+          }
+        },
+        "GolumJPE" : {
+          "description": "GOLUM Joint Parameter Estimation Analyses meta-data",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Analysts": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of analysts involved"
+            },
+            "Reviewers": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of reviewers involved"
+            },
+            "Status": {
+              "type": "string",
+              "enum": ["unstarted", "ongoing", "complete"],
+              "description": "Status of the GOLUM JPE Analysis",
+              "default": "unstarted"
+            },
+            "InterestStatus": {
+              "type": "boolean",
+              "description": "Event considered interesting by pipeline"
+            },
+            "Results": {
+              "type": "array",
+              "description": "Results from GOLUM JPE Analysis",
+              "items": {
+                "$ref": "#/$defs/GolumJPEResults"
+              }
+            }
+          }
+        },
+        "GolumImageII" : {
+          "description": "GOLUM Image II Analyses meta-data",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Analysts": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of analysts involved"
+            },
+            "Reviewers": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of reviewers involved"
+            },
+            "Status": {
+              "type": "string",
+              "enum": ["unstarted", "ongoing", "complete"],
+              "description": "Status of the GOLUM Image II Analysis",
+              "default": "unstarted"
+            },
+            "InterestStatus": {
+              "type": "boolean",
+              "description": "Event considered interesting by pipeline"
+            },
+            "Results": {
+              "type": "array",
+              "description": "Results from GOLUM Image II Analysis",
+              "items": {
+                "$ref": "#/$defs/GolumImageIIResults"
+              }
+            }
+          }
+        },
+        "AtlensticsCompatibility" : {
+          "description": "Atlenstics Compatibility Computation metadata",
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "Analysts": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of analysts involved"
+            },
+            "Reviewers": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The name of reviewers involved"
+            },
+            "Status": {
+              "type": "string",
+              "enum": ["unstarted", "ongoing", "complete"],
+              "description": "Status of the GOLUM Image II Analysis",
+              "default": "unstarted"
+            },
+            "InterestStatus": {
+              "type": "boolean",
+              "description": "Event considered interesting by pipeline"
+            },
+            "Results": {
+              "type": "array",
+              "description": "Results from GOLUM Image II Analysis",
+              "items": {
+                "$ref": "#/$defs/AtlensticsCompatibilityResults"
+              }
+            }
+          }
+        }
+      },
+      "patternProperties": {
+        "^([a-zA-Z0-9 ]+)Analysis$": {
+          "description": "Additional Analyses meta-data",
+          "type": "object",
+          "$ref": "#/$defs/LensingAdditionalAnalysis"
+        }
+      }
+    },
+    "LensingGravelampsAnalysis": {
+      "description": "Gravelamps Analyses meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "Analysts": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The name of analysts involved"
         },
         "Reviewers": {
-          "description": "The name of reviewers involved",
           "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "items": {"type": "string"},
+          "description": "The name of reviewers involved"
         },
-        "AnalysisSoftware": {
-          "description": "The analysis software program",
-          "type": "string"
-        },
-        "AnalysisStatus": {
-          "description": "The status of the analysis",
+        "Status": {
           "type": "string",
-          "enum": ["unstarted", "ongoing", "hold", "complete", "cancelled"],
-          "default":"unstarted"
-        },
-        "ReviewStatus": {
-          "description": "The status of the result review",
-          "type": "string",
-          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "enum": ["unstarted", "ongoing", "complete"],
+          "description": "Status of the Gravelamps Analyses",
           "default": "unstarted"
         },
-        "ConfigFile": {
-          "description": "The path to the configuration file",
+        "InterestStatus": {
+          "type": "boolean",
+          "description": "Event considered interesting by pipeline"
+        },
+        "Results": {
+          "type": "array",
+          "description": "Results from Gravelamps Analysis",
+          "items": {
+            "$ref": "#/$defs/GravelampsResults"
+          }
+        }
+      }
+    },
+    "LensingGolumTypeIIAnalysis": {
+      "description": "GOLUM Type II Image Analyses meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "Analysts": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The name of analysts involved"
+        },
+        "Reviewers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The name of reviewers involved"
+        },
+        "Status": {
+          "type": "string",
+          "enum": ["unstarted", "ongoing", "complete"],
+          "description": "Status of the GOLUM Type II Image Analyses",
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "type": "boolean",
+          "description": "Event considered interesting by pipeline"
+        },
+        "Results": {
+          "type": "array",
+          "description": "Results from GOLUM Type II Image Analysis",
+          "items": {
+            "$ref": "#/$defs/GolumTypeIIResults"
+          }
+        }
+      }
+    },
+    "LensingAdditionalAnalysis": {
+      "description": "Additional Lensing Analyses meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "Analysts": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The name of analysts involved"
+        },
+        "Reviewers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The name of reviewers involved"
+        },
+        "Status": {
+          "type": "string",
+          "enum": ["unstarted", "ongoing", "complete"],
+          "description": "Status of the Analyses",
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "type": "boolean",
+          "description": "Event considered interesting by pipeline"
+        },
+        "Results": {
+          "type": "array",
+          "description": "Results from Analysis",
+          "items": {
+            "$ref": "#/$defs/AdditionalResults"
+          }
+        }
+      }
+    },
+    "PosteriorOverlapResults": {
+      "description": "Posterior Overlap Analysis Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
           "type": "object",
           "$ref": "#/$defs/LinkedFile"
         },
-        "ResultFile": {
-          "description": "The path to the file containing analysis result",
+        "ResultFile":{
+          "description": "The path to the raw result file",
           "type": "object",
           "$ref": "#/$defs/LinkedFile"
         },
         "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
           "type": "array",
-          "items": {"type": "string"},
-          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
         }
       }
     },
+  "LensIDResults": {
+      "description": "LensID Analysis Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
+    "PhazapResults": {
+      "description": "Phazap Analysis Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
+    "HanabiResults": {
+      "description": "Hanabi Analysis Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
+    "GolumImageIIResults" : {
+      "description": "GOLUM Image II Analysis Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
+    "GolumJPEResults" : {
+      "description": "Golum Joint Parameter Estimation Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+         },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
+    "AtlensticsCompatibilityResults": {
+      "description": "Atlenstics Compatibility Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Identifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+         },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
+    "GolumTypeIIResults" : {
+      "description": "GOLUM Type II Image Analysis Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
+    "GravelampsResults" : {
+      "description": "Gravelamps Analysis Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        },
+        "LensModel": {
+          "description": "Model of Lens for the analysis",
+          "type": "string"
+        }
+      }
+    },
+    "AdditionalResults": {
+      "description": "Additional Lensing Analysis Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
+
     "RnPRun": {
       "description": "An RnP analysis",
       "type": "object",

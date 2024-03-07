@@ -95,7 +95,18 @@ def process_property(
                     process_property(k, v, arg, parser, {}, schema)
         else:
             default_data[key] = {}
-            process_property(key, value, arg, parser, default_data[key], schema)
+            if "patternProperties" in value.keys():
+                for k, v in value["patternProperties"].items():
+                    process_property(k, v, arg, parser, {}, schema)
+                if "properties" in value.keys():
+                    for k, v in value["properties"].items():
+                        process_property(k, v, arg, parser, {}, schema)
+            else:
+                if "properties" in value.keys():
+                    for k, v in value["properties"].items():
+                        process_property(k, v, arg, parser, {}, schema)
+                else:
+                    process_property(key, value, arg, parser, default_data[key], schema)
 
     for k, v in group_shorthands.items():
         arg = arg.replace(k, v)
@@ -272,7 +283,7 @@ def sname_string(sname):
         The unique sname
 
     """
-    matches = re.findall("S[0-9]{6}[a-z]+", sname)
+    matches = re.findall("(MS[0-9]{6}[a-z]+|S[0-9]{6}[a-z]+)", sname)
     if len(matches) == 0:
         raise TypeError("Given sname invalid")
     elif len(matches) > 1:
