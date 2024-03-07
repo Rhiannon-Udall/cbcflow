@@ -848,9 +848,11 @@
           "type": "string",
           "description": "The relevant designator of the analysis (generally waveform approximant name)"
         },
-        "Reviewed":{
+        "ReviewStatus":{
           "type": "string",
-          "description": "Whether the analysis in question has passed review"
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "description": "The status of review for the analysis in question",
+          "default":"unstarted"
         },
         "Finalized":{
           "type": "boolean",
@@ -881,9 +883,11 @@
           "type": "string",
           "description": "The relevant designator of the analysis (generally pipeline name)"
         },
-        "Reviewed":{
+        "ReviewStatus":{
           "type": "string",
-          "description": "Whether the analysis in question has passed review"
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "description": "The status of review for the analysis in question",
+          "default":"unstarted"
         },
         "Finalized":{
           "type": "boolean",
