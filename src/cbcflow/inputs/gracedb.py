@@ -457,7 +457,7 @@ def fetch_gracedb_information(
 
         file_data = get_superevent_file_data(gdb, gevents_data=gevents_data)
 
-    full_update_dict["GraceDB"]["ADVOK"] = "ADVNO" in superevent_data["labels"]
+    full_update_dict["GraceDB"]["ADVOK"] = "ADVNO" not in superevent_data["labels"]
 
     # Add high level superevent catalog info
     if catalog_mode:
