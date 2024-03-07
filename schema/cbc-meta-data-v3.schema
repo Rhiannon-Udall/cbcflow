@@ -246,7 +246,7 @@
       "additionalProperties": false,
       "type": "object",
       "properties":{
-      	"MultipletAnalyses": {
+        "MultipletAnalyses": {
           "description": "Joint Analyses with another event",
           "additionalProperties": false,
           "type": "object",
