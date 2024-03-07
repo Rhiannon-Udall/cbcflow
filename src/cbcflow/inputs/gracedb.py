@@ -43,8 +43,7 @@ def add_common_gevent_metadata(
         cbcflow_gevent_dict["SearchType"] = "offline"
     else:
         cbcflow_gevent_dict["SearchType"] = "low latency"
-    if "EARLY_WARNING" in gevent_data["labels"]:
-        cbcflow_gevent_dict["EarlyWarning"] = True
+    cbcflow_gevent_dict["EarlyWarning"] = "EARLY_WARNING" in gevent_data["labels"]
     if preferred:
         cbcflow_gevent_dict["State"] = "preferred"
         cbcflow_sevent_dict["Instruments"] = gevent_data["instruments"]
