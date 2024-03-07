@@ -464,7 +464,7 @@ def fetch_gracedb_information(
     if catalog_mode:
         if catalog_superevent_far is not None:
             full_update_dict["GraceDB"]["SupereventFAR"] = catalog_superevent_far
-        if catalog_superevent_pastro is not None:
+        if catalog_superevent_pastro is not None and catalog_superevent_pastro != {}:
             full_update_dict["GraceDB"]["SupereventPastro"] = catalog_superevent_pastro
 
     for gid, gevent_data in gevents_data.items():
