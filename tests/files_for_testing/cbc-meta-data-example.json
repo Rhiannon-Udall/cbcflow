@@ -112,27 +112,6 @@
     "SafeUpperLuminosityDistance": 15000.0
   },
   "Lensing": {
-    "Analyses": [
-      {
-        "Analysts": [
-          "Miranda"
-        ],
-        "Reviewers": [
-          "Prospero"
-        ],
-        "AnalysisStatus": "ongoing",
-        "ReviewStatus": "fail",
-        "UID": "TestF1",
-        "Description": "A lensing analysis",
-        "AnalysisSoftware": "Hanabi",
-        "ConfigFile": {
-          "Path": "CIT:/home/rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini",
-          "MD5Sum": "5f675d1777daaf18e6f3dcec68996e40",
-          "DateLastModified": "2022/09/08 08:01:17",
-          "PublicHTML": "https://ldas-jobs.ligo.caltech.edu/~rhiannon.udall/meta-data/monitor_demonstration_for_LVK/S220331b_fake_pe_directory/fake_config_for_testing.ini"
-        }
-      }
-    ]
   },
   "TestingGR": {
     "IMRCTAnalyses": [
@@ -674,5 +653,18 @@
         "Description": "Testing multiple analyses"
       }    
   ]
+  },
+  "CatalogTracking":{
+    "ParameterEstimationStatuses":[
+      {
+        "UID":"TaylorF2",
+        "Finalized":true,
+        "ReviewStatus":"ongoing",
+        "CorrespondingPEUID":["TestF1"],
+        "Notes":["A note for testing - this object is replacing Lensing-Analyses since v2"]
+      }
+    ],
+    "SearchResultStatuses":[],
+    "Notes":[]
   }
 }
