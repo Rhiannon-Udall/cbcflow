@@ -730,6 +730,27 @@
           "type": "string",
           "description": "The type of frame to use - this may be empty if defaults should be used."
         },
+        "FrameFiles": {
+          "type" : "object",
+          "description": "Frame files to use to do PE",
+          "properties": {
+            "H1": {
+                "type": "string",
+                "description": "Frame file for H1",
+                "default" : "None"
+            },
+            "L1": {
+                "type": "string",
+                "description": "Frame file for L1",
+                "default" : "None"
+            },
+            "V1": {
+                "type": "string",
+                "description": "Frame file for V1",
+                "default" : "None"
+            }
+          }
+        },
         "RecommendedChannel":{
           "description": "The channels to use in the analysis for this detector - this may be empty if defaults should be used",
           "type":"string",
@@ -1543,7 +1564,7 @@
         }
       }
     },
-  "LensIDResults": {
+    "LensIDResults": {
       "description": "LensID Analysis Result meta-data",
       "additionalProperties": false,
       "type": "object",
