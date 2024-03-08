@@ -1495,7 +1495,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -1554,7 +1554,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -1613,7 +1613,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -1672,7 +1672,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -1731,7 +1731,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -1790,7 +1790,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -1908,7 +1908,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -1967,7 +1967,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -2030,7 +2030,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -2089,7 +2089,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
@@ -2148,7 +2148,7 @@
       "required": ["UID"],
       "properties": {
         "UID":{
-          "description": "Unique Idenitifier for the analysis",
+          "description": "The unique identifier for this analysis",
           "type": "string"
         },
         "ConfigFile":{
