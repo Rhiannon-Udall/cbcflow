@@ -393,7 +393,7 @@
         }
         }
     },
-    "DetectorCharacterization": {
+  "DetectorCharacterization": {
     "description": "The detchar meta-data",
     "additionalProperties": false,
     "type": "object",
