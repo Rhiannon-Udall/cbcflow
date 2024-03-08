@@ -31,6 +31,7 @@ def main():
             defaults_update["GraceDB"]["Events"].append(
                 {"UID": gevent["UID"], "Notes": []}
             )
+        del metadata.data["Lensing"]["Analyses"]
         metadata.update(defaults_update)
         metadata.write_to_library()
         metadata.validate()
