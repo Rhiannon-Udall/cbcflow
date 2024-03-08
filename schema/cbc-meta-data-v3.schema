@@ -730,26 +730,9 @@
           "type": "string",
           "description": "The type of frame to use - this may be empty if defaults should be used."
         },
-        "FrameFiles": {
-          "type" : "object",
-          "description": "Frame files to use to do PE",
-          "properties": {
-            "H1": {
-                "type": "string",
-                "description": "Frame file for H1",
-                "default" : "None"
-            },
-            "L1": {
-                "type": "string",
-                "description": "Frame file for L1",
-                "default" : "None"
-            },
-            "V1": {
-                "type": "string",
-                "description": "Frame file for V1",
-                "default" : "None"
-            }
-          }
+        "FrameFile": {
+          "type" : "str",
+          "description": "Frame files which may be used to do PE for this detector - should avoid ambiguity when using with FrameType"
         },
         "RecommendedChannel":{
           "description": "The channels to use in the analysis for this detector - this may be empty if defaults should be used",
