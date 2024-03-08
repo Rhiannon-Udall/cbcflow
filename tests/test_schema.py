@@ -11,7 +11,7 @@ def test_get_schema_path():
 
 def test_get_schema_path_unknown_version():
     with pytest.raises(ValueError):
-        os.path.isfile(get_schema_path("v3"))
+        os.path.isfile(get_schema_path("v4"))
 
 
 def test_get_schema():

@@ -69,6 +69,18 @@
           "items": {
             "$ref": "#/$defs/Events"
           }
+        },
+        "ADVOK":{
+          "description": "Whether this event has had the ADVOK label applied",
+          "type": "boolean"
+        },
+        "SupereventFAR": {
+          "type": "number",
+          "description": "The FAR which is associated with this superevent. Online this is the preferred event FAR, offline this is the FAR read from the catalog table."
+        },
+        "SupereventPastro": {
+          "type":"number",
+          "description": "The probability of astrophysical origin (p_astro) that is associated with this superevent. Online this is the preferred event p_astro, offline this is the p_astro read from the catalog table."
         }
       }
     },
@@ -436,7 +448,29 @@
         "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
       }
     }
-  }
+    },
+    "CatalogTracking":{
+      "description": "Metadata for tracking the progression of the catalog",
+      "additionalProperties": false,
+      "type": "object",
+      "properties":{
+        "ParameterEstimationStatuses":{
+          "description": "Statuses for relevant catalog parameter estimation results (i.e. for different waveforms)",
+          "type": "array",
+          "items": {"$ref": "#/$defs/CatalogParameterEstimationStatus"}
+        },
+        "SearchResultStatuses":{
+          "description": "Statuses for relevant catalog search results (i.e. per pipeline status)",
+          "type": "array",
+          "items": {"$ref": "#/$defs/CatalogSearchResultStatus"}
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Catchall array of strings"
+        }
+      }
+    }
 },
   "$defs": {
     "LinkedFile": {
@@ -587,7 +621,34 @@
         "Skymap": {
           "description": "GraceDB link to the bayestar.multiorder.fits file",
           "type": "string"
-        } 
+        },
+        "EarlyWarning": {
+          "description": "Whether this event was an early warning trigger",
+          "type": "boolean",
+          "default": false
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "An array containing strings with notes, comments, or other miscellaneous data (e.g. string format of a dictionary for some excess data)"
+        },
+        "SearchType" : {
+          "type" : "string",
+          "enum" : ["low latency", "offline"],
+          "description": "Whether this g-event was produced by a low latency pipeline, or by an offline pipeline (as indicated by the offline gracedb tag)"
+        },
+        "CatalogNumber" : {
+          "type": "string",
+          "description": "The number of the catalog for which this event was queried, e.g. 4 for GWTC-4"
+        },      
+        "CatalogVersion": {
+          "type": "number",
+          "description": "If this event was read from the gwtc catalog table as accessed in GraceDB, this field will record the version of that table."
+        },
+        "InOfflineCatalog":{
+          "description": "Whether this event appears in the offline analysis used for the current GWTC event table. An event may be tracked while this is false if it is used for other analysis inputs (i.e. Asimov trigger times from online preferred events).",
+          "type": "boolean"
+        }      
       }
     },
     "DetcharDetector":{
@@ -774,6 +835,72 @@
           "type": "object",
           "description": "The output PSD for the GEO detector.",
           "$ref": "#/$defs/LinkedFile"
+        }
+      }
+    },
+    "CatalogParameterEstimationStatus":{
+      "description": "The catalog status of a given parameter estimation analysis",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["UID"],
+      "properties":{
+        "UID": {
+          "type": "string",
+          "description": "The relevant designator of the analysis (generally waveform approximant name)"
+        },
+        "ReviewStatus":{
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "description": "The status of review for the analysis in question",
+          "default":"unstarted"
+        },
+        "Finalized":{
+          "type": "boolean",
+          "description": "Whether the analysis in question is the final analysis of this type which will be performed"
+        },
+        "IsDesignatedIllustrativeResult":{
+          "type": "boolean",
+          "description": "Whether the analysis in question is the designated IllustrativeResult in the ParameterEstimation section"
+        },
+        "CorrespondingPEUID":{
+          "type":"string",
+          "description": "The UID of the PE Result object which is associated with this status (if one is available)"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Catchall array of strings"
+        }
+      }
+    },
+    "CatalogSearchResultStatus":{
+      "description": "The catalog status of a given search result",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["UID"],
+      "properties":{
+        "UID": {
+          "type": "string",
+          "description": "The relevant designator of the analysis (generally pipeline name)"
+        },
+        "ReviewStatus":{
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "description": "The status of review for the analysis in question",
+          "default":"unstarted"
+        },
+        "Finalized":{
+          "type": "boolean",
+          "description": "Whether the analysis in question is the final analysis of this type which will be performed"
+        },
+        "Chunk":{
+          "type": "number",
+          "description": "The chunk to which the event is associated, for purposes of the pipeline in question. Need not be filled out if pipeline in question does not use chunks"
+        },
+        "Notes": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Catchall array of strings"
         }
       }
     },
