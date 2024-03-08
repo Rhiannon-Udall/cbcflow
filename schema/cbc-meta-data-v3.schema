@@ -3465,6 +3465,126 @@
           "description": "The upper limit on prior of dnrdeltat55 parameter",
           "type": "number"
         },
+        "LowerDOmega440":{
+          "description": "The lower limit on prior of domega440 parameter",
+          "type": "number"
+        },
+        "UpperDOmega440":{
+          "description": "The upper limit on prior of domega440 parameter",
+          "type": "number"
+        },
+        "LowerDTau440":{
+          "description": "The lower limit on prior of dtau440 parameter",
+          "type": "number"
+        },
+        "UpperDTau440":{
+          "description": "The upper limit on prior of dtau440 parameter",
+          "type": "number"
+        },
+        "LowerDOmega320":{
+          "description": "The lower limit on prior of domega320 parameter",
+          "type": "number"
+        },
+        "UpperDOmega320":{
+          "description": "The upper limit on prior of domega320 parameter",
+          "type": "number"
+        },
+        "LowerDTau320":{
+          "description": "The lower limit on prior of dtau320 parameter",
+          "type": "number"
+        },
+        "UpperDTau320":{
+          "description": "The upper limit on prior of dtau320 parameter",
+          "type": "number"
+        },
+        "LowerDOmega430":{
+          "description": "The lower limit on prior of domega430 parameter",
+          "type": "number"
+        },
+        "UpperDOmega430":{
+          "description": "The upper limit on prior of domega430 parameter",
+          "type": "number"
+        },
+        "LowerDTau430":{
+          "description": "The lower limit on prior of dtau430 parameter",
+          "type": "number"
+        },
+        "UpperDTau430":{
+          "description": "The upper limit on prior of dtau430 parameter",
+          "type": "number"
+        },
+        "LowerDOmega550":{
+          "description": "The lower limit on prior of domega550 parameter",
+          "type": "number"
+        },
+        "UpperDOmega550":{
+          "description": "The upper limit on prior of domega550 parameter",
+          "type": "number"
+        },
+        "LowerDTau550":{
+          "description": "The lower limit on prior of dtau550 parameter",
+          "type": "number"
+        },
+        "UpperDTau550":{
+          "description": "The upper limit on prior of dtau550 parameter",
+          "type": "number"
+        },
+        "LowerDnra32":{
+          "description": "The lower limit on prior of dnra32 parameter",
+          "type": "number"
+        },
+        "UpperDnra32":{
+          "description": "The upper limit on prior of dnra32 parameter",
+          "type": "number"
+        },
+        "LowerDnromega32":{
+          "description": "The lower limit on prior of dnromega32 parameter",
+          "type": "number"
+        },
+        "UpperDnromega32":{
+          "description": "The upper limit on prior of dnromega32 parameter",
+          "type": "number"
+        },
+        "LowerDnra43":{
+          "description": "The lower limit on prior of dnra43 parameter",
+          "type": "number"
+        },
+        "UpperDnra43":{
+          "description": "The upper limit on prior of dnra43 parameter",
+          "type": "number"
+        },
+        "LowerDnromega43":{
+          "description": "The lower limit on prior of dnromega43 parameter",
+          "type": "number"
+        },
+        "UpperDnromega43":{
+          "description": "The upper limit on prior of dnromega43 parameter",
+          "type": "number"
+        },
+        "LowerDTpeak":{
+          "description": "The lower limit on prior of DTpeak parameter",
+          "type": "number"
+        },
+        "UpperDTpeak":{
+          "description": "The upper limit on prior of DTpeak parameter",
+          "type": "number"
+        },
+        "LowerDa6":{
+          "description": "The lower limit on prior of Da6 parameter",
+          "type": "number"
+        },
+        "UpperDa6":{
+          "description": "The upper limit on prior of Da6 parameter",
+          "type": "number"
+        },
+        "LowerDdSO":{
+          "description": "The lower limit on prior of DdSO parameter",
+          "type": "number"
+        },
+        "UpperDdSO":{
+          "description": "The upper limit on prior of DdSO parameter",
+          "type": "number"
+        },
         "Notes": {
           "type": "array",
           "items": {"type": "string"},
