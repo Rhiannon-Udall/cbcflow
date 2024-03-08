@@ -731,7 +731,7 @@
           "description": "The type of frame to use - this may be empty if defaults should be used."
         },
         "FrameFile": {
-          "type" : "str",
+          "type" : "string",
           "description": "Frame files which may be used to do PE for this detector - should avoid ambiguity when using with FrameType"
         },
         "RecommendedChannel":{
