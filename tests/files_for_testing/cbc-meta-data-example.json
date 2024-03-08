@@ -615,8 +615,8 @@
         "UID": "FTI",
         "Description": "A TGR Analysis",
         "AnalysisSoftware": "FTI",
-        "UpperDchiMinus2": 5,
-        "LowerDchiMinus2": -5
+        "UpperDchi": 5,
+        "LowerDchi": -5
         },
       {
         "Analysts": [
@@ -660,7 +660,7 @@
         "UID":"TaylorF2",
         "Finalized":true,
         "ReviewStatus":"ongoing",
-        "CorrespondingPEUID":["TestF1"],
+        "CorrespondingPEUID":"TestF1",
         "Notes":["A note for testing - this object is replacing Lensing-Analyses since v2"]
       }
     ],
