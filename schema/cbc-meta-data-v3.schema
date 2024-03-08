@@ -732,7 +732,7 @@
         },
         "FrameFile": {
           "type" : "string",
-          "description": "Frame files which may be used to do PE for this detector - should avoid ambiguity when using with FrameType"
+          "description": "Frame files which may be used to do PE for this detector - should avoid ambiguity when using with FrameType. If used, it is suggested to make a Note which explains the reasoning for using this frame file (e.g. Lensing MDC)"
         },
         "RecommendedChannel":{
           "description": "The channels to use in the analysis for this detector - this may be empty if defaults should be used",
