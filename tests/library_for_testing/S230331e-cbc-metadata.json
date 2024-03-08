@@ -33,7 +33,8 @@
         "PipelineHasMassGap": 0.5820175514384481,
         "XML": "https://gracedb-playground.ligo.org/api/events/G971087/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971087/files/pycbc.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G971087/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G971087/files/bayestar.multiorder.fits",
+        "Notes": []
       },
       {
         "State": "neighbor",
@@ -57,7 +58,8 @@
         "HasMassGap": 0.10979304029304027,
         "XML": "https://gracedb-playground.ligo.org/api/events/G971083/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971083/files/mbta.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G971083/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G971083/files/bayestar.multiorder.fits",
+        "Notes": []
       },
       {
         "State": "preferred",
@@ -81,7 +83,8 @@
         "HasMassGap": 0.2032563605984658,
         "XML": "https://gracedb-playground.ligo.org/api/events/G971082/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G971082/files/spiir.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G971082/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G971082/files/bayestar.multiorder.fits",
+        "Notes": []
       }
     ],
     "Instruments": "H1,L1",
@@ -105,9 +108,7 @@
     "SafeLowerMassRatio": 0.05,
     "Notes": []
   },
-  "Lensing": {
-    "Analyses": []
-  },
+  "Lensing": {},
   "TestingGR": {
     "BHMAnalyses": [],
     "EchoesCWBAnalyses": [],
@@ -137,6 +138,11 @@
     "RecommendedDetectors": [],
     "RecommendedDuration": 4.0,
     "DQRResults": [],
+    "Notes": []
+  },
+  "CatalogTracking": {
+    "ParameterEstimationStatuses": [],
+    "SearchResultStatuses": [],
     "Notes": []
   }
 }

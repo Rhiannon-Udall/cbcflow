@@ -34,7 +34,8 @@
         "PipelineHasMassGap": 0.20777228082354235,
         "XML": "https://gracedb-playground.ligo.org/api/events/G910642/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G910642/files/pycbc.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G910642/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G910642/files/bayestar.multiorder.fits",
+        "Notes": []
       },
       {
         "State": "neighbor",
@@ -59,7 +60,8 @@
         "HasMassGap": 0.23953662618770977,
         "XML": "https://gracedb-playground.ligo.org/api/events/G910641/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G910641/files/mbta.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G910641/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G910641/files/bayestar.multiorder.fits",
+        "Notes": []
       },
       {
         "State": "neighbor",
@@ -84,7 +86,8 @@
         "HasMassGap": 0.4778835534548251,
         "XML": "https://gracedb-playground.ligo.org/api/events/G910636/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G910636/files/spiir.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G910636/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G910636/files/bayestar.multiorder.fits",
+        "Notes": []
       },
       {
         "State": "preferred",
@@ -109,7 +112,8 @@
         "HasMassGap": 0.39055441087805465,
         "XML": "https://gracedb-playground.ligo.org/api/events/G910633/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G910633/files/gstlal.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G910633/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G910633/files/bayestar.multiorder.fits",
+        "Notes": []
       }
     ],
     "Instruments": "H1,L1,V1",
@@ -133,9 +137,7 @@
     "SafeLowerMassRatio": 0.05,
     "Notes": []
   },
-  "Lensing": {
-    "Analyses": []
-  },
+  "Lensing": {},
   "TestingGR": {
     "BHMAnalyses": [],
     "EchoesCWBAnalyses": [],
@@ -165,6 +167,11 @@
     "RecommendedDetectors": [],
     "RecommendedDuration": 4.0,
     "DQRResults": [],
+    "Notes": []
+  },
+  "CatalogTracking": {
+    "ParameterEstimationStatuses": [],
+    "SearchResultStatuses": [],
     "Notes": []
   }
 }

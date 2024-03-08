@@ -34,7 +34,8 @@
         "PipelineHasMassGap": 0.0,
         "XML": "https://gracedb-playground.ligo.org/api/events/G977439/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G977439/files/pycbc.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977439/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977439/files/bayestar.multiorder.fits",
+        "Notes": []
       },
       {
         "State": "preferred",
@@ -59,7 +60,8 @@
         "HasMassGap": 0.0,
         "XML": "https://gracedb-playground.ligo.org/api/events/G977436/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G977436/files/mbta.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977436/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977436/files/bayestar.multiorder.fits",
+        "Notes": []
       },
       {
         "State": "neighbor",
@@ -84,7 +86,8 @@
         "HasMassGap": 0.0,
         "XML": "https://gracedb-playground.ligo.org/api/events/G977433/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G977433/files/spiir.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977433/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977433/files/bayestar.multiorder.fits",
+        "Notes": []
       },
       {
         "State": "neighbor",
@@ -109,7 +112,8 @@
         "HasMassGap": 0.0,
         "XML": "https://gracedb-playground.ligo.org/api/events/G977431/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G977431/files/gstlal.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977431/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977431/files/bayestar.multiorder.fits",
+        "Notes": []
       }
     ],
     "Instruments": "H1,L1,V1",
@@ -133,9 +137,7 @@
     "SafeLowerMassRatio": 0.05,
     "Notes": []
   },
-  "Lensing": {
-    "Analyses": []
-  },
+  "Lensing": {},
   "TestingGR": {
     "BHMAnalyses": [],
     "EchoesCWBAnalyses": [],
@@ -165,6 +167,11 @@
     "RecommendedDetectors": [],
     "RecommendedDuration": 4.0,
     "DQRResults": [],
+    "Notes": []
+  },
+  "CatalogTracking": {
+    "ParameterEstimationStatuses": [],
+    "SearchResultStatuses": [],
     "Notes": []
   }
 }
