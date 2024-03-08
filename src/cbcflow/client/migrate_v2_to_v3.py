@@ -20,6 +20,7 @@ def main():
     for superevent, metadata in library.metadata_dict.items():
         print(f"Attempting update of {superevent}")
         defaults_update = {
+            "Info": {"SchemaVersion": "v3"},
             "CatalogTracking": {
                 "ParameterEstimationStatuses": [],
                 "SearchResultStatuses": [],
