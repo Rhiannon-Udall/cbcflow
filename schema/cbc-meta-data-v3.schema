@@ -277,6 +277,16 @@
               "description": "Golum Type II Analyses meta-data",
               "type": "object",
               "$ref": "#/$defs/LensingGolumTypeIIAnalysis"
+            },
+            "TESLA": {
+              "description": "TESLA sub-threshold Searches meta-data",
+              "type": "object",
+              "$ref": "#/$defs/TESLASearches"
+            },
+            "PyCBC": {
+              "description": "PyCBC sub-threshold Searches meta-data",
+              "type": "object",
+              "$ref": "#/$defs/PyCBCSearches"
             }
           },
           "patternProperties": {
@@ -1090,8 +1100,8 @@
               }
             }
           }
-              },
-              "LensID": {
+        },
+        "LensID": {
           "description": "LensID Analyses meta-data",
           "additionalProperties": false,
           "type": "object",
@@ -1368,6 +1378,74 @@
           "description": "Results from GOLUM Type II Image Analysis",
           "items": {
             "$ref": "#/$defs/GolumTypeIIResults"
+          }
+        }
+      }
+    },
+    "TESLASearches":  {
+      "description": "TESLA searches meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "Analysts": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The name of analysts involved"
+        },
+        "Reviewers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The name of reviewers involved"
+        },
+        "Status": {
+          "type": "string",
+          "enum": ["unstarted", "ongoing", "complete"],
+          "description": "Status of the Gravelamps Analyses",
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "type": "boolean",
+          "description": "Event considered interesting by pipeline"
+        },
+        "Results": {
+          "type": "array",
+          "description": "Results from Gravelamps Analysis",
+          "items": {
+            "$ref": "#/$defs/TESLAResults"
+          }
+        }
+      }
+    },
+    "PyCBCSearches": {
+      "description": "PyCBC searches meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "Analysts": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The name of analysts involved"
+        },
+        "Reviewers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "The name of reviewers involved"
+        },
+        "Status": {
+          "type": "string",
+          "enum": ["unstarted", "ongoing", "complete"],
+          "description": "Status of the Gravelamps Analyses",
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "type": "boolean",
+          "description": "Event considered interesting by pipeline"
+        },
+        "Results": {
+          "type": "array",
+          "description": "Results from Gravelamps Analysis",
+          "items": {
+            "$ref": "#/$defs/PyCBCResults"
           }
         }
       }
@@ -1941,6 +2019,124 @@
         }
       }
     },
+    "TESLAResults": {
+      "description": "TESLA Sub-threshold Searches Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
+    "PyCBCResults" : {
+      "description": "PyCBC Sub-threshold Searches Result meta-data",
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["UID"],
+      "properties": {
+        "UID":{
+          "description": "Unique Idenitifier for the analysis",
+          "type": "string"
+        },
+        "ConfigFile":{
+          "description": "The configuration file of the analysis",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "ResultFile":{
+          "description": "The path to the raw result file",
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile"
+        },
+        "Notes": {
+          "description": "An array containing strings with notes, comments, or other miscellaneous data",
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "PESummaryResultFile": {
+          "description": "The path to the pesummary meta-data file",
+          "type": "string"
+        },
+        "PESummaryURL": {
+          "description": "The URL where the summary pages may be found for this result, if available",
+          "type": "string"
+        },
+        "ReviewStatus": {
+          "description": "Status of the review",
+          "type": "string",
+          "enum": ["unstarted", "pass", "fail", "ongoing"],
+          "default": "unstarted"
+        },
+        "RunStatus": {
+          "description": "Status of the run",
+          "type": "string",
+          "enum": ["complete", "running", "stuck", "unstarted", "cancelled"],
+          "default": "unstarted"
+        },
+        "InterestStatus": {
+          "description": "Whether the result is deemed interesting by this run",
+          "type": "boolean"
+        },
+        "Deprecated": {
+          "description": "If true, this analysis has been deprecated. Do not use this result",
+          "type": "boolean"
+        },
+        "WaveformApproximant": {
+          "description": "The waveform approximant being used for this analysis",
+          "type": "string"
+        }
+      }
+    },
     "AdditionalResults": {
       "description": "Additional Lensing Analysis Result meta-data",
       "additionalProperties": false,
@@ -2000,6 +2196,7 @@
         }
       }
     },
+
     "RnPRun": {
       "description": "An RnP analysis",
       "type": "object",
