@@ -9,7 +9,7 @@ from .utils import setup_logger
 
 logger = setup_logger()
 
-CURRENT_CBC_SCHEMA_VERSION = "v2"
+CURRENT_CBC_SCHEMA_VERSION = "v3"
 CURRENT_INDEX_SCHEMA_VERSION = "v1"
 
 
