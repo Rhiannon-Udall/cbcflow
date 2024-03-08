@@ -20,6 +20,7 @@ from .client.monitor import generate_crondor, generate_crontab, run_monitor
 from .core.parser import get_parser_and_default_data
 from .core.schema import get_schema
 from .core.wrapped import get_superevent
+from .client.migrate_v2_to_v3 import main as migrate_schema_v2_to_v3
 
 logger = setup_logger()
 logger.info(
