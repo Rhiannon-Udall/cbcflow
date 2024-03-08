@@ -3054,10 +3054,28 @@
           "description": "The analysis software program",
           "type": "string"
         },
+        "ConfigFile": {
+          "type": "object",
+          "$ref": "#/$defs/LinkedFile",
+          "description": "The configuration file of the analysis"
+        },
         "Results": {
           "description": "A list of results",
           "type": "array",
           "items": {"$ref": "#/$defs/PEResult"}
+        },
+        "AnalysisDomain": {
+          "description": "The analysis domain",
+          "type": "string"
+        },
+        "AnalysisMethod": {
+          "description": "The analysis method",
+          "type": "string"
+        },
+        "EMCounterpart": {
+          "description": "If true, the information on the sky localization from EM counterparts (if any) is used",
+          "type": "boolean",
+          "default": false
         },
         "PolModel":{
           "description": "Polarization model used in the analysis. Can be one of ['scalar', 'vector', 'tensor', 'scalar-vector', 'scalar-tensor', 'vector-tensor', 'scalar-vector-tensor']",
