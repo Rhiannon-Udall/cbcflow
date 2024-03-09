@@ -3066,12 +3066,16 @@
         },
         "AnalysisDomain": {
           "description": "The analysis domain",
-          "type": "string"
+          "type": "string",
+          "enum": ["frequency", "time-frequency"],
+          "default": "time-frequency"
         },
         "AnalysisMethod": {
           "description": "The analysis method",
-          "type": "string"
-        },
+          "type": "string",
+          "enum": ["bayes", "null_energy", "skymap"],
+          "default": "bayes"
+        },        
         "EMCounterpart": {
           "description": "If true, the information on the sky localization from EM counterparts (if any) is used",
           "type": "boolean",
