@@ -68,6 +68,8 @@ def scrape_bilby_result(path):
     """
     result = {}
 
+    detstr = ""
+
     # Try to grab the config
     possible_configs = glob(f"{path}/*config_complete.ini")
     if len(possible_configs) == 1:
@@ -93,17 +95,33 @@ def scrape_bilby_result(path):
                 "Or no waveform approximant given\n"
                 "Is this a valid config file?"
             )
+        detector_lines = [x for x in config_lines if x.startswith("detectors")]
+        if len(detector_lines) == 1:
+            detstr = detector_lines[0].split("=")[1].strip()
+            # We only want the full network analysis when using the coherence test
+            # this can be formatted like "detectors=["H1", 'L1']"
+            for bad in [" ", "[", "]", ",", "'", '"']:
+                detstr = detstr.replace(bad, "")
+            # Alphabetize detstr
+            detstr = "".join(
+                sorted([detstr[2 * ii : 2 * ii + 2] for ii in range(len(detstr) // 2)])
+            )
+        else:
+            logger.warning(
+                "Multiple or no entries found for detectors\n"
+                "Is this a valid config file?"
+            )
     elif len(possible_configs) > 1:
         logger.warning("Multiple config files found: unclear how to proceed")
     else:
         logger.info("No config file found!")
 
     # Try to grab existing result files
-    result_files = glob(f"{path}/final_result/*merge_result*hdf5")
+    result_files = glob(f"{path}/final_result/*{detstr}_merge_result*hdf5")
 
     # Try looking for a single merge file
     if len(result_files) == 0:
-        result_files = glob(f"{path}/result/*merge_result*hdf5")
+        result_files = glob(f"{path}/result/*{detstr}_merge_result*hdf5")
 
     # Deal with pbilby cases
     if len(result_files) == 0:
@@ -138,7 +156,7 @@ def scrape_pesummary_pages(pes_path):
     """
     result = {}
 
-    samples_path = f"{pes_path}/posterior_samples.h5"
+    samples_path = f"{pes_path}/samples/posterior_samples.h5"
     if os.path.exists(samples_path):
         result["PESummaryResultFile"] = {}
         result["PESummaryResultFile"]["Path"] = samples_path
@@ -323,7 +341,9 @@ def generate_result_update(
     else:
         directories = [s.split("/")[-1] for s in content]
         if "summary" in directories:
-            result_update.update(scrape_pesummary_pages(directory + "/summary"))
+            result_update.update(
+                scrape_pesummary_pages(os.path.join(directory, "summary"))
+            )
         if "bilby" in directories:
             sampler = "bilby"
             result_update.update(scrape_bilby_result(directory + f"/{sampler}"))
@@ -393,6 +413,16 @@ def process_run_info_yml(
             yaml_content = run_info_data.pop(key)
             yaml_elements = process_ambiguous_yaml_list(yaml_content=yaml_content)
             run_info_data[key] = yaml_elements
+
+    for key in ["ReviewStatus"]:
+        # ReviewStatus is an enum, and hence expects specific values, which the PE expert may mess up
+        # This drops everything to lowercase, to fix one such failure mode
+        if key in run_info_data:
+            run_info_data[key] = run_info_data[key].lower()
+            if run_info_data[key] in ["passed"]:
+                # Catch a specific case which has gone wrong in the past
+                # We'll add more to this list if people invent new ways to get things wrong
+                run_info_data[key] = "pass"
 
     return run_info_data
 

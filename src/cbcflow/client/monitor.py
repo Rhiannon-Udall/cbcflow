@@ -61,7 +61,7 @@ def generate_crontab() -> None:
     monitor_exe = which("cbcflow_monitor_run")
     monitor_args = f" {os.path.expanduser(args.config_file)} "
 
-    log_file = f"{rundir}/monitor.log"
+    log_file = f"{rundir}/cbcflow.log"
 
     cron = CronTab(user=args.user_name)
     job = cron.new(command=f"{monitor_exe} {monitor_args} >> {log_file} 2>&1")

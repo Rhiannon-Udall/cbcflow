@@ -11,3 +11,4 @@ docs/_build/*
 docs/source/schema_visualization/*
 docs/source/api/*
 dist/*
+*cbcflow.log

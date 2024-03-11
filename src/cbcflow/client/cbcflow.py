@@ -247,7 +247,7 @@ def validate_library() -> None:
 
 
 def cbcflow_git_merge() -> int:
-    """A script which manages git merge operations, in a way which understands our json files"""
+    """A script that manages git merge operations, in a way which understands our json files"""
     logger = setup_logger()
 
     parser = argparse.ArgumentParser()
