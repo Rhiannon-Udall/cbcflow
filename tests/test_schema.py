@@ -31,4 +31,4 @@ def test_get_schema_bootstrap_version():
 def test_get_schema_compare():
     assert get_schema(
         ["--schema-file", "schema/cbc-meta-data-v3.schema"]
-    ) == get_schema_path("v3")
+    ) == get_schema(["--schema-version", "v3"])
