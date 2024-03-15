@@ -2,7 +2,7 @@
   "Sname": "S230404jc",
   "Info": {
     "Labels": [],
-    "SchemaVersion": "v2",
+    "SchemaVersion": "v3",
     "Notes": []
   },
   "Publications": {
@@ -32,7 +32,8 @@
         "HasMassGap": 0.7124317426072276,
         "XML": "https://gracedb-playground.ligo.org/api/events/G977748/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G977748/files/mbta.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977748/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977748/files/bayestar.multiorder.fits",
+        "Notes": []
       },
       {
         "State": "preferred",
@@ -56,7 +57,8 @@
         "HasMassGap": 0.788655303576289,
         "XML": "https://gracedb-playground.ligo.org/api/events/G977739/files/coinc.xml",
         "SourceClassification": "https://gracedb-playground.ligo.org/api/events/G977739/files/spiir.p_astro.json",
-        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977739/files/bayestar.multiorder.fits"
+        "Skymap": "https://gracedb-playground.ligo.org/api/events/G977739/files/bayestar.multiorder.fits",
+        "Notes": []
       }
     ],
     "Instruments": "H1,V1",
@@ -80,9 +82,7 @@
     "SafeLowerMassRatio": 0.05,
     "Notes": []
   },
-  "Lensing": {
-    "Analyses": []
-  },
+  "Lensing": {},
   "TestingGR": {
     "BHMAnalyses": [],
     "EchoesCWBAnalyses": [],
@@ -112,6 +112,11 @@
     "RecommendedDetectors": [],
     "RecommendedDuration": 4.0,
     "DQRResults": [],
+    "Notes": []
+  },
+  "CatalogTracking": {
+    "ParameterEstimationStatuses": [],
+    "SearchResultStatuses": [],
     "Notes": []
   }
 }

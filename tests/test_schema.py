@@ -25,10 +25,10 @@ def test_get_schema_bootstrap_file():
 
 
 def test_get_schema_bootstrap_version():
-    assert isinstance(get_schema(["--schema-version", "v2"]), dict)
+    assert isinstance(get_schema(["--schema-version", "v3"]), dict)
 
 
 def test_get_schema_compare():
     assert get_schema(
-        ["--schema-file", "schema/cbc-meta-data-v2.schema"]
-    ) == get_schema("v2")
+        ["--schema-file", "schema/cbc-meta-data-v3.schema"]
+    ) == get_schema(["--schema-version", "v3"])
