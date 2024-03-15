@@ -58,7 +58,7 @@ def get_schema(args: Union[list, None] = None, index_schema: bool = False) -> di
     """
     if args is None:
         args = sys.argv
-    VERSION = "v2"
+    VERSION = "v3"
 
     # Set up bootstrap variables
     fileflag = "--schema-file"
