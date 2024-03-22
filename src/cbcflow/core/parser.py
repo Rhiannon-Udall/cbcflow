@@ -2,11 +2,12 @@
 import argparse
 from typing import Tuple, Union
 import re
+import os
 
 import argcomplete
 
-from .configuration import config_defaults
 from .utils import setup_logger
+from .schema import get_schema
 
 logger = setup_logger()
 
@@ -228,23 +229,26 @@ def get_parser_and_default_data(schema: dict):
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("sname", help="The superevent SNAME", type=sname_string)
     parser.add_argument(
-        "--library", default=config_defaults["library"], help="The library"
+        "--library",
+        default=os.getcwd(),
+        help="The library in which the metadata file in question is stored, defaults to cwd",
+        type=str,
     )
-    parser.add_argument("--schema-version", help="The schema version to use")
+    parser.add_argument(
+        "--schema-version",
+        help="The schema version to use, if None (default) the latest version is used",
+        type=str,
+        default=None,
+    )
     parser.add_argument(
         "--schema-file",
         help="Explicit path to the schema-file. If None (default) the inbuilt schema is used",
-        default=config_defaults["gracedb_service_url"],
+        default=None,
     )
     parser.add_argument(
         "--no-git-library",
         action="store_true",
         help="If true, do not treat the library as a git repo",
-    )
-    parser.add_argument(
-        "--gracedb-service-url",
-        help="The GraceDb service url",
-        default=config_defaults["gracedb_service_url"],
     )
     parser.add_argument(
         "--yes",

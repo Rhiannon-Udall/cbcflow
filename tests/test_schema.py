@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from cbcflow.core.schema import get_schema, get_schema_path
+from cbcflow.core.schema import get_schema, get_schema_path, get_schema_from_args
 
 
 def test_get_schema_path():
@@ -20,15 +20,15 @@ def test_get_schema():
 
 def test_get_schema_bootstrap_file():
     assert isinstance(
-        get_schema(["--schema-file", "schema/cbc-meta-data-v2.schema"]), dict
+        get_schema_from_args(["--schema-file", "schema/cbc-meta-data-v2.schema"]), dict
     )
 
 
 def test_get_schema_bootstrap_version():
-    assert isinstance(get_schema(["--schema-version", "v3"]), dict)
+    assert isinstance(get_schema_from_args(["--schema-version", "v2"]), dict)
 
 
 def test_get_schema_compare():
-    assert get_schema(
-        ["--schema-file", "schema/cbc-meta-data-v3.schema"]
-    ) == get_schema(["--schema-version", "v3"])
+    assert get_schema_from_args(
+        ["--schema-file", "schema/cbc-meta-data-v2.schema"]
+    ) == get_schema(version="v2")

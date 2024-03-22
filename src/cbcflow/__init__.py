@@ -13,7 +13,6 @@ from .client.cbcflow import (
     validate_library,
     cbcflow_git_merge,
 )
-from .core.configuration import get_cbcflow_config
 from .core.metadata import MetaData
 from .core.database import LocalLibraryDatabase
 from .client.monitor import generate_crondor, generate_crontab, run_monitor
@@ -30,7 +29,6 @@ logger.info(
 
 from .core import database
 from .core import wrapped as cbcflow
-from .core import configuration
 from .inputs import gracedb
 from .core import metadata
 from .client import monitor
