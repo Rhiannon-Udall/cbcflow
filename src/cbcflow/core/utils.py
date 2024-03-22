@@ -276,3 +276,21 @@ def get_uids_from_object_array(array: List[Dict], refId: str = "UID") -> list:
                 )
             )
     return list_of_uids
+
+
+def get_uid_index_for_object_array(
+    uid: str, array: List[Dict], refId: str = "UID"
+) -> int:
+    """Get the index where the object with this uid can be found
+
+    Parameters
+    ==========
+    uid : str
+        The UID corresponding to the object you want to find
+    array : List[Dict]
+        A list of objects each with a unique ID (the refId)
+    refId : str
+        The reference ID which uniquely identifies objects, in normal operation UID
+    """
+    list_of_uids = get_uids_from_object_array(array=array, refId=refId)
+    return list_of_uids.index(uid)
