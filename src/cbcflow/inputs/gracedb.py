@@ -427,7 +427,7 @@ def fetch_gracedb_information(
             gevents_data = get_superevent_gwtc_gevents(gdb=gdb, gevent_ids=gevent_ids)
 
         if catalog_mode and preferred_event not in gevents_data.keys():
-            gevents_data.append(gdb.event(preferred_event))
+            gevents_data[preferred_event] = gdb.event(preferred_event).json()
 
         file_data = get_superevent_file_data(gdb, gevents_data=gevents_data)
 
