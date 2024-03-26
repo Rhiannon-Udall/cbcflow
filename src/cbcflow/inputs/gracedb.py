@@ -236,7 +236,7 @@ def add_filelinks_gevent_metadata(links_data: dict, pipeline: str) -> dict:
 
 
 def add_catalog_gevent_metadata(
-    catalog_number: int, catalog_version: int, in_offline_table: bool
+    catalog_number: str, catalog_version: int, in_offline_table: bool
 ):
     """Add catalog specific information to the gevent metadata"""
     cbcflow_gevent_dict = dict()
@@ -382,7 +382,7 @@ def fetch_gracedb_information(
     service_url: Union[str, None] = None,
     cred: Union[Tuple[str, str], str, None] = None,
     catalog_mode: bool = False,
-    catalog_number: Optional[int] = 4,
+    catalog_number: Optional[str] = "4",
     catalog_version: Optional[int] = None,
     gevent_ids: List[str] = None,
     catalog_superevent_far: float = None,
@@ -463,7 +463,9 @@ def fetch_gracedb_information(
         if catalog_superevent_far is not None:
             full_update_dict["GraceDB"]["SupereventFAR"] = catalog_superevent_far
         if catalog_superevent_pastro is not None and catalog_superevent_pastro != {}:
-            full_update_dict["GraceDB"]["SupereventPastro"] = catalog_superevent_pastro
+            full_update_dict["GraceDB"]["SupereventPastro"] = (
+                1 - catalog_superevent_pastro["Terrestrial"]
+            )
 
     for gid, gevent_data in gevents_data.items():
         cbcflow_gevent_dict = dict()
