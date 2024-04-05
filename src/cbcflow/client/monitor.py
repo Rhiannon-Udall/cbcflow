@@ -16,9 +16,8 @@ def get_base_parser():
     """Generate the standard monitor parser"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--config-file",
-        default="~/.cbcflow.cfg",
-        help="The cfg from which to obtain monitor configuration info",
+        "library",
+        help="The library which the monitor will update",
     )
     parser.add_argument(
         "--monitor-interval",
@@ -58,9 +57,9 @@ def generate_crontab() -> None:
         rundir = args.rundir
 
     monitor_exe = which("cbcflow_monitor_run")
-    monitor_args = f" {os.path.expanduser(args.config_file)} "
+    monitor_args = f" {os.path.expanduser(args.library)} "
 
-    log_file = f"{rundir}/cbcflow.log"
+    log_file = f"{rundir}/monitor.log"
 
     cron = CronTab(user=args.user_name)
     job = cron.new(command=f"{monitor_exe} {monitor_args} >> {log_file} 2>&1")
@@ -110,7 +109,7 @@ def generate_crondor() -> None:
     monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
     # This tells the job to queue 5 minutes before it's execution time, so it will be ready when the time comes
     monitor_job.add_condor_cmd("cron_prep_time", "300")
-    monitor_args = f" {os.path.expanduser(args.config_file)} "
+    monitor_args = f" {os.path.expanduser(args.library)} "
     monitor_job.add_arg(monitor_args)
     sub_path = os.path.join(rundir, "monitor.sub")
     monitor_job.set_sub_file(sub_path)
