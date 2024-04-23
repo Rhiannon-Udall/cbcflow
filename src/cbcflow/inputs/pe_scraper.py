@@ -10,6 +10,7 @@ from ..core.utils import (
     setup_logger,
     get_cluster,
     get_url_from_public_html_dir,
+    get_uids_from_object_array,
 )
 from ..core.metadata import MetaData
 
@@ -269,14 +270,32 @@ def add_pe_information_from_base_path(
     }
     existing_analysts = metadata["ParameterEstimation"]["Analysts"]
     existing_reviewers = metadata["ParameterEstimation"]["Reviewers"]
+    existing_notes = metadata["ParameterEstimation"]["Notes"]
+    current_status = metadata["ParameterEstimation"]["Status"]
 
     all_analysts = copy.copy(existing_analysts)
     all_reviewers = copy.copy(existing_reviewers)
+    all_notes = copy.copy(existing_notes)
 
     update_dictionary = {"ParameterEstimation": {"Results": []}}
 
+    if current_status == "unstarted" and existing_results_dict != {}:
+        update_dictionary["ParameterEstimation"]["Status"] = "ongoing"
+
     directories = sorted(glob(f"{base_directory}/{sname}/*"))
-    for directory in directories:
+    if "EventInfo.yml" in [x.split("/")[-1] for x in directories]:
+        event_info_yml = os.path.join(base_directory, sname, "EventInfo.yml")
+        event_info = process_event_info_yml(event_info_yml)
+        if "Notes" in event_info:
+            all_notes += event_info["Notes"]
+        if "Status" in event_info:
+            update_dictionary["ParameterEstimation"]["Status"] = event_info["Status"]
+    else:
+        event_info = dict()
+
+    for directory in [
+        directory for directory in directories if os.path.isdir(directory)
+    ]:
         # For each directory under this superevents heading...
         uid = directory.split("/")[-1]
         existing_result = existing_results_dict.get(uid, dict(UID=uid))
@@ -297,11 +316,21 @@ def add_pe_information_from_base_path(
     # Add only reviewers and analysts not yet
     new_analysts = list(set(all_analysts) - set(existing_analysts))
     new_reviewers = list(set(all_reviewers) - set(existing_reviewers))
+    new_notes = list(set(all_notes) - set(existing_notes))
 
+    if "IllustrativeResult" in event_info:
+        update_dictionary["ParameterEstimation"]["IllustrativeResult"] = event_info[
+            "IllustrativeResult"
+        ]
     update_dictionary["ParameterEstimation"]["Analysts"] = new_analysts
     update_dictionary["ParameterEstimation"]["Reviewers"] = new_reviewers
+    update_dictionary["ParameterEstimation"]["Notes"] = new_notes
 
     metadata.update(update_dict=update_dictionary)
+
+    if "IllustrativeResult" in metadata["ParameterEstimation"]:
+        illustrative_result_update = regularize_illustrative_result_case(metadata)
+        metadata.update(illustrative_result_update)
     return metadata
 
 
@@ -414,17 +443,76 @@ def process_run_info_yml(
             yaml_elements = process_ambiguous_yaml_list(yaml_content=yaml_content)
             run_info_data[key] = yaml_elements
 
-    for key in ["ReviewStatus"]:
         # ReviewStatus is an enum, and hence expects specific values, which the PE expert may mess up
         # This drops everything to lowercase, to fix one such failure mode
-        if key in run_info_data:
-            run_info_data[key] = run_info_data[key].lower()
-            if run_info_data[key] in ["passed"]:
-                # Catch a specific case which has gone wrong in the past
-                # We'll add more to this list if people invent new ways to get things wrong
-                run_info_data[key] = "pass"
+    if "ReviewStatus" in run_info_data:
+        if isinstance("ReviewStatus", bool):
+            # If a reviewer says the ReviewStatus is "False" they presumably mean it failed
+            # And if they say it's true they presumably mean it passed
+            # They should really set the correct value, but this will catch that nonetheless
+            run_info_data["ReviewStatus"] = (
+                "pass" if run_info_data["ReviewStatus"] else "fail"
+            )
+
+        run_info_data["ReviewStatus"] = run_info_data["ReviewStatus"].lower()
+        if run_info_data["ReviewStatus"] in ["passed"]:
+            # Catch a specific case which has gone wrong in the past
+            # We'll add more to this list if people invent new ways to get things wrong
+            run_info_data["ReviewStatus"] = "pass"
+        if run_info_data["ReviewStatus"] in ["not reviewed"]:
+            run_info_data["ReviewStatus"] = "unstarted"
 
     return run_info_data
+
+
+def process_event_info_yml(
+    path_to_event_info_yml: str,
+) -> Dict[str, Union[list, str, bool]]:
+    """Extracts information from an EventInfo.yml file"""
+    if os.path.exists(path_to_event_info_yml):
+        with open(path_to_event_info_yml, "r") as file:
+            try:
+                event_info_data = yaml.safe_load(file)
+            except Exception:
+                logger.warning(f"Yaml file {path_to_event_info_yml} corrupted")
+                return dict()
+    else:
+        return dict()
+
+    for key in ["IllustrativeResult", "Status"]:
+        info_update = event_info_data.get(key, 0)
+        if info_update is None:
+            # The case where the key is present but has no contents
+            event_info_data.pop(key)
+        elif info_update == 0:
+            # The case where the key isn't even present, so nothing to worry about
+            pass
+
+    if "Notes" in event_info_data:
+        yaml_content = event_info_data.pop("Notes")
+        yaml_elements = process_ambiguous_yaml_list(yaml_content=yaml_content)
+        event_info_data["Notes"] = yaml_elements
+
+    return event_info_data
+
+
+def regularize_illustrative_result_case(metadata: MetaData) -> dict:
+    illustrative_result = metadata["ParameterEstimation"]["IllustrativeResult"]
+    pe_result_uids = get_uids_from_object_array(
+        metadata["ParameterEstimation"]["Results"]
+    )
+    if illustrative_result in pe_result_uids:
+        return dict()
+    elif illustrative_result.lower() in [x.lower() for x in pe_result_uids]:
+        correct_uid = pe_result_uids[
+            [x.lower() for x in pe_result_uids].index(illustrative_result.lower())
+        ]
+        return {"ParameterEstimation": {"IllustrativeResult": correct_uid}}
+    else:
+        logger.warning(
+            f"Illustrative result key {illustrative_result} is not in list of UIDs {pe_result_uids}"
+        )
+        return dict()
 
 
 def process_ambiguous_yaml_list(yaml_content: Union[str, list]) -> list:
