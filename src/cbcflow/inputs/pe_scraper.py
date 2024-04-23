@@ -435,6 +435,11 @@ def process_run_info_yml(
     else:
         return dict()
 
+    for key in ["Analyst", "Reviewer", "Note"]:
+        # correct when people don't put plurals correctly
+        if key in run_info_data:
+            run_info_data[key + "s"] = run_info_data.pop(key)
+
     # Process information for Analysts, Reviewers, and Notes
     # Each of these may be screwed up in some way by the writer of the RunInfo
     for key in ["Analysts", "Reviewers", "Notes"]:
