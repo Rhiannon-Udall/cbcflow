@@ -485,19 +485,25 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         dict
             The GraceDB data for the superevent
         """
-        return fetch_gracedb_information(
-            sname,
-            service_url=self.source_path,
-            cred=self.cred,
-            catalog_mode=True,
-            catalog_number=self.catalog_number,
-            catalog_version=self.catalog_table_version,
-            gevent_ids=[
-                x for x in self.catalog_superevents[sname]["pipelines"].values()
-            ],
-            catalog_superevent_far=self.catalog_superevents[sname]["far"],
-            catalog_superevent_pastro=self.catalog_superevents[sname]["pastro"],
-        )
+        try:
+            return fetch_gracedb_information(
+                sname,
+                service_url=self.source_path,
+                cred=self.cred,
+                catalog_mode=True,
+                catalog_number=self.catalog_number,
+                catalog_version=self.catalog_table_version,
+                gevent_ids=[
+                    x for x in self.catalog_superevents[sname]["pipelines"].values()
+                ],
+                catalog_superevent_far=self.catalog_superevents[sname]["far"],
+                catalog_superevent_pastro=self.catalog_superevents[sname]["pastro"],
+            )
+        except Exception:
+            logger.warning(
+                f"Failed to fetch GraceDB information for {sname}, no update will be performed"
+            )
+            return dict()
 
     @property
     def catalog_superevents(self) -> Dict[str, List[str]]:
