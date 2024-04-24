@@ -298,9 +298,15 @@ class GraceDbDatabase(LibraryParent):
         dict
             The GraceDB data for the superevent
         """
-        return fetch_gracedb_information(
-            sname, service_url=self.source_path, cred=self.cred
-        )
+        try:
+            return fetch_gracedb_information(
+                sname, service_url=self.source_path, cred=self.cred
+            )
+        except Exception:
+            logger.warning(
+                f"Failed to fetch GraceDB information for {sname}, no update will be performed"
+            )
+            return dict()
 
     def query_superevents(self, query: Optional[str] = None) -> list:
         """Queries superevents in GraceDb, according to a given query
@@ -361,20 +367,14 @@ class GraceDbDatabase(LibraryParent):
                 ), "Something has gone horribly wrong and modified the defaults"
             updated_metadata = copy.deepcopy(metadata)
 
-            # TODO for review!
-            # I'm adding this in the parent function (i.e. what happens online)
-            # to reduce code repetition, but we only *want* it in the GWTC version
-            # That being said, the contents of GraceDB-Events is derived strictly from the
-            # current state of GraceDB, so there won't be any functional change in online
-            # operation from doing this (deleting all event entries and starting over)
-            # So, discuss
+            # Note - we will *always*
             updated_metadata["GraceDB"]["Events"] = []
 
             # Pull information from GraceDB
             gdb_data = self.pull(superevent_id)
             for note in metadata["Info"]["Notes"]:
                 # If a note already marks this as retracted don't add another
-                if "retracted" in note.lower():
+                if "retracted" in note.lower() and "Info" in gdb_data:
                     gdb_data.pop("Info")
                     break
             try:
