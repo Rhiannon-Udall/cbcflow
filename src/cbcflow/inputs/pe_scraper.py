@@ -454,7 +454,7 @@ def process_run_info_yml(
         if isinstance("ReviewStatus", bool):
             # If a reviewer says the ReviewStatus is "False" they presumably mean it failed
             # And if they say it's true they presumably mean it passed
-            # They should really set the correct value, but this will catch that nonetheless
+            # While this is not guaranteed, it's preferable to failing entirely, or softly ignoring it
             run_info_data["ReviewStatus"] = (
                 "pass" if run_info_data["ReviewStatus"] else "fail"
             )

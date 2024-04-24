@@ -367,7 +367,13 @@ class GraceDbDatabase(LibraryParent):
                 ), "Something has gone horribly wrong and modified the defaults"
             updated_metadata = copy.deepcopy(metadata)
 
-            # Note - we will *always*
+            # Note - we will *always* clear the g-events from an event before
+            # starting the update loop, even though it's only strictly necessary
+            # in catalog operations. This saves a lot of code duplication.
+            # If something fails in the update loop then
+            # The metadata won't be updated in total, so this should be safe
+            # (the failure mode would be if Gracedb 'successfully' returned 0 events
+            # In which case the issue would be something upstream)
             updated_metadata["GraceDB"]["Events"] = []
 
             # Pull information from GraceDB
