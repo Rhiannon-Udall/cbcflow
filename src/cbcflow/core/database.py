@@ -304,9 +304,10 @@ class GraceDbDatabase(LibraryParent):
             )
         except Exception:
             logger.warning(
-                f"Failed to fetch GraceDB information for {sname}, no update will be performed"
+                f"Failed with exception {Exception} to fetch gracedb information for {sname},\
+                no update will be performed"
             )
-            return dict()
+            return None
 
     def query_superevents(self, query: Optional[str] = None) -> list:
         """Queries superevents in GraceDb, according to a given query
@@ -383,14 +384,15 @@ class GraceDbDatabase(LibraryParent):
                 if "retracted" in note.lower() and "Info" in gdb_data:
                     gdb_data.pop("Info")
                     break
-            try:
-                updated_metadata.update(gdb_data)
-                metadata = updated_metadata
-            except jsonschema.ValidationError:
-                logger.warning(
-                    f"For superevent {superevent_id}, GraceDB generated metadata failed validation\n\
-                    No GraceDB information will be updated\n"
-                )
+            if gdb_data is not None:
+                try:
+                    updated_metadata.update(gdb_data)
+                    metadata = updated_metadata
+                except jsonschema.ValidationError:
+                    logger.warning(
+                        f"For superevent {superevent_id}, GraceDB generated metadata failed validation\n\
+                        No GraceDB information will be updated\n"
+                    )
 
             try:
                 # Pull information from PE
@@ -505,11 +507,14 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
                 catalog_superevent_far=self.catalog_superevents[sname]["far"],
                 catalog_superevent_pastro=self.catalog_superevents[sname]["pastro"],
             )
-        except Exception:
+        except Exception as exception:
             logger.warning(
-                f"Failed to fetch GraceDB information for {sname}, no update will be performed"
+                f"Failed with exception:\n\
+                {exception}\n\
+                to fetch gracedb information for {sname},\
+                no update will be performed"
             )
-            return dict()
+            return None
 
     @property
     def catalog_superevents(self) -> Dict[str, List[str]]:
