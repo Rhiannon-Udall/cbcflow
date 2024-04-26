@@ -322,15 +322,23 @@ def add_pe_information_from_base_path(
         update_dictionary["ParameterEstimation"]["IllustrativeResult"] = event_info[
             "IllustrativeResult"
         ]
+    if "SkymapReleaseResult" in event_info:
+        update_dictionary["ParameterEstimation"]["SkymapReleaseResult"] = event_info[
+            "SkymapReleaseResult"
+        ]
     update_dictionary["ParameterEstimation"]["Analysts"] = new_analysts
     update_dictionary["ParameterEstimation"]["Reviewers"] = new_reviewers
     update_dictionary["ParameterEstimation"]["Notes"] = new_notes
 
     metadata.update(update_dict=update_dictionary)
 
-    if "IllustrativeResult" in metadata["ParameterEstimation"]:
-        illustrative_result_update = regularize_illustrative_result_case(metadata)
-        metadata.update(illustrative_result_update)
+    for pointer_name in ["IllustrativeResult", "SkymapReleaseResult"]:
+        if pointer_name in metadata["ParameterEstimation"]:
+            result_update = regularize_result_pointer_case(
+                metadata, pointer_name=pointer_name
+            )
+            metadata.update(result_update)
+
     return metadata
 
 
@@ -484,7 +492,7 @@ def process_event_info_yml(
     else:
         return dict()
 
-    for key in ["IllustrativeResult", "Status"]:
+    for key in ["IllustrativeResult", "Status", "SkymapReleaseResult"]:
         info_update = event_info_data.get(key, 0)
         if info_update is None:
             # The case where the key is present but has no contents
@@ -501,8 +509,10 @@ def process_event_info_yml(
     return event_info_data
 
 
-def regularize_illustrative_result_case(metadata: MetaData) -> dict:
-    illustrative_result = metadata["ParameterEstimation"]["IllustrativeResult"]
+def regularize_result_pointer_case(
+    metadata: MetaData, pointer_name="IllustrativeResult"
+) -> dict:
+    illustrative_result = metadata["ParameterEstimation"][pointer_name]
     pe_result_uids = get_uids_from_object_array(
         metadata["ParameterEstimation"]["Results"]
     )
@@ -512,10 +522,10 @@ def regularize_illustrative_result_case(metadata: MetaData) -> dict:
         correct_uid = pe_result_uids[
             [x.lower() for x in pe_result_uids].index(illustrative_result.lower())
         ]
-        return {"ParameterEstimation": {"IllustrativeResult": correct_uid}}
+        return {"ParameterEstimation": {pointer_name: correct_uid}}
     else:
         logger.warning(
-            f"Illustrative result key {illustrative_result} is not in list of UIDs {pe_result_uids}"
+            f"{pointer_name} key {illustrative_result} is not in list of UIDs {pe_result_uids}"
         )
         return dict()
 
