@@ -298,9 +298,16 @@ class GraceDbDatabase(LibraryParent):
         dict
             The GraceDB data for the superevent
         """
-        return fetch_gracedb_information(
-            sname, service_url=self.source_path, cred=self.cred
-        )
+        try:
+            return fetch_gracedb_information(
+                sname, service_url=self.source_path, cred=self.cred
+            )
+        except Exception:
+            logger.warning(
+                f"Failed with exception {Exception} to fetch gracedb information for {sname},\
+                no update will be performed"
+            )
+            return None
 
     def query_superevents(self, query: Optional[str] = None) -> list:
         """Queries superevents in GraceDb, according to a given query
@@ -361,30 +368,31 @@ class GraceDbDatabase(LibraryParent):
                 ), "Something has gone horribly wrong and modified the defaults"
             updated_metadata = copy.deepcopy(metadata)
 
-            # TODO for review!
-            # I'm adding this in the parent function (i.e. what happens online)
-            # to reduce code repetition, but we only *want* it in the GWTC version
-            # That being said, the contents of GraceDB-Events is derived strictly from the
-            # current state of GraceDB, so there won't be any functional change in online
-            # operation from doing this (deleting all event entries and starting over)
-            # So, discuss
+            # Note - we will *always* clear the g-events from an event before
+            # starting the update loop, even though it's only strictly necessary
+            # in catalog operations. This saves a lot of code duplication.
+            # If something fails in the update loop then
+            # The metadata won't be updated in total, so this should be safe
+            # (the failure mode would be if Gracedb 'successfully' returned 0 events
+            # In which case the issue would be something upstream)
             updated_metadata["GraceDB"]["Events"] = []
 
             # Pull information from GraceDB
             gdb_data = self.pull(superevent_id)
             for note in metadata["Info"]["Notes"]:
                 # If a note already marks this as retracted don't add another
-                if "retracted" in note.lower():
+                if "retracted" in note.lower() and "Info" in gdb_data:
                     gdb_data.pop("Info")
                     break
-            try:
-                updated_metadata.update(gdb_data)
-                metadata = updated_metadata
-            except jsonschema.ValidationError:
-                logger.warning(
-                    f"For superevent {superevent_id}, GraceDB generated metadata failed validation\n\
-                    No GraceDB information will be updated\n"
-                )
+            if gdb_data is not None:
+                try:
+                    updated_metadata.update(gdb_data)
+                    metadata = updated_metadata
+                except jsonschema.ValidationError:
+                    logger.warning(
+                        f"For superevent {superevent_id}, GraceDB generated metadata failed validation\n\
+                        No GraceDB information will be updated\n"
+                    )
 
             try:
                 # Pull information from PE
@@ -485,19 +493,28 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         dict
             The GraceDB data for the superevent
         """
-        return fetch_gracedb_information(
-            sname,
-            service_url=self.source_path,
-            cred=self.cred,
-            catalog_mode=True,
-            catalog_number=self.catalog_number,
-            catalog_version=self.catalog_table_version,
-            gevent_ids=[
-                x for x in self.catalog_superevents[sname]["pipelines"].values()
-            ],
-            catalog_superevent_far=self.catalog_superevents[sname]["far"],
-            catalog_superevent_pastro=self.catalog_superevents[sname]["pastro"],
-        )
+        try:
+            return fetch_gracedb_information(
+                sname,
+                service_url=self.source_path,
+                cred=self.cred,
+                catalog_mode=True,
+                catalog_number=self.catalog_number,
+                catalog_version=self.catalog_table_version,
+                gevent_ids=[
+                    x for x in self.catalog_superevents[sname]["pipelines"].values()
+                ],
+                catalog_superevent_far=self.catalog_superevents[sname]["far"],
+                catalog_superevent_pastro=self.catalog_superevents[sname]["pastro"],
+            )
+        except Exception as exception:
+            logger.warning(
+                f"Failed with exception:\n\
+                {exception}\n\
+                to fetch gracedb information for {sname},\
+                no update will be performed"
+            )
+            return None
 
     @property
     def catalog_superevents(self) -> Dict[str, List[str]]:
