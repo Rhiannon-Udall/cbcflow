@@ -3,9 +3,9 @@ from typing import Union
 
 from .schema import get_schema
 from .parser import get_parser_and_default_data
-from .configuration import get_cbcflow_config
 from .metadata import MetaData
 from .database import LocalLibraryDatabase
+import os
 
 
 def get_superevent(
@@ -21,7 +21,7 @@ def get_superevent(
     sname : str
         The sname of the superevent in question, according to GraceDB
     library : str | `cbcflow.database.LocalLibraryDatabase` | None
-        The library from which to fetch information
+        The library from which to fetch information, defaults to cwd
     no_git_library : bool
         If true, don't attempt to treat this library as a git repository
 
@@ -35,8 +35,7 @@ def get_superevent(
     _, default_data = get_parser_and_default_data(schema)
 
     if library is None:
-        config_defaults = get_cbcflow_config()
-        library = config_defaults["library"]
+        library = os.getcwd()
 
     if isinstance(library, LocalLibraryDatabase):
         metadata = MetaData(

@@ -8,7 +8,7 @@ import ast
 from functools import cached_property
 import sys
 from pprint import pformat
-from typing import Union, Dict, Type, TypeVar, Tuple
+from typing import Union, Dict, Type, TypeVar, Tuple, Optional, List
 from datetime import datetime
 
 import dateutil.parser as dp
@@ -242,6 +242,25 @@ class GraceDbDatabase(LibraryParent):
         self.cred = cred
         self.pe_rota_token = pe_rota_token_path
 
+        # Do the setup of the standard query from the library config here
+        self.event_config = self.library.library_config["Events"]
+
+        # annying hack due to gracedb query bug
+        import datetime
+        from gwpy.time import to_gps
+
+        start_gps = to_gps(self.event_config["earliest-library-datetime"])
+        # to_gps understands 'now'
+        end_gps = to_gps(self.event_config["latest-library-datetime"])
+
+        now = datetime.datetime.utcnow()
+
+        logger.info(f"Syncing with GraceDB at {now}")
+        # make query and defaults, query
+        self.library_query = f"gpstime: {start_gps} .. {end_gps} \
+        FAR <= {self.event_config['far-threshold']}"
+        logger.info(f"Constructed query {self.library_query} from library config")
+
     @property
     def cred(self) -> Union[Tuple[str, str], str, None]:
         """Information on the credentials to pass to GraceDb, per
@@ -279,18 +298,26 @@ class GraceDbDatabase(LibraryParent):
         dict
             The GraceDB data for the superevent
         """
-        return fetch_gracedb_information(
-            sname, service_url=self.source_path, cred=self.cred
-        )
+        try:
+            return fetch_gracedb_information(
+                sname, service_url=self.source_path, cred=self.cred
+            )
+        except Exception:
+            logger.warning(
+                f"Failed with exception {Exception} to fetch gracedb information for {sname},\
+                no update will be performed"
+            )
+            return None
 
-    def query_superevents(self, query: str) -> list:
+    def query_superevents(self, query: Optional[str] = None) -> list:
         """Queries superevents in GraceDb, according to a given query
 
         Parameters
         ==========
         query : str
             a GraceDb query string to query for superevents
-            see https://gracedb.ligo.org/documentation/queries.html
+            see https://gracedb.ligo.org/documentation/queries.html.
+            Defaults to the query constructed from the library config.
 
         Returns
         =======
@@ -298,6 +325,9 @@ class GraceDbDatabase(LibraryParent):
             The superevents which satisfy the query
         """
         from ligo.gracedb.rest import GraceDb
+
+        if query is None:
+            query = self.library_query
 
         queried_superevents = []
         with GraceDb(service_url=self.source_path, cred=self.cred) as gdb:
@@ -316,74 +346,76 @@ class GraceDbDatabase(LibraryParent):
         """
         from ligo.gracedb.exceptions import HTTPError
 
-        if hasattr(self, "superevents_to_propagate"):
-            for superevent_id in tqdm.tqdm(self.superevents_to_propagate):
-                logger.info(f"Updating superevent {superevent_id}")
-                if superevent_id in self.library.metadata_dict.keys():
-                    metadata = self.library.metadata_dict[superevent_id]
-                else:
-                    metadata = MetaData(
-                        superevent_id,
-                        local_library=self.library,
-                        schema=self.library.metadata_schema,
-                        default_data=self.library.metadata_default_data,
-                    )
-                    assert (
-                        len(self.library.metadata_default_data["Info"]["Notes"]) == 0
-                    ), "Something has gone horribly wrong and modified the defaults"
-                try:
-                    backup_data = copy.deepcopy(metadata.data)
-
-                    # Pull information from GraceDB
-                    gdb_data = self.pull(superevent_id)
-                    for note in metadata["Info"]["Notes"]:
-                        # If a note already marks this as retracted don't add another
-                        if "retracted" in note.lower():
-                            gdb_data.pop("Info")
-                            break
-                    metadata.data.update(gdb_data)
-
-                    try:
-                        # Pull information from PE
-                        add_pe_information(metadata, superevent_id, self.pe_rota_token)
-                    except Exception as e:
-                        logger.warning(
-                            f"Fatal error while scraping PE automatically for superevent {superevent_id}"
-                        )
-                        logger.warning(
-                            "Proceeding automatically to maintain library status as best as possible"
-                        )
-                        logger.warning(f"The exception was {e}")
-
-                    changes = metadata.get_diff()
-                    if "GraceDB" in changes.keys() and len(changes.keys()) == 1:
-                        if len(changes["GraceDB"].keys()) == 1:
-                            continue
-                        # This is a hack to make it not update if the only update would be "LastUpdate"
-                        # It may have to change in further schema versions
-                    logger.info(f"Updates to supervent {superevent_id}")
-                    string_rep_changes = get_dumpable_json_diff(changes)
-                    logger.debug(json.dumps(string_rep_changes, indent=2))
-                    metadata.write_to_library(branch_name=branch_name)
-                except jsonschema.exceptions.ValidationError:
-                    logger.warning(
-                        f"For superevent {superevent_id}, GraceDB generated metadata failed validation\
-                        Writing backup data (either default or pre-loaded) to library instead\n"
-                    )
-                    metadata.update(backup_data)
-                    metadata.write_to_library(branch_name=branch_name)
-                except HTTPError:
-                    logger.warning(
-                        f"For superevent {superevent_id}, failed to obtain data from GraceDB\
-                        Writing backup data (either default or pre-loaded) to library instead\n"
-                    )
-                    metadata.update(backup_data)
-                    metadata.write_to_library(branch_name=branch_name)
-        else:
+        if not hasattr(self, "superevents_to_propagate"):
             logger.info(
                 "This GraceDbDatabase instance has not assigned any superevents to propagate yet\
                  please do so before attempting to pull them."
             )
+            return None
+        for superevent_id in tqdm.tqdm(self.superevents_to_propagate):
+            logger.info(f"Updating superevent {superevent_id}")
+            if superevent_id in self.library.metadata_dict.keys():
+                metadata = self.library.metadata_dict[superevent_id]
+            else:
+                metadata = MetaData(
+                    superevent_id,
+                    local_library=self.library,
+                    schema=self.library.metadata_schema,
+                    default_data=self.library.metadata_default_data,
+                )
+                assert (
+                    len(self.library.metadata_default_data["Info"]["Notes"]) == 0
+                ), "Something has gone horribly wrong and modified the defaults"
+            updated_metadata = copy.deepcopy(metadata)
+
+            # Note - we will *always* clear the g-events from an event before
+            # starting the update loop, even though it's only strictly necessary
+            # in catalog operations. This saves a lot of code duplication.
+            # If something fails in the update loop then
+            # The metadata won't be updated in total, so this should be safe
+            # (the failure mode would be if Gracedb 'successfully' returned 0 events
+            # In which case the issue would be something upstream)
+            updated_metadata["GraceDB"]["Events"] = []
+
+            # Pull information from GraceDB
+            gdb_data = self.pull(superevent_id)
+            for note in metadata["Info"]["Notes"]:
+                # If a note already marks this as retracted don't add another
+                if "retracted" in note.lower() and "Info" in gdb_data:
+                    gdb_data.pop("Info")
+                    break
+            if gdb_data is not None:
+                try:
+                    updated_metadata.update(gdb_data)
+                    metadata = updated_metadata
+                except jsonschema.ValidationError:
+                    logger.warning(
+                        f"For superevent {superevent_id}, GraceDB generated metadata failed validation\n\
+                        No GraceDB information will be updated\n"
+                    )
+
+            try:
+                # Pull information from PE
+                add_pe_information(updated_metadata, superevent_id, self.pe_rota_token)
+                metadata = updated_metadata
+            except Exception as e:
+                logger.warning(
+                    f"Fatal error while scraping PE automatically for superevent {superevent_id}"
+                )
+                logger.warning("No PE information will be updated")
+                logger.warning(f"The exception was {e}")
+
+            changes = metadata.get_diff()
+            if "GraceDB" in changes.keys() and len(changes.keys()) == 1:
+                # This is a hack to make it not update if the only update would be "LastUpdate"
+                # It may have to change in further schema versions
+                if len(changes["GraceDB"].keys()) == 1:
+                    continue
+
+            logger.info(f"Updates to supervent {superevent_id}")
+            string_rep_changes = get_dumpable_json_diff(changes)
+            logger.debug(json.dumps(string_rep_changes, indent=2))
+            metadata.write_to_library(branch_name=branch_name)
 
     def sync_library(self, branch_name: Union[str, None] = None) -> None:
         """Attempts to sync library and GraceDb,
@@ -395,28 +427,12 @@ class GraceDbDatabase(LibraryParent):
             The branch_name to write commits to, per `cbcflow.database.LocalLibraryDatabase.git_add_and_commit`
         """
         from ligo.gracedb.exceptions import HTTPError
-        from gwpy.time import to_gps
 
-        # setup defaults
-        # monitor_config = local_library.library_config["Monitor"]
-        event_config = self.library.library_config["Events"]
-
-        # annying hack due to gracedb query bug
-        import datetime
-
-        start_gps = to_gps(event_config["earliest-library-datetime"])
-        # to_gps understands 'now'
-        end_gps = to_gps(event_config["latest-library-datetime"])
-
-        now = datetime.datetime.utcnow()
-
-        logger.info(f"Syncing with GraceDB at {now}")
-        # make query and defaults, query
-        query = f"gpstime: {start_gps} .. {end_gps} \
-        FAR <= {event_config['far-threshold']}"
-        logger.info(f"Constructed query {query} from library config")
         try:
-            self.superevents_to_propagate = self.query_superevents(query)
+            self.superevents_to_propagate = self.query_superevents(
+                query=self.library_query
+            )
+            # TODO self.superevents_to_propogate should now include only catalog superevents satsifying the query
         except HTTPError:
             self.superevents_to_propagate = []
             logger.warning(
@@ -450,6 +466,115 @@ class GraceDbDatabase(LibraryParent):
         )
 
         self.pull_library_updates(branch_name=branch_name)
+
+
+class CatalogGraceDbDatabase(GraceDbDatabase):
+    def __init__(
+        self,
+        service_url: str,
+        library: "LocalLibraryDatabase",
+        cred: Tuple[str, str] | str | None = None,
+        pe_rota_token_path: str | None = None,
+    ) -> None:
+        super().__init__(service_url, library, cred, pe_rota_token_path)
+        self.catalog_number = library.library_config["Catalog"]["number"]
+        self.catalog_query_version = library.library_config["Catalog"]["version"]
+
+    def pull(self, sname: str) -> dict:
+        """Pull information on the superevent with this sname from GraceDB
+
+        Parameters
+        ==========
+        sname : str
+            The sname for the superevent in question
+
+        Returns
+        =======
+        dict
+            The GraceDB data for the superevent
+        """
+        try:
+            return fetch_gracedb_information(
+                sname,
+                service_url=self.source_path,
+                cred=self.cred,
+                catalog_mode=True,
+                catalog_number=self.catalog_number,
+                catalog_version=self.catalog_table_version,
+                gevent_ids=[
+                    x for x in self.catalog_superevents[sname]["pipelines"].values()
+                ],
+                catalog_superevent_far=self.catalog_superevents[sname]["far"],
+                catalog_superevent_pastro=self.catalog_superevents[sname]["pastro"],
+            )
+        except Exception as exception:
+            logger.warning(
+                f"Failed with exception:\n\
+                {exception}\n\
+                to fetch gracedb information for {sname},\
+                no update will be performed"
+            )
+            return None
+
+    @property
+    def catalog_superevents(self) -> Dict[str, List[str]]:
+        """A map of superevents to catalog gevents for superevents which are in the catalog"""
+        return self._catalog_superevents
+
+    @catalog_superevents.setter
+    def catalog_superevents(self, catalog_superevents: Dict[str, List[str]]) -> None:
+        self._catalog_superevents = catalog_superevents
+
+    @property
+    def catalog_query_version(self) -> Union[str, int]:
+        """The version of the catalog table to query - either a number or "latest" """
+        return self._catalog_query_version
+
+    @catalog_query_version.setter
+    def catalog_query_version(self, catalog_query_version: Union[str, int]):
+        self._catalog_query_version = catalog_query_version
+
+    @property
+    def catalog_table_version(self) -> int:
+        """The version of the gwtc catalog table which was obtained from the query."""
+        return self._catalog_table_version
+
+    @catalog_table_version.setter
+    def catalog_table_version(self, catalog_table_version: int):
+        self._catalog_table_version = catalog_table_version
+
+    def query_superevents(self, query: Optional[str] = None) -> list:
+        """Query for superevents in the catalog
+
+        Parameters
+        ==========
+        query : Optional[str]
+            This parameter is included for API compatibililty, but is ignored for Catalog operations
+        """
+        from gwtc.gwtc_gracedb import GWTCGraceDB
+
+        if query is None:
+            query = self.library_query
+
+        # standard query structure: "gpstime: {start_gps} .. {end_gps} \
+        # FAR <= {self.event_config['far-threshold']}"
+        # so split() then take 2 indexes further
+        far_threshold = float(query.split()[query.split().index("FAR") + 2])
+
+        with GWTCGraceDB(service_url=self.source_path, cred=self.cred) as gdb:
+            gwtc_table = gdb.gwtc_get(
+                number=self.catalog_number, version=self.catalog_query_version
+            ).json()
+            catalog_superevents_map = gwtc_table["gwtc_superevents"]
+            catalog_superevents = {
+                k: v
+                for k, v in catalog_superevents_map.items()
+                if v["far"] <= far_threshold
+            }
+            self.catalog_table_version = gwtc_table["version"]
+
+        self.catalog_superevents = catalog_superevents
+        return [k for k in catalog_superevents.keys()]
 
 
 class LocalLibraryDatabase(object):
@@ -500,7 +625,7 @@ class LocalLibraryDatabase(object):
             The path (GraceDB url, git url, or filesystem path) to the parent source
         """
         if source_path is None:
-            source_path = self.library_config["Monitor"]["parent"]
+            source_path = self.library_config["Monitor"]["gracedb-service-url"]
             logger.info(
                 f"Initializing parent from configuration, with source path {source_path}"
             )
@@ -530,12 +655,24 @@ class LocalLibraryDatabase(object):
                     pe_rota_token_path = None
             else:
                 pe_rota_token_path = None
-            self._library_parent = GraceDbDatabase(
-                service_url=source_path,
-                library=self,
-                cred=cred,
-                pe_rota_token_path=pe_rota_token_path,
-            )
+            if self.library_config["Monitor"]["parent"] == "gracedb":
+                self._library_parent = GraceDbDatabase(
+                    service_url=source_path,
+                    library=self,
+                    cred=cred,
+                    pe_rota_token_path=pe_rota_token_path,
+                )
+            elif self.library_config["Monitor"]["parent"] == "gwtc-gracedb":
+                self._library_parent = CatalogGraceDbDatabase(
+                    service_url=source_path,
+                    library=self,
+                    cred=cred,
+                    pe_rota_token_path=pe_rota_token_path,
+                )
+            else:
+                raise ValueError(
+                    f"{self.library_config['Monitor']['parent']} is not a valid parent"
+                )
         elif os.path.exists(source_path):
             # This will be the branch for pulling from a git repo in the local filesystem
             pass
@@ -546,6 +683,7 @@ class LocalLibraryDatabase(object):
             raise ValueError(
                 f"Could not obtain source information from path {source_path}"
             )
+        return self._library_parent
 
     @property
     def filelist(self) -> list:
@@ -684,9 +822,11 @@ class LocalLibraryDatabase(object):
         }
         library_defaults["Monitor"] = {
             "parent": "gracedb",
+            "gracedb-service-url": "https://gracedb.ligo.org/api/",
             "cred": None,
             "pe_rota_token": None,
         }
+        library_defaults["Catalog"] = {"number": "4", "version": "latest"}
         if os.path.exists(config_file):
             config.read(config_file)
             for section_key in config.sections():
@@ -944,7 +1084,7 @@ class LocalLibraryDatabase(object):
     @property
     def library_index_schema(self) -> dict:
         """The schema being used for this library's index"""
-        return get_schema(index_schema=True, args=["--schema-version", "v1"])
+        return get_schema(index_schema=True, version="v1")
 
     @cached_property
     def index_from_file(self) -> dict:

@@ -9,8 +9,8 @@ def main():
     parser.add_argument("library", help="The library to convert", type=str)
     args = parser.parse_args()
 
-    v2_schema = get_schema(["--schema-version", "v2"])
-    v3_schema = get_schema(["--schema-version", "v3"])
+    v2_schema = get_schema(version="v2")
+    v3_schema = get_schema(version="v3")
 
     library = LocalLibraryDatabase(library_path=args.library, schema=v2_schema)
 

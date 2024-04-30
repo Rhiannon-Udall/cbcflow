@@ -7,7 +7,6 @@ from glue import pipeline
 from crontab import CronTab
 
 from ..core.utils import setup_logger
-from ..core.configuration import get_cbcflow_config
 from ..core.database import LocalLibraryDatabase
 
 logger = setup_logger()
@@ -17,9 +16,8 @@ def get_base_parser():
     """Generate the standard monitor parser"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--config-file",
-        default="~/.cbcflow.cfg",
-        help="The cfg from which to obtain monitor configuration info",
+        "library",
+        help="The library which the monitor will update",
     )
     parser.add_argument(
         "--monitor-interval",
@@ -59,9 +57,9 @@ def generate_crontab() -> None:
         rundir = args.rundir
 
     monitor_exe = which("cbcflow_monitor_run")
-    monitor_args = f" {os.path.expanduser(args.config_file)} "
+    monitor_args = f" {os.path.expanduser(args.library)} "
 
-    log_file = f"{rundir}/cbcflow.log"
+    log_file = f"{rundir}/monitor.log"
 
     cron = CronTab(user=args.user_name)
     job = cron.new(command=f"{monitor_exe} {monitor_args} >> {log_file} 2>&1")
@@ -111,7 +109,7 @@ def generate_crondor() -> None:
     monitor_job.add_condor_cmd("cron_hour", f"* / {args.monitor_interval}")
     # This tells the job to queue 5 minutes before it's execution time, so it will be ready when the time comes
     monitor_job.add_condor_cmd("cron_prep_time", "300")
-    monitor_args = f" {os.path.expanduser(args.config_file)} "
+    monitor_args = f" {os.path.expanduser(args.library)} "
     monitor_job.add_arg(monitor_args)
     sub_path = os.path.join(rundir, "monitor.sub")
     monitor_job.set_sub_file(sub_path)
@@ -127,9 +125,9 @@ def run_monitor() -> None:
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "cbcflowconfig",
+        "library",
         type=str,
-        help="The .cbcflow.cfg file to use for library and service URL info",
+        help="The path to the library to operate on",
     )
     parser.add_argument(
         "--branch-name",
@@ -139,8 +137,7 @@ def run_monitor() -> None:
     )
     args = parser.parse_args()
 
-    config_values = get_cbcflow_config(args.cbcflowconfig)
-    local_library = LocalLibraryDatabase(library_path=config_values["library"])
+    local_library = LocalLibraryDatabase(library_path=args.library)
     logger.info("CBCFlow monitor is beginning sweep")
     logger.info("Attempting to pull from remote")
     # Pull before we potentially checkout a new branch
@@ -154,8 +151,7 @@ def run_monitor() -> None:
                     Before these changes can be propagated to the remote, this merge conflict\n\
                     must be resolved manually."
         )
-    logger.info(f"Config values are {config_values}")
-    local_library.initialize_parent(source_path=config_values["gracedb_service_url"])
+    local_library.initialize_parent()
     # Note that we explicitly sync to main instead of any other branch
     local_library.library_parent.sync_library(branch_name=args.branch_name)
     logger.info("Updating index file for library")
