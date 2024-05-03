@@ -141,7 +141,7 @@ def add_cwbtrigger_gevent_metadata(trigger_file_contents: str) -> dict:
     ifo_line = [line for line in trigger_file_lines if "ifo:" in line][0]
     sSNR_line = [line for line in trigger_file_lines if "sSNR:" in line][0]
     # Split get the functional part of the ifos line, then split on spaces
-    ifos = ifo_line.split(" ")[1].strip().split()
+    ifos = ifo_line.split(":")[1].strip().split()
     #  Get the functional part of the snrs line, then split on spaces and convert to floats
     snrs = [float(x) for x in sSNR_line.split(":")[1].strip().split()]
     # Loop to assign SNRs by IFO
