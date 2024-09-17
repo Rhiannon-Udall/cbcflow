@@ -596,8 +596,10 @@ class LocalLibraryDatabase(object):
 
         self.library = library_path
         self.metadata_schema = schema
-        self.validator = fastjsonschema.compile(self.metadata_schema)
-        self.index_validator = fastjsonschema.compile(self.library_index_schema)
+        self.validator = fastjsonschema.compile(copy.deepcopy(self.metadata_schema))
+        self.index_validator = fastjsonschema.compile(
+            copy.deepcopy(self.library_index_schema)
+        )
 
         self.metadata_dict = dict()
         self.working_index = dict()
