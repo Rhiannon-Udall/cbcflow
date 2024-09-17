@@ -13,7 +13,7 @@ from datetime import datetime
 
 import dateutil.parser as dp
 from jsondiff import diff
-import jsonschema
+import fastjsonschema
 import git
 import tqdm
 
@@ -388,7 +388,7 @@ class GraceDbDatabase(LibraryParent):
                 try:
                     updated_metadata.update(gdb_data)
                     metadata = updated_metadata
-                except jsonschema.ValidationError:
+                except fastjsonschema.JsonSchemaValueException:
                     logger.warning(
                         f"For superevent {superevent_id}, GraceDB generated metadata failed validation\n\
                         No GraceDB information will be updated\n"
@@ -596,6 +596,8 @@ class LocalLibraryDatabase(object):
 
         self.library = library_path
         self.metadata_schema = schema
+        self.validator = fastjsonschema.compile(self.metadata_schema)
+        self.index_validator = fastjsonschema.compile(self.library_index_schema)
 
         self.metadata_dict = dict()
         self.working_index = dict()
@@ -799,12 +801,13 @@ class LocalLibraryDatabase(object):
         data : dict
             The data to validate
         """
+
         try:
-            jsonschema.validate(data, self.metadata_schema)
-        except jsonschema.ValidationError as e:
-            raise jsonschema.ValidationError(e.message)
-        except jsonschema.SchemaError as e:
-            raise jsonschema.SchemaError(e.message)
+            self.validator(data, self.metadata_schema)
+        except fastjsonschema.JsonSchemaValueException as e:
+            raise fastjsonschema.JsonSchemaValueException(e.message)
+        except fastjsonschema.JsonSchemaDefinitionException as e:
+            raise fastjsonschema.JsonSchemaDefinitionException(e.message)
 
     @cached_property
     def library_config(self) -> dict:
@@ -1093,9 +1096,9 @@ class LocalLibraryDatabase(object):
             try:
                 with open(self.index_file_path, "r") as f:
                     current_index_data = json.load(f)
-                jsonschema.validate(current_index_data, self.library_index_schema)
+                self.index_validator(current_index_data, self.library_index_schema)
                 return current_index_data
-            except jsonschema.ValidationError:
+            except fastjsonschema.ValidationError:
                 logger.warning("Present index data failed validation!")
                 return dict()
         else:
