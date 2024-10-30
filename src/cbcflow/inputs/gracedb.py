@@ -138,15 +138,24 @@ def add_cwbtrigger_gevent_metadata(trigger_file_contents: str) -> dict:
     # 2. There exists one and only one line which looks like e.g. sSNR:\txx.xxxxx yy.yyyyy
     # So we'll do string parsing to pull out those elements
     trigger_file_lines = str(trigger_file_contents).split("\\n")
-    ifo_line = [line for line in trigger_file_lines if "ifo:" in line][0]
-    sSNR_line = [line for line in trigger_file_lines if "sSNR:" in line][0]
-    # Split get the functional part of the ifos line, then split on spaces
-    ifos = ifo_line.split(" ")[1].strip().split()
-    #  Get the functional part of the snrs line, then split on spaces and convert to floats
-    snrs = [float(x) for x in sSNR_line.split(":")[1].strip().split()]
-    # Loop to assign SNRs by IFO
-    for ii, ifo in enumerate(ifos):
-        cbcflow_gevent_dict[f"{ifo}SNR"] = snrs[ii]
+    try:
+        ifo_line = [line for line in trigger_file_lines if "ifo:" in line][0]
+        # Split get the functional part of the ifos line, then split on spaces
+        ifos = ifo_line.split(":")[1].strip().split()
+    except Exception as e:
+        ifos = []
+        logger.warning(e)
+        logger.warning("This will prevent full use of cwb file contents")
+    try:
+        sSNR_line = [line for line in trigger_file_lines if "sSNR:" in line][0]
+        # Get the functional part of the snrs line, then split on spaces and convert to floats
+        snrs = [float(x) for x in sSNR_line.split(":")[1].strip().split()]
+        # Loop to assign SNRs by IFO
+        for ii, ifo in enumerate(ifos):
+            cbcflow_gevent_dict[f"{ifo}SNR"] = snrs[ii]
+    except Exception as e:
+        logger.warning(e)
+        logger.warning("This will prevent full use of cwb file contents")
     return cbcflow_gevent_dict
 
 
