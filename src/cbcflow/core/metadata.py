@@ -9,7 +9,7 @@ import sys
 from typing import TYPE_CHECKING, Union
 
 import jsondiff
-import jsonschema
+import fastjsonschema
 
 from .process import process_update_json
 from .utils import get_date_last_modified
@@ -207,10 +207,10 @@ class MetaData(object):
         try:
             self.library.validate(self.data)
             return True
-        except jsonschema.ValidationError as e:
+        except fastjsonschema.JsonSchemaValueException as e:
             logger.info("Validation failed with message:" f"{e}")
             return False
-        except jsonschema.SchemaError as e:
+        except fastjsonschema.JsonSchemaDefinitionException as e:
             logger.info("Schema failed with message" f"{e}")
             return False
 
@@ -274,7 +274,7 @@ class MetaData(object):
             If true, this dictionary will treat all primitive list elements (i.e. not objects)
             as something to be removed, rather than added. Use sparingly.
         """
-        import jsonschema
+        import fastjsonschema
 
         new_metadata_data = copy.deepcopy(self.data)
         new_metadata_data = process_update_json(
@@ -285,10 +285,10 @@ class MetaData(object):
         )
         try:
             self.library.validate(new_metadata_data)
-        except jsonschema.ValidationError as e:
+        except fastjsonschema.JsonSchemaValueException as e:
             logger.warning("Failed to validate")
             logger.warning(f"Changes are {jsondiff.diff(new_metadata_data, self.data)}")
-            raise jsonschema.ValidationError(e.message)
+            raise fastjsonschema.JsonSchemaValueException.ValidationError(e.message)
         self.data = new_metadata_data
         self.library.metadata_dict[self.sname] = self
 
