@@ -36,6 +36,7 @@ unit-test:
     - pytest --cov cbcflow --cov-report xml
 
 schema-html:
+  image: python:3.11-bookworm
   stage: pre-docs
   extends:
     - .python:base
