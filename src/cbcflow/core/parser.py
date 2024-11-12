@@ -6,10 +6,8 @@ import os
 
 import argcomplete
 
-from .utils import setup_logger
+from .utils import logger
 from .schema import get_schema
-
-logger = setup_logger()
 
 IGNORE_ARGS = ["info-sname"]
 

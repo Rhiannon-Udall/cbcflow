@@ -15,12 +15,10 @@ from .process import process_update_json
 from .utils import get_date_last_modified
 from .parser import get_parser_and_default_data
 from .schema import get_schema
-from .utils import setup_logger
+from .utils import logger
 
 if TYPE_CHECKING:
     from .database import LocalLibraryDatabase
-
-logger = setup_logger()
 
 
 class MetaData(object):

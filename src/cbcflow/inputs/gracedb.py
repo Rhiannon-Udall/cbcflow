@@ -5,9 +5,7 @@ from typing import Union, Tuple, Optional, Dict, TYPE_CHECKING, List
 if TYPE_CHECKING:
     from ligo.gracedb.rest import GraceDb
 
-from ..core.utils import setup_logger
-
-logger = setup_logger()
+from ..core.utils import logger
 
 
 def add_common_gevent_metadata(

@@ -28,9 +28,7 @@ from .process import (
 from .schema import get_schema
 from ..inputs.gracedb import fetch_gracedb_information
 from ..inputs.pe_scraper import add_pe_information
-from .utils import get_dumpable_json_diff, setup_logger
-
-logger = setup_logger()
+from .utils import get_dumpable_json_diff, logger
 
 
 class Labeller(object):
