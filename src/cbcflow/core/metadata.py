@@ -208,10 +208,10 @@ class MetaData(object):
             self.library.validate(self.data)
             return True
         except fastjsonschema.JsonSchemaValueException as e:
-            logger.info("Validation failed with message:" f"{e}")
+            logger.warning("Validation failed with message:" f"{e}")
             return False
         except fastjsonschema.JsonSchemaDefinitionException as e:
-            logger.info("Schema failed with message" f"{e}")
+            logger.warning("Schema failed with message" f"{e}")
             return False
 
     ############################################################################
@@ -334,7 +334,7 @@ class MetaData(object):
             commit_changes = True
 
         if commit_changes:
-            logger.info(f"Writing file {self.library_file}")
+            logger.debug(f"Writing file {self.library_file}")
             with open(self.library_file, "w") as file:
                 json.dump(self.data, file, indent=2)
             if self.no_git_library is False:
