@@ -638,7 +638,7 @@ class LocalLibraryDatabase(object):
         """
         if source_path is None:
             source_path = self.library_config["Monitor"]["gracedb-service-url"]
-            logger.info(
+            logger.debug(
                 f"Initializing parent from configuration, with source path {source_path}"
             )
         if "https://gracedb" in source_path:
@@ -647,18 +647,18 @@ class LocalLibraryDatabase(object):
 
                 if self.library_config["Monitor"]["cred"].lower() == "none":
                     # If it's just the string None
-                    logger.info("Using default credentials")
+                    logger.debug("Using default credentials")
                     cred = None
                 elif re.match(r"\(.,.\)", self.library_config["Monitor"]["cred"]):
                     import ast
 
-                    logger.info("Using cred/key pair given")
+                    logger.debug("Using cred/key pair given")
                     cred = ast.literal_eval(self.library_config["Monitor"]["cred"])
                 else:
-                    logger.info("Using path to credential proxy file")
+                    logger.debug("Using path to credential proxy file")
                     cred = self.library_config["Monitor"]["cred"]
             else:
-                logger.info("Using default credentials")
+                logger.debug("Using default credentials")
                 cred = None
             if self.library_config["Monitor"]["pe_rota_token"] is not None:
                 if self.library_config["Monitor"]["pe_rota_token"].lower() != "none":
@@ -940,7 +940,7 @@ class LocalLibraryDatabase(object):
         if branch_name is None:
             if self.repo.active_branch == self.repo.heads["main"]:
                 # If we are currently on main, we want to checkout a new branch
-                logger.info(
+                logger.debug(
                     "Branch main is currently checked out, and no new branch title was passed"
                 )
                 user_name = (
@@ -957,12 +957,12 @@ class LocalLibraryDatabase(object):
         else:
             if branch_name == "main":
                 # The case where we are forcing the commit onto main
-                logger.info("Commit explicitly made to main")
+                logger.debug("Commit explicitly made to main")
             self.git_checkout_new_branch(branch_name)
 
         self.repo.git.add(filename)
         self.repo.git.commit("-m", message)
-        logger.info(f"Wrote commit {self.repo.active_branch.commit}")
+        logger.debug(f"Wrote commit {self.repo.active_branch.commit}")
 
     def git_merge_metadata_jsons(
         self, our_file: str, their_file: str, most_recent_common_ancestor_file: str
@@ -984,7 +984,7 @@ class LocalLibraryDatabase(object):
             with open(most_recent_common_ancestor_file, "r") as file:
                 mrca_json = json.load(file)
         except json.decoder.JSONDecodeError as e:
-            logger.info(
+            logger.warning(
                 f"Could not read head with error {e}, proceeding as if it's empty"
             )
             mrca_json = {}
@@ -992,7 +992,7 @@ class LocalLibraryDatabase(object):
             with open(our_file, "r") as file:
                 head_json = json.load(file)
         except json.decoder.JSONDecodeError as e:
-            logger.info(
+            logger.warning(
                 f"Could not read head with error {e}, proceeding as if it's empty"
             )
             head_json = copy.deepcopy(mrca_json)
@@ -1000,7 +1000,7 @@ class LocalLibraryDatabase(object):
             with open(their_file, "r") as file:
                 base_json = json.load(file)
         except json.decoder.JSONDecodeError as e:
-            logger.info(
+            logger.warning(
                 f"Could not read base with error {e}, proceeding as if it's empty"
             )
             base_json = copy.deepcopy(mrca_json)
@@ -1036,8 +1036,8 @@ class LocalLibraryDatabase(object):
             self.repo.git.fetch("origin")
             self.repo.git.merge("origin/main", "main")
         except Exception as e:
-            logger.info("Pull failed:")
-            logger.info(e)
+            logger.warning("Pull failed:")
+            logger.warning(e)
             if automated:
                 logger.info("Automated mode prioritizes continued json validity")
                 self.remote_has_merge_conflict = True
@@ -1173,7 +1173,7 @@ class LocalLibraryDatabase(object):
             self.working_index = self.generate_index_from_metadata()
         index_diff = diff(self.index_from_file, self.working_index)
         if index_diff != {}:
-            logger.info("Index data has changed since it was last written")
+            logger.debug("Index data has changed since it was last written")
             string_rep_diff = get_dumpable_json_diff(index_diff)
             logger.debug(json.dumps(string_rep_diff, indent=2))
         return index_diff
