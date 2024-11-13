@@ -5,7 +5,6 @@ import sys
 from typing import Union, Optional
 from pathlib import Path
 
-from .utils import logger
 
 CURRENT_CBC_SCHEMA_VERSION = "v3"
 CURRENT_INDEX_SCHEMA_VERSION = "v1"

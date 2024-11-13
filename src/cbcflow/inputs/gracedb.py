@@ -5,7 +5,9 @@ from typing import Union, Tuple, Optional, Dict, TYPE_CHECKING, List
 if TYPE_CHECKING:
     from ligo.gracedb.rest import GraceDb
 
-from ..core.utils import logger
+from ..core.utils import setup_logger
+
+logger = setup_logger(name=__name__)
 
 
 def add_common_gevent_metadata(
@@ -142,7 +144,9 @@ def add_cwbtrigger_gevent_metadata(trigger_file_contents: str) -> dict:
         ifos = ifo_line.split(":")[1].strip().split()
     except Exception as e:
         ifos = []
-        logger.warning(e)
+        logger.warning(
+            f"Attempt to determine ifos from trigger.txt gives exception: {e}"
+        )
         logger.warning("This will prevent full use of cwb file contents")
     try:
         sSNR_line = [line for line in trigger_file_lines if "sSNR:" in line][0]
@@ -152,7 +156,9 @@ def add_cwbtrigger_gevent_metadata(trigger_file_contents: str) -> dict:
         for ii, ifo in enumerate(ifos):
             cbcflow_gevent_dict[f"{ifo}SNR"] = snrs[ii]
     except Exception as e:
-        logger.warning(e)
+        logger.warning(
+            f"Attempt to determine snrs from trigger.txt gives exception: {e}"
+        )
         logger.warning("This will prevent full use of cwb file contents")
     return cbcflow_gevent_dict
 

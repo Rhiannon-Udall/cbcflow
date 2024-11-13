@@ -8,7 +8,7 @@ import ast
 from functools import cached_property
 import sys
 from pprint import pformat
-from typing import Union, Dict, Type, TypeVar, Tuple, Optional, List
+from typing import Union, Dict, Type, TypeVar, Tuple, Optional, List, TYPE_CHECKING
 from datetime import datetime
 
 import dateutil.parser as dp
@@ -18,6 +18,7 @@ import git
 import tqdm
 
 from .metadata import MetaData
+from .metadata import logger as metadata_logger
 from .parser import get_parser_and_default_data
 from .process import (
     get_all_schema_def_defaults,
@@ -28,7 +29,9 @@ from .process import (
 from .schema import get_schema
 from ..inputs.gracedb import fetch_gracedb_information
 from ..inputs.pe_scraper import add_pe_information
-from .utils import get_dumpable_json_diff, logger
+from .utils import get_dumpable_json_diff, setup_logger, reset_root_handlers
+
+logger = setup_logger(name=__name__)
 
 
 class Labeller(object):
@@ -332,6 +335,9 @@ class GraceDbDatabase(LibraryParent):
             superevent_iterator = gdb.superevents(query)
             for superevent in superevent_iterator:
                 queried_superevents.append(superevent["superevent_id"])
+
+        reset_root_handlers()
+
         return queried_superevents
 
     def pull_library_updates(self, branch_name: Union[str, None] = None) -> None:
@@ -412,7 +418,7 @@ class GraceDbDatabase(LibraryParent):
 
             logger.info(f"Updates to supervent {superevent_id}")
             string_rep_changes = get_dumpable_json_diff(changes)
-            logger.debug(json.dumps(string_rep_changes, indent=2))
+            logger.info(json.dumps(string_rep_changes, indent=2))
             metadata.write_to_library(branch_name=branch_name)
 
     def sync_library(self, branch_name: Union[str, None] = None) -> None:
@@ -430,6 +436,7 @@ class GraceDbDatabase(LibraryParent):
             self.superevents_to_propagate = self.query_superevents(
                 query=self.library_query
             )
+
             # TODO self.superevents_to_propogate should now include only catalog superevents satsifying the query
         except HTTPError:
             self.superevents_to_propagate = []
@@ -549,6 +556,7 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         query : Optional[str]
             This parameter is included for API compatibililty, but is ignored for Catalog operations
         """
+
         from gwtc.gwtc_gracedb import GWTCGraceDB
 
         if query is None:
@@ -570,6 +578,8 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
                 if v["far"] <= far_threshold
             }
             self.catalog_table_version = gwtc_table["version"]
+
+        reset_root_handlers()
 
         self.catalog_superevents = catalog_superevents
         return [k for k in catalog_superevents.keys()]

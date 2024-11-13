@@ -7,12 +7,14 @@ import copy
 from typing import Union, Tuple, Dict
 
 from ..core.utils import (
-    logger,
+    setup_logger,
     get_cluster,
     get_url_from_public_html_dir,
     get_uids_from_object_array,
 )
 from ..core.metadata import MetaData
+
+logger = setup_logger(name=__name__)
 
 
 def scrape_bayeswave_result(path: str):

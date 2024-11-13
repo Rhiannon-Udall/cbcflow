@@ -15,10 +15,12 @@ from .process import process_update_json
 from .utils import get_date_last_modified
 from .parser import get_parser_and_default_data
 from .schema import get_schema
-from .utils import logger
+from .utils import setup_logger
 
 if TYPE_CHECKING:
     from .database import LocalLibraryDatabase
+
+logger = setup_logger(name=__name__)
 
 
 class MetaData(object):
@@ -324,7 +326,7 @@ class MetaData(object):
 
         self.library.validate(self.data)
         self.print_summary()
-        self.print_diff()
+        self.print_diff(confirmation_message=check_changes)
 
         if check_changes:
             commit_changes = self.confirm_changes()
@@ -405,7 +407,7 @@ class MetaData(object):
                     m1, m2 = event["Mass1"], event["Mass2"]
                     chirp_mass = round((m1 * m2) ** (3 / 5) / (m1 + m2) ** (1 / 5), 2)
                 except KeyError:
-                    logger.warning("Could not find Mass1 and Mass2 for this event")
+                    logger.warning(f"Could not find Mass1 and Mass2 for {event['UID']}")
                     logger.warning(
                         "This may be because it's a CWB event, or it may be because something went wrong"
                     )
@@ -415,12 +417,15 @@ class MetaData(object):
             f"Super event: {self.sname}, GPSTime={GPSTime}, chirp_mass={chirp_mass}"
         )
 
-    def print_diff(self) -> None:
+    def print_diff(self, confirmation_message=False) -> None:
         """Cleanly print the output of get_diff"""
         if self._loaded_data is None:
             return
 
         diff = self.get_diff()
+        if diff and confirmation_message:
+            sys.stdout.write("Changes between loaded and current data:")
+            sys.stdout.write(f"{diff}\n")
         if diff:
             logger.info("Changes between loaded and current data:")
             logger.info(diff)

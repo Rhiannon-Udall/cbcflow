@@ -6,8 +6,10 @@ from shutil import which
 from glue import pipeline
 from crontab import CronTab
 
-from ..core.utils import logger
+from ..core.utils import setup_logger
 from ..core.database import LocalLibraryDatabase
+
+logger = setup_logger(name=__name__)
 
 
 def get_base_parser():

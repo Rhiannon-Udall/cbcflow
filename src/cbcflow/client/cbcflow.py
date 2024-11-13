@@ -17,7 +17,9 @@ from ..core.database import LocalLibraryDatabase
 from ..core.parser import get_parser_and_default_data, sname_string
 from ..core.process import process_user_input
 from ..core.schema import get_schema, get_schema_from_args
-from ..core.utils import logger
+from ..core.utils import setup_logger
+
+logger = setup_logger(name=__name__)
 
 
 def setup_args_metadata() -> Tuple[argparse.Namespace, "MetaData"]:
