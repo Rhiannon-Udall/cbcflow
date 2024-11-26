@@ -8,7 +8,7 @@ import ast
 from functools import cached_property
 import sys
 from pprint import pformat
-from typing import Union, Dict, Type, TypeVar, Tuple, Optional, List
+from typing import Union, Dict, Type, TypeVar, Tuple, Optional, List, TYPE_CHECKING
 from datetime import datetime
 
 import dateutil.parser as dp
@@ -18,6 +18,7 @@ import git
 import tqdm
 
 from .metadata import MetaData
+from .metadata import logger as metadata_logger
 from .parser import get_parser_and_default_data
 from .process import (
     get_all_schema_def_defaults,
@@ -28,9 +29,9 @@ from .process import (
 from .schema import get_schema
 from ..inputs.gracedb import fetch_gracedb_information
 from ..inputs.pe_scraper import add_pe_information
-from .utils import get_dumpable_json_diff, setup_logger
+from .utils import get_dumpable_json_diff, setup_logger, reset_root_handlers
 
-logger = setup_logger()
+logger = setup_logger(name=__name__)
 
 
 class Labeller(object):
@@ -334,6 +335,9 @@ class GraceDbDatabase(LibraryParent):
             superevent_iterator = gdb.superevents(query)
             for superevent in superevent_iterator:
                 queried_superevents.append(superevent["superevent_id"])
+
+        reset_root_handlers()
+
         return queried_superevents
 
     def pull_library_updates(self, branch_name: Union[str, None] = None) -> None:
@@ -414,7 +418,7 @@ class GraceDbDatabase(LibraryParent):
 
             logger.info(f"Updates to supervent {superevent_id}")
             string_rep_changes = get_dumpable_json_diff(changes)
-            logger.debug(json.dumps(string_rep_changes, indent=2))
+            logger.info(json.dumps(string_rep_changes, indent=2))
             metadata.write_to_library(branch_name=branch_name)
 
     def sync_library(self, branch_name: Union[str, None] = None) -> None:
@@ -432,6 +436,7 @@ class GraceDbDatabase(LibraryParent):
             self.superevents_to_propagate = self.query_superevents(
                 query=self.library_query
             )
+
             # TODO self.superevents_to_propogate should now include only catalog superevents satsifying the query
         except HTTPError:
             self.superevents_to_propagate = []
@@ -551,6 +556,7 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         query : Optional[str]
             This parameter is included for API compatibililty, but is ignored for Catalog operations
         """
+
         from gwtc.gwtc_gracedb import GWTCGraceDB
 
         if query is None:
@@ -572,6 +578,8 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
                 if v["far"] <= far_threshold
             }
             self.catalog_table_version = gwtc_table["version"]
+
+        reset_root_handlers()
 
         self.catalog_superevents = catalog_superevents
         return [k for k in catalog_superevents.keys()]
@@ -630,7 +638,7 @@ class LocalLibraryDatabase(object):
         """
         if source_path is None:
             source_path = self.library_config["Monitor"]["gracedb-service-url"]
-            logger.info(
+            logger.debug(
                 f"Initializing parent from configuration, with source path {source_path}"
             )
         if "https://gracedb" in source_path:
@@ -639,18 +647,18 @@ class LocalLibraryDatabase(object):
 
                 if self.library_config["Monitor"]["cred"].lower() == "none":
                     # If it's just the string None
-                    logger.info("Using default credentials")
+                    logger.debug("Using default credentials")
                     cred = None
                 elif re.match(r"\(.,.\)", self.library_config["Monitor"]["cred"]):
                     import ast
 
-                    logger.info("Using cred/key pair given")
+                    logger.debug("Using cred/key pair given")
                     cred = ast.literal_eval(self.library_config["Monitor"]["cred"])
                 else:
-                    logger.info("Using path to credential proxy file")
+                    logger.debug("Using path to credential proxy file")
                     cred = self.library_config["Monitor"]["cred"]
             else:
-                logger.info("Using default credentials")
+                logger.debug("Using default credentials")
                 cred = None
             if self.library_config["Monitor"]["pe_rota_token"] is not None:
                 if self.library_config["Monitor"]["pe_rota_token"].lower() != "none":
@@ -932,7 +940,7 @@ class LocalLibraryDatabase(object):
         if branch_name is None:
             if self.repo.active_branch == self.repo.heads["main"]:
                 # If we are currently on main, we want to checkout a new branch
-                logger.info(
+                logger.debug(
                     "Branch main is currently checked out, and no new branch title was passed"
                 )
                 user_name = (
@@ -949,12 +957,12 @@ class LocalLibraryDatabase(object):
         else:
             if branch_name == "main":
                 # The case where we are forcing the commit onto main
-                logger.info("Commit explicitly made to main")
+                logger.debug("Commit explicitly made to main")
             self.git_checkout_new_branch(branch_name)
 
         self.repo.git.add(filename)
         self.repo.git.commit("-m", message)
-        logger.info(f"Wrote commit {self.repo.active_branch.commit}")
+        logger.debug(f"Wrote commit {self.repo.active_branch.commit}")
 
     def git_merge_metadata_jsons(
         self, our_file: str, their_file: str, most_recent_common_ancestor_file: str
@@ -976,7 +984,7 @@ class LocalLibraryDatabase(object):
             with open(most_recent_common_ancestor_file, "r") as file:
                 mrca_json = json.load(file)
         except json.decoder.JSONDecodeError as e:
-            logger.info(
+            logger.warning(
                 f"Could not read head with error {e}, proceeding as if it's empty"
             )
             mrca_json = {}
@@ -984,7 +992,7 @@ class LocalLibraryDatabase(object):
             with open(our_file, "r") as file:
                 head_json = json.load(file)
         except json.decoder.JSONDecodeError as e:
-            logger.info(
+            logger.warning(
                 f"Could not read head with error {e}, proceeding as if it's empty"
             )
             head_json = copy.deepcopy(mrca_json)
@@ -992,7 +1000,7 @@ class LocalLibraryDatabase(object):
             with open(their_file, "r") as file:
                 base_json = json.load(file)
         except json.decoder.JSONDecodeError as e:
-            logger.info(
+            logger.warning(
                 f"Could not read base with error {e}, proceeding as if it's empty"
             )
             base_json = copy.deepcopy(mrca_json)
@@ -1028,8 +1036,8 @@ class LocalLibraryDatabase(object):
             self.repo.git.fetch("origin")
             self.repo.git.merge("origin/main", "main")
         except Exception as e:
-            logger.info("Pull failed:")
-            logger.info(e)
+            logger.warning("Pull failed:")
+            logger.warning(e)
             if automated:
                 logger.info("Automated mode prioritizes continued json validity")
                 self.remote_has_merge_conflict = True
@@ -1165,7 +1173,7 @@ class LocalLibraryDatabase(object):
             self.working_index = self.generate_index_from_metadata()
         index_diff = diff(self.index_from_file, self.working_index)
         if index_diff != {}:
-            logger.info("Index data has changed since it was last written")
+            logger.debug("Index data has changed since it was last written")
             string_rep_diff = get_dumpable_json_diff(index_diff)
             logger.debug(json.dumps(string_rep_diff, indent=2))
         return index_diff

@@ -19,6 +19,8 @@ from ..core.process import process_user_input
 from ..core.schema import get_schema, get_schema_from_args
 from ..core.utils import setup_logger
 
+logger = setup_logger(name=__name__)
+
 
 def setup_args_metadata() -> Tuple[argparse.Namespace, "MetaData"]:
     """Take in command line arguments, and return a metadata object
@@ -52,7 +54,6 @@ def pull() -> None:
     """Pull updates from GraceDB to the library"""
     from jsonschema.exceptions import ValidationError
 
-    logger = setup_logger()
     args, metadata = setup_args_metadata()
 
     default_metadata = copy.deepcopy(metadata)
@@ -259,7 +260,6 @@ def validate_library() -> None:
 
 def cbcflow_git_merge() -> int:
     """A script that manages git merge operations, in a way which understands our json files"""
-    logger = setup_logger()
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

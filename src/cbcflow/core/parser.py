@@ -9,7 +9,7 @@ import argcomplete
 from .utils import setup_logger
 from .schema import get_schema
 
-logger = setup_logger()
+logger = setup_logger(name=__name__)
 
 IGNORE_ARGS = ["info-sname"]
 

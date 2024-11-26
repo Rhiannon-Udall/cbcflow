@@ -14,7 +14,7 @@ from ..core.utils import (
 )
 from ..core.metadata import MetaData
 
-logger = setup_logger()
+logger = setup_logger(name=__name__)
 
 
 def scrape_bayeswave_result(path: str):

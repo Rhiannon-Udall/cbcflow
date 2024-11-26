@@ -8,11 +8,7 @@ from jsondiff import Symbol
 import logging
 
 
-def setup_logger() -> "logging.Logger":
-    """Setup a logger for CBCFlow"""
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+def configure_logging():
     ch = logging.StreamHandler()
     PRINT_LEVEL = logging.WARNING
     LOGGER_LEVEL = logging.INFO
@@ -30,10 +26,31 @@ def setup_logger() -> "logging.Logger":
     fh.setFormatter(formatter)
     fh.setLevel(LOGGER_LEVEL)
 
+    return ch, fh
+
+
+ch, fh = configure_logging()
+
+
+def setup_logger(name=None) -> "logging.Logger":
+    """Setup a logger for CBCFlow"""
+
+    name = __name__ if name is None else name
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
     logger.addHandler(ch)
     logger.addHandler(fh)
 
     return logger
+
+
+def reset_root_handlers():
+    # https://stackoverflow.com/questions/12158048/changing-loggings-basicconfig-which-is-already-set
+    # Remove all handlers associated with the root logger object.
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
 
 
 logger = setup_logger()

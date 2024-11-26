@@ -9,12 +9,10 @@ from typing import TYPE_CHECKING, Union, Tuple
 from jsonmerge import Merger
 from jsonmerge.strategies import ArrayStrategy
 
-from .utils import fill_out_linked_file, standardize_list, setup_logger
+from .utils import fill_out_linked_file, standardize_list, logger
 
 if TYPE_CHECKING:
     from .metadata import MetaData
-
-logger = setup_logger()
 
 
 def form_update_json_from_args(

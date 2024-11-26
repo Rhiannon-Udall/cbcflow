@@ -20,7 +20,7 @@ from .utils import setup_logger
 if TYPE_CHECKING:
     from .database import LocalLibraryDatabase
 
-logger = setup_logger()
+logger = setup_logger(name=__name__)
 
 
 class MetaData(object):
@@ -208,10 +208,10 @@ class MetaData(object):
             self.library.validate(self.data)
             return True
         except fastjsonschema.JsonSchemaValueException as e:
-            logger.info("Validation failed with message:" f"{e}")
+            logger.warning("Validation failed with message:" f"{e}")
             return False
         except fastjsonschema.JsonSchemaDefinitionException as e:
-            logger.info("Schema failed with message" f"{e}")
+            logger.warning("Schema failed with message" f"{e}")
             return False
 
     ############################################################################
@@ -326,7 +326,7 @@ class MetaData(object):
 
         self.library.validate(self.data)
         self.print_summary()
-        self.print_diff()
+        self.print_diff(confirmation_message=check_changes)
 
         if check_changes:
             commit_changes = self.confirm_changes()
@@ -334,7 +334,7 @@ class MetaData(object):
             commit_changes = True
 
         if commit_changes:
-            logger.info(f"Writing file {self.library_file}")
+            logger.debug(f"Writing file {self.library_file}")
             with open(self.library_file, "w") as file:
                 json.dump(self.data, file, indent=2)
             if self.no_git_library is False:
@@ -407,7 +407,7 @@ class MetaData(object):
                     m1, m2 = event["Mass1"], event["Mass2"]
                     chirp_mass = round((m1 * m2) ** (3 / 5) / (m1 + m2) ** (1 / 5), 2)
                 except KeyError:
-                    logger.warning("Could not find Mass1 and Mass2 for this event")
+                    logger.warning(f"Could not find Mass1 and Mass2 for {event['UID']}")
                     logger.warning(
                         "This may be because it's a CWB event, or it may be because something went wrong"
                     )
@@ -417,12 +417,15 @@ class MetaData(object):
             f"Super event: {self.sname}, GPSTime={GPSTime}, chirp_mass={chirp_mass}"
         )
 
-    def print_diff(self) -> None:
+    def print_diff(self, confirmation_message=False) -> None:
         """Cleanly print the output of get_diff"""
         if self._loaded_data is None:
             return
 
         diff = self.get_diff()
+        if diff and confirmation_message:
+            sys.stdout.write("Changes between loaded and current data:")
+            sys.stdout.write(f"{diff}\n")
         if diff:
             logger.info("Changes between loaded and current data:")
             logger.info(diff)
