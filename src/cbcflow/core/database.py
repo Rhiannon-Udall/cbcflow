@@ -1108,7 +1108,7 @@ class LocalLibraryDatabase(object):
                     current_index_data = json.load(f)
                 self.index_validator(current_index_data, self.library_index_schema)
                 return current_index_data
-            except fastjsonschema.ValidationError:
+            except fastjsonschema.JsonSchemaValueException:
                 logger.warning("Present index data failed validation!")
                 return dict()
         else:

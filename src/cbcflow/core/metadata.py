@@ -288,7 +288,7 @@ class MetaData(object):
         except fastjsonschema.JsonSchemaValueException as e:
             logger.warning("Failed to validate")
             logger.warning(f"Changes are {jsondiff.diff(new_metadata_data, self.data)}")
-            raise fastjsonschema.JsonSchemaValueException.ValidationError(e.message)
+            raise fastjsonschema.JsonSchemaValueException(e.message)
         self.data = new_metadata_data
         self.library.metadata_dict[self.sname] = self
 
