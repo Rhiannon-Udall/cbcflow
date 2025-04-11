@@ -574,7 +574,7 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
             catalog_superevents = {
                 k: v
                 for k, v in catalog_superevents_map.items()
-                if v["far"] <= far_threshold
+                if v.get("far", 1) is not None and v.get("far", 1) <= far_threshold
             }
             self.catalog_table_version = gwtc_table["version"]
 
