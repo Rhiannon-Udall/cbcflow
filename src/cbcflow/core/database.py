@@ -556,8 +556,7 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         query : Optional[str]
             This parameter is included for API compatibililty, but is ignored for Catalog operations
         """
-
-        from gwtc.gwtc_gracedb import GWTCGraceDB
+        from ligo.gracedb.rest import GraceDb
 
         if query is None:
             query = self.library_query
@@ -567,7 +566,7 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         # so split() then take 2 indexes further
         far_threshold = float(query.split()[query.split().index("FAR") + 2])
 
-        with GWTCGraceDB(service_url=self.source_path, cred=self.cred) as gdb:
+        with GraceDb(service_url=self.source_path, cred=self.cred) as gdb:
             gwtc_table = gdb.gwtc_get(
                 number=self.catalog_number, version=self.catalog_query_version
             ).json()
