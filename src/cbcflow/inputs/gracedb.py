@@ -289,13 +289,13 @@ def get_superevent_online_gevents(
 
 
 def get_superevent_gwtc_gevents(
-    gdb: "gwtc.gwtc_gracedb.GWTCGraceDB", gevent_ids: List[str]
+    gdb: "ligo.gracedb.rest.GraceDb", gevent_ids: List[str]
 ) -> Dict[str, dict]:
     """Gets the gevents associated with a superevent.
 
     Parameters
     ==========
-    gdb : "gwtc.gwtc_gracedb.GWTCGraceDB"
+    gdb : "ligo.gracedb.rest.GraceDb"
         An instance of the rest API, with gwtc functionality
     gevent_ids : List[str]
         The list of g-event ids to query
@@ -433,7 +433,7 @@ def fetch_gracedb_information(
     dict
         An update dictionary to apply to the metadata, containing the GraceDB info.
     """
-    from gwtc.gwtc_gracedb import GWTCGraceDB
+    from ligo.gracedb.rest import GraceDb
     from ligo.gracedb.exceptions import HTTPError
 
     full_update_dict = dict(
@@ -444,7 +444,7 @@ def fetch_gracedb_information(
         logger.info("Using default (production) GraceDB service_url")
         service_url = "https://gracedb.ligo.org/api/"
 
-    with GWTCGraceDB(service_url=service_url, cred=cred) as gdb:
+    with GraceDb(service_url=service_url, cred=cred) as gdb:
         try:
             # Get the json of metadata for the superevent
             superevent_data = gdb.superevent(sname).json()
