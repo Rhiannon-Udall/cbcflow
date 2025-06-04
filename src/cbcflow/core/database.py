@@ -225,6 +225,7 @@ class GraceDbDatabase(LibraryParent):
         library: "LocalLibraryDatabase",
         cred: Union[Tuple[str, str], str, None] = None,
         pe_rota_token_path: Union[str, None] = None,
+        pe_rota_gitlab_project_id: int = 14074,
     ) -> None:
         """Setup the GraceDbDatabase that this library pairs to
 
@@ -242,6 +243,7 @@ class GraceDbDatabase(LibraryParent):
         super(GraceDbDatabase, self).__init__(source_path=service_url, library=library)
         self.cred = cred
         self.pe_rota_token = pe_rota_token_path
+        self.pe_rota_gitlab_project_id = pe_rota_gitlab_project_id
 
         # Do the setup of the standard query from the library config here
         self.event_config = self.library.library_config["Events"]
@@ -286,6 +288,15 @@ class GraceDbDatabase(LibraryParent):
         else:
             self._pe_rota_token = None
 
+    @property
+    def pe_rota_gitlab_project_id(self) -> int:
+        """The token used to access the pe rota gitlab api"""
+        return self._pe_rota_gitlab_project_id
+
+    @pe_rota_gitlab_project_id.setter
+    def pe_rota_gitlab_project_id(self, project_id: int) -> None:
+        self._pe_rota_gitlab_project_id = project_id
+
     def pull(self, sname: str) -> dict:
         """Pull information on the superevent with this sname from GraceDB
 
@@ -303,9 +314,9 @@ class GraceDbDatabase(LibraryParent):
             return fetch_gracedb_information(
                 sname, service_url=self.source_path, cred=self.cred
             )
-        except Exception:
+        except Exception as e:
             logger.warning(
-                f"Failed with exception {Exception} to fetch gracedb information for {sname},\
+                f"Failed with exception {e} to fetch gracedb information for {sname},\
                 no update will be performed"
             )
             return None
@@ -400,7 +411,12 @@ class GraceDbDatabase(LibraryParent):
 
             try:
                 # Pull information from PE
-                add_pe_information(updated_metadata, superevent_id, self.pe_rota_token)
+                add_pe_information(
+                    updated_metadata,
+                    superevent_id,
+                    self.pe_rota_token,
+                    self.pe_rota_gitlab_project_id,
+                )
                 metadata = updated_metadata
             except Exception as e:
                 logger.warning(
@@ -480,8 +496,11 @@ class CatalogGraceDbDatabase(GraceDbDatabase):
         library: "LocalLibraryDatabase",
         cred: Tuple[str, str] | str | None = None,
         pe_rota_token_path: str | None = None,
+        pe_rota_gitlab_project_id: int = 14074,
     ) -> None:
-        super().__init__(service_url, library, cred, pe_rota_token_path)
+        super().__init__(
+            service_url, library, cred, pe_rota_token_path, pe_rota_gitlab_project_id
+        )
         self.catalog_number = library.library_config["Catalog"]["number"]
         self.catalog_query_version = library.library_config["Catalog"]["version"]
 
@@ -666,12 +685,19 @@ class LocalLibraryDatabase(object):
                     pe_rota_token_path = None
             else:
                 pe_rota_token_path = None
+            if self.library_config["Monitor"]["pe_rota_gitlab_project_id"] is not None:
+                pe_rota_gitlab_project_id = self.library_config["Monitor"][
+                    "pe_rota_gitlab_project_id"
+                ]
+            else:
+                pe_rota_gitlab_project_id = 14074
             if self.library_config["Monitor"]["parent"] == "gracedb":
                 self._library_parent = GraceDbDatabase(
                     service_url=source_path,
                     library=self,
                     cred=cred,
                     pe_rota_token_path=pe_rota_token_path,
+                    pe_rota_gitlab_project_id=pe_rota_gitlab_project_id,
                 )
             elif self.library_config["Monitor"]["parent"] == "gwtc-gracedb":
                 self._library_parent = CatalogGraceDbDatabase(
@@ -679,6 +705,7 @@ class LocalLibraryDatabase(object):
                     library=self,
                     cred=cred,
                     pe_rota_token_path=pe_rota_token_path,
+                    pe_rota_gitlab_project_id=pe_rota_gitlab_project_id,
                 )
             else:
                 raise ValueError(
