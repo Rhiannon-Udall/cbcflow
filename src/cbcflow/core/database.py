@@ -678,20 +678,20 @@ class LocalLibraryDatabase(object):
             else:
                 logger.debug("Using default credentials")
                 cred = None
-            if self.library_config["Monitor"]["pe_rota_token"] is not None:
-                if self.library_config["Monitor"]["pe_rota_token"].lower() != "none":
-                    pe_rota_token_path = self.library_config["Monitor"]["pe_rota_token"]
-                else:
-                    pe_rota_token_path = None
-            else:
+            # if self.library_config["Monitor"]["pe_rota_token"] is not None:
+            #     if self.library_config["Monitor"]["pe_rota_token"].lower() != "none":
+            #         pe_rota_token_path = self.library_config["Monitor"]["pe_rota_token"]
+            #     else:
+            #         pe_rota_token_path = None
+            pe_rota_token_path = self.library_config["Monitor"].get(
+                "pe_rota_token", None
+            )
+            if pe_rota_token_path.lower() == "none":
                 pe_rota_token_path = None
-            if self.library_config["Monitor"]["pe_rota_gitlab_project_id"] is not None:
-                pe_rota_gitlab_project_id = self.library_config["Monitor"][
-                    "pe_rota_gitlab_project_id"
-                ]
-            else:
-                pe_rota_gitlab_project_id = 14074
-            if self.library_config["Monitor"]["parent"] == "gracedb":
+            pe_rota_gitlab_project_id = self.library_config["Monitor"].get(
+                "pe_rota_gitlab_project_id", 14074
+            )
+            if self.library_config["Monitor"].get("parent", "gracedb") == "gracedb":
                 self._library_parent = GraceDbDatabase(
                     service_url=source_path,
                     library=self,
@@ -699,7 +699,10 @@ class LocalLibraryDatabase(object):
                     pe_rota_token_path=pe_rota_token_path,
                     pe_rota_gitlab_project_id=pe_rota_gitlab_project_id,
                 )
-            elif self.library_config["Monitor"]["parent"] == "gwtc-gracedb":
+            elif (
+                self.library_config["Monitor"].get("parent", "gracedb")
+                == "gwtc-gracedb"
+            ):
                 self._library_parent = CatalogGraceDbDatabase(
                     service_url=source_path,
                     library=self,
