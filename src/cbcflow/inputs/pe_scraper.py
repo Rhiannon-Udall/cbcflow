@@ -4,7 +4,7 @@ from glob import glob
 import yaml
 import gitlab
 import copy
-from typing import Union, Tuple, Dict
+from typing import Union, Tuple, Dict, Optional
 
 from ..core.utils import (
     setup_logger,
@@ -168,7 +168,10 @@ def scrape_pesummary_pages(pes_path):
 
 
 def add_pe_information(
-    metadata: "MetaData", sname: str, pe_rota_token: Union[str, None] = None
+    metadata: "MetaData",
+    sname: str,
+    pe_rota_token: Union[str, None] = None,
+    gitlab_project_id: Optional[int] = 14074,
 ) -> "MetaData":
     """Top level function to add pe information for a given sname
 
@@ -197,7 +200,7 @@ def add_pe_information(
         metadata = add_pe_information_from_base_path(metadata, sname, base_path)
 
     if pe_rota_token is not None:
-        determine_pe_status(sname, metadata, pe_rota_token)
+        determine_pe_status(sname, metadata, pe_rota_token, gitlab_project_id)
 
 
 def determine_pe_status(

@@ -444,7 +444,7 @@ def fetch_gracedb_information(
         logger.info("Using default (production) GraceDB service_url")
         service_url = "https://gracedb.ligo.org/api/"
 
-    with GraceDb(service_url=service_url, cred=cred) as gdb:
+    with GraceDb(service_url=service_url, cred=cred, use_auth="scitoken") as gdb:
         try:
             # Get the json of metadata for the superevent
             superevent_data = gdb.superevent(sname).json()
